@@ -1,0 +1,122 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Light background */
+}
+
+/* Navbar container */
+.navbar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    font-size: 16px;
+}
+
+/* Navbar top: Profile links and logo */
+.navbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+/* Profile links styling */
+.profile-links a {
+    color: #ddd;
+    margin-left: 10px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.profile-links a:hover {
+    color: #fff;
+}
+
+/* Logo styling */
+.logo img {
+    height: 50px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Navbar bottom: Menu styling */
+.navbar-bottom {
+    background-color: #444;
+    padding: 10px 0;
+}
+
+.menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+.menu li {
+    display: inline-block;
+    position: relative;
+    margin: 0 10px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #ddd;
+    padding: 10px 15px;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.menu a:hover {
+    color: #fff;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 160px;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: #444;
+    border-radius: 5px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.dropdown-menu li {
+    display: block;
+}
+
+.menu li:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    padding: 10px;
+    color: #ddd;
+    white-space: nowrap;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dropdown-menu a:hover {
+    background-color: #007BFF; /* Blue on hover */
+    color: #fff;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .navbar-top, .navbar-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .menu li {
+        display: block;
+        margin: 10px 0;
+    }
+}

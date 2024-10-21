@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Football Manager</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'welcome.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Football Manager Game!</h1>
+        <p>Manage your team, players, and finances like a real football manager.</p>
+        <a href="">Login</a>
+        <a href="">Register</a>
+        <a href="{% url 'mainmenu'  %}" class="button">Main Menu</a>
+        <a href="{% url 'admin:index'  %}" class="button">Admin</a>
+    </div>
+</body>
+</html>

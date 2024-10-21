@@ -10,3 +10,15 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+class AdjectiveTeamNames(models.Model):
+    word = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.word
+
+class NounTeamNames(models.Model):
+    word = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.word
