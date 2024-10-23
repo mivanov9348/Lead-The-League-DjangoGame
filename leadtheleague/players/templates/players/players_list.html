@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Player List</title>
+
+    <style>
+        /* Add some styles for responsiveness */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 14px; /* Reduce font size on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <h1>Player List</h1>
+
+    <form method="post" action="{% url 'players:players_list' %}">
+        {% csrf_token %}
+        <button type="submit" name="generate_player">Generate Random Player</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Position</th>
+                <th>Nationality</th>
+                <th>Age</th>
+                {% if players %}
+                    {% for attr in players.0.playerattribute_set.all %}
+                        <th>{{ attr.attribute.name }}</th> <!-- Corrected to access attribute names -->
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+                <tr>
+                    <td>{{ player.first_name }}</td>
+                    <td>{{ player.last_name }}</td>
+                    <td>{{ player.position.position_name }}</td> <!-- Ensure you have a position_name field in Position model -->
+                    <td>{{ player.nationality.name }}</td>
+                    <td>{{ player.age }}</td> <!-- Calculate Age -->
+                    {% for attr in player.playerattribute_set.all %} <!-- Access PlayerAttribute instances -->
+                        <td>{{ attr.value }}</td> <!-- Display attribute value -->
+                    {% endfor %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No players available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -8,4 +8,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('teams/', include(('teams.urls', 'teams'), namespace='teams')),  # Only include once with namespace
     path('game/', include('game.urls')),
+    path('players/', include('players.urls'))
 ]
