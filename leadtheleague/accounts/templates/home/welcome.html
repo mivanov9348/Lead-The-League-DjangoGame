@@ -11,9 +11,9 @@
     <div class="container">
         <h1>Welcome to the Football Manager Game!</h1>
         <p>Manage your team, players, and finances like a real football manager.</p>
-        <a href="">Login</a>
-        <a href="">Register</a>
-        <a href="{% url 'mainmenu'  %}" class="button">Main Menu</a>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">Register</a>
+        <a href="{% url 'game:mainmenu'  %}" class="button">Main Menu</a>
         <a href="{% url 'admin:index'  %}" class="button">Admin</a>
     </div>
 </body>

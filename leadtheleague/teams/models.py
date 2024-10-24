@@ -1,7 +1,6 @@
-from wsgiref.validate import validator
-
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from accounts.models import CustomUser
 
 class AdjectiveTeamNames(models.Model):
     word = models.CharField(max_length=50)
@@ -20,8 +19,7 @@ class Team(models.Model):
     name = models.CharField(max_length=100)
     abbr = models.CharField(max_length=3, validators=[MinValueValidator(3), MaxValueValidator(3)])
     color = models.CharField(max_length=20)
-
-    # players = models.ManyToManyField('Player', blank = True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank = True)
 
     def __str__(self):
         return self.name

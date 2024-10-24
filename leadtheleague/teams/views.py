@@ -1,12 +1,30 @@
 import random as rand
 from django.shortcuts import render, get_object_or_404, redirect
+from players.utils import generate_team_players
+from .forms import TeamCreationForm
 from .models import Team, AdjectiveTeamNames, NounTeamNames
+from django.contrib.auth.decorators import login_required
 
+@login_required
+def create_team(request):
+    if request.method == 'POST':
+        form = TeamCreationForm(request.POST)
+        if form.is_valid():
+            team = form.save(commit=False)
+            team.user = request.user
+            team.save()
+            generate_team_players(team)
+            return redirect('game:mainmenu')
+    else:
+        form = TeamCreationForm()
 
-# Create your views here.
+    context = {
+        'form': form,
+    }
+    return render(request, 'team/create_team.html', context)
+
 def team_squad(request):
-    return render(request, 'team/squad.html')  # Add .html extension
-
+    return render(request, 'team/squad.html')
 
 def team_list(request):
     teams = Team.objects.all()

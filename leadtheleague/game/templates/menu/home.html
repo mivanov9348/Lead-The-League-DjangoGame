@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ team.name }} - Club Info</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+</head>
+<body>
+
+    {% include 'menu/_navbar.html' %}
+
+    <div class="container mt-4">
+        <h1 class="display-4">{{ team.name }} - Club Information</h1>
+        <p class="lead"><strong>Manager:</strong> {{ manager_name }}</p>
+        <p><strong>Number of Players:</strong> {{ player_count }}</p>
+
+        <h2 class="mt-4">Squad</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Nationality</th>
+                        <th>Age</th>
+                        <th>Position</th>
+                        <th>Price</th>
+                        <th>Active</th>
+                        <th>Youth</th>
+                        <th>Attributes</th> <!-- New column for attributes -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in player_data %}
+                    <tr>
+                        <td>{{ data.player.first_name }}</td>
+                        <td>{{ data.player.last_name }}</td>
+                        <td>{{ data.player.nationality.name }}</td>
+                        <td>{{ data.player.age }}</td>
+                        <td>{{ data.player.position.position_name }}</td>
+                        <td>${{ data.player.price }}</td>
+                        <td>{{ data.player.is_active|yesno:"Yes,No" }}</td>
+                        <td>{{ data.player.is_youth|yesno:"Yes,No" }}</td>
+                        <td>
+                            <ul>
+                                {% for attr in data.attributes %}
+                                    <li>{{ attr.attribute.name }}: {{ attr.value }}</li>
+                                {% empty %}
+                                    <li>No attributes found</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">No players found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

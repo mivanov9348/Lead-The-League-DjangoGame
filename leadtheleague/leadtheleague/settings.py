@@ -47,7 +47,7 @@ ROOT_URLCONF = "leadtheleague.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -80,12 +80,14 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
 AUTH_PASSWORD_VALIDATORS = []
 
+LOGIN_REDIRECT_URL = 'mainmenu'
+LOGOUT_REDIRECT_URL = 'welcome_page'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

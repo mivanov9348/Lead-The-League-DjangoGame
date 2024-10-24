@@ -1,122 +1,60 @@
-/* General Styles */
-body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4; /* Light background */
-}
-
-/* Navbar container */
 .navbar {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 0;
-    font-size: 16px;
+    padding: 10px 15px;
+
 }
 
-/* Navbar top: Profile links and logo */
-.navbar-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
+/* Top Navbar */
+.bg-dark {
+    background-color: gray !important; /* Dark background */
 }
 
-/* Profile links styling */
-.profile-links a {
-    color: #ddd;
-    margin-left: 10px;
-    text-decoration: none;
+.profile-links {
     font-size: 14px;
 }
 
-.profile-links a:hover {
-    color: #fff;
+.logo-img {
+    height: 50px; /* Adjust logo size */
 }
 
-/* Logo styling */
-.logo img {
-    height: 50px;
-    display: block;
-    margin: 0 auto;
+/* Bottom Navbar */
+.bg-secondary {
+    background-color: black !important; /* Secondary background */
 }
 
-/* Navbar bottom: Menu styling */
-.navbar-bottom {
-    background-color: #444;
-    padding: 10px 0;
+.navbar-nav .nav-link {
+    color: #ffffff; /* White text color */
+    margin-right: 15px; /* Space between links */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Smooth color transition */
+    border-radius: 4px; /* Rounded corners for better aesthetics */
+    font-size: 14px
 }
 
-.menu {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    text-align: center;
+.navbar-nav .nav-link:hover {
+    color: #f8f9fa; /* Light color on hover */
+    background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
 }
 
-.menu li {
-    display: inline-block;
-    position: relative;
-    margin: 0 10px;
-}
-
-.menu a {
-    text-decoration: none;
-    color: #ddd;
-    padding: 10px 15px;
-    display: block;
-    transition: color 0.3s ease;
-}
-
-.menu a:hover {
-    color: #fff;
-}
-
-/* Dropdown menu */
+/* Dropdown Styles */
 .dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 160px;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    background-color: #444;
-    border-radius: 5px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    background-color: #343a40; /* Dark background for dropdown */
+    border: none; /* Remove border */
 }
 
-.dropdown-menu li {
-    display: block;
+.dropdown-item {
+    color: #ffffff; /* White text color for dropdown items */
 }
 
-.menu li:hover .dropdown-menu {
-    display: block;
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
 }
 
-.dropdown-menu a {
-    padding: 10px;
-    color: #ddd;
-    white-space: nowrap;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.dropdown-menu a:hover {
-    background-color: #007BFF; /* Blue on hover */
-    color: #fff;
-}
-
-/* Media Queries for Responsiveness */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .navbar-top, .navbar-bottom {
-        flex-direction: column;
-        text-align: center;
+    .navbar-collapse {
+        margin-top: 10px; /* Space above collapsed navbar */
     }
 
-    .menu li {
-        display: block;
-        margin: 10px 0;
+    .navbar-nav .nav-item {
+        margin-bottom: 5px; /* Space between items on smaller screens */
     }
 }
