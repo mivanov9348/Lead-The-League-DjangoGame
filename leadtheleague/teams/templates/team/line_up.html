@@ -2,10 +2,311 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-  {% include '_navbar.html' %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Ups</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/line_up.css' %}">
 </head>
 <body>
-line ups
+
+{% include 'menu/_navbar.html' %}
+
+<div class="container mt-4">
+    <h2 class="text-center">Select Your Starting Lineup</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h4>Starting XI</h4>
+            <form method="POST">
+                {% csrf_token %}
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Position</th>
+                        <th>Player</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Goalkeeper -->
+                    <tr>
+                        <td>Goalkeeper</td>
+                        <td>
+                            <select class="form-select" name="goalkeeper" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in goalkeepers %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- Defenders -->
+                    <tr>
+                        <td>Defender 1</td>
+                        <td>
+                            <select class="form-select" name="defender1" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in defenders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Defender 2</td>
+                        <td>
+                            <select class="form-select" name="defender2" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in defenders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Defender 3</td>
+                        <td>
+                            <select class="form-select" name="defender3" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in defenders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Defender 4</td>
+                        <td>
+                            <select class="form-select" name="defender4" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in defenders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- Midfielders -->
+                    <tr>
+                        <td>Midfielder 1</td>
+                        <td>
+                            <select class="form-select" name="midfielder1" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in midfielders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Midfielder 2</td>
+                        <td>
+                            <select class="form-select" name="midfielder2" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in midfielders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Midfielder 3</td>
+                        <td>
+                            <select class="form-select" name="midfielder3" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in midfielders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Midfielder 4</td>
+                        <td>
+                            <select class="form-select" name="midfielder4" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in midfielders %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- Attackers -->
+                    <tr>
+                        <td>Attacker 1</td>
+                        <td>
+                            <select class="form-select" name="attacker1" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in attackers %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Attacker 2</td>
+                        <td>
+                            <select class="form-select" name="attacker2" onchange="updateSubstitutes()">
+                                <option value="">Select a Player</option>
+                                {% for player in attackers %}
+                                <option value="{{ player.id }}" {% if player.is_starting %}selected{% endif %}>
+                                    {{ player.first_name }} {{ player.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Submit Lineup</button>
+            </form>
+        </div>
+        <!--Substitutes-->
+        <div class="col-md-4">
+            <h4>Available Substitutes</h4>
+            <table class="table table-bordered table-sm">
+                <thead class="table-dark">
+                <tr>
+                    <th>Player</th>
+                    <th>P</th>
+                    <th>M</th>
+                    <th>G</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="substitute-table">
+                {% for substitute in substitute_data %}
+                <tr id="substitute-row-{{ substitute.player.id }}">
+                    <td>{{ substitute.player.first_name }} {{ substitute.player.last_name }}</td>
+                    <td>{{ substitute.player.position.abbr }}</td>
+                    <td>{{ substitute.player.matches }}</td>
+                    <td>{{ substitute.player.goals }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" type="button"
+                                onclick="toggleAttributes({{ substitute.player.id }})">
+                            Stats
+                        </button>
+                    </td>
+                </tr>
+                <tr id="attributes-{{ substitute.player.id }}" style="display: none;">
+                    <td colspan="5">
+                        <table class="table table-bordered table-sm attribute-table">
+                            <thead>
+                            <tr>
+                                <th>Attribute</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for attr_name, attr_value in substitute.attributes.items %}
+                            <tr>
+                                <td>{{ attr_name }}</td>
+                                <td>{{ attr_value }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            const substitutes = [
+                {% for player in substitutes %}
+                {
+                    id: "{{ player.id }}",
+                    first_name: "{{ player.first_name }}",
+                    last_name: "{{ player.last_name }}",
+                    stats: {
+                        position: "{{ player.position.abbr }}", // добави позицията
+                        matches: "{{ player.matches }}",
+                        goals: "{{ player.goals }}",
+                        attributes: {
+                            {% for attr_name, attr_value in player.attributes.items %}
+                            "{{ attr_name }}": "{{ attr_value }}",
+                            {% endfor %}
+                        }
+                    }
+                },
+                {% endfor %}
+            ];
+
+            function updateSubstitutes() {
+                const selectedPlayers = Array.from(document.querySelectorAll('select')).map(select => select.value).filter(value => value);
+
+                // Update dropdowns for all positions
+                const allSelects = document.querySelectorAll('select');
+                allSelects.forEach(select => {
+                    const options = select.querySelectorAll('option');
+                    options.forEach(option => {
+                        if (selectedPlayers.includes(option.value) && option.value) {
+                            option.style.display = 'none'; // Hide selected players
+                        } else {
+                            option.style.display = 'block'; // Show available players
+                        }
+                    });
+                });
+
+                // Update substitutes table
+                const substituteTable = document.getElementById('substitute-table');
+
+                // Пресмятане на заместниците
+                substitutes.forEach(player => {
+                    const substituteRow = document.getElementById(`substitute-row-${player.id}`);
+                    if (substituteRow) {
+                        if (!selectedPlayers.includes(player.id)) {
+                            substituteRow.cells[1].textContent = player.stats.position;
+                            substituteRow.cells[2].textContent = player.stats.matches;
+                            substituteRow.cells[3].textContent = player.stats.goals;
+                            substituteRow.style.display = ''; // Показване на реда
+                        } else {
+                            substituteRow.style.display = 'none'; // Скриване на избраните играчи
+                        }
+                    }
+                });
+            }
+
+            // Увери се, че функцията updateSubstitutes() се извиква при промяна на select
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', updateSubstitutes);
+            });
+            function toggleAttributes(playerId) {
+        const attributesRow = document.getElementById(`attributes-${playerId}`);
+        if (attributesRow) {
+            if (attributesRow.style.display === "none") {
+                attributesRow.style.display = ""; // Покажи реда с атрибутите
+            } else {
+                attributesRow.style.display = "none"; // Скрий реда с атрибутите
+            }
+        }
+    }
+
+        </script>
+
 </body>
 </html>

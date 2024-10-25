@@ -12,7 +12,7 @@ def welcome_page(request):
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy('mainmenu')  # Redirect to mainmenu initially
+    success_url = reverse_lazy('home')  # Redirect to mainmenu initially
     template_name = 'accounts/signup.html'
 
     def form_valid(self, form):
@@ -35,4 +35,4 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         if not Team.objects.filter(user=self.request.user).exists():
             return reverse_lazy('teams:create_team')
-        return reverse_lazy('game:mainmenu')
+        return reverse_lazy('game:home')

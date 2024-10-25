@@ -1,0 +1,94 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    text-align: center;
+}
+
+/* Squad Table Styles */
+.squad-table {
+    border: 2px solid #6c757d; /* Add border around the table */
+    margin: 20px auto; /* Center the table with margin */
+    width: 80%; /* Table width */
+    max-width: 1200px; /* Set a max width for larger screens */
+    table-layout: auto; /* Automatic layout to accommodate content */
+}
+
+.squad-table th,
+.squad-table td {
+    font-size: 14px; /* Set font size for table cells */
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #dee2e6; /* Border for table cells */
+    overflow: hidden; /* Prevent overflow if text is too long */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Adjust column widths for player info and attributes */
+.player-info th,
+.player-info td {
+    width: 20%; /* Width for player information columns */
+}
+
+.attribute-col {
+    width: 3%; /* Adjusted width for attribute columns */
+}
+
+/* Header styles */
+.squad-table th {
+    background-color: #343a40; /* Dark background for headers */
+    color: #ffffff; /* White text for contrast */
+}
+
+/* Player Info Section */
+.player-info {
+    border-bottom: 3px solid #6c757d; /* Thicker bottom border for separation */
+    background-color: #f8f9fa; /* Light background for player info */
+}
+
+.player-info th {
+    background-color: #343a40; /* Dark background for headers */
+    color: white; /* White text for contrast */
+}
+
+/* Player Details Section */
+.player-details {
+    background-color: #ffffff;
+    border: 2px solid #6c757d; /* Border around player details */
+    padding: 20px;
+    border-radius: 5px;
+    min-height: 500px;
+}
+
+.player-details h3 {
+    font-size: 24px; /* Header size */
+    margin-bottom: 20px; /* Margin below the header */
+}
+
+.player-details p {
+    font-size: 16px; /* Font size for details */
+    color: #666; /* Text color */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .squad-table th, .squad-table td {
+        font-size: 12px; /* Adjust font size for smaller screens */
+    }
+
+    .player-info th,
+    .player-info td {
+        width: 50%; /* Adjust player info width on smaller screens */
+    }
+
+    .attribute-col {
+        width: 2%; /* Adjust attribute width for smaller screens */
+    }
+}
+
+/* Attribute Section Styles */
+.attribute-col {
+    background-color: #e9ecef; /* Light background for attributes */
+    border-left: 2px solid #6c757d; /* Vertical line to separate attributes */
+}

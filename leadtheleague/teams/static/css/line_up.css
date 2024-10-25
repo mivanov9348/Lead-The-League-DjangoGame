@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.table {
+    margin-bottom: 40px;
+}
+
+.table td, .table th {
+    text-align: center;
+}
+
+.attribute-table {
+        font-size: 10px;  /* Set font size to 5px */
+    }
+
+    .attribute-table th, .attribute-table td {
+        padding: 2px;  /* Reduce padding for a more compact look */
+    }
+
+    .attribute-table th {
+        font-weight: bold;
+    }

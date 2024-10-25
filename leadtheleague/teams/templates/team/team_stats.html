@@ -2,10 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Stats</title>
+
 </head>
-{% include '_navbar.html' %}
+<style>
+    /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+
+/* Header */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Sections */
+section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fafafa;
+}
+
+section h2 {
+    color: #0056b3;
+    margin-top: 0;
+}
+
+/* Lists */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+ul li:last-child {
+    border-bottom: none; /* Remove border for last item */
+}
+
+/* Table for Player Achievements */
+.player-achievements {
+    background-color: #fff;
+}
+
+.player-achievements ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+/* Fan Engagement Links */
+.fan-engagement a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: #0056b3;
+    font-weight: bold;
+}
+
+.fan-engagement a:hover {
+    text-decoration: underline;
+}
+
+
+
+</style>
 <body>
-team stats
+    {% include 'menu/_navbar.html' %}
+
+    <div class="container">
+        <h1>Team Stats for {{ team.name }}</h1>
+
+        <section class="team-overview">
+            <h2>Team Overview</h2>
+            <p><strong>Name:</strong> {{ team.name }}</p>
+            <p><strong>Abbreviation:</strong> {{ team.abbreviation }}</p>
+            <p><strong>Colors:</strong> {{ team.colors }}</p>
+            <p><strong>Founded:</strong> {{ team.year_founded }}</p>
+        </section>
+
+        <section class="team-successes">
+            <h2>Team Successes</h2>
+            <ul>
+                <li>League Titles: {{ team.league_titles }}</li>
+                <li>Cup Wins: {{ team.cup_wins }}</li>
+                <li>Major Achievements: {{ team.major_achievements }}</li>
+            </ul>
+        </section>
+
+        <section class="awards">
+            <h2>Awards and Honors</h2>
+            <ul>
+                <li>Best Manager Awards: {{ team.best_manager_awards }}</li>
+                <li>Player of the Year Awards: {{ team.player_of_the_year_awards }}</li>
+                <li>Team of the Year Awards: {{ team.team_of_the_year_awards }}</li>
+            </ul>
+        </section>
+
+        <section class="player-statistics">
+            <h2>Player Statistics</h2>
+            <p><strong>Total Players:</strong> {{ team.player_count }}</p>
+            <h3>Players by Position</h3>
+            <ul>
+                <li>Goalkeepers: {{ team.goalkeepers_count }}</li>
+                <li>Defenders: {{ team.defenders_count }}</li>
+                <li>Midfielders: {{ team.midfielders_count }}</li>
+                <li>Attackers: {{ team.attackers_count }}</li>
+            </ul>
+            <h3>Best Players</h3>
+            <ul>
+                {% for player in team.best_players %}
+                    <li>{{ player.name }} - Goals: {{ player.goals }} - Assists: {{ player.assists }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="match-statistics">
+            <h2>Match Statistics</h2>
+            <p><strong>Total Matches Played:</strong> {{ team.total_matches }}</p>
+            <p><strong>Wins:</strong> {{ team.wins }}</p>
+            <p><strong>Draws:</strong> {{ team.draws }}</p>
+            <p><strong>Losses:</strong> {{ team.losses }}</p>
+            <p><strong>Goal Difference:</strong> {{ team.goal_difference }}</p>
+        </section>
+
+        <section class="current-season">
+            <h2>Current Season Performance</h2>
+            <p><strong>League Position:</strong> {{ team.league_position }}</p>
+            <p><strong>Points:</strong> {{ team.points }}</p>
+            <h3>Upcoming Fixtures</h3>
+            <ul>
+                {% for match in team.upcoming_fixtures %}
+                    <li>{{ match.date }} - {{ match.opponent }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="player-achievements">
+            <h2>Player Achievements</h2>
+            <ul>
+                {% for player in team.player_achievements %}
+                    <li>{{ player.name }} - {{ player.achievement }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="fan-engagement">
+            <h2>Fan Engagement</h2>
+            <p>Join the conversation on our social media!</p>
+            <a href="{{ team.facebook_link }}">Facebook</a>
+            <a href="{{ team.twitter_link }}">Twitter</a>
+        </section>
+    </div>
+
 </body>
 </html>

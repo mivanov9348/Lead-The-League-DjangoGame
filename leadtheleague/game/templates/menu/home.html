@@ -3,65 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ team.name }} - Club Info</title>
+    <title>{{ team.name }} - Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     {% load static %}
+    <style>
+        .card {
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
 
-    {% include 'menu/_navbar.html' %}
+{% include 'menu/_navbar.html' %}
 
-    <div class="container mt-4">
-        <h1 class="display-4">{{ team.name }} - Club Information</h1>
-        <p class="lead"><strong>Manager:</strong> {{ manager_name }}</p>
-        <p><strong>Number of Players:</strong> {{ player_count }}</p>
+<div class="container mt-4">
 
-        <h2 class="mt-4">Squad</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Nationality</th>
-                        <th>Age</th>
-                        <th>Position</th>
-                        <th>Price</th>
-                        <th>Active</th>
-                        <th>Youth</th>
-                        <th>Attributes</th> <!-- New column for attributes -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in player_data %}
-                    <tr>
-                        <td>{{ data.player.first_name }}</td>
-                        <td>{{ data.player.last_name }}</td>
-                        <td>{{ data.player.nationality.name }}</td>
-                        <td>{{ data.player.age }}</td>
-                        <td>{{ data.player.position.position_name }}</td>
-                        <td>${{ data.player.price }}</td>
-                        <td>{{ data.player.is_active|yesno:"Yes,No" }}</td>
-                        <td>{{ data.player.is_youth|yesno:"Yes,No" }}</td>
-                        <td>
-                            <ul>
-                                {% for attr in data.attributes %}
-                                    <li>{{ attr.attribute.name }}: {{ attr.value }}</li>
-                                {% empty %}
-                                    <li>No attributes found</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center">No players found</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">News</div>
+                <div class="card-body">
+                    <p>Latest updates and announcements about the team.</p>
+                    <!-- Add dynamic news content here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Standings</div>
+                <div class="card-body">
+                    <p>Current standings in the league.</p>
+                    <!-- Add dynamic standings content here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Schedule</div>
+                <div class="card-body">
+                    <p>Upcoming matches and fixtures.</p>
+                    <!-- Add dynamic schedule content here -->
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Top Players</div>
+                <div class="card-body">
+                    <p>Information about the top-performing players.</p>
+                    <!-- Add dynamic top players content here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Team Awards</div>
+                <div class="card-body">
+                    <p>Awards and achievements of the team.</p>
+                    <!-- Add dynamic awards content here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Fan Engagement</div>
+                <div class="card-body">
+                    <p>Links to fan forums and merchandise.</p>
+                    <!-- Add dynamic fan engagement content here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Club History</div>
+                <div class="card-body">
+                    <p>Short history of the club.</p>
+                    <!-- Add dynamic club history content here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Fan Zone</div>
+                <div class="card-body">
+                    <p>Engagement options for fans, like social media links.</p>
+                    <!-- Add dynamic fan zone content here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Finance Overview</div>
+                <div class="card-body">
+                    <p>Current financial situation of the club.</p>
+                    <!-- Add dynamic finance overview content here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
