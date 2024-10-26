@@ -1,0 +1,49 @@
+
+.container {
+    max-width: 800px; /* Set a smaller max width */
+    border: 5px solid #000000; /* Border around the container */
+    border-radius: 10px;
+    background-color: #757575; /* Light gray background for container */
+    padding: 20px; /* Adds padding inside the container */
+    margin-top: 20px; /* Margin from the top */
+}
+
+/* Table styling */
+table {
+    width: 100%; /* Full width within the container */
+}
+
+th, td {
+    border: 1px solid #000000; /* Black borders for table cells */
+    text-align: center;
+    padding: 12px;
+}
+
+th {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+}
+
+tbody tr:hover {
+    background-color: #cccccc; /* Slightly darker gray on hover */
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light background for even rows */
+}
+
+tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    th, td {
+        font-size: 0.9rem;
+    }
+}

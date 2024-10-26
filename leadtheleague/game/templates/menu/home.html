@@ -29,14 +29,36 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">Standings</div>
-                <div class="card-body">
-                    <p>Current standings in the league.</p>
-                    <!-- Add dynamic standings content here -->
-                </div>
-            </div>
+    <div class="card mb-4">
+        <div class="card-header">Standings</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Pos</th>
+                        <th>Team</th>
+                        <th>Points</th>
+                        <th>W</th>
+                        <th>L</th>
+                        <th>D</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for standing in standings %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>  <!-- Automatically increments position -->
+                        <td>{{ standing.team.name }}</td> <!-- Assuming 'team' is an attribute of DivisionTeam -->
+                        <td>{{ standing.points }}</td> <!-- Assuming 'points' is an attribute of DivisionTeam -->
+                        <td>{{ standing.wins }}</td>    <!-- Assuming 'wins' is an attribute of DivisionTeam -->
+                        <td>{{ standing.losses }}</td>  <!-- Assuming 'losses' is an attribute of DivisionTeam -->
+                        <td>{{ standing.draws }}</td>   <!-- Assuming 'draws' is an attribute of DivisionTeam -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">Schedule</div>

@@ -54,11 +54,11 @@
                     </li>
                     <!-- Matches Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="matchesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Matches</a>
+                        <a class="nav-link dropdown-toggle text-light" href="#" id="matchesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">League</a>
                         <ul class="dropdown-menu" aria-labelledby="matchesDropdown">
-                            <li><a class="dropdown-item" href="#">League</a></li>
-                            <li><a class="dropdown-item" href="#">Cup</a></li>
-                            <li><a class="dropdown-item" href="#">Results</a></li>
+                            <li><a class="dropdown-item" href="{% url 'leagues:standings' %}">Standings</a></li>
+                            <li><a class="dropdown-item" href="#">Fixtures</a></li>
+                            <li><a class="dropdown-item" href="#">Schedule</a></li>
                         </ul>
                     </li>
                     <!-- Transfers Dropdown -->

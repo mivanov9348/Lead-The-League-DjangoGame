@@ -28,8 +28,10 @@ def generate_random_player(team = None, position = None):
     nationalities = Nationality.objects.all()
     nationality = random.choice(nationalities)
 
-    first_names = list(FirstName.objects.filter(nationality=nationality))
-    last_names = list(LastName.objects.filter(nationality=nationality))
+    region = nationality.region
+
+    first_names = list(FirstName.objects.filter(region=region))
+    last_names = list(LastName.objects.filter(region=region))
 
     if not first_names:  # If there are no first names for the nationality
         first_names = list(FirstName.objects.all())

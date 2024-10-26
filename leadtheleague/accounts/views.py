@@ -21,7 +21,7 @@ class SignUpView(CreateView):
 
         # Check if the user already has a team
         if not Team.objects.filter(user=user).exists():  # Use manager if that's your field name
-            return redirect('create_team')  # Redirect to create_team if no team exists
+            return redirect('teams:create_team')  # Redirect to create_team if no team exists
 
         return redirect(self.success_url)  # Redirect to mainmenu if a team exists
 

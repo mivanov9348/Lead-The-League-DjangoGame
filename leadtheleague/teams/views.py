@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from leagues.models import League
 from players.utils import generate_team_players
 from .forms import TeamCreationForm
 from players.models import Player, Attribute, PlayerAttribute
 from teams.models import Team
 from django.contrib.auth.decorators import login_required
+from leagues.models import Division, DivisionTeam
 
 @login_required
 def create_team(request):
@@ -13,8 +15,15 @@ def create_team(request):
             team = form.save(commit=False)
             team.user = request.user
             team.save()
+
+            league = League.objects.first()
+            if league:
+                division = Division.objects.filter(league=league).first()
+                if division:
+                    DivisionTeam.objects.create(division=division, team=team, is_dummy=False)
+
             generate_team_players(team)
-            return redirect('game:mainmenu')
+            return redirect('game:home')
     else:
         form = TeamCreationForm()
 
@@ -61,7 +70,6 @@ def team_squad(request):
 @login_required()
 def line_up(request):
     if request.method == 'POST':
-        # Връщаме всички играчи с is_starting = False, преди да обработим новите избраници
         Player.objects.update(is_starting=False)
 
         # Събираме избраните играчи от POST данните
@@ -72,23 +80,19 @@ def line_up(request):
             *[request.POST.get(f'attacker{i}') for i in range(1, 3)],
         ]
 
-        # Актуализираме is_starting = True само за избраните играчи
         for player_id in starting_players:
-            if player_id:  # Ако играчът е избран
+            if player_id:
                 Player.objects.filter(id=player_id).update(is_starting=True)
 
-        return redirect('some_success_url')  # Може да се добави правилно пренасочване след успешна заявка
+        return redirect('team/line_up.html')
 
-    # Зареждаме всички играчи по категории
     goalkeepers = Player.objects.filter(position__position_name='Goalkeeper')
     defenders = Player.objects.filter(position__position_name='Defender')
     midfielders = Player.objects.filter(position__position_name='Midfielder')
     attackers = Player.objects.filter(position__position_name='Attacker')
 
-    # Всички играчи, които не са в starting XI
     substitutes = Player.objects.filter(is_starting=False)
 
-    # Генерираме данни за заместници с техните атрибути
     substitute_data = []
     for player in substitutes:
         attributes = PlayerAttribute.objects.filter(player=player)
@@ -112,22 +116,24 @@ def line_up(request):
 
 @login_required
 def save_lineups(request):
-    if request.method == "POST":
-        goalkeeper_id = request.POST.get('goalkeeper')
-        defenders_ids = request.POST.getlist('defenders')
-        midfielders_ids = request.POST.getlist('midfielders')
-        attackers_ids = request.POST.getlist('attackers')
 
-        if goalkeeper_id:
-            Player.objects.filter(id=goalkeeper_id).update(is_started=True)
+    if request.method == 'POST':
+        # Get selected player IDs from the form
+        selected_player_ids = request.POST.getlist('selected_players')
+        print(selected_player_ids)
+        # Reset is_starting to False for all players in the user's team
+        user_team_players = Player.objects.filter(team=request.user.team)
+        user_team_players.update(is_starting=False)
 
-        Player.objects.filter(id__in=defenders_ids).update(is_started=True)
-        Player.objects.filter(id__in=midfielders_ids).update(is_started=True)
-        Player.objects.filter(id__in=attackers_ids).update(is_started=True)
+        # Set is_starting to True for selected players
+        starting_players = user_team_players.filter(id__in=selected_player_ids)
+        starting_players.update(is_starting=True)
 
-        return redirect('line_up.html')
+        # Redirect back to the lineup page after saving
+        return redirect('team/line_up.html')  # Update 'lineup_view' with the actual name of your lineup URL
 
-    return render(request, 'team/line_up.html')
+        # Redirect to lineup page if accessed via GET
+    return redirect('team/line_up.html')
 
 
 def team_stats(request):
@@ -135,7 +141,6 @@ def team_stats(request):
 
     context = {
         'team': team,
-
     }
 
     return render(request, 'team/team_stats.html', context)
