@@ -103,4 +103,3 @@ def generate_team_players(team):
     for _ in range(5):
         random_position = random.choice(all_positions)
         generate_random_player(team, random_position)
-

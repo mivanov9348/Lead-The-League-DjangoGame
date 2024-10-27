@@ -5,5 +5,6 @@ app_name = 'leagues'
 
 urlpatterns = [
     path('standings/', standings, name='standings'),
-    path('standings/<int:league_id>/', standings, name='standings'),
+    path('standings/<int:league_id>/<int:division_id>/', standings, name='standings'),
+
 ]

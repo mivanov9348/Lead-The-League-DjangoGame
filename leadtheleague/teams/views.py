@@ -16,11 +16,32 @@ def create_team(request):
             team.user = request.user
             team.save()
 
-            league = League.objects.first()
-            if league:
-                division = Division.objects.filter(league=league).first()
-                if division:
-                    DivisionTeam.objects.create(division=division, team=team, is_dummy=False)
+            leagues = League.objects.all().order_by('level')
+            dummy_found = False
+
+            for league in leagues:
+                divisions = Division.objects.filter(league=league).order_by('div_number')
+                for division in divisions:
+                    dummy_team = DivisionTeam.objects.filter(division=division, is_dummy=True).first()
+                if dummy_team:
+                    dummy_team.delete()
+                DivisionTeam.objects.create(division=division, team=team, is_dummy=False)
+                dummy_found = True
+                break
+                if dummy_found:
+                    break
+
+            if not dummy_found:
+                for league in leagues:
+                    divisions = Division.objects.filter(league=league).order_by('div_number')
+                    for division in divisions:
+                        team_count = DivisionTeam.objects.filter(division=division).count()
+                        if team_count < division.teams_count:
+                            DivisionTeam.objects.create(division=division, team=team, is_dummy=False)
+                            dummy_found = True
+                            break
+                    if dummy_found:
+                        break
 
             generate_team_players(team)
             return redirect('game:home')
@@ -113,10 +134,8 @@ def line_up(request):
     return render(request, 'team/line_up.html', context)
 
 
-
 @login_required
 def save_lineups(request):
-
     if request.method == 'POST':
         # Get selected player IDs from the form
         selected_player_ids = request.POST.getlist('selected_players')

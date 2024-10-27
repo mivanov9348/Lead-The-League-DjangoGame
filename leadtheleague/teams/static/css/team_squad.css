@@ -1,4 +1,3 @@
-/* General Styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
@@ -6,13 +5,12 @@ body {
     text-align: center;
 }
 
-/* Squad Table Styles */
 .squad-table {
-    border: 2px solid #6c757d; /* Add border around the table */
-    margin: 20px auto; /* Center the table with margin */
-    width: 80%; /* Table width */
-    max-width: 1200px; /* Set a max width for larger screens */
-    table-layout: auto; /* Automatic layout to accommodate content */
+    border: 2px solid #6c757d;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 1200px;
+    table-layout: auto;
 }
 
 .squad-table th,

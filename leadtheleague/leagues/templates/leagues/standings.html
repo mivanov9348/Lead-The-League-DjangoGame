@@ -15,13 +15,14 @@
         <label for="league-select" class="form-label">Select League:</label>
         <select id="league-select" class="form-select" onchange="location = this.value;">
             {% for league in leagues %}
-                {% for division in league.division_set.all %}
-                    <option value="{% url 'leagues:standings' league.id %}" {% if division == selected_league.division %}selected{% endif %}>
-                        League {{ league.level }}, Division {{ division.div_number }}
-                    </option>
-                {% endfor %}
+            {% for division in league.division_set.all %}
+            <option value="{% url 'leagues:standings' league.id division.id %}"
+                    {% if league == selected_league and division == selected_division %}selected{% endif %}>
+                League {{ league.level }}, Division {{ division.div_number }}
+            </option>
+            {% endfor %}
             {% empty %}
-                <option value="">No leagues available</option>
+            <option value="">No leagues available</option>
             {% endfor %}
         </select>
     </div>

@@ -11,10 +11,11 @@
     <div class="container">
         <h1>Welcome to the Football Manager Game!</h1>
         <p>Manage your team, players, and finances like a real football manager.</p>
-        <a href="{% url 'login' %}">Login</a>
-        <a href="{% url 'signup' %}">Register</a>
+        <a href="{% url 'accounts:login' %}">Login</a>
+        <a href="{% url 'accounts:signup' %}">Register</a>
         <a href="{% url 'game:home'  %}" class="button">Main Menu</a>
         <a href="{% url 'admin:index'  %}" class="button">Admin</a>
+        <a href="{% url 'accounts:admin_dashboard'  %}">My Admin</a>
     </div>
 </body>
 </html>
