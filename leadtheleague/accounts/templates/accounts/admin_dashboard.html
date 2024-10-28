@@ -1,4 +1,3 @@
-<!-- accounts/templates/accounts/admin_dashboard.html -->
 <!DOCTYPE html>
 <html lang="bg">
 <head>
@@ -7,109 +6,154 @@
     <title>Admin Dashboard</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'admin_dashboard.css' %}">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 12px;
+            }
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .table-container {
+            width: 48%;
+        }
+        /* Центриране на формата с dropdown селектори */
+        .centered-form {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .centered-form select {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Admin Dashboard</h1>
-        <form method="post">
-            {% csrf_token %}
-            <label for="year">Година:</label>
-            <input type="number" id="year" name="year" value="{{ current_year }}" required readonly>
+<div class="container">
+    <h1>Admin Dashboard</h1>
 
-            <label for="season_number">Сезон номер:</label>
-            <input type="number" id="season_number" name="season_number" value="{{ season_number }}" required>
+    <form method="post" action="{% url 'accounts:create_season' %}">
+        {% csrf_token %}
+        <label for="year">Година:</label>
+        <input type="number" id="year" name="year" value="{{ current_year }}" required readonly>
 
-            <label for="start_date">Дата на стартиране:</label>
-            <input type="date" id="start_date" name="start_date" required>
+        <label for="season_number">Сезон номер:</label>
+        <input type="number" id="season_number" name="season_number" value="{{ season_number }}" required>
 
-            <button type="submit" class="btn">Start New Season</button>
-        </form>
-        <hr>
+        <label for="start_date">Дата на стартиране:</label>
+        <input type="date" id="start_date" name="start_date" required>
 
-        <h2>Сезони</h2>
-        <div class="grid-container">
-            {% for season in seasons %}
-                <div class="grid-item">
-                    <h3>Сезон {{ season.season_number }} ({{ season.year }})</h3>
-                    <p>Стартова дата: {{ season.start_date }}</p>
-                    <p>Крайна дата: {{ season.end_date }}</p>
-                </div>
-            {% empty %}
-                <p>Няма налични сезони.</p>
-            {% endfor %}
+        <button type="submit" class="btn">Стартирай Нов Сезон</button>
+    </form>
+
+    <hr>
+
+    <!-- Центриран формуляр за избиране на дивизия и рунд -->
+    <form method="GET" action="{% url 'accounts:admin_dashboard' %}" class="centered-form">
+        <select id="division-select" name="division">
+            {% if leagues %}
+                {% for league in leagues %}
+                    {% for division in league.division_set.all %}
+                        <option value="{{ division.id }}" {% if division.id == selected_division %}selected{% endif %}>
+                            {{ league }} - Дивизия {{ division.div_number }}
+                        </option>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        </select>
+
+        {% if selected_division %}
+            <select id="round-select" name="round">
+                <option value="">Всички Рундове</option>
+                {% for round_number in rounds %}
+                    <option value="{{ round_number }}" {% if round_number == selected_round %}selected{% endif %}>
+                        Рунд {{ round_number }}
+                    </option>
+                {% endfor %}
+            </select>
+        {% endif %}
+        <button type="submit">Покажи</button>
+    </form>
+
+    <div class="flex-container">
+        <!-- Таблица с отбори -->
+        <div class="table-container">
+            <h3>Класиране</h3>
+            {% if standings %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>M</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>P</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in standings %}
+                            <tr>
+                                <td>{{ team.team.name }}</td>
+                                <td>{{ team.matches }}</td>
+                                <td>{{ team.wins }}</td>
+                                <td>{{ team.draws }}</td>
+                                <td>{{ team.losses }}</td>
+                                <td>{{ team.points }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Няма налични класирания за избраната дивизия.</p>
+            {% endif %}
         </div>
 
-        <hr>
-
-        <!-- Fixtures Table -->
-        <h2>Fixtures</h2>
-        <label for="league_fixtures">Изберете лига:</label>
-        <select id="league_fixtures">
-            <option value="league_1">Лига 1</option>
-            <option value="league_2">Лига 2</option>
-            <option value="league_3">Лига 3</option>
-            <!-- Add more leagues as needed -->
-        </select>
-        <table>
-            <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Отбор 1</th>
-                    <th>Отбор 2</th>
-                    <th>Резултат</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Replace with dynamic data from the database -->
-                <tr>
-                    <td>2024-10-30</td>
-                    <td>Отбор А</td>
-                    <td>Отбор Б</td>
-                    <td>2 - 1</td>
-                </tr>
-                <!-- Repeat for more fixtures -->
-            </tbody>
-        </table>
-
-        <hr>
-
-        <!-- Standings Table -->
-        <h2>Класирания</h2>
-        <label for="league_standings">Изберете лига:</label>
-        <select id="league_standings">
-            <option value="league_1">Лига 1</option>
-            <option value="league_2">Лига 2</option>
-            <option value="league_3">Лига 3</option>
-            <!-- Add more leagues as needed -->
-        </select>
-        <table>
-            <thead>
-                <tr>
-                    <th>Отбор</th>
-                    <th>Мачове</th>
-                    <th>Победи</th>
-                    <th>Равенства</th>
-                    <th>Загуби</th>
-                    <th>Точки</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Replace with dynamic data from the database -->
-                <tr>
-                    <td>Отбор А</td>
-                    <td>10</td>
-                    <td>8</td>
-                    <td>1</td>
-                    <td>1</td>
-                    <td>25</td>
-                </tr>
-                <!-- Repeat for more teams -->
-            </tbody>
-        </table>
-
-        <hr>
-
-        <!-- Additional tables can be added similarly -->
+        <!-- Таблица с fixtures -->
+        <div class="table-container">
+            <h3>Fixtures</h3>
+            {% if fixtures %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Рунд</th>
+                            <th>Домакин</th>
+                            <th>Гост</th>
+                            <th>Гол Домакин</th>
+                            <th>Гол Гост</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fixture in fixtures %}
+                            <tr>
+                                <td>{{ fixture.round_number }}</td>
+                                <td>{{ fixture.home_team.name }}</td>
+                                <td>{{ fixture.away_team.name }}</td>
+                                <td>{{ fixture.home_goals }}</td>
+                                <td>{{ fixture.away_goals }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Няма налични fixtures за избраната дивизия.</p>
+            {% endif %}
+        </div>
     </div>
+</div>
 </body>
 </html>

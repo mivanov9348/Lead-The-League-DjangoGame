@@ -1,7 +1,9 @@
-from leagues.models import DivisionTeam
+from fixtures.utils import generate_fixtures
+from game.models import Season
+from leagues.models import DivisionTeam, Division
 from players.models import PlayerAttribute, Player
 from teams.models import Team
-
+from datetime import date, timedelta
 
 def get_team_home_data(user):
     team = Team.objects.get(user=user)
@@ -35,3 +37,24 @@ def get_team_home_data(user):
         'player_data': player_data,
         'standings': centered_standings,
     }
+
+def get_current_season(year):
+    current_season = Season.objects.filter(year=year).order_by('-season_number').first()
+
+    if current_season and isinstance(current_season.end_date, date):
+        if current_season.end_date >= date.today():
+            return current_season
+
+def generate_season_number(year):
+    seasons = get_current_season(year)
+    return seasons.count() + 1
+
+def create_new_season(year, season_number, start_date):
+    season = Season.objects.create(year=year, season_number=season_number, start_date=start_date)
+
+    divisions = Division.objects.all()
+
+    for division in divisions:
+        generate_fixtures(start_date, division)
+
+    return season

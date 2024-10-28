@@ -8,89 +8,97 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 </head>
+
 <body>
 
-    <!-- Top Navbar for Account and Logo -->
-    <nav class="navbar navbar-expand-lg bg-dark text-light">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="profile-links">
-                {% if user.is_authenticated %}
-                    <a href="#" class="text-light">{{ user.username }}</a> |
-                    <form method="POST" action="{% url 'logout' %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link text-light" style="padding:0; margin:0; border:none; background:none; text-decoration:underline; cursor:pointer;">
-                            Logout
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="text-light">Login</a> |
-                    <a href="{% url 'signup' %}" class="text-light">Register</a>
-                {% endif %}
-            </div>
-
-            <div class="logo text-center">
-                <img src="{% static 'path/to/logo.png' %}" alt="Game Logo" class="logo-img"> <!-- Adjust logo path -->
-            </div>
+<!-- Top Navbar for Account and Logo -->
+<nav class="navbar navbar-expand-lg bg-dark text-light">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="profile-links">
+            {% if user.is_authenticated %}
+            <a href="#" class="text-light">{{ user.username }}</a> |
+            <form method="POST" action="{% url 'accounts:logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link text-light"
+                        style="padding:0; margin:0; border:none; background:none; text-decoration:underline; cursor:pointer;">
+                    Logout
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="text-light">Login</a> |
+            <a href="{% url 'signup' %}" class="text-light">Register</a>
+            {% endif %}
         </div>
-    </nav>
 
-    <!-- Bottom Navbar for Menu with Dropdowns -->
-    <nav class="navbar navbar-expand-lg bg-secondary">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link text-light" href="{% url 'game:home' %}">Home</a></li>
-                    <!-- Team Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="teamDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Team</a>
-                        <ul class="dropdown-menu" aria-labelledby="teamDropdown">
-                            <li><a class="dropdown-item" href="{% url 'teams:team_squad' %}">Squad</a></li>
-                            <li><a class="dropdown-item" href="{% url 'teams:line_up' %}">Line-Up</a></li>
-                            <li><a class="dropdown-item" href="{% url 'teams:team_stats' %}">Team Stats</a></li>
-                        </ul>
-                    </li>
-                    <!-- Matches Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="matchesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">League</a>
-                        <ul class="dropdown-menu" aria-labelledby="matchesDropdown">
-                            <li><a class="dropdown-item" href="{% url 'leagues:standings' %}">Standings</a></li>
-                            <li><a class="dropdown-item" href="#">Fixtures</a></li>
-                            <li><a class="dropdown-item" href="#">Schedule</a></li>
-                        </ul>
-                    </li>
-                    <!-- Transfers Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="transfersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Transfers</a>
-                        <ul class="dropdown-menu" aria-labelledby="transfersDropdown">
-                            <li><a class="dropdown-item" href="#">Transfer List</a></li>
-                            <li><a class="dropdown-item" href="#">Search Player</a></li>
-                            <li><a class="dropdown-item" href="#">Free Agents</a></li>
-                        </ul>
-                    </li>
-                    <!-- Academy Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="academyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Academy</a>
-                        <ul class="dropdown-menu" aria-labelledby="academyDropdown">
-                            <li><a class="dropdown-item" href="#">Youth Team</a></li>
-                        </ul>
-                    </li>
-                    <!-- Club Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light" href="#" id="clubDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Club</a>
-                        <ul class="dropdown-menu" aria-labelledby="clubDropdown">
-                            <li><a class="dropdown-item" href="#">Stadium</a></li>
-                            <li><a class="dropdown-item" href="#">Sponsors</a></li>
-                            <li><a class="dropdown-item" href="#">Finance</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+        <div class="logo text-center">
+            <img src="{% static 'path/to/logo.png' %}" alt="Game Logo" class="logo-img"> <!-- Adjust logo path -->
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bottom Navbar for Menu with Dropdowns -->
+<nav class="navbar navbar-expand-lg bg-secondary">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link text-light" href="{% url 'game:home' %}">Home</a></li>
+                <!-- Team Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="teamDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Team</a>
+                    <ul class="dropdown-menu" aria-labelledby="teamDropdown">
+                        <li><a class="dropdown-item" href="{% url 'teams:team_squad' %}">Squad</a></li>
+                        <li><a class="dropdown-item" href="{% url 'teams:line_up' %}">Line-Up</a></li>
+                        <li><a class="dropdown-item" href="{% url 'teams:team_stats' %}">Team Stats</a></li>
+                    </ul>
+                </li>
+                <!-- Matches Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="matchesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">League</a>
+                    <ul class="dropdown-menu" aria-labelledby="matchesDropdown">
+                        <li><a class="dropdown-item" href="{% url 'leagues:standings' %}">Standings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'fixtures:fixtures' %}">Fixtures</a></li>
+                        <li><a class="dropdown-item" href="#">Schedule</a></li>
+                    </ul>
+                </li>
+                <!-- Transfers Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="transfersDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Transfers</a>
+                    <ul class="dropdown-menu" aria-labelledby="transfersDropdown">
+                        <li><a class="dropdown-item" href="#">Transfer List</a></li>
+                        <li><a class="dropdown-item" href="#">Search Player</a></li>
+                        <li><a class="dropdown-item" href="#">Free Agents</a></li>
+                    </ul>
+                </li>
+                <!-- Academy Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="academyDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Academy</a>
+                    <ul class="dropdown-menu" aria-labelledby="academyDropdown">
+                        <li><a class="dropdown-item" href="#">Youth Team</a></li>
+                    </ul>
+                </li>
+                <!-- Club Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="clubDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Club</a>
+                    <ul class="dropdown-menu" aria-labelledby="clubDropdown">
+                        <li><a class="dropdown-item" href="#">Stadium</a></li>
+                        <li><a class="dropdown-item" href="#">Sponsors</a></li>
+                        <li><a class="dropdown-item" href="#">Finance</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

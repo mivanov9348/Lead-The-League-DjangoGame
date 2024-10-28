@@ -1,0 +1,104 @@
+<!-- fixtures/templates/fixtures/fixtures_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixtures</title>
+    <style>
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .no-fixtures {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+        }
+        /* Стилове за навигационните стрелки */
+        .round-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .round-nav button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .round-nav button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'menu/_navbar.html' %}
+
+    <div class="container">
+        <h1>Fixtures for Your Division</h1>
+
+        <!-- Навигация за рундовете -->
+        <div class="round-nav">
+            <form method="get" action="{% url 'fixtures:fixtures' %}">
+                <input type="hidden" name="round_number" value="{{ current_round|add:-1 }}">
+                <button type="submit" {% if current_round == 1 %}disabled{% endif %}>&larr; Previous Round</button>
+            </form>
+            <span>Round {{ current_round }}</span>
+            <form method="get" action="{% url 'fixtures:fixtures' %}">
+                <input type="hidden" name="round_number" value="{{ current_round|add:1 }}">
+                <button type="submit">Next Round &rarr;</button>
+            </form>
+        </div>
+
+        <!-- Таблица с fixtures -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Match Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fixture in fixtures %}
+                <tr>
+                    <td>{{ fixture.home_team }}</td>
+                    <td>{{ fixture.away_team }}</td>
+                    <td>{{ fixture.match_date }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="no-fixtures">No fixtures available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
