@@ -1,104 +1,170 @@
-<!-- fixtures/templates/fixtures/fixtures_list.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
     <title>Fixtures</title>
-    <style>
-        
-        .container {
-            max-width: 800px;
+    <link rel="stylesheet" href="{% static 'css/fixtures.css' %}">
+</head>
+<style>
+    .container {
+        justify-content: center;
+        max-width: 600px;
+        width: 100%;
+        padding: 20px;
+        text-align: center;
+        margin: 0 auto;  /* Centering the container */
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .round-nav {
+        display: flex;
+        justify-content: center;  /* Center buttons */
+        align-items: center;
+        margin-bottom: 20px;  /* Space below buttons */
+    }
+
+    .round-nav button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 8px;
+        font-size: 0.9em;
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 0 5px;
+    }
+
+    .round-nav button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
+    }
+
+    th, td {
+        padding: 2px 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-size: 15px;
+    }
+
+    tr {
+         margin-bottom: 10px;
+         border: 1px solid #ddd;
+         padding: 2px;
+         border-radius: 5px;
+         font-size:20px;
+         font-weight:500;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #999999;
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    .no-fixtures {
+        text-align: center;
+        font-size: 1em;
+        color: #888;
+    }
+
+    @media (max-width: 600px) {
+        table, thead, tbody, th, td, tr {
+            display: block;
             width: 100%;
-            padding: 20px;
-            text-align: center;
         }
-        h1 {
-            margin-bottom: 20px;
+
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 10px;
+
+        tr {
+            margin-bottom: 10px;
             border: 1px solid #ddd;
-            text-align: center;
+            padding: 2px;
+            border-radius: 5px;
+            font-size:50px;
         }
-        th {
-            background-color: #f4f4f4;
-        }
-        .no-fixtures {
-            text-align: center;
-            font-size: 1.2em;
-            color: #888;
-        }
-        /* Стилове за навигационните стрелки */
-        .round-nav {
+
+        td {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin: 20px 0;
-        }
-        .round-nav button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
             padding: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
+            text-align: right;
+            font-size: 15px;
         }
-        .round-nav button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-    </style>
-</head>
 
+        td:before {
+            content: attr(data-label);
+            font-weight: bold;
+            text-align: left;
+        }
+    }
+</style>
 <body>
-    {% include 'menu/_navbar.html' %}
+{% include 'menu/_navbar.html' %}
 
-    <div class="container">
-        <h1>Fixtures for Your Division</h1>
-
-        <!-- Навигация за рундовете -->
-        <div class="round-nav">
-            <form method="get" action="{% url 'fixtures:fixtures' %}">
-                <input type="hidden" name="round_number" value="{{ current_round|add:-1 }}">
-                <button type="submit" {% if current_round == 1 %}disabled{% endif %}>&larr; Previous Round</button>
-            </form>
-            <span>Round {{ current_round }}</span>
-            <form method="get" action="{% url 'fixtures:fixtures' %}">
-                <input type="hidden" name="round_number" value="{{ current_round|add:1 }}">
-                <button type="submit">Next Round &rarr;</button>
-            </form>
-        </div>
-
-        <!-- Таблица с fixtures -->
-        <table>
-            <thead>
-                <tr>
-                    <th>Home Team</th>
-                    <th>Away Team</th>
-                    <th>Match Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for fixture in fixtures %}
-                <tr>
-                    <td>{{ fixture.home_team }}</td>
-                    <td>{{ fixture.away_team }}</td>
-                    <td>{{ fixture.match_date }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="no-fixtures">No fixtures available</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="container">
+    <div class="round-nav">
+        <form method="get" action="{% url 'fixtures:fixtures' %}">
+            <input type="hidden" name="round_number" value="{{ current_round|add:-1 }}">
+            <button type="submit" {% if current_round == 1 %}disabled{% endif %}>&larr;</button>
+        </form>
+        <span>{{ current_round }}</span>
+        <form method="get" action="{% url 'fixtures:fixtures' %}">
+            <input type="hidden" name="round_number" value="{{ current_round|add:1 }}">
+            <button type="submit" {% if current_round >= max_round %}disabled{% endif %}> &rarr;</button>
+        </form>
     </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Match Time</th>
+            <th>Home Team</th>
+            <th>Home Goals</th>
+            <th>Away Goals</th>
+            <th>Away Team</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for fixture in fixtures %}
+        <tr>
+            <td data-label="Date">{{ fixture.date }}</td>
+            <td data-label="Match Time">{{ fixture.match_time }}</td>
+            <td data-label="Home Team">{{ fixture.home_team }}</td>
+            <td data-label="Home Goals">{{ fixture.home_goals|default:"-" }}</td>
+            <td data-label="Away Goals">{{ fixture.away_goals|default:"-" }}</td>
+            <td data-label="Away Team">{{ fixture.away_team }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="no-fixtures">No fixtures available</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

@@ -1,19 +1,19 @@
 import random
-from datetime import timezone, datetime, timedelta
-from .models import Player, FirstName, LastName, Team, Nationality, Position, PositionAttribute, PlayerAttribute, Attribute
+from .models import Player, FirstName, LastName, Team, Nationality, Position, PositionAttribute, PlayerAttribute, \
+    Attribute, PlayerSeasonStats
+
 
 def calculate_player_price(player):
-
-    base_prices={
+    base_prices = {
         'Goalkeeper': 20000,
         'Defender': 30000,
         'Midfielder': 40000,
         'Attacker': 50000
     }
 
-    base_price = base_prices.get(player.position.position_name,2500)
+    base_price = base_prices.get(player.position.position_name, 2500)
 
-    if player.age <25:
+    if player.age < 25:
         age_factor = 1.2
     elif player.age > 30:
         age_factor = 0.8
@@ -24,7 +24,8 @@ def calculate_player_price(player):
     price = int(base_price * age_factor + total_attributes * 100)
     return price
 
-def generate_random_player(team = None, position = None):
+
+def generate_random_player(team=None, position=None):
     nationalities = Nationality.objects.all()
     nationality = random.choice(nationalities)
 
@@ -58,15 +59,15 @@ def generate_random_player(team = None, position = None):
             value = attributes[pos_attr.attribute.name] * (pos_attr.importance / 4)
             attributes[pos_attr.attribute.name] = int(value)  # Assign adjusted value
 
-    age = random.randint(18,35)
+    age = random.randint(18, 35)
 
     player = Player(
         first_name=first_name,
         last_name=last_name,
         nationality=nationality,
-        age = age,
+        age=age,
         position=position,
-        team = team
+        team=team
     )
     player.save()
 
@@ -80,8 +81,8 @@ def generate_random_player(team = None, position = None):
 
     return player
 
-def generate_team_players(team):
 
+def generate_team_players(team):
     position_gk = Position.objects.get(position_name='Goalkeeper')
     position_def = Position.objects.get(position_name='Defender')
     position_mid = Position.objects.get(position_name='Midfielder')
@@ -103,3 +104,23 @@ def generate_team_players(team):
     for _ in range(5):
         random_position = random.choice(all_positions)
         generate_random_player(team, random_position)
+
+    def add_goal(player_id, season_id):
+        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+        player_stats.goals += 1
+        player_stats.save()
+
+    def add_assists(player_id, season_id):
+        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+        player_stats.assists += 1
+        player_stats.save()
+
+    def match_participate(player_id, season_id):
+        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+        player_stats.matches +=1
+        player_stats.save()
+
+    def goal_conceded(player_id, season_id):
+        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+        player_stats.conceded +=1
+        player_stats.save()

@@ -4,8 +4,7 @@ from teams.models import Team
 from datetime import timedelta
 import random
 
-
-def generate_fixtures(start_date, division):
+def generate_fixtures(start_date, division, season, match_time):
     last_fixture = Fixture.objects.order_by('-fixture_number').first()
     fixture_number = last_fixture.fixture_number + 1 if last_fixture else 1
 
@@ -28,7 +27,9 @@ def generate_fixtures(start_date, division):
                 round_number=round_number,
                 date=current_date,
                 division=division,
-                fixture_number=fixture_number
+                fixture_number=fixture_number,
+                season = season,
+                match_time=match_time
             )
             fixture_number += 1
 
@@ -47,7 +48,9 @@ def generate_fixtures(start_date, division):
                 round_number=round_number,
                 date=current_date,
                 division=division,
-                fixture_number=fixture_number
+                fixture_number=fixture_number,
+                season = season,
+                match_time=match_time
             )
             fixture_number += 1
 
@@ -57,6 +60,7 @@ def generate_fixtures(start_date, division):
         teams = [teams[0]] + teams[-1:] + teams[1:-1]
 
     return round_number
+
 
 def shuffle_teams(teams):
     team_list = list(teams)

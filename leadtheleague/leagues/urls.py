@@ -1,9 +1,11 @@
 from django.urls import path
-from .views import standings
+
+from leagues.views import allleagues, standings
 
 app_name = 'leagues'
 
 urlpatterns = [
     path('standings/', standings, name='standings'),
-    path('standings/<int:league_id>/<int:division_id>/', standings, name='standings_with_params')
+    path('allleagues/', allleagues, name='allleagues'),
+    path('allleagues/<int:league_id>/<int:division_id>/', allleagues, name='allleagues_with_params')
 ]

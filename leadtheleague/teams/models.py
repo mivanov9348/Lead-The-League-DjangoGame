@@ -1,6 +1,8 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from accounts.models import CustomUser
+from game.models import Season
+from leagues.models import League, Division
 
 class AdjectiveTeamNames(models.Model):
     word = models.CharField(max_length=50)
@@ -24,3 +26,20 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+class TeamSeasonStats(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
+    league = models.ForeignKey(League, on_delete=models.CASCADE, null=True)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, null=True)
+    matches = models.IntegerField(default=0)
+    wins = models.IntegerField(default=0)
+    draws = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    goalscored = models.IntegerField(default=0)
+    goalconceded = models.IntegerField(default=0)
+    goaldifference = models.IntegerField(default=0)
+    points = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('season', 'team')

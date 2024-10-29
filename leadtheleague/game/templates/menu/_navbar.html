@@ -62,7 +62,6 @@
                        data-bs-toggle="dropdown" aria-expanded="false">League</a>
                     <ul class="dropdown-menu" aria-labelledby="matchesDropdown">
                         <li><a class="dropdown-item" href="{% url 'leagues:standings' %}">Standings</a></li>
-                        <li><a class="dropdown-item" href="{% url 'fixtures:fixtures' %}">Fixtures</a></li>
                         <li><a class="dropdown-item" href="#">Schedule</a></li>
                     </ul>
                 </li>
@@ -92,6 +91,17 @@
                         <li><a class="dropdown-item" href="#">Stadium</a></li>
                         <li><a class="dropdown-item" href="#">Sponsors</a></li>
                         <li><a class="dropdown-item" href="#">Finance</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" id="otherDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Other</a>
+                    <ul class="dropdown-menu" aria-labelledby="otherDropdown">
+                       <li><a class="dropdown-item" href="{% url 'leagues:allleagues' %}">Leagues</a></li>
+                        <li><a class="dropdown-item" href="{% url 'fixtures:fixtures' %}">Fixtures</a></li>
+                        <li><a class="dropdown-item" href="#">Players</a></li>
+                        <li><a class="dropdown-item" href="#">Teams</a></li>
                     </ul>
                 </li>
             </ul>
