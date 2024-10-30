@@ -1,16 +1,16 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    background-color: #105469;
     color: #333;
     text-align: center;
 }
 
 .squad-table {
-    border: 2px solid #6c757d;
     margin: 20px auto;
     width: 80%;
     max-width: 1200px;
     table-layout: auto;
+    box-shadow: 0 14px 18px rgba(0, 0, 0, 0.2); /* Shadow for the table */
 }
 
 .squad-table th,
@@ -35,18 +35,18 @@ body {
 
 /* Header styles */
 .squad-table th {
-    background-color: #343a40; /* Dark background for headers */
+    background-color: #212529; /* Darker background for headers */
     color: #ffffff; /* White text for contrast */
 }
 
 /* Player Info Section */
 .player-info {
     border-bottom: 3px solid #6c757d; /* Thicker bottom border for separation */
-    background-color: #f8f9fa; /* Light background for player info */
+    background-color: #343a40; /* Dark background for player info */
 }
 
 .player-info th {
-    background-color: #343a40; /* Dark background for headers */
+    background-color: #212529; /* Darker background for headers */
     color: white; /* White text for contrast */
 }
 
@@ -87,6 +87,7 @@ body {
 
 /* Attribute Section Styles */
 .attribute-col {
-    background-color: #e9ecef; /* Light background for attributes */
+    background-color: #495057; /* Darker background for attributes */
+    color: #ffffff; /* White text for better contrast */
     border-left: 2px solid #6c757d; /* Vertical line to separate attributes */
 }

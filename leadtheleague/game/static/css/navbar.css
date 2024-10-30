@@ -1,60 +1,99 @@
-.navbar {
+/* Navbar Styling */
+.custom-top-navbar {
     padding: 10px 15px;
-
+    background-color: #105469;
 }
 
-/* Top Navbar */
-.bg-dark {
-    background-color: gray !important; /* Dark background */
+.custom-bottom-navbar {
+    background-color: black;
 }
 
+/* Profile Links */
 .profile-links {
     font-size: 14px;
 }
 
+/* Logo */
 .logo-img {
-    height: 50px; /* Adjust logo size */
+    height: 50px;
 }
 
-/* Bottom Navbar */
-.bg-secondary {
-    background-color: black !important; /* Secondary background */
+.navbar-nav {
+    flex-grow: 1; /* Allow navbar items to grow and center */
 }
 
 .navbar-nav .nav-link {
-    color: #ffffff; /* White text color */
-    margin-right: 15px; /* Space between links */
+    color: #ffffff; /* Link color */
+    margin: 0 10px; /* Horizontal margin for links */
     transition: color 0.3s ease, background-color 0.3s ease; /* Smooth color transition */
-    border-radius: 4px; /* Rounded corners for better aesthetics */
-    font-size: 14px
+    border-radius: 4px; /* Rounded corners */
+    font-size: 14px;
 }
 
 .navbar-nav .nav-link:hover {
-    color: #f8f9fa; /* Light color on hover */
-    background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
+    color: #f8f9fa; /* Text color on hover */
+    background-color: rgba(255, 255, 255, 0.2); /* Light background on hover */
+}
+
+.nav-link-match {
+    background: linear-gradient(45deg, #ff4e50, #f9d423); /* Red to orange gradient */
+    color: white !important;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-weight: bold;
+    transition: background 0.3s ease, color 0.3s ease;
+    width:90px;
+    text-align:center;
+}
+
+.nav-link-match:hover {
+    background: linear-gradient(45deg, #ff4e50, #ff6b6b); /* Darker red gradient on hover */
+    text-decoration: none;
+    color: #ffffff !important;
 }
 
 /* Dropdown Styles */
 .dropdown-menu {
-    background-color: #343a40; /* Dark background for dropdown */
-    border: none; /* Remove border */
+    background-color: #6c757d;
+    border: none;
+    border-radius: 0;
+    text-align: center; /* Center-align text within the dropdown */
+}
+
+.dropdown {
+    position: relative; /* Anchor dropdown menu to parent */
 }
 
 .dropdown-item {
-    color: #ffffff; /* White text color for dropdown items */
+    color: #ffffff;
+    text-align: center; /* Ensure each item is center-aligned */
 }
 
 .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Highlight on hover */
+    background-color: #007bff;
+    color: #ffffff;
 }
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .navbar-collapse {
-        margin-top: 10px; /* Space above collapsed navbar */
+        margin-top: 10px;
     }
 
     .navbar-nav .nav-item {
-        margin-bottom: 5px; /* Space between items on smaller screens */
+        margin-bottom: 5px;
     }
+}
+
+/* Shadow for navbar */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Center the navbar links */
+.navbar-center {
+    display: flex;
+    justify-content: center; /* Centers items horizontally */
+    flex-grow: 1; /* Allows the navbar items to take available space */
 }

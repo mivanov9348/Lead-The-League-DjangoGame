@@ -4,7 +4,6 @@ from .models import League
 def get_leagues_and_divisions():
     return League.objects.prefetch_related('division_set').all()
 
-
 def get_selected_league_and_division(league_id, division_id):
     league = League.objects.filter(id=league_id).first()
     division = None

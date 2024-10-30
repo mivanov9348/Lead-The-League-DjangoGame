@@ -3,46 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ team.name }} - Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Home</title>
     {% load static %}
-    <style>
-        /* Light gray background for each card with a rounded border */
-        .card {
-            background-color: #f8f9fa; /* Light gray for a clean look */
-            color: #d4af37; /* Gold font for main text */
-            height: 100%;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
-        }
-
-        /* Dark gray background for card header with gold text */
-        .card-header {
-            background-color: #343a40; /* Dark gray for contrast */
-            color: #d4af37; /* Gold for title text */
-            font-weight: bold;
-            border-bottom: 2px solid #d4af37;
-        }
-
-        /* Light gray for card body background */
-        .card-body {
-            background-color: #ffffff; /* White for clean content area */
-            border-top: 2px solid #d4af37;
-        }
-
-        /* Table headers and borders with dark gray and gold */
-        .table thead th {
-            background-color: white;
-            color: #d4af37; /* Gold font for header */
-            border-bottom: 2px solid #d4af37;
-        }
-
-        /* Table body text in dark gray for readability */
-        .table tbody td {
-            color: #343a40;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
 <body>
 
@@ -69,21 +32,17 @@
                         <tr>
                             <th>Pos</th>
                             <th>Team</th>
+                            <th>Matches</th>
                             <th>Points</th>
-                            <th>W</th>
-                            <th>L</th>
-                            <th>D</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for standing in standings|slice:":5" %}
+                        {% for standing in standings %}
                         <tr>
                             <td>{{ forloop.counter }}</td>  <!-- Automatically increments position -->
                             <td>{{ standing.team.name }}</td> <!-- Assuming 'team' is an attribute of DivisionTeam -->
-                            <td>{{ standing.points }}</td> <!-- Assuming 'points' is an attribute of DivisionTeam -->
-                            <td>{{ standing.wins }}</td>    <!-- Assuming 'wins' is an attribute of DivisionTeam -->
-                            <td>{{ standing.losses }}</td>  <!-- Assuming 'losses' is an attribute of DivisionTeam -->
-                            <td>{{ standing.draws }}</td>   <!-- Assuming 'draws' is an attribute of DivisionTeam -->
+                            <td>{{ standing.matches }}</td> <!-- Assuming 'points' is an attribute of DivisionTeam -->
+                            <td>{{ standing.points }}</td>    <!-- Assuming 'wins' is an attribute of DivisionTeam -->
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -91,27 +50,64 @@
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">Schedule</div>
                 <div class="card-body">
-                    <p>Upcoming matches and fixtures.</p>
-                    <!-- Add dynamic schedule content here -->
+                    {% if schedule %}
+                    <ul class="list-group">
+                        {% for match in schedule %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ match.date }}</strong> {{ match.time }}<br>
+                                <span>{{ match.opponent }} ({{ match.location }})</span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No upcoming matches.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
+
     </div>
 
     <div class="row mt-4">
+
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">Top Players</div>
                 <div class="card-body">
-                    <p>Information about the top-performing players.</p>
-                    <!-- Add dynamic top players content here -->
+                    {% if players %}
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for player_stat in players %}
+                        <tr>
+                            <td>{{ player_stat.player.first_name }} {{ player_stat.player.last_name }}</td>
+                            <td>{{ player_stat.goals }}</td>
+                            <td>{{ player_stat.assists }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No players found for this team.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
+
+
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">Team Awards</div>

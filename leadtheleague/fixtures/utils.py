@@ -1,8 +1,9 @@
 from fixtures.models import Fixture
 from leagues.models import DivisionTeam
 from teams.models import Team
-from datetime import timedelta
+from datetime import timedelta, timezone
 import random
+
 
 def generate_fixtures(start_date, division, season, match_time):
     last_fixture = Fixture.objects.order_by('-fixture_number').first()
@@ -28,7 +29,7 @@ def generate_fixtures(start_date, division, season, match_time):
                 date=current_date,
                 division=division,
                 fixture_number=fixture_number,
-                season = season,
+                season=season,
                 match_time=match_time
             )
             fixture_number += 1
@@ -49,7 +50,7 @@ def generate_fixtures(start_date, division, season, match_time):
                 date=current_date,
                 division=division,
                 fixture_number=fixture_number,
-                season = season,
+                season=season,
                 match_time=match_time
             )
             fixture_number += 1
@@ -66,3 +67,39 @@ def shuffle_teams(teams):
     team_list = list(teams)
     random.shuffle(team_list)
     return team_list
+
+
+def get_division_fixtures(division, round_number):
+    if round_number is None:
+        return Fixture.objects.filter(division_id=division.id).order_by('date')  # Връщаме всички мачове
+    else:
+        return Fixture.objects.filter(
+            division_id=division.id,
+            round_number=int(round_number)  # Конвертиране на round_number в int
+        ).order_by('date')
+
+
+def get_team_schedule(user_division, user_team):
+    upcoming_matches = Fixture.objects.filter(
+        division=user_division,
+        is_finished=False
+    ).order_by('date', 'match_time')[:5]
+
+    matches = []
+    for match in upcoming_matches:
+        if match.home_team == user_team:
+            opponent = match.away_team
+            location = 'H'
+        else:
+            opponent = match.home_team
+            location = 'A'
+
+        matches.append({
+            'date': match.date.strftime("%Y-%m-%d"),
+            'time': match.match_time.strftime("%H:%M"),
+            'opponent': opponent.name,
+            'location': location,
+
+        })
+
+    return matches

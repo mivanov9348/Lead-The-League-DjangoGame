@@ -105,22 +105,30 @@ def generate_team_players(team):
         random_position = random.choice(all_positions)
         generate_random_player(team, random_position)
 
-    def add_goal(player_id, season_id):
-        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-        player_stats.goals += 1
-        player_stats.save()
 
-    def add_assists(player_id, season_id):
-        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-        player_stats.assists += 1
-        player_stats.save()
+def add_goal(player_id, season_id):
+    player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+    player_stats.goals += 1
+    player_stats.save()
 
-    def match_participate(player_id, season_id):
-        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-        player_stats.matches +=1
-        player_stats.save()
 
-    def goal_conceded(player_id, season_id):
-        player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-        player_stats.conceded +=1
-        player_stats.save()
+def add_assists(player_id, season_id):
+    player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+    player_stats.assists += 1
+    player_stats.save()
+
+
+def match_participate(player_id, season_id):
+    player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+    player_stats.matches += 1
+    player_stats.save()
+
+
+def goal_conceded(player_id, season_id):
+    player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
+    player_stats.conceded += 1
+    player_stats.save()
+
+
+def get_team_players(userteam):
+    return PlayerSeasonStats.objects.filter(team=userteam).select_related('player')

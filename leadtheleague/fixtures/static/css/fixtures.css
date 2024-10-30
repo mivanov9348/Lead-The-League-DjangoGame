@@ -1,4 +1,6 @@
+/* Center container and define max width */
 .container {
+    display: flex;
     justify-content: center;
     max-width: 600px;
     width: 100%;
@@ -6,10 +8,30 @@
     text-align: center;
 }
 
+/* Fixed height and width for col-md-4 */
+.col-md-4 {
+    width: 300px; /* Fixed width */
+    height: 300px; /* Fixed height */
+    flex: none; /* Prevents resizing */
+}
+
+/* Card body with scrollable overflow */
+.card-body {
+    overflow-y: auto;
+    max-height: 220px; /* Adjust as needed */
+}
+
+/* Header styling for card */
+.card-header {
+    font-weight: bold;
+}
+
+/* Styling for main header */
 h1 {
     margin-bottom: 20px;
 }
 
+/* Navigation styling */
 .round-nav {
     display: flex;
     justify-content: space-between;
@@ -32,6 +54,7 @@ h1 {
     cursor: not-allowed;
 }
 
+/* Table styling */
 table {
     width: 50%;
     border-collapse: collapse;
@@ -39,10 +62,10 @@ table {
 }
 
 th, td {
-    padding: 2px 10px;  /* Reduced padding for a more compact look */
+    padding: 2px 10px; /* Reduced padding for compact layout */
     border: 1px solid #ddd;
     text-align: center;
-    white-space: nowrap;  /* Prevents cells from expanding beyond content */
+    white-space: nowrap; /* Prevent cell expansion */
 }
 
 th {
@@ -56,6 +79,7 @@ th {
     color: #888;
 }
 
+/* Responsive table styling */
 @media (max-width: 600px) {
     table, thead, tbody, th, td, tr {
         display: block;
