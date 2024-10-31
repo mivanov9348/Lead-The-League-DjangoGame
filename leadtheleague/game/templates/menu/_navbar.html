@@ -51,8 +51,6 @@
         </div>
     </div>
 </nav>
-
-<!-- Bottom Navbar for Menu with Dropdowns -->
 <!-- Bottom Navbar for Menu with Dropdowns -->
 <nav class="navbar navbar-expand-lg custom-bottom-navbar">
     <div class="container-fluid">
@@ -62,14 +60,22 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav navbar-center mx-auto mb-2 mb-lg-0">
+
                 <li class="nav-item"><a class="nav-link" href="{% url 'game:home' %}"><i class="fas fa-home"></i>
-                    Home</a></li>
+                    Home</a>
+                </li>
+
+                <li class="nav-item"><a class="nav-link" href="{% url 'inbox:inbox' %}"><i class="fas fa-inbox"></i>
+                    Inbox</a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link nav-link-match" href="#"><i class="fas fa-futbol"></i> Match</a>
                 </li>
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="teamDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-users"></i> Team</a>
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-users"></i>Team</a>
                     <ul class="dropdown-menu text-center" aria-labelledby="teamDropdown">
                         <li><a class="dropdown-item" href="{% url 'teams:team_squad' %}"><i class="fas fa-list"></i>
                             Squad</a></li>
@@ -79,7 +85,8 @@
                                 class="fas fa-chart-line"></i> Team Stats</a></li>
                     </ul>
                 </li>
-                <!-- Matches Dropdown -->
+
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="matchesDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i> League</a>
@@ -89,6 +96,7 @@
                         <li><a class="dropdown-item" href="#"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
                     </ul>
                 </li>
+
                 <!-- Transfers Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="transfersDropdown" role="button"
@@ -99,6 +107,7 @@
                         <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash"></i> Free Agents</a></li>
                     </ul>
                 </li>
+
                 <!-- Academy Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="academyDropdown" role="button"
@@ -107,6 +116,7 @@
                         <li><a class="dropdown-item" href="#"><i class="fas fa-users"></i> Youth Team</a></li>
                     </ul>
                 </li>
+
                 <!-- Club Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="clubDropdown" role="button"
@@ -117,6 +127,7 @@
                         <li><a class="dropdown-item" href="#"><i class="fas fa-money-bill"></i> Finance</a></li>
                     </ul>
                 </li>
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="otherDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-h"></i> Other</a>

@@ -1,0 +1,39 @@
+body {
+    background: linear-gradient(135deg, #0e4b5b, #5cb8a6); /* Gradient background */
+}
+
+.inbox-container {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); /* Deeper shadow */
+}
+
+.inbox-grid {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.inbox-list {
+    overflow-y: auto;
+}
+
+.inbox-list h5 {
+    text-align:center;
+}
+
+.inbox-content {
+    overflow-y: auto;
+}
+
+.message-item {
+    cursor: pointer;
+    margin-bottom: 10px; /* Set margin between message items */
+}
+
+.message-item:hover {
+    background-color: #e3f2f2; /* Lighter hover effect */
+}

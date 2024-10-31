@@ -2,10 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from leagues.models import League
 from players.utils import generate_team_players
 from .forms import TeamCreationForm
-from players.models import Player, Attribute, PlayerAttribute
+from players.models import Player, PlayerAttribute
 from teams.models import Team
 from django.contrib.auth.decorators import login_required
-from leagues.models import Division, DivisionTeam
+from leagues.models import Division
 
 @login_required
 def create_team(request):
@@ -19,30 +19,38 @@ def create_team(request):
             leagues = League.objects.all().order_by('level')
             dummy_found = False
 
+            # Attempt to replace a dummy team if available
             for league in leagues:
                 divisions = Division.objects.filter(league=league).order_by('div_number')
                 for division in divisions:
-                    dummy_team = DivisionTeam.objects.filter(division=division, is_dummy=True).first()
-                if dummy_team:
-                    dummy_team.delete()
-                DivisionTeam.objects.create(division=division, team=team, is_dummy=False)
-                dummy_found = True
-                break
+                    # Check if there's a dummy team in the division
+                    dummy_team = Team.objects.filter(division=division, is_dummy=True).first()
+                    if dummy_team:
+                        dummy_team.delete()  # Remove the dummy team
+                        team.division = division  # Assign the new team to this division
+                        team.is_dummy = False  # Ensure this is not a dummy team
+                        team.save()  # Save the updated team
+                        dummy_found = True
+                        break
                 if dummy_found:
                     break
 
+            # If no dummy teams found, find a division with space for the new team
             if not dummy_found:
                 for league in leagues:
                     divisions = Division.objects.filter(league=league).order_by('div_number')
                     for division in divisions:
-                        team_count = DivisionTeam.objects.filter(division=division).count()
-                        if team_count < division.teams_count:
-                            DivisionTeam.objects.create(division=division, team=team, is_dummy=False)
+                        team_count = Team.objects.filter(division=division).count()
+                        if team_count < division.teams_count:  # Check if there is space in the division
+                            team.division = division  # Assign the new team to this division
+                            team.is_dummy = False  # Ensure this is not a dummy team
+                            team.save()  # Save the updated team
                             dummy_found = True
                             break
                     if dummy_found:
                         break
 
+            # Generate players for the newly created team
             generate_team_players(team)
             return redirect('game:home')
     else:

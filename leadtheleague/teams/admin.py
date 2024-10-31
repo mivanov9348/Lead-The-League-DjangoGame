@@ -1,5 +1,4 @@
 from django.contrib import admin, messages
-from django.contrib.auth import get_user_model
 from .models import Team, AdjectiveTeamNames, NounTeamNames
 from .utils import fill_dummy_teams
 

@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from fixtures.utils import generate_fixtures
 from game.models import Season
-from leagues.models import DivisionTeam, Division
+from leagues.models import Division
 from players.models import Player, PlayerAttribute, PlayerSeasonStats
 from teams.models import Team, TeamSeasonStats
 from datetime import date
@@ -21,9 +21,10 @@ def generate_season_number(year):
 
 
 def create_new_season(year, season_number, start_date, match_time):
+
     try:
         season = Season.objects.get(year=year, season_number=season_number)
-        return season  # Return the existing season
+        return season
     except ObjectDoesNotExist:
         season = Season.objects.create(year=year, season_number=season_number, start_date=start_date,
                                        match_time=match_time)
@@ -35,26 +36,23 @@ def create_new_season(year, season_number, start_date, match_time):
 
         return season
 
-
 def create_team_season_stats(new_season):
     with transaction.atomic():
         teams = Team.objects.all()
         for team in teams:
             if not TeamSeasonStats.objects.filter(team=team, season=new_season).exists():
-                # Извличане на свързаните DivisionTeam записи
-                division_team = DivisionTeam.objects.filter(team=team).first()
+                division = team.division
+                print(f'divisia {division}')
+                league = division.league
 
-                if division_team:
-                    league = division_team.division.league  # Вземете лигата от дивизията
-                    division = division_team.division  # Вземете дивизията от DivisionTeam
+                TeamSeasonStats.objects.create(
+                    team=team,
+                    season=new_season,
+                    league=league,
+                    division=division
+                )
 
-                    TeamSeasonStats.objects.create(
-                        team=team,
-                        season=new_season,
-                        league=league,
-                        division=division
-                    )
-
+            # Get players for the team and create PlayerSeasonStats
             players = Player.objects.filter(team=team)
             for player in players:
                 if not PlayerSeasonStats.objects.filter(player=player, season=new_season).exists():
