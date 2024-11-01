@@ -18,7 +18,7 @@
 
         .table-container {
             text-align: center;
-            margin-top: 20px;
+            margin-top:10px;
             justify-content: center;
         }
 
@@ -28,11 +28,13 @@
             background: #012B39;
             border-radius: 0.25em;
             border-collapse: collapse;
-            width: 40%;
-            margin: 20px 2em; /* Увеличете пространството между таблиците */
+            width: 90%;
+            max-width: 600px;
+            min-width: 300px;
+            margin: 20px 2em;
             justify-content: center;
-            border: 2px solid #E2B842; /* Добавете граница около таблиците */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Добавете сянка за дълбочина */
+            border: 2px solid #E2B842;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
         th {
@@ -55,13 +57,13 @@
         }
 
         th, td {
-            text-align: center; /* Center text in both header and data cells */
+            text-align: center;
         }
 
         tbody tr {
             transition: background 0.25s ease;
             height: auto;
-            text-align: center; /* Center text in table rows */
+            text-align: center;
         }
 
         tbody tr:hover {
@@ -69,20 +71,20 @@
         }
 
         .navigation {
-            margin-bottom: 10px; /* Space below navigation arrows */
+            margin-bottom: 10px;
         }
 
         .nav-arrow {
-            cursor: pointer; /* Change cursor to pointer */
-            color: #E2B842; /* Color for arrows */
-            font-size: 1.5em; /* Size of the arrows */
-            padding: 0 10px; /* Space around the arrows */
+            cursor: pointer;
+            color: #E2B842;
+            font-size: 1.5em;
+            padding: 0 10px;
         }
 
         .pagination {
-            display: flex; /* Use flexbox for alignment */
-            justify-content: center; /* Center arrows */
-            margin-bottom: 5px; /* Space below pagination */
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
         }
     </style>
 </head>

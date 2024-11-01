@@ -1,11 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
+
+from fixtures.utils import update_fixtures
+from game.utils import update_team_season_stats
 from leagues.models import League
 from players.utils import generate_team_players
 from .forms import TeamCreationForm
-from players.models import Player, PlayerAttribute
+from players.models import Player, PlayerAttribute, PlayerSeasonStats
 from teams.models import Team
 from django.contrib.auth.decorators import login_required
 from leagues.models import Division
+
 
 @login_required
 def create_team(request):
@@ -14,43 +18,43 @@ def create_team(request):
         if form.is_valid():
             team = form.save(commit=False)
             team.user = request.user
+            team.is_dummy = False  # Увери се, че отборът не е dummy
             team.save()
 
             leagues = League.objects.all().order_by('level')
             dummy_found = False
 
-            # Attempt to replace a dummy team if available
             for league in leagues:
                 divisions = Division.objects.filter(league=league).order_by('div_number')
                 for division in divisions:
-                    # Check if there's a dummy team in the division
                     dummy_team = Team.objects.filter(division=division, is_dummy=True).first()
                     if dummy_team:
-                        dummy_team.delete()  # Remove the dummy team
-                        team.division = division  # Assign the new team to this division
-                        team.is_dummy = False  # Ensure this is not a dummy team
-                        team.save()  # Save the updated team
+                        dummy_team_players = Player.objects.filter(team=dummy_team)
+
+                        # Актуализирай статистиките на играчите за новия отбор
+                        for player in dummy_team_players:
+                            # Актуализирай PlayerSeasonStats
+                            PlayerSeasonStats.objects.filter(player=player, team=dummy_team).update(team=team)
+
+                            # Присвоява новия отбор на играчите
+                            player.team = team
+                            player.save()
+
+                        # Актуализиране на статистиките и фикстурите преди изтриването на dummy_team
+                        update_team_season_stats(dummy_team, team)  # актуализиране на статистиките на новия отбор
+                        update_fixtures(dummy_team, team)  # актуализиране на фикстурите за новия отбор
+
+                        # Изтрий dummy отбора
+                        dummy_team.delete()
+
+                        team.division = division
+                        team.save()
                         dummy_found = True
+
                         break
                 if dummy_found:
                     break
 
-            # If no dummy teams found, find a division with space for the new team
-            if not dummy_found:
-                for league in leagues:
-                    divisions = Division.objects.filter(league=league).order_by('div_number')
-                    for division in divisions:
-                        team_count = Team.objects.filter(division=division).count()
-                        if team_count < division.teams_count:  # Check if there is space in the division
-                            team.division = division  # Assign the new team to this division
-                            team.is_dummy = False  # Ensure this is not a dummy team
-                            team.save()  # Save the updated team
-                            dummy_found = True
-                            break
-                    if dummy_found:
-                        break
-
-            # Generate players for the newly created team
             generate_team_players(team)
             return redirect('game:home')
     else:
@@ -61,12 +65,10 @@ def create_team(request):
     }
     return render(request, 'team/create_team.html', context)
 
-
 def team_squad(request):
     team = get_object_or_404(Team, user=request.user)
     players = Player.objects.filter(team=team)
 
-    # Sorting Logic
     sort_by = request.GET.get('sort')
     if sort_by == 'name':
         players = players.order_by('first_name', 'last_name')

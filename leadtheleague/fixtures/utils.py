@@ -59,12 +59,10 @@ def generate_fixtures(start_date, division, season, match_time):
 
     return round_number
 
-
 def shuffle_teams(teams):
     team_list = list(teams)
     random.shuffle(team_list)
     return team_list
-
 
 def get_division_fixtures(division, round_number):
     if round_number is None:
@@ -74,7 +72,6 @@ def get_division_fixtures(division, round_number):
             division_id=division.id,
             round_number=int(round_number)  # Конвертиране на round_number в int
         ).order_by('date')
-
 
 def get_team_schedule(user_division, user_team):
     upcoming_matches = Fixture.objects.filter(
@@ -96,7 +93,18 @@ def get_team_schedule(user_division, user_team):
             'time': match.match_time.strftime("%H:%M"),
             'opponent': opponent.name,
             'location': location,
-
         })
 
     return matches
+
+def update_fixtures(dummy_team, new_team):
+    home_fixtures = Fixture.objects.filter(home_team=dummy_team)
+    away_fixtures = Fixture.objects.filter(away_team=dummy_team)
+
+    for fixture in home_fixtures:
+        fixture.home_team = new_team
+        fixture.save()
+
+    for fixture in away_fixtures:
+        fixture.away_team = new_team
+        fixture.save()

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/inbox_view.css' %}">
+</head>
+<body>
+{% include 'menu/_navbar.html' %}
+
+<div class="container-fluid inbox-container mt-4">
+    <div class="inbox-grid">
+        <div class="inbox-list p-3 border-end">
+            <div class="text-center mb-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#composeModal">
+                    Create Message
+                </button>
+            </div>
+            <hr>
+
+            <div class="mb-3 text-center">
+                <a href="{% url 'inbox:inbox_view' %}?filter=sent"
+                   class="badge bg-info filter-button {% if request.GET.filter == 'sent' %}active{% endif %}">Sent</a> |
+                <a href="{% url 'inbox:inbox_view' %}?filter=delivered"
+                   class="badge bg-info filter-button {% if request.GET.filter == 'delivered' %}active{% endif %}">Delivered</a>
+            </div>
+
+            <hr>
+            <ul class="list-group">
+                {% for message in messages %}
+                <li class="list-group-item message-item"
+                    onclick="showMessageDetails('{{ message.title }}', '{{ message.message }}', '{{ message.sender.username }}', '{{ message.date_send }}')">
+                    {% if message.sender == user %}
+                    <strong>{{ message.sender.username }}</strong>
+                    {% else %}
+                    <strong>{{ message.receiver.username }}</strong>
+                    {% endif %}
+                    <br>
+                    <span>{{ message.title }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item message-item">
+                    <strong>No messages found</strong>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Right Side: Message Content -->
+        <div class="inbox-content p-3">
+            <div class="d-flex justify-content-between">
+                <h5 id="message-title" class="mb-1">
+                    {% if default_message %}
+                    {{ default_message.title }}
+                    {% else %}
+                    Select a message
+                    {% endif %}
+                </h5>
+                <p id="message-sender" class="text-muted mb-1">
+                    {% if default_message %}
+                    From: {{ default_message.sender.username }}
+                    {% else %}
+                    <!-- Sender info will be displayed here when a message is clicked -->
+                    {% endif %}
+                </p>
+            </div>
+            <small id="message-date" class="text-muted" style="font-weight:900">
+                {% if default_message %}
+                Date: {{ default_message.date_send }}
+                {% else %}
+                {% endif %}
+            </small>
+            <hr>
+            <p id="message-content">
+                {% if default_message %}
+                {{ default_message.message }}
+                {% else %}
+                Click on a message from the left to view the content here.
+                {% endif %}
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="composeModal" tabindex="-1" aria-labelledby="composeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="composeModalLabel">Send</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="composeMessageForm" method="POST" action="{% url 'inbox:send_message' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="recipient" class="form-label">Receiver</label>
+                        <select class="form-control" id="recipient" name="recipient" required>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.team.name }} ({{ user.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showMessageDetails(title, content, sender, date) {
+        document.getElementById('message-title').innerText = title;
+        document.getElementById('message-content').innerText = content;
+        document.getElementById('message-info').innerHTML = 'From: ' + sender + ' | Date: ' + date;
+    }
+</script>
+
+</body>
+</html>

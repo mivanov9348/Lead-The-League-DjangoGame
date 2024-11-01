@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from accounts.models import CustomUser
 from game.models import Season
@@ -22,7 +22,7 @@ class NounTeamNames(models.Model):
 # Create your models here.
 class Team(models.Model):
     name = models.CharField(max_length=100)
-    abbr = models.CharField(max_length=3, validators=[MinValueValidator(3), MaxValueValidator(3)])
+    abbr = models.CharField(max_length=3, validators=[MinLengthValidator(3), MaxLengthValidator(3)])
     color = models.CharField(max_length=20)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
     division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='team', null=True)

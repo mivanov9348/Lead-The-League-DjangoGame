@@ -1,0 +1,78 @@
+body {
+    background: linear-gradient(135deg, #0e4b5b, #5cb8a6);
+}
+
+.inbox-container {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+   }
+
+.inbox-grid {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    width: 100%;
+
+}
+
+.inbox-list {
+    overflow-y: auto;
+}
+
+.inbox-list h5 {
+    text-align: center;
+}
+
+.inbox-content {
+    overflow-y: auto;
+}
+
+.message-item {
+    cursor: pointer;
+    margin-bottom: 10px;
+    background-color:#072940 !important;
+    color: white !important;
+    transition: background-color 0.5s, box-shadow 0.3s;
+}
+
+.message-item:hover {
+    background-color: gray;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-success {
+    background-color: #28a745; /* Change button color */
+    border-color: #28a745; /* Ensure the border matches */
+}
+
+.btn-success:hover {
+    background-color: #218838; /* Darker shade on hover */
+    border-color: #1e7e34; /* Match border on hover */
+}
+
+.btn-success:focus, .btn-success:active {
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5); /* Add focus/active shadow */
+}
+
+.mb-3.text-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-button {
+    text-decoration: none; /* Remove underline by default */
+    padding: 5px 10px; /* Add some padding */
+    color: inherit; /* Inherit color */
+}
+
+.filter-button.active {
+    text-decoration: underline; /* Underline when active */
+    font-weight: bold; /* Optional: Make the text bold */
+    color: #0d6efd; /* Bootstrap primary color for active */
+}
+
+.badge.active {
+    background-color: #0d6efd; /* Bootstrap primary color */
+    color: white; /* Ensure text is visible */
+}

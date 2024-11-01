@@ -7,6 +7,7 @@ from players.models import Player, PlayerAttribute, PlayerSeasonStats
 from teams.models import Team, TeamSeasonStats
 from datetime import date
 
+
 def get_current_season(year):
     current_season = Season.objects.filter(year=year).order_by('-season_number').first()
 
@@ -21,7 +22,6 @@ def generate_season_number(year):
 
 
 def create_new_season(year, season_number, start_date, match_time):
-
     try:
         season = Season.objects.get(year=year, season_number=season_number)
         return season
@@ -35,6 +35,7 @@ def create_new_season(year, season_number, start_date, match_time):
             generate_fixtures(start_date, division, season, match_time)
 
         return season
+
 
 def create_team_season_stats(new_season):
     with transaction.atomic():
@@ -54,10 +55,20 @@ def create_team_season_stats(new_season):
 
             # Get players for the team and create PlayerSeasonStats
             players = Player.objects.filter(team=team)
-            for player in players:
-                if not PlayerSeasonStats.objects.filter(player=player, season=new_season).exists():
-                    PlayerSeasonStats.objects.create(
-                        player=player,
-                        season=new_season,
-                        team=team
-                    )
+            create_player_season_stats(players, new_season, team)
+
+
+def create_player_season_stats(players, new_season, team):
+    for player in players:
+        if not PlayerSeasonStats.objects.filter(player=player, season=new_season).exists():
+            PlayerSeasonStats.objects.create(
+                player=player,
+                season=new_season,
+                team=team
+            )
+
+def update_team_season_stats(dummy_team, new_team):
+    team_season_stats = TeamSeasonStats.objects.filter(team=dummy_team)
+    for stats in team_season_stats:
+        stats.team = new_team
+        stats.save()

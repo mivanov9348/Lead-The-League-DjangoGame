@@ -1,11 +1,11 @@
-/* Navbar Styling */
 .custom-top-navbar {
     padding: 10px 15px;
-    background-color: #105469;
+    background-color: #031014 !important;
+    color: #ffffff;
 }
 
 .custom-bottom-navbar {
-    background-color: black;
+    background-color: #072933;
 }
 
 /* Profile Links */

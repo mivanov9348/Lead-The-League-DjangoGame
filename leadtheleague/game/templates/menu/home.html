@@ -18,8 +18,19 @@
             <div class="card mb-4">
                 <div class="card-header">Inbox</div>
                 <div class="card-body">
-                    <p>Latest updates and announcements about the team.</p>
-                    <!-- Add dynamic news content here -->
+                    {% if messages %}
+                    <ul class="list-unstyled">
+                        {% for message in messages %}
+                        <li class="mb-2">
+                            <strong>{{ message.title }}</strong><br>
+                            From: {{ message.sender.username }}<br>
+                            Date: {{ message.date_send|date:"Y-m-d H:i" }}<br>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No recent messages.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
