@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-{% include 'menu/_navbar.html' %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,82 +9,75 @@
     <link rel="stylesheet" href="{% static 'css/team_squad.css' %}">
 
 </head>
+{% include 'menu/_navbar.html' %}
 <body>
-
-
-<div style="margin-top: 10px;"> <!-- Add margin for spacing -->
-    <h2 class="text-center">{{ team.name }}</h2>
+<div class="container">
     <div class="table-responsive">
-        <table class="table table-bordered table-striped squad-table">
+        <table class="table table-bordered table-striped fixed-table">
             <thead class="table-dark">
-            <tr>
-                <th colspan="4" class="text-center">Player Info</th>
-                <th colspan="20" class="text-center">Attributes</th>
-            </tr>
-            <tr class="player-info">
-                <th><a href="?sort=name">Full Name</a></th>
-                <th><a href="?sort=age">Age</a></th>
-                <th><a href="?sort=nationality">Nat</a></th>
-                <th><a href="?sort=position">Pos</a></th>
-                <th class="attribute-col">Hand</th>
-                <th class="attribute-col">Refl</th>
-                <th class="attribute-col">Div</th>
-                <th class="attribute-col">Pos</th>
-                <th class="attribute-col">Com</th>
-                <th class="attribute-col">Tack</th>
-                <th class="attribute-col">Mark</th>
-                <th class="attribute-col">Head</th>
-                <th class="attribute-col">Str</th>
-                <th class="attribute-col">Pass</th>
-                <th class="attribute-col">Vis</th>
-                <th class="attribute-col">WR</th>
-                <th class="attribute-col">BC</th>
-                <th class="attribute-col">Fin</th>
-                <th class="attribute-col">Drib</th>
-                <th class="attribute-col">Pac</th>
-                <th class="attribute-col">Tech</th>
-                <th class="attribute-col">Creat</th>
-                <th class="attribute-col">TW</th>
-                <th class="attribute-col">Det</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for entry in player_data %}
-            <tr>
-                <td>{{ entry.player.first_name }} {{ entry.player.last_name }}</td>
-                <td>{{ entry.player.age }}</td>
-                <td>{{ entry.player.nationality.abbr }}</td>
-                <td>{{ entry.player.position.abbr }}</td>
-                <td>{{ entry.attributes.Handling }}</td>
-                <td>{{ entry.attributes.Reflexes }}</td>
-                <td>{{ entry.attributes.Diving }}</td>
-                <td>{{ entry.attributes.Positioning }}</td>
-                <td>{{ entry.attributes.Communication }}</td>
-                <td>{{ entry.attributes.Tackling }}</td>
-                <td>{{ entry.attributes.Marking }}</td>
-                <td>{{ entry.attributes.Heading }}</td>
-                <td>{{ entry.attributes.Strength }}</td>
-                <td>{{ entry.attributes.Passing }}</td>
-                <td>{{ entry.attributes.Vision }}</td>
-                <td>{{ entry.attributes.WorkRate }}</td>
-                <td>{{ entry.attributes.BallControl }}</td>
-                <td>{{ entry.attributes.Finishing }}</td>
-                <td>{{ entry.attributes.Dribbling }}</td>
-                <td>{{ entry.attributes.Pace }}</td>
-                <td>{{ entry.attributes.Technique }}</td>
-                <td>{{ entry.attributes.Creativity }}</td>
-                <td>{{ entry.attributes.Teamwork }}</td>
-                <td>{{ entry.attributes.Determination }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="text-center">No players found</td>
-            </tr>
-            {% endfor %}
-            </tbody>
+<tr>
+    <th colspan="5" class="text-center">Player Info</th>
+    <th colspan="14" class="statistics">Statistics</th>
+</tr>
+<tr>
+    <!-- Лична информация -->
+    <th class="shirt-number">N</th>
+    <th class="player-name">Name</th>
+    <th class="age">Age</th>
+    <th class="nat">Nat</th>
+    <th class="player-info-border pos">Pos</th> <!-- Apply class here -->
+
+   <th><span title="Matches Played">⚽️</span></th>
+    <th><span title="Goals">🥅</span></th>
+    <th><span title="Assists">🤝</span></th>
+    <th><span title="Passes">➡️</span></th>
+    <th><span title="Shots">🔫</span></th>
+    <th><span title="Shots on Target">🎯</span></th>
+    <th><span title="Tackles">🛡️</span></th>
+    <th><span title="Dribbles">🔄</span></th>
+    <th><span title="Yellow Cards">💛</span></th>
+    <th><span title="Red Cards">❤️</span></th>
+    <th><span title="Minutes Played">⏱️</span></th>
+    <th><span title="Saves">🥅</span></th>
+    <th><span title="Clean Sheets">🧼</span></th>
+    <th><span title="Conceded">⚠️</span></th>
+</tr>
+</thead>
+<tbody>
+{% for entry in players_data %}
+<tr>
+    <!-- Лична информация -->
+    <td>1</td>
+    <td>{{ entry.player.first_name }} {{ entry.player.last_name }}</td>
+    <td>{{ entry.player.age }}</td>
+    <td>{{ entry.player.nationality.abbr }}</td>
+    <td class="player-info-border">{{ entry.player.position.abbr }}</td> <!-- Apply class here -->
+
+    <!-- Статистика -->
+    <td>{{ entry.season_stats.matches_played }}</td>
+    <td>{{ entry.season_stats.goals }}</td>
+    <td>{{ entry.season_stats.assists }}</td>
+    <td>{{ entry.season_stats.passes }}</td>
+    <td>{{ entry.season_stats.shots }}</td>
+    <td>{{ entry.season_stats.shots_on_target }}</td>
+    <td>{{ entry.season_stats.tackles }}</td>
+    <td>{{ entry.season_stats.dribbles }}</td>
+    <td>{{ entry.season_stats.yellow_cards }}</td>
+    <td>{{ entry.season_stats.red_cards }}</td>
+    <td>{{ entry.season_stats.minutes_played }}</td>
+    <td>{{ entry.season_stats.saves }}</td>
+    <td>{{ entry.season_stats.clean_sheets }}</td>
+    <td>{{ entry.season_stats.conceded }}</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="38" class="text-center">No players found</td>
+</tr>
+{% endfor %}
+</tbody>
+
         </table>
     </div>
 </div>
-
 </body>
 </html>

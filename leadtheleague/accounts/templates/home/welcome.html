@@ -1,20 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Football Manager</title>
+    <title>Lead The League</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMgTI6GDaC3zYWgkSYr1JXL+I7b/Ew3lHP0d5xg" crossorigin="anonymous">
+
     {% load static %}
-    <link rel="stylesheet" href="{% static 'welcome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/welcome.css' %}">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the Football Manager Game!</h1>
-        <p>Manage your team, players, and finances like a real football manager.</p>
-        <a href="{% url 'accounts:login' %}">Login</a>
-        <a href="{% url 'accounts:signup' %}">Register</a>
-        <a href="{% url 'game:home'  %}" class="button">Main Menu</a>
-        <a href="{% url 'admin:index'  %}" class="button">Admin</a>
+<div class="container">
+    <h1 class="text-center mt-4">Lead The League</h1> <!-- Header title added here -->
+    <hr />
+    <div class="d-flex justify-content-center h-100">
+        <div class="card">
+            <div class="card-header">
+                <h3 id="card-title">Sign in</h3>
+                <div class="d-flex justify-content-end social_icon">
+                    <span><i class="fab fa-facebook-square"></i></span>
+                    <span><i class="fab fa-google-plus-square"></i></span>
+                    <span><i class="fab fa-twitter-square"></i></span>
+                </div>
+            </div>
+
+            <div class="card-body" id="login-form">
+                <form method="POST" action="{% url 'accounts:login' %}">
+                    {% csrf_token %}
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="username" class="form-control" placeholder="username" required>
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="password" class="form-control" placeholder="password" required>
+                    </div>
+                    <div class="row align-items-center remember">
+                        <input type="checkbox" name="remember">Remember Me
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Login" class="btn float-right login_btn">
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-body d-none" id="signup-form">
+                <form method="POST" action="{% url 'accounts:signup' %}">
+                    {% csrf_token %}
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="username" class="form-control" placeholder="Username" required>
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        </div>
+                        <input type="email" name="email" class="form-control" placeholder="Email" required>
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="password1" class="form-control" placeholder="Password" required>
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="password2" class="form-control" placeholder="Confirm Password" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Sign Up" class="btn float-right login_btn">
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-footer">
+                <div class="d-flex justify-content-center links">
+                    <p id="toggle-login">
+                        Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a>
+                    </p>
+                    <p id="toggle-signup" class="d-none">
+                        Already have an account? <a href="#" onclick="showLogin()">Login here</a>
+                    </p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <a href="#">Forgot your password?</a>
+                </div>
+                <div class="d-flex justify-content-center mt-2">
+                    <a href="/admin/" class="btn btn-primary">Admin</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<script>
+function showSignup() {
+    document.getElementById("login-form").classList.add("d-none");
+    document.getElementById("signup-form").classList.remove("d-none");
+    document.getElementById("toggle-login").classList.add("d-none");
+    document.getElementById("toggle-signup").classList.remove("d-none");
+
+    // Change the title to "Sign Up"
+    document.getElementById("card-title").textContent = "Sign Up";
+}
+
+function showLogin() {
+    document.getElementById("signup-form").classList.add("d-none");
+    document.getElementById("login-form").classList.remove("d-none");
+    document.getElementById("toggle-signup").classList.add("d-none");
+    document.getElementById("toggle-login").classList.remove("d-none");
+
+    // Change the title back to "Lead The League"
+    document.getElementById("card-title").textContent = "Sign In";
+}
+</script>
+
 </body>
 </html>

@@ -98,16 +98,18 @@
                         <thead>
                         <tr>
                             <th>Player</th>
-                            <th>Goals</th>
-                            <th>Assists</th>
+                            <th>M</th>
+                            <th>G</th>
+                            <th>A</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for player_stat in players %}
+                        {% for player in players %}
                         <tr>
-                            <td>{{ player_stat.player.first_name }} {{ player_stat.player.last_name }}</td>
-                            <td>{{ player_stat.goals }}</td>
-                            <td>{{ player_stat.assists }}</td>
+                            <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
+                            <td>{{ player.season_stats.matches_played }}</td>
+                            <td>{{ player.season_stats.goals }}</td>
+                            <td>{{ player.season_stats.assists }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -121,9 +123,9 @@
 
         <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header">Team Awards</div>
+                <div class="card-header">Team Statistics</div>
                 <div class="card-body">
-                    <p>Awards and achievements of the team.</p>
+
                     <!-- Add dynamic awards content here -->
                 </div>
             </div>
@@ -131,9 +133,9 @@
 
         <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header">Fan Engagement</div>
+                <div class="card-header">Player Statistics</div>
                 <div class="card-body">
-                    <p>Links to fan forums and merchandise.</p>
+
                     <!-- Add dynamic fan engagement content here -->
                 </div>
             </div>

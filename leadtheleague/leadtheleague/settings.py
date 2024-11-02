@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     'players',
     'leagues',
     'fixtures',
-    'inbox'
+    'inbox',
+    'match'
 ]
 
 MIDDLEWARE = [

@@ -12,45 +12,6 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg custom-top-navbar bg-dark text-light py-2">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-        <div class="profile-info d-flex align-items-center">
-            {% if user.is_authenticated %}
-            <div class="me-3">
-                <span>{{ user.username }}</span>
-            </div>
-            <div class="me-3">
-                <span> {{ user.team.name }}</span>
-            </div>
-            <div class="me-3">
-                <span><strong>Division:</strong> {{ user.team.division.name }}</span>
-            </div>
-            <form method="POST" action="{% url 'accounts:logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-link text-light"
-                        style="padding:0; margin:0; border:none; background:none; text-decoration:underline; cursor:pointer;">
-                    Logout
-                </button>
-            </form>
-            {% else %}
-            <a href="{% url 'login' %}" class="text-light">Login</a> |
-            <a href="{% url 'signup' %}" class="text-light">Register</a>
-            {% endif %}
-        </div>
-
-        <!-- Centered Logo -->
-        <div class="logo text-center">
-            <img src="{% static 'path/to/logo.png' %}" alt="Game Logo" class="logo-img" style="height: 60px;">
-            <!-- Adjust logo path -->
-        </div>
-
-        <!-- Current Time Display -->
-        <div class="current-time text-light">
-            <span id="current-time"></span>
-        </div>
-    </div>
-</nav>
-<!-- Bottom Navbar for Menu with Dropdowns -->
 <nav class="navbar navbar-expand-lg custom-bottom-navbar">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -64,7 +25,8 @@
                     Home</a>
                 </li>
 
-                <li class="nav-item"><a class="nav-link" href="{% url 'inbox:inbox_view' %}"><i class="fas fa-inbox"></i>
+                <li class="nav-item"><a class="nav-link" href="{% url 'inbox:inbox_view' %}"><i
+                        class="fas fa-inbox"></i>
                     Inbox</a>
                 </li>
 
@@ -84,7 +46,6 @@
                                 class="fas fa-chart-line"></i> Team Stats</a></li>
                     </ul>
                 </li>
-
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="matchesDropdown" role="button"
@@ -140,6 +101,35 @@
                     </ul>
                 </li>
             </ul>
+
+            <div class="d-flex align-items-center ms-auto">
+                {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <button class="btn btn-link text-light dropdown-toggle" type="button" id="profileDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user fa-lg"></i>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li>
+                            <a class="dropdown-item" href="#">{{ user.username }}</a> <!-- Display username -->
+                        </li>
+
+                        <li>
+                            <form method="POST" action="{% url 'accounts:logout' %}" >
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item"
+                                        style="background:none; border:none; padding:0; text-align:left; color:#fff;">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+
+
         </div>
     </div>
 </nav>

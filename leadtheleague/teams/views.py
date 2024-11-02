@@ -1,14 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-
-from fixtures.utils import update_fixtures
-from game.utils import update_team_season_stats
-from leagues.models import League
-from players.utils import generate_team_players
 from .forms import TeamCreationForm
-from players.models import Player, PlayerAttribute, PlayerSeasonStats
+from players.models import Player, PlayerAttribute
 from teams.models import Team
 from django.contrib.auth.decorators import login_required
-from leagues.models import Division
+from .utils import replace_dummy_team, get_team_players_season_data
 
 
 @login_required
@@ -18,45 +13,14 @@ def create_team(request):
         if form.is_valid():
             team = form.save(commit=False)
             team.user = request.user
-            team.is_dummy = False  # Увери се, че отборът не е dummy
+            team.is_dummy = False  # Ensure the team is not a dummy
             team.save()
 
-            leagues = League.objects.all().order_by('level')
-            dummy_found = False
-
-            for league in leagues:
-                divisions = Division.objects.filter(league=league).order_by('div_number')
-                for division in divisions:
-                    dummy_team = Team.objects.filter(division=division, is_dummy=True).first()
-                    if dummy_team:
-                        dummy_team_players = Player.objects.filter(team=dummy_team)
-
-                        # Актуализирай статистиките на играчите за новия отбор
-                        for player in dummy_team_players:
-                            # Актуализирай PlayerSeasonStats
-                            PlayerSeasonStats.objects.filter(player=player, team=dummy_team).update(team=team)
-
-                            # Присвоява новия отбор на играчите
-                            player.team = team
-                            player.save()
-
-                        # Актуализиране на статистиките и фикстурите преди изтриването на dummy_team
-                        update_team_season_stats(dummy_team, team)  # актуализиране на статистиките на новия отбор
-                        update_fixtures(dummy_team, team)  # актуализиране на фикстурите за новия отбор
-
-                        # Изтрий dummy отбора
-                        dummy_team.delete()
-
-                        team.division = division
-                        team.save()
-                        dummy_found = True
-
-                        break
-                if dummy_found:
-                    break
-
-            generate_team_players(team)
-            return redirect('game:home')
+            # Replace a dummy team with the newly created team
+            if replace_dummy_team(team):
+                return redirect('game:home')
+            else:
+                form.add_error(None, "No dummy team found to replace.")
     else:
         form = TeamCreationForm()
 
@@ -65,34 +29,14 @@ def create_team(request):
     }
     return render(request, 'team/create_team.html', context)
 
+
 def team_squad(request):
     team = get_object_or_404(Team, user=request.user)
-    players = Player.objects.filter(team=team)
-
-    sort_by = request.GET.get('sort')
-    if sort_by == 'name':
-        players = players.order_by('first_name', 'last_name')
-    elif sort_by == 'age':
-        players = players.order_by('age')
-    elif sort_by == 'nationality':
-        players = players.order_by('nationality__name')
-    elif sort_by == 'position':
-        players = players.order_by('position__name')
-    elif sort_by == 'price':
-        players = players.order_by('price')
-
-    player_data = []
-    for player in players:
-        attributes = PlayerAttribute.objects.filter(player=player)  # Get attributes for the player
-        attribute_values = {attr.attribute.name: attr.value for attr in attributes}  # Map attribute name to its value
-        player_data.append({
-            'player': player,
-            'attributes': attribute_values,
-        })
+    players_data = get_team_players_season_data(team)
 
     context = {
         'team': team,
-        'player_data': player_data
+        'players_data': players_data
     }
 
     return render(request, 'team/squad.html', context)
@@ -100,48 +44,10 @@ def team_squad(request):
 
 @login_required()
 def line_up(request):
-    if request.method == 'POST':
-        Player.objects.update(is_starting=False)
-
-        # Събираме избраните играчи от POST данните
-        starting_players = [
-            request.POST.get('goalkeeper'),
-            *[request.POST.get(f'defender{i}') for i in range(1, 5)],
-            *[request.POST.get(f'midfielder{i}') for i in range(1, 5)],
-            *[request.POST.get(f'attacker{i}') for i in range(1, 3)],
-        ]
-
-        for player_id in starting_players:
-            if player_id:
-                Player.objects.filter(id=player_id).update(is_starting=True)
-
-        return redirect('team/line_up.html')
-
-    goalkeepers = Player.objects.filter(position__position_name='Goalkeeper')
-    defenders = Player.objects.filter(position__position_name='Defender')
-    midfielders = Player.objects.filter(position__position_name='Midfielder')
-    attackers = Player.objects.filter(position__position_name='Attacker')
-
-    substitutes = Player.objects.filter(is_starting=False)
-
-    substitute_data = []
-    for player in substitutes:
-        attributes = PlayerAttribute.objects.filter(player=player)
-        attribute_values = {attr.attribute.name: attr.value for attr in attributes}
-        substitute_data.append({
-            'player': player,
-            'attributes': attribute_values,
-        })
-
-    context = {
-        'goalkeepers': goalkeepers,
-        'defenders': defenders,
-        'midfielders': midfielders,
-        'attackers': attackers,
-        'substitutes': substitutes,
-        'substitute_data': substitute_data,
-    }
-    return render(request, 'team/line_up.html', context)
+    players = Player.objects.filter(team=request.user.team).values('id', 'first_name', 'position')
+    print(players)
+    players_list = list(players)  # Convert to list for JSON serialization
+    return render(request, 'team/line_up.html', {'players': players_list})
 
 
 @login_required

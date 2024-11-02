@@ -5,12 +5,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Your Team</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0 10px; /* Add some padding to avoid edges on small screens */
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;  /* Make the width responsive */
+            max-width: 400px; /* Set a maximum width for larger screens */
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px; /* Add margin below the heading */
+        }
+        hr {
+            margin: 10px 0; /* Space above and below the hr */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%; /* Make the button full width */
+            padding: 10px; /* Add some padding for better appearance */
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF; /* Button color */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3; /* Darker shade on hover */
+        }
+    </style>
 </head>
 <body>
-    <h1>Create Your Team</h1>
+
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="form-group">
+            {{ form.abbr.label }}
+            {{ form.abbr }}
+        </div>
+        <div class="form-group">
+            {{ form.color.label }}
+            {{ form.color }}
+        </div>
         <button type="submit">Create Team</button>
     </form>
 </body>
