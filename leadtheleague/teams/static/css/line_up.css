@@ -5,24 +5,48 @@ body {
 
 h2 {
     margin-bottom: 20px;
+
 }
 
 .table {
+    border:2px solid black;
     margin-bottom: 40px;
 }
 
 .table td, .table th {
     text-align: center;
+    vertical-align: middle; /* Центрирайте вертикално текста */
+}
+
+.table-borderd{
+ border:2px solid black;
 }
 
 .attribute-table {
-        font-size: 10px;  /* Set font size to 5px */
-    }
+    font-size: 10px;  /* Увеличете шрифта, ако е необходимо */
+}
 
-    .attribute-table th, .attribute-table td {
-        padding: 2px;  /* Reduce padding for a more compact look */
-    }
+.attribute-table th, .attribute-table td {
+    padding: 2px;  /* Намалете padding за по-компактен вид */
+}
 
-    .attribute-table th {
-        font-weight: bold;
-    }
+.attribute-table th {
+
+    font-weight: bold;
+}
+
+.attribute {
+    background-color: #e1f5fe; /* Леко син фон за атрибутите */
+    color: #0d47a1; /* Тъмен син цвят за текста */
+}
+
+.stat {
+    background-color: #e8f5e9; /* Леко зелен фон за статистиките */
+    color: #2e7d32; /* Тъмен зелен цвят за текста */
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+    color:red;
+    font-weight:700;
+}

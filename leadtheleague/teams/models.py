@@ -1,9 +1,9 @@
+from tkinter.constants import CASCADE
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from accounts.models import CustomUser
 from game.models import Season
 from leagues.models import League, Division
-
 
 class AdjectiveTeamNames(models.Model):
     word = models.CharField(max_length=50)
@@ -48,3 +48,21 @@ class TeamSeasonStats(models.Model):
 
     class Meta:
         unique_together = ('season', 'team')
+
+class Tactics(models.Model):
+    name = models.CharField(max_length=30)
+    num_goalkeepers = models.IntegerField(default=1)
+    num_defenders = models.IntegerField()
+    num_midfielders = models.IntegerField()
+    num_forwards = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.name}'
+
+class TeamTactics(models.Model):
+    team = models.OneToOneField(Team, on_delete=models.CASCADE)
+    tactic = models.ForeignKey(Tactics, on_delete=models.SET_NULL, null=True)
+    starting_players = models.ManyToManyField('players.Player')
+
+    def __str__(self):
+        return f"{self.team.name} - {self.tactic.name}"

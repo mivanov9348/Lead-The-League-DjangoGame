@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% include 'menu/_navbar.html' %}
+    <title>Schedule</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/schedule.css' %}">
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Round</th>
+        <th>Home/Away</th>
+        <th>Opponent</th>
+        <th>Time</th>
+        <th>Type</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for fixture in fixtures %}
+    <tr>
+        <td>{{ fixture.date }}</td>
+        <td>{{ fixture.round }}</td>
+        <td>{{ fixture.home_away }}</td>
+        <td>{{ fixture.opponent }}</td>
+        <td>{{ fixture.time }}</td>
+        <td>{{ fixture.type }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No fixtures available.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
