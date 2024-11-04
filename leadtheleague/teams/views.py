@@ -1,17 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-import logging
 from players.utils import get_player_data
 from .forms import TeamCreationForm
 from players.models import Player
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats
 from django.contrib.auth.decorators import login_required
-from .utils import replace_dummy_team, get_team_players_season_data
-import pandas as pd
-import matplotlib.pyplot as plt
-import io
-import base64
+from .utils import replace_dummy_team, get_team_players_season_data, create_team_performance_chart
 
 
 @login_required
@@ -49,24 +44,29 @@ def team_squad(request):
 
     return render(request, 'team/squad.html', context)
 
-
 def line_up(request):
     team_players = Player.objects.filter(team=request.user.team)
     starting_players = team_players.filter(is_starting=True).order_by('position_id')
     available_players = team_players.filter(is_starting=False).order_by('position_id')
-    print(f'ap: {available_players}')
+
+    selected_player = None
+    player_id = request.GET.get('player_id')
+    if player_id:
+        try:
+            selected_player = Player.objects.get(id=player_id)
+        except Player.DoesNotExist:
+            selected_player = None
 
     available_players_data = [get_player_data(player) for player in available_players]
-    print(f'apd: {available_players_data}')
-    team_tactics = TeamTactics.objects.filter(team=request.user.team).first()
+    team_tactics = TeamTactics.objects.filter(team_id=request.user.team.id).first()
 
     return render(request, 'team/line_up.html', {
         'starting_players': starting_players,
         'available_players': available_players_data,
         'team_tactics': team_tactics,
-        'tactics': Tactics.objects.all()
+        'tactics': Tactics.objects.all(),
+        'selected_player': selected_player,  # Pass selected player to the template
     })
-
 
 def select_tactics(request):
     tactic_id = request.POST.get('tactic_id')
@@ -74,8 +74,8 @@ def select_tactics(request):
         Player.objects.filter(team=request.user.team, is_starting=True).update(is_starting=False)
         team_tactics, created = TeamTactics.objects.update_or_create(team=request.user.team,
                                                                      defaults={'tactic_id': tactic_id})
-    return redirect('teams:line_up')
 
+    return redirect('teams:line_up')
 
 @require_POST
 def add_starting_player(request):
@@ -92,6 +92,7 @@ def add_starting_player(request):
             player = Player.objects.get(id=player_id)
 
             starting_players = Player.objects.filter(is_starting=True, team=request.user.team)
+
             position_count = {
                 'GK': 0,
                 'DF': 0,
@@ -101,6 +102,7 @@ def add_starting_player(request):
 
             for sp in starting_players:
                 position_count[sp.position.abbr] += 1
+            print("Position count:", position_count)  # Check if position count is correct
 
             if len(starting_players) >= 11:
                 messages.error(request, "Cannot add more than 11 players to the starting lineup.")
@@ -117,7 +119,7 @@ def add_starting_player(request):
             else:
                 messages.error(request,
                                f"Cannot add {player.first_name} {player.last_name} to the starting lineup. Maximum limit reached for position.")
-            return redirect('teams:line_up')
+                return redirect('teams:line_up')
 
             player.save()
             messages.success(request, f"{player.first_name} {player.last_name} was added to the starting lineup.")
@@ -144,49 +146,7 @@ def team_stats(request):
     team = Team.objects.get(id=request.user.team.id)  # Assuming the user is linked to a team
     season_stats = TeamSeasonStats.objects.filter(team=team)
 
-    stats_data = {
-        "Year": [],
-        "Season": [],
-        "Matches": [],
-        "Wins": [],
-        "Draws": [],
-        "Losses": [],
-        "Goals Scored": [],
-        "Goals Against": [],
-        "Goal Difference": [],
-        'Points': []
-    }
-
-    for stat in season_stats:
-        season_label = f"{stat.season.year} - {stat.season.season_number}"
-        stats_data["Year"].append(stat.season.year)
-        stats_data["Season"].append(stat.season.season_number)
-        stats_data["Matches"].append(stat.matches)
-        stats_data["Wins"].append(stat.wins)
-        stats_data["Draws"].append(stat.draws)
-        stats_data["Losses"].append(stat.losses)
-        stats_data["Goals Scored"].append(stat.goalscored)
-        stats_data["Goals Against"].append(stat.goalconceded)
-        stats_data["Goal Difference"].append(stat.goaldifference)
-        stats_data['Points'].append(stat.points)
-
-        df = pd.DataFrame(stats_data)
-
-        plt.figure(figsize=(10, 5))
-        plt.plot(df["Season"], df["Wins"], label="Wins", marker='o')
-        plt.plot(df["Season"], df["Draws"], label="Draws", marker='o')
-        plt.plot(df["Season"], df["Losses"], label="Losses", marker='o')
-        plt.title(f"{team.name} Performance Over Seasons")
-        plt.xlabel("Season")
-        plt.xticks(rotation=45)
-        plt.ylabel("Number of Matches")
-        plt.legend()
-
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        plt.close()
-        buf.seek(0)
-        img = base64.b64encode(buf.read()).decode('utf-8')
+    img = create_team_performance_chart(season_stats, team.name)
 
     context = {
         'team': team,
@@ -196,12 +156,3 @@ def team_stats(request):
 
     return render(request, 'team/team_stats.html', context)
 
-def delete_team(team_id):
-    team = get_object_or_404(Team, id=team_id)
-    team.delete()
-    return redirect('team_list')
-
-def get_consonants(name):
-    vowels = "AEIOUaeiou"
-    consonants = [char for char in name if char not in vowels and char.isalpha()]  # Filter consonants
-    return ''.join(consonants[:3]).upper()  # Get first 3 consonants and make them uppercase

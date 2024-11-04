@@ -18,118 +18,101 @@
     {% endfor %}
     {% endif %}
 
-    <h4>Formation</h4>
-    <form method="POST" action="{% url 'teams:select_tactics' %}">
-        {% csrf_token %}
-        <select class="form-select mb-3" name="tactic_id" required>
-            <option value="">Choose Tactic</option>
-            {% for tactic in tactics %}
-            <option value="{{ tactic.id }}" {% if team_tactics and team_tactics.tactic.id == tactic.id %}selected{% endif %}>
-                {{ tactic.name }}
-            </option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary">Save Tactic</button>
-    </form>
-    <hr/>
-    {% if team_tactics %}
-    <h3 style="text-align:center">Starting Line ({{ team_tactics.tactic.name }})</h3>
-    <table class="table table-bordered" id="lineup-template">
-        {% for player in starting_players %}
-        <tr>
-            <td><strong>{{ player.position.abbr }}</strong></td>
-            <td>{{ player.first_name }} {{ player.last_name }}</td>
-            <td>
-                <form method="POST" action="{% url 'teams:remove_starting_player' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="player_id" value="{{ player.id }}">
-                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-    <h3>Please select a tactic to see the starting line-up.</h3>
-    {% endif %}
-    <hr/>
-    <h3>Available Players</h3>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Position</th>
-            <th title="Matches">M</th>
-            <th title="Goals">G</th>
-            <th title="Assists">A</th>
-            <th class="attribute" title="Handling">Han</th>
-            <th class="attribute" title="Reflexes">Ref</th>
-            <th class="attribute" title="Diving">Div</th>
-            <th class="attribute" title="Positioning">Pos</th>
-            <th class="attribute" title="Communication">Com</th>
-            <th class="attribute" title="Tackling">Tac</th>
-            <th class="attribute" title="Marking">Mar</th>
-            <th class="attribute" title="Heading">Hea</th>
-            <th class="attribute" title="Strength">Str</th>
-            <th class="attribute" title="Passing">Pas</th>
-            <th class="attribute" title="Vision">Vis</th>
-            <th class="attribute" title="Work Rate">WrT</th>
-            <th class="attribute" title="Ball Control">BCl</th>
-            <th class="attribute" title="Finishing">Fin</th>
-            <th class="attribute" title="Dribbling">Drb</th>
-            <th class="attribute" title="Pace">Pac</th>
-            <th class="attribute" title="Technique">Tch</th>
-            <th class="attribute" title="Creative">Cre</th>
-            <th class="attribute" title="Teamwork">Twk</th>
-            <th class="attribute" title="Determination">Det</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for player in available_players %}
-        <tr>
-            <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
-            <td>{{ player.player.age }}</td>
-            <td>{{ player.player.position.abbr }}</td>
-            <td class="stat">{{ player.season_stats.matches_played }}</td>
-            <td class="stat">{{ player.season_stats.goals }}</td>
-            <td class="stat">{{ player.season_stats.assists }}</td>
-            <td class="attribute">{{ player.attributes.Handling }}</td>
-            <td class="attribute">{{ player.attributes.Reflexes }}</td>
-            <td class="attribute">{{ player.attributes.Diving }}</td>
-            <td class="attribute">{{ player.attributes.Positioning }}</td>
-            <td class="attribute">{{ player.attributes.Communication }}</td>
-            <td class="attribute">{{ player.attributes.Tackling }}</td>
-            <td class="attribute">{{ player.attributes.Marking }}</td>
-            <td class="attribute">{{ player.attributes.Heading }}</td>
-            <td class="attribute">{{ player.attributes.Strength }}</td>
-            <td class="attribute">{{ player.attributes.Passing }}</td>
-            <td class="attribute">{{ player.attributes.Vision }}</td>
-            <td class="attribute">{{ player.attributes.WorkRate }}</td>
-            <td class="attribute">{{ player.attributes.BallControl }}</td>
-            <td class="attribute">{{ player.attributes.Finishing }}</td>
-            <td class="attribute">{{ player.attributes.Dribbling }}</td>
-            <td class="attribute">{{ player.attributes.Pace }}</td>
-            <td class="attribute">{{ player.attributes.Technique }}</td>
-            <td class="attribute">{{ player.attributes.Creativity }}</td>
-            <td class="attribute">{{ player.attributes.Teamwork }}</td>
-            <td class="attribute">{{ player.attributes.Determination }}</td>
-            <td>
-                <form method="POST" action="{% url 'teams:add_starting_player' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="player_id" value="{{ player.player.id }}">
-                    <button type="submit" class="btn btn-success btn-sm">Add</button>
-                </form>
+    <div class="grid-container">
+        <div class="grid-item">
+            <h4 style="text-align:center">Formation</h4>
+            <form method="POST" action="{% url 'teams:select_tactics' %}">
+                {% csrf_token %}
+                <select class="form-select mb-3" name="tactic_id" required>
+                    <option value="">Choose Tactic</option>
+                    {% for tactic in tactics %}
+                    <option value="{{ tactic.id }}" {% if team_tactics and team_tactics.tactic.id == tactic.id %}selected{% endif %}>
+                        {{ tactic.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Save Tactic</button>
+                <hr/>
+            </form>
+            <h3 style="text-align:center">
+                Starting Line
+                {% if tactic %}
+                ({{ tactic.name }})
+                {% else %}
+                (No Tactic Selected)
+                {% endif %}
+            </h3>
+            <table class="table table-bordered" id="lineup-template">
+                {% if starting_players %}
+                {% for player in starting_players %}
+                <tr>
+                    <td><strong>{{ player.position.abbr }}</strong></td>
+                    <td>{{ player.first_name }} {{ player.last_name }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'teams:remove_starting_player' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="player_id" value="{{ player.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="3">No starting players found.</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
 
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-
+        <div class="grid-item">
+            <h3>Available Players</h3>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Position</th>
+                    <th title="Matches">M</th>
+                    <th title="Goals">G</th>
+                    <th title="Assists">A</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for player in available_players %}
+                <tr>
+                    <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
+                    <td>{{ player.player.age }}</td>
+                    <td>{{ player.player.position.abbr }}</td>
+                    <td>{{ player.season_stats.matches_played }}</td>
+                    <td>{{ player.season_stats.goals }}</td>
+                    <td>{{ player.season_stats.assists }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'teams:add_starting_player' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="player_id" value="{{ player.player.id }}">
+                            <button type="submit" class="btn btn-success btn-sm">Add</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
+<script>
+    function showPlayer(playerId) {
+        // Fetch player data from the server or preloaded data
+        const playersData = {{ available_players | safe }};
+        const selectedPlayer = playersData.find(player => player.player.id === playerId);
+        if (selectedPlayer) {
+            // Render the profile by updating the selected_player context
+            // Assuming this is handled in the view where you re-render the page
+            window.location.href = `?player_id=${playerId}`; // Simple URL change for demo purposes
+        }
+    }
+</script>
 </body>
 </html>

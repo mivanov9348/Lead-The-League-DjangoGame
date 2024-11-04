@@ -31,7 +31,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link nav-link-match" href="#"><i class="fas fa-futbol"></i> Match</a>
+                    <a class="nav-link nav-link-match" href="{% url 'match:match' %}"><i class="fas fa-futbol"></i> Match</a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -43,7 +43,7 @@
                         <li><a class="dropdown-item" href="{% url 'teams:line_up' %}"><i class="fas fa-th-list"></i>
                             Line-Up</a></li>
                         <li><a class="dropdown-item" href="{% url 'teams:team_stats' %}"><i
-                                class="fas fa-chart-line"></i> Team Stats</a></li>
+                                class="fas fa-chart-line"></i>Team Stats</a></li>
                     </ul>
                 </li>
 
@@ -60,11 +60,11 @@
                 <!-- Transfers Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="transfersDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-exchange-alt"></i> Transfers</a>
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-exchange-alt"></i>Transfers</a>
                     <ul class="dropdown-menu text-center" aria-labelledby="transfersDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-list"></i> Transfer List</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-search"></i> Search Player</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash"></i> Free Agents</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-list"></i>Transfer List</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-search"></i>Search Player</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-slash"></i>Free Agents</a></li>
                     </ul>
                 </li>
 
@@ -90,14 +90,14 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="otherDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-h"></i> Other</a>
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-h"></i>Other</a>
                     <ul class="dropdown-menu text-center" aria-labelledby="otherDropdown">
                         <li><a class="dropdown-item" href="{% url 'leagues:allleagues' %}"><i class="fas fa-flag"></i>
                             Leagues</a></li>
                         <li><a class="dropdown-item" href="{% url 'fixtures:fixtures' %}"><i
-                                class="fas fa-calendar-check"></i> Fixtures</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-users"></i> Players</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-users-cog"></i> Teams</a></li>
+                                class="fas fa-calendar-check"></i>Fixtures</a></li>
+                        <li><a class="dropdown-item" href="{% url 'players:all_players' %}"><i class="fas fa-users"></i>Players</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-users-cog"></i>Teams</a></li>
                     </ul>
                 </li>
             </ul>

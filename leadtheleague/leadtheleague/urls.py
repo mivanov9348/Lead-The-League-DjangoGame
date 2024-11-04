@@ -9,8 +9,9 @@ urlpatterns = [
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('teams/', include('teams.urls', namespace='teams')),
     path('game/', include('game.urls', namespace='game')),
-    path('players/', include('players.urls')),
+    path('players/', include('players.urls', namespace='players')),
     path('leagues/', include('leagues.urls', namespace='leagues')),
     path('fixtures/', include('fixtures.urls', namespace='fixtures')),
-    path('inbox/', include('inbox.urls', namespace='inbox'))
+    path('inbox/', include('inbox.urls', namespace='inbox')),
+    path('match/', include('match.urls', namespace='match'))
 ]

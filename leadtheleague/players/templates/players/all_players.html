@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>All Players</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .players-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px;
+        }
+
+        .player-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 250px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: scale(1.05);
+        }
+
+        .player-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .player-stats {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="players-container">
+    {% for player in player_data %}
+    <div class="player-card">
+        <div class="player-name">{{ player.name }}</div>
+        <div class="player-stats">
+            <div class="stat-item">
+                <span class="stat-label">Goals:</span>
+                <span class="stat-value">{{ player.goals }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Assists:</span>
+                <span class="stat-value">{{ player.assists }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Matches:</span>
+                <span class="stat-value">{{ player.matches }}</span>
+            </div>
+            <!-- Add more statistics here as needed -->
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>

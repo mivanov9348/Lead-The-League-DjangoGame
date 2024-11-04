@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Match Preview</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/match.css' %}">
+    {% include 'menu/_navbar.html' %}
+</head>
+<body>
+
+<div class="match-container">
+
+    <div class="score-bar">
+        <div class="team home-team">{{ match.home_team.name }}</div>
+        <div class="score">
+            {{ match.home_goals }} - {{ match.away_goals }}
+            <div class="match-time">66'</div> <!-- Времето под резултата -->
+        </div>
+        <div class="team away-team">{{ match.away_team.name }}</div>
+    </div>
+
+    <!-- Home Team Lineup -->
+    <div class="lineup lineup-home">
+        <h3>{{ match.home_team.name }}</h3>
+        <table>
+            <thead>
+            <tr>
+                <th colspan="2">Name</th>
+                <th>Position</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for player in home_lineup %}
+            <tr>
+                <td colspan="2">{{ player.first_name }} {{ player.last_name }}</td>
+                <td>{{ player.position.abbr }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Поле за събития -->
+    <div class="match-field">
+        <h3>Live</h3>
+        <hr/>
+        <div class="match-events-container">
+            <div class="match-events">
+                <p>5' - Home Team attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacks</p>
+                <p>5' - Home Team attacks</p><p>5' - Home Team attacks</p>
+
+                <p>1' - Kick-off</p>
+                <p>5' - Home Team attacks</p>
+                <p>5' - Home Team attacks</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Away Team Lineup -->
+    <div class="lineup lineup-away">
+        <h3>{{ match.away_team.name }}</h3>
+        <table>
+            <thead>
+            <tr>
+                <th colspan="2">Name</th>
+                <th>Position</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for player in away_lineup %}
+            <tr>
+                <td colspan="2">{{ player.first_name }} {{ player.last_name }}</td>
+                <td>{{ player.position.abbr }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

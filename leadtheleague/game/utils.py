@@ -3,24 +3,21 @@ from django.db import transaction
 from fixtures.utils import generate_fixtures
 from game.models import Season
 from leagues.models import Division
+from match.utils import generate_matches_for_season
 from players.models import Player, PlayerSeasonStats, PlayerStats
 from teams.models import Team, TeamSeasonStats
 
 def get_current_season(year=None):
     if year is not None:
-        # Filter by year if provided
         current_season = Season.objects.filter(year=year).order_by('-season_number').first()
     else:
-        # If year is None, get the latest unended season
         current_season = Season.objects.filter(is_ended=False).order_by('-season_number').first()
 
     return current_season
 
-
 def generate_season_number(year):
     seasons = get_current_season(year)
     return seasons.count() + 1
-
 
 def create_new_season(year, season_number, start_date, match_time):
     try:
@@ -35,8 +32,8 @@ def create_new_season(year, season_number, start_date, match_time):
         for division in divisions:
             generate_fixtures(start_date, division, season, match_time)
 
+        generate_matches_for_season(season)
         return season
-
 
 def create_team_season_stats(new_season):
     with transaction.atomic():
@@ -44,7 +41,7 @@ def create_team_season_stats(new_season):
         for team in teams:
             if not TeamSeasonStats.objects.filter(team=team, season=new_season).exists():
                 division = team.division
-                print(f'divisia {division}')
+
                 league = division.league
 
                 TeamSeasonStats.objects.create(
@@ -57,7 +54,6 @@ def create_team_season_stats(new_season):
             # Get players for the team and create PlayerSeasonStats
             players = Player.objects.filter(team=team)
             create_player_season_stats(players, new_season, team)
-
 
 def create_player_season_stats(players, new_season, team):
     for player in players:

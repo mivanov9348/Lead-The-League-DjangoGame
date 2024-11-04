@@ -11,15 +11,12 @@ class AdjectiveTeamNames(models.Model):
     def __str__(self):
         return self.word
 
-
 class NounTeamNames(models.Model):
     word = models.CharField(max_length=50)
 
     def __str__(self):
         return self.word
 
-
-# Create your models here.
 class Team(models.Model):
     name = models.CharField(max_length=100)
     abbr = models.CharField(max_length=3, validators=[MinLengthValidator(3), MaxLengthValidator(3)])
@@ -30,7 +27,6 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class TeamSeasonStats(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)

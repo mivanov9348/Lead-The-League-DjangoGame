@@ -1,10 +1,9 @@
 import random
+from teams.models import TeamTactics, Tactics
 from .models import Player, FirstName, LastName, Team, Nationality, Position, PositionAttribute, PlayerAttribute, \
     Attribute, PlayerSeasonStats, PlayerMatchStats
 
-
 def calculate_player_price(player):
-
     player_data = get_player_data(player)
 
     base_prices = {
@@ -103,47 +102,25 @@ def generate_team_players(team):
         random_position = random.choice(all_positions)
         generate_random_player(team, random_position)
 
-#
-# def add_goal(player_id, season_id):
-#     player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-#     player_stats.stats.goals += 1
-#     player_stats.stats.save()
-#
-#
-# def add_assists(player_id, season_id):
-#     player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-#     player_stats.stats.assists += 1  # Достъп до PlayerStats чрез stats
-#     player_stats.stats.save()
-#
-#
-# def match_participate(player_id, season_id):
-#     player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-#     player_stats.matches_played += 1  # Променете matches на matches_played
-#     player_stats.save()
-#
-#
-# def goal_conceded(player_id, season_id):
-#     player_stats = PlayerSeasonStats.objects.get(player_id=player_id, season_id=season_id)
-#     player_stats.stats.conceded += 1  # Достъп до PlayerStats чрез stats
-#     player_stats.stats.save()
-
 def get_team_match_stats(userteam):
     return PlayerMatchStats.objects.filter(player__team=userteam).select_related('player', 'stats')
 
 def get_player_data(player):
-    attributes = PlayerAttribute.objects.filter(player=player)
-    attribute_values = {attr.attribute.name: attr.value for attr in attributes}
+    # Build attributes dictionary from pre-fetched data
+    attribute_values = {
+        attr.attribute.name: attr.value
+        for attr in player.playerattribute_set.all()
+    }
 
-    # Fetch the player's season stats
-    season_stats = PlayerSeasonStats.objects.filter(player=player).first()
+    season_stats = player.playerseasonstats_set.first()
     stats_data = {}
 
     if season_stats:
         player_stats = season_stats.stats
 
-        if player_stats:  # Ensure player_stats is not None
+        if player_stats:  # Check if player_stats is not None
             stats_data = {
-                'matches_played': season_stats.matches_played,  # Include matches_played here
+                'matches_played': season_stats.matches_played,
                 'goals': player_stats.goals,
                 'assists': player_stats.assists,
                 'shots': player_stats.shots,
@@ -165,3 +142,57 @@ def get_player_data(player):
         'season_stats': stats_data,
     }
 
+
+
+import random
+
+def auto_select_starting_lineup(team):
+    if Player.objects.filter(team=team, is_starting=True).count() >= 11:
+        return
+
+    tactic = Tactics.objects.order_by('?').first()
+    if not tactic:
+        raise ValueError("Няма налични тактики в базата данни.")
+
+    required_positions = {
+        'GK': tactic.num_goalkeepers,
+        'DF': tactic.num_defenders,
+        'MF': tactic.num_midfielders,
+        'ATT': tactic.num_forwards,
+    }
+
+    selected_players = {
+        'GK': [],
+        'DF': [],
+        'MF': [],
+        'ATT': [],
+    }
+
+    players = Player.objects.filter(team=team)
+
+    for player in players:
+        if player.position.abbr in required_positions:
+            if len(selected_players[player.position.abbr]) < required_positions[player.position.abbr]:
+                selected_players[player.position.abbr].append(player)
+
+    Player.objects.filter(team=team, is_starting=True).update(is_starting=False)
+    for position, players in selected_players.items():
+        for player in players:
+            player.is_starting = True
+            player.save()
+
+    TeamTactics.objects.create(team=team, tactic=tactic)
+
+    return selected_players
+
+def update_tactics(dummy_team, new_team):
+    dummy_team_tactics = TeamTactics.objects.filter(team=dummy_team).first()
+
+    if dummy_team_tactics:
+        TeamTactics.objects.update_or_create(
+            team=new_team,
+            defaults={
+                'tactic': dummy_team_tactics.tactic,
+            }
+        )
+    pass
