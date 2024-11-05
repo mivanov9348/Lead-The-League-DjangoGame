@@ -1,47 +1,66 @@
+/* Center body content */
 body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0e4b5b, #5cb8a6);
-            color: #333;
-            text-align: center;
-            margin: 0;
-        }
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1d3557, #457b9d);
+    color: #f1faee;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-        h1 {
-            color: #2c3e50;
-        }
+.schedule-container {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            border:2px solid black;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
+.fixture-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    color: #1d3557;
+    border-radius: 8px;
+    overflow: hidden;
+}
 
-        th, td {
-            padding: 15px;
-            border: 1px solid #ddd;
-        }
+th, td {
+    padding: 15px 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
 
-        th {
-            background-color: #2980b9;
-            color: white;
-            text-transform: uppercase;
-        }
+th {
+    background-color: #457b9d;
+    color: #f1faee;
+    text-transform: uppercase;
+    font-weight: bold;
+}
 
-        tr:nth-child(even) {
-            background-color: #ecf0f1;
-        }
+tr:nth-child(even) {
+    background-color: #a8dadc;
+}
 
-        tr:hover {
-            background-color: #dfe6e9;
-            cursor: pointer;
-        }
+tr:hover {
+    background-color: #f1faee;
+    cursor: pointer;
+}
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            table {
-                width: 100%;
-            }
-        }
+.no-fixtures {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #1d3557;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .schedule-container {
+        width: 100%;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+}

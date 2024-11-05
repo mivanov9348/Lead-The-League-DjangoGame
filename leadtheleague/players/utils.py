@@ -1,7 +1,8 @@
 import random
 from teams.models import TeamTactics, Tactics
-from .models import Player, FirstName, LastName, Team, Nationality, Position, PositionAttribute, PlayerAttribute, \
-    Attribute, PlayerSeasonStats, PlayerMatchStats
+from .models import Player, FirstName, LastName, Nationality, Position, PositionAttribute, PlayerAttribute, \
+    Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
+
 
 def calculate_player_price(player):
     player_data = get_player_data(player)
@@ -19,6 +20,7 @@ def calculate_player_price(player):
     total_attributes = sum(PlayerAttribute.objects.filter(player=player).values_list('value', flat=True))
     return int(base_price * age_factor + total_attributes * 100)
 
+
 def get_random_name(region):
     first_names = list(FirstName.objects.filter(region=region))
     last_names = list(LastName.objects.filter(region=region))
@@ -32,6 +34,7 @@ def get_random_name(region):
     first_name = random.choice(first_names).name
     last_name = random.choice(last_names).name
     return first_name, last_name
+
 
 def generate_random_player(team=None, position=None):
     nationalities = Nationality.objects.all()
@@ -102,39 +105,27 @@ def generate_team_players(team):
         random_position = random.choice(all_positions)
         generate_random_player(team, random_position)
 
+
 def get_team_match_stats(userteam):
-    return PlayerMatchStats.objects.filter(player__team=userteam).select_related('player', 'stats')
+    # Филтрирайте PlayerMatchStats за играчи от конкретния отбор
+    return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
 
 def get_player_data(player):
-    # Build attributes dictionary from pre-fetched data
+    # Вземете сезонната статистика на играча
+    player_season_stats = player.season_stats.filter(season__isnull=False).select_related('statistic').first()
+
     attribute_values = {
         attr.attribute.name: attr.value
-        for attr in player.playerattribute_set.all()
+        for attr in player.playerattribute_set.prefetch_related('attribute').all()
     }
 
-    season_stats = player.playerseasonstats_set.first()
     stats_data = {}
+    if player_season_stats:
+        # Вземете стойностите на статистиките от PlayerSeasonStatistic
+        season_stats = PlayerSeasonStatistic.objects.filter(player=player, season=player_season_stats.season)
 
-    if season_stats:
-        player_stats = season_stats.stats
-
-        if player_stats:  # Check if player_stats is not None
-            stats_data = {
-                'matches_played': season_stats.matches_played,
-                'goals': player_stats.goals,
-                'assists': player_stats.assists,
-                'shots': player_stats.shots,
-                'shots_on_target': player_stats.shots_on_target,
-                'passes': player_stats.passes,
-                'dribbles': player_stats.dribbles,
-                'tackles': player_stats.tackles,
-                'yellow_cards': player_stats.yellow_cards,
-                'red_cards': player_stats.red_cards,
-                'minutes_played': player_stats.minutes_played,
-                'saves': player_stats.saves,
-                'clean_sheets': player_stats.clean_sheets,
-                'conceded': player_stats.conceded,
-            }
+        for stat in season_stats:
+            stats_data[stat.statistic.name] = stat.value  # Добавяне на стойността на статистиката
 
     return {
         'player': player,
@@ -142,9 +133,11 @@ def get_player_data(player):
         'season_stats': stats_data,
     }
 
+def get_player_match_stats(player, match):
+    stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
 
-
-import random
+    stats_dict = {stat.statistic.name: stat.value for stat in stats}
+    return stats_dict
 
 def auto_select_starting_lineup(team):
     if Player.objects.filter(team=team, is_starting=True).count() >= 11:

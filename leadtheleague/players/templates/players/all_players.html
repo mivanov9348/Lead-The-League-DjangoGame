@@ -6,91 +6,128 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>All Players</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background-color: #f4f4f9;
-        }
-
-        .players-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 20px;
-        }
-
-        .player-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 250px;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .player-card:hover {
-            transform: scale(1.05);
-        }
-
-        .player-name {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin: 10px 0;
+        h1 {
+            text-align: center;
             color: #333;
         }
 
-        .player-stats {
+        table {
             width: 100%;
-            margin-top: 10px;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .stat-item {
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .pagination {
             display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .stat-label {
-            color: #666;
+        .pagination a {
+            margin: 0 5px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
         }
 
-        .stat-value {
-            font-weight: bold;
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #f1f1f1;
         }
     </style>
 </head>
+{% include 'menu/_navbar.html' %}
 <body>
-<div class="players-container">
+<h1>All Players</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Nationality</th>
+        <th>Goals</th>
+        <th>Assists</th>
+        <th>Matches Played</th>
+        <th>Handling (H)</th>
+        <th>Reflexes (R)</th>
+        <th>Diving (D)</th>
+        <th>Positioning (P)</th>
+        <th>Communication (C)</th>
+        <th>Tackling (T)</th>
+        <th>Marking (M)</th>
+        <th>Heading (H)</th>
+        <th>Strength (S)</th>
+        <th>Passing (P)</th>
+        <th>Vision (V)</th>
+        <th>Work Rate (W)</th>
+        <th>Ball Control (BC)</th>
+        <th>Finishing (F)</th>
+        <th>Dribbling (Dr)</th>
+        <th>Pace (Pa)</th>
+        <th>Technique (Te)</th>
+        <th>Creativity (Cr)</th>
+        <th>Teamwork (T)</th>
+        <th>Determination (De)</th>
+    </tr>
+    </thead>
+    <tbody>
     {% for player in player_data %}
-    <div class="player-card">
-        <div class="player-name">{{ player.name }}</div>
-        <div class="player-stats">
-            <div class="stat-item">
-                <span class="stat-label">Goals:</span>
-                <span class="stat-value">{{ player.goals }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Assists:</span>
-                <span class="stat-value">{{ player.assists }}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Matches:</span>
-                <span class="stat-value">{{ player.matches }}</span>
-            </div>
-            <!-- Add more statistics here as needed -->
-        </div>
-    </div>
+    <tr>
+        <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
+        <td>{{ player.player.age }}</td>
+        <td>{{ player.player.nationality.name }}</td>
+        <td>{{ player.season_stats.goals }}</td>
+        <td>{{ player.season_stats.assists }}</td>
+        <td>{{ player.season_stats.matches }}</td>
+        <td>{{ player.attributes.Handling }}</td>
+        <td>{{ player.attributes.Reflexes }}</td>
+        <td>{{ player.attributes.Diving }}</td>
+        <td>{{ player.attributes.Positioning }}</td>
+        <td>{{ player.attributes.Communication }}</td>
+        <td>{{ player.attributes.Tackling }}</td>
+        <td>{{ player.attributes.Marking }}</td>
+        <td>{{ player.attributes.Heading }}</td>
+        <td>{{ player.attributes.Strength }}</td>
+        <td>{{ player.attributes.Passing }}</td>
+        <td>{{ player.attributes.Vision }}</td>
+        <td>{{ player.attributes.WorkRate }}</td>
+        <td>{{ player.attributes.BallControl }}</td>
+        <td>{{ player.attributes.Finishing }}</td>
+        <td>{{ player.attributes.Dribbling }}</td>
+        <td>{{ player.attributes.Pace }}</td>
+        <td>{{ player.attributes.Technique }}</td>
+        <td>{{ player.attributes.Creativity }}</td>
+        <td>{{ player.attributes.Teamwork }}</td>
+        <td>{{ player.attributes.Determination }}</td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    {% for page_num in pages %}
+    <a href="?page={{ page_num }}" class="{% if page_num == current_page %}active{% endif %}">{{ page_num }}</a>
     {% endfor %}
 </div>
 </body>

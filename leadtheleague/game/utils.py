@@ -1,11 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from fixtures.utils import generate_fixtures
 from game.models import Season
 from leagues.models import Division
-from match.utils import generate_matches_for_season
-from players.models import Player, PlayerSeasonStats, PlayerStats
+from match.utils import generate_matches_for_season, generate_player_match_stats
+from players.models import Player, PlayerSeasonStatistic, Statistic
 from teams.models import Team, TeamSeasonStats
+
 
 def get_current_season(year=None):
     if year is not None:
@@ -15,24 +16,32 @@ def get_current_season(year=None):
 
     return current_season
 
+
 def generate_season_number(year):
     seasons = get_current_season(year)
     return seasons.count() + 1
+
 
 def create_new_season(year, season_number, start_date, match_time):
     try:
         season = Season.objects.get(year=year, season_number=season_number)
         return season
     except ObjectDoesNotExist:
-        season = Season.objects.create(year=year, season_number=season_number, start_date=start_date,
-                                       match_time=match_time)
+        try:
+            # Create and save the Season instance first
+            season = Season(year=year, season_number=season_number, start_date=start_date, match_time=match_time)
+            season.save()
 
-        divisions = Division.objects.all()
+            # Only after the season is fully saved, generate fixtures and matches
+            divisions = Division.objects.all()
+            for division in divisions:
+                generate_fixtures(start_date, division, season, match_time)  # Pass the saved instance
 
-        for division in divisions:
-            generate_fixtures(start_date, division, season, match_time)
-
-        generate_matches_for_season(season)
+            # Generate matches and player stats only after the season exists
+            generate_matches_for_season(season)
+        except IntegrityError as e:
+            print("Foreign key error in Match creation:", e)
+            raise
         return season
 
 def create_team_season_stats(new_season):
@@ -55,21 +64,17 @@ def create_team_season_stats(new_season):
             players = Player.objects.filter(team=team)
             create_player_season_stats(players, new_season, team)
 
+
 def create_player_season_stats(players, new_season, team):
     for player in players:
-        # Check if the PlayerSeasonStats for the player and season already exists
-        if not PlayerSeasonStats.objects.filter(player=player, season=new_season).exists():
-            # Create a new PlayerStats instance
-            player_stats = PlayerStats.objects.create()  # Add any defaults or initial values here if needed
-
-            # Create PlayerSeasonStats with the new PlayerStats
-            PlayerSeasonStats.objects.create(
-                player=player,
-                season=new_season,
-                stats=player_stats,  # Link the new PlayerStats instance
-                matches_played=0,  # You can initialize matches played or any other fields as needed
-            )
-
+        for statistic in Statistic.objects.all():
+            if not PlayerSeasonStatistic.objects.filter(player=player, season=new_season, statistic=statistic).exists():
+                PlayerSeasonStatistic.objects.create(
+                    player=player,
+                    season=new_season,
+                    statistic=statistic,
+                    value=0,
+                )
 
 def update_team_season_stats(dummy_team, new_team):
     team_season_stats = TeamSeasonStats.objects.filter(team=dummy_team)

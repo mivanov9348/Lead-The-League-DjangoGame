@@ -7,15 +7,16 @@
     <link rel="stylesheet" href="{% static 'css/match.css' %}">
     {% include 'menu/_navbar.html' %}
 </head>
+
 <body>
 
 <div class="match-container">
 
-    <div class="score-bar">
+    <div class="score-bar" style="font-size:50px;font-family:OLD SPORT 01 COLLEGE NCV">
         <div class="team home-team">{{ match.home_team.name }}</div>
         <div class="score">
             {{ match.home_goals }} - {{ match.away_goals }}
-            <div class="match-time">66'</div> <!-- Времето под резултата -->
+            <div class="match-time">{{ current_minute }}'</div>
         </div>
         <div class="team away-team">{{ match.away_team.name }}</div>
     </div>
@@ -27,36 +28,70 @@
             <thead>
             <tr>
                 <th colspan="2">Name</th>
-                <th>Position</th>
+                <th>P</th>
+                <th>G</th>
+                <th>A</th>
+                <th>S</th>
+                <th>S</th>
+                <th>P</th>
+                <th>D</th>
+                <th>T</th>
+                <th>Y</th>
+                <th>R</th>
+                <th>M</th>
+                <th>S</th>
+                <th>CS</th>
+                <th>C</th>
             </tr>
             </thead>
             <tbody>
-            {% for player in home_lineup %}
+            {% for player_data in home_lineup %}
             <tr>
-                <td colspan="2">{{ player.first_name }} {{ player.last_name }}</td>
-                <td>{{ player.position.abbr }}</td>
+                <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
+                <td>{{ player_data.player.position.abbr }}</td>
+                <td>{{ player_data.stats.Goals|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No players found.</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Поле за събития -->
-    <div class="match-field">
-        <h3>Live</h3>
+    <!-- Match Events Section -->
+    <div class="match-events">
+        {% if current_time < match.start_time %}
+        <h4>Starting At {{ match.start_time|date:"H:i" }}</h4>
+        {% elif current_time >= match.start_time and current_time < match.end_time %}
+        <h4 style="color:red">Live</h4>
+        {% else %}
+        <h4>End</h4>
+        {% endif %}
         <hr/>
         <div class="match-events-container">
-            <div class="match-events">
-                <p>5' - Home Team attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacksam attacks</p>
-                <p>5' - Home Team attacks</p><p>5' - Home Team attacks</p>
-
-                <p>1' - Kick-off</p>
-                <p>5' - Home Team attacks</p>
-                <p>5' - Home Team attacks</p>
-            </div>
+            <p>10' - {{ match.home_team.name }} scored a goal!</p>
+            <p>15' - {{ match.away_team.name }} received a yellow card.</p>
+            <p>30' - {{ match.home_team.name }} made a substitution.</p>
+        </div>
+        <!-- Button for next event -->
+        <div class="button-container">
+            <button class="next-event-button">Next Event</button>
         </div>
     </div>
-
 
     <!-- Away Team Lineup -->
     <div class="lineup lineup-away">
@@ -65,19 +100,51 @@
             <thead>
             <tr>
                 <th colspan="2">Name</th>
-                <th>Position</th>
+                <th>P</th>
+                <th>G</th>
+                <th>A</th>
+                <th>S</th>
+                <th>S</th>
+                <th>P</th>
+                <th>D</th>
+                <th>T</th>
+                <th>Y</th>
+                <th>R</th>
+                <th>M</th>
+                <th>S</th>
+                <th>CS</th>
+                <th>C</th>
             </tr>
             </thead>
             <tbody>
-            {% for player in away_lineup %}
+            {% for player_data in away_lineup %}
             <tr>
-                <td colspan="2">{{ player.first_name }} {{ player.last_name }}</td>
-                <td>{{ player.position.abbr }}</td>
+                <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
+                <td>{{ player_data.player.position.abbr }}</td>
+                <td>{{ player_data.stats.Goals|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.Assists|default:0 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No players found.</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
+
 </div>
 </body>
+
 </html>

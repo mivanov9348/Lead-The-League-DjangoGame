@@ -3,7 +3,7 @@ from fixtures.utils import update_fixtures
 from game.utils import update_team_season_stats
 from leagues.models import League
 from match.utils import update_matches
-from players.models import PlayerSeasonStats, Player
+from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils import generate_team_players, get_player_data, auto_select_starting_lineup, update_tactics
 from teams.models import AdjectiveTeamNames, NounTeamNames
 from .models import Team, Division
@@ -43,6 +43,7 @@ def fill_dummy_teams():
                 generate_team_players(team)
                 auto_select_starting_lineup(team)
 
+
 def replace_dummy_team(new_team):
     leagues = League.objects.all().order_by('level')
 
@@ -51,34 +52,42 @@ def replace_dummy_team(new_team):
         for division in divisions:
             dummy_team = Team.objects.filter(division=division, is_dummy=True).first()
             if dummy_team:
-                # Transfer players from the dummy team to the new team
+                # Прехвърляне на играчите отDummy Team към новия отбор
                 dummy_team_players = Player.objects.filter(team=dummy_team)
 
                 for player in dummy_team_players:
-                    player_season_stats = PlayerSeasonStats.objects.filter(player=player, season__isnull=False).first()
+                    # Извличане на сезона на играча
+                    player_season_stats = PlayerSeasonStatistic.objects.filter(player=player,
+                                                                               season__isnull=False).first()
                     if player_season_stats:
                         player.team = new_team
                         player.save()
 
-                        # Create or update PlayerSeasonStats for the new team
-                        PlayerSeasonStats.objects.update_or_create(
-                            player=player,
-                            season=player_season_stats.season,
-                            defaults={
-                                'stats': player_season_stats.stats,  # Link the stats directly
-                                'matches_played': player_season_stats.matches_played,
-                                # Add other relevant fields from player_season_stats if necessary
-                            }
-                        )
+                        for statistic in Statistic.objects.all():
 
-                update_team_season_stats(dummy_team, new_team)  # Update the stats for the new team
-                update_fixtures(dummy_team, new_team)  # Update fixtures for the new team
+                            season_stat = PlayerSeasonStatistic.objects.filter(player=player,
+                                                                               season=player_season_stats.season,
+                                                                               statistic=statistic).first()
+
+                            if season_stat:
+                                # Създаване или актуализиране на PlayerSeasonStatistic за новия отбор
+                                PlayerSeasonStatistic.objects.update_or_create(
+                                    player=player,
+                                    season=player_season_stats.season,
+                                    statistic=statistic,
+                                    defaults={
+                                        'value': season_stat.value,  # Запазваме стойността на статистиката
+                                    }
+                                )
+
+                update_team_season_stats(dummy_team, new_team)  # Актуализиране на статистиките за новия отбор
+                update_fixtures(dummy_team, new_team)  # Актуализиране на фикстурите за новия отбор
                 update_matches(dummy_team, new_team)
                 update_tactics(dummy_team, new_team)
 
                 dummy_team.delete()
 
-                new_team.division = division  # Set the division for the new team
+                new_team.division = division  # Задаване на дивизията за новия отбор
                 new_team.save()
 
                 return True
