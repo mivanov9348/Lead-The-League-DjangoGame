@@ -111,7 +111,6 @@ def get_team_match_stats(userteam):
     return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
 
 def get_player_data(player):
-    # Вземете сезонната статистика на играча
     player_season_stats = player.season_stats.filter(season__isnull=False).select_related('statistic').first()
 
     attribute_values = {
@@ -132,6 +131,10 @@ def get_player_data(player):
         'attributes': attribute_values,
         'season_stats': stats_data,
     }
+
+def get_player_attributes(player):
+    player_attributes = {pa.attribute: pa.value for pa in PlayerAttribute.objects.filter(player=player)}
+    return player_attributes
 
 def get_player_match_stats(player, match):
     stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')

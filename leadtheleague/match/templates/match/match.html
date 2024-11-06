@@ -83,14 +83,22 @@
         {% endif %}
         <hr/>
         <div class="match-events-container">
-            <p>10' - {{ match.home_team.name }} scored a goal!</p>
-            <p>15' - {{ match.away_team.name }} received a yellow card.</p>
-            <p>30' - {{ match.home_team.name }} made a substitution.</p>
+            {% for event in events|dictsortreversed:"minute" %}
+            <p>{{ event.minute }}' - {{ event.description }}</p>
+            {% empty %}
+            <p>No events yet.</p>
+            {% endfor %}
         </div>
+
         <!-- Button for next event -->
         <div class="button-container">
-            <button class="next-event-button">Next Event</button>
+            <form action="{% url 'match:next_event' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="match_id" value="{{ match.id }}">
+                <button type="submit" class="next-event-button">Next Event</button>
+            </form>
         </div>
+
     </div>
 
     <!-- Away Team Lineup -->
