@@ -107,7 +107,6 @@ def generate_team_players(team):
 
 
 def get_team_match_stats(userteam):
-    # Филтрирайте PlayerMatchStats за играчи от конкретния отбор
     return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
 
 def get_player_data(player):

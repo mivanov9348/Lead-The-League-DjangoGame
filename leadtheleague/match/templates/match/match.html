@@ -38,9 +38,7 @@
                 <th>T</th>
                 <th>Y</th>
                 <th>R</th>
-                <th>M</th>
                 <th>S</th>
-                <th>CS</th>
                 <th>C</th>
             </tr>
             </thead>
@@ -50,18 +48,16 @@
                 <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
                 <td>{{ player_data.player.position.abbr }}</td>
                 <td>{{ player_data.stats.Goals|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.assists|default:0 }}</td>
+                <td>{{ player_data.stats.shoots|default:0 }}</td>
+                <td>{{ player_data.stats.shootsOnTarget|default:0 }}</td>
+                <td>{{ player_data.stats.passes|default:0 }}</td>
+                <td>{{ player_data.stats.dribbles|default:0 }}</td>
+                <td>{{ player_data.stats.tackles|default:0 }}</td>
+                <td>{{ player_data.stats.yellowCards|default:0 }}</td>
+                <td>{{ player_data.stats.redCards|default:0 }}</td>
+                <td>{{ player_data.stats.saves|default:0 }}</td>
+                <td>{{ player_data.stats.conceded|default:0 }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -118,9 +114,7 @@
                 <th>T</th>
                 <th>Y</th>
                 <th>R</th>
-                <th>M</th>
                 <th>S</th>
-                <th>CS</th>
                 <th>C</th>
             </tr>
             </thead>
@@ -130,18 +124,16 @@
                 <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
                 <td>{{ player_data.player.position.abbr }}</td>
                 <td>{{ player_data.stats.Goals|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
-                <td>{{ player_data.stats.Assists|default:0 }}</td>
+                <td>{{ player_data.stats.assists|default:0 }}</td>
+                <td>{{ player_data.stats.shoots|default:0 }}</td>
+                <td>{{ player_data.stats.shootsOnTarget|default:0 }}</td>
+                <td>{{ player_data.stats.passes|default:0 }}</td>
+                <td>{{ player_data.stats.dribbles|default:0 }}</td>
+                <td>{{ player_data.stats.tackles|default:0 }}</td>
+                <td>{{ player_data.stats.yellowCards|default:0 }}</td>
+                <td>{{ player_data.stats.redCards|default:0 }}</td>
+                <td>{{ player_data.stats.saves|default:0 }}</td>
+                <td>{{ player_data.stats.conceded|default:0 }}</td>
             </tr>
             {% empty %}
             <tr>
