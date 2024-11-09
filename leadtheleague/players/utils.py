@@ -5,7 +5,6 @@ from .models import Player, FirstName, LastName, Nationality, Position, Position
 
 
 def calculate_player_price(player):
-    player_data = get_player_data(player)
 
     base_prices = {
         'Goalkeeper': 20000,
@@ -39,29 +38,32 @@ def get_random_name(region):
 def generate_random_player(team=None, position=None):
     nationalities = Nationality.objects.all()
     nationality = random.choice(nationalities)
-
     region = nationality.region
-
     first_name, last_name = get_random_name(region)
 
+    # Определяме позицията на играча, ако не е зададена
     if position is None:
         position = random.choice(Position.objects.all())
 
-    # Initialize all attributes
+    # Инициализираме атрибутите на играча с произволни стойности от 1 до 20
     attributes = {attr.name: random.randint(1, 20) for attr in Attribute.objects.all()}
 
-    # Get position attributes for the player's position
+    # Получаваме атрибутите, които са важни за съответната позиция
     position_attributes = PositionAttribute.objects.filter(position=position)
 
-    # Adjust values based on the importance for the position
+    # Настройваме стойностите на атрибутите според важността
     for pos_attr in position_attributes:
-        if pos_attr.attribute.name in attributes:  # Ensure the attribute exists in the player attributes
-            # Multiply the base value by a factor related to the importance
-            value = attributes[pos_attr.attribute.name] * (pos_attr.importance / 4)
-            attributes[pos_attr.attribute.name] = int(value)  # Assign adjusted value
+        if pos_attr.attribute.name in attributes:
+            # Присвояваме нова стойност на атрибута спрямо важността (importance)
+            base_value = attributes[pos_attr.attribute.name]  # Основната стойност на атрибута
+            # Увеличаваме стойността в рамките на 1 до 20, без да надвишава 20
+            boosted_value = min(int(base_value * (1 + (pos_attr.importance - 1) * 0.3)), 20)
+            attributes[pos_attr.attribute.name] = boosted_value
 
+    # Задаваме случайна възраст
     age = random.randint(18, 35)
 
+    # Създаваме обекта Player и го запазваме
     player = Player(
         first_name=first_name,
         last_name=last_name,
@@ -72,11 +74,12 @@ def generate_random_player(team=None, position=None):
     )
     player.save()
 
-    # Create PlayerAttribute instances for all attributes
+    # Създаваме PlayerAttribute записи за всички атрибути с изчислените стойности
     for attr_name, value in attributes.items():
-        attr = Attribute.objects.get(name=attr_name)  # Get the Attribute instance
+        attr = Attribute.objects.get(name=attr_name)
         PlayerAttribute.objects.create(player=player, attribute=attr, value=value)
 
+    # Пресмятаме цената на играча
     player.price = calculate_player_price(player)
     player.save()
 

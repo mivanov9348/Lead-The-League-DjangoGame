@@ -1,0 +1,85 @@
+
+h1 {
+            text-align: center;
+            color: #333;
+ }
+
+.filter-container {
+            width: 90%;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+.filter-container input, .filter-container select {
+            margin: 5px;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+.filter-container label {
+            font-weight: bold;
+        }
+
+table {
+
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            text-align:center;
+        }
+
+th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+th {
+            background-color: #f2f2f2;
+        }
+
+tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Пагинацията да е в центъра */
+.pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 10px 0;
+        }
+
+.pagination a {
+            margin: 0 5px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+        }
+
+.pagination a.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+.pagination a:hover:not(.active) {
+            background-color: #f1f1f1;
+        }
+
+.pagination a.disabled {
+            background-color: #ddd;
+            pointer-events: none;
+        }
+
+        /* За да не се разтяга таблицата */
+.table-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }

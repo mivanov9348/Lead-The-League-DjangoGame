@@ -1,12 +1,15 @@
+from django.db import transaction
 from fixtures.models import Fixture
 from game.models import Season
-from players.models import Player, PlayerMatchStatistic, Statistic, Position, PositionAttribute, PlayerAttribute
+from players.models import Player, PlayerMatchStatistic, Statistic, Position, PositionAttribute, PlayerAttribute, \
+    PlayerSeasonStatistic
 from players.utils import get_player_match_stats
 from .models import Match, EventTemplate, Event, AttributeEventWeight, MatchEvent
 from datetime import datetime
 import random
 from freezegun import freeze_time
 from django.utils import timezone
+from django.db.models import F
 
 
 def generate_matches_for_season(season):
@@ -44,14 +47,21 @@ def get_match_status(match):
 
     if match.is_played:
         match_status = 'Ended'
-        print('Ended')
     elif current_time < match.date:
         match_status = 'Upcoming'
-        print('Upcoming')
     else:
         match_status = 'LIVE'
-        print('Live')
     return match_status
+
+
+def get_lineup_data(players, match):
+    return [
+        {
+            'player': player,
+            'stats': get_player_match_stats(player, match)
+        }
+        for player in players
+    ]
 
 
 def update_match_minute(match):
@@ -64,7 +74,6 @@ def update_match_minute(match):
     # Ако минутата е по-голяма от 90, я настройваме на 90
     if current_minute > 90:
         current_minute = 90
-        match.is_played = True  # Ако е 90 минута, мачът приключва
 
     # Записваме текущата минута и състоянието на мача в базата данни
     match.current_minute = current_minute
@@ -72,10 +81,10 @@ def update_match_minute(match):
 
     return current_minute
 
+
 def generate_player_match_stats():
-    current_season = Season.objects.filter(is_ended=False).first()  # Вземете първия несвършен сезон
+    current_season = Season.objects.filter(is_ended=False).first()
     if not current_season:
-        print("Няма активен сезон.")
         return
 
     matches = Match.objects.filter(season=current_season)
@@ -104,7 +113,7 @@ def choose_event_random_player(team):
 
 
 def get_random_event():
-    event = Event.objects.all()
+    event = Event.objects.exclude(type='Team')
     return random.choice(event)
 
 
@@ -157,6 +166,27 @@ def get_event_players(template, main_player, team):
     return players
 
 
+def get_team_template(match):
+    event_result = ""
+    if match.current_minute <= 1:
+        event_result = "Kick Off"
+
+    elif match.current_minute >= 45 <= match.current_minute < 46:
+        match.current_minute = 45
+        match.save()
+        event_result = "Half-Time"
+
+    elif match.current_minute >= 90:
+        match.current_minute = 90
+        match.save()
+        event_result = "Full-Time"
+
+    templates = EventTemplate.objects.filter(event_result=event_result)
+    if templates.exists():
+        return random.choice(templates)  # Връща произволен темплейт от наличните
+    return None
+
+
 def fill_template_with_players(template, players):
     player_1_name = f"{players[0].first_name} {players[0].last_name} ({players[0].team.name})"
     player_2_name = f"{players[1].first_name} {players[1].last_name} ({players[1].team.name}" if len(
@@ -177,7 +207,7 @@ def update_player_stats_from_template(match, template, players):
     for player in players:
         stats_dict[player] = get_player_match_stats(player, match)
 
-    # Намираме противниковия отбор, използвайки home_team и away_team
+    # Намираме противниковия отбор
     opponent_team = match.away_team if players[0].team == match.home_team else match.home_team
 
     # Откриваме вратаря на противниковия отбор
@@ -186,7 +216,6 @@ def update_player_stats_from_template(match, template, players):
 
     goalie_stats = get_player_match_stats(opposing_goalkeeper, match) if opposing_goalkeeper else None
 
-    # Свързваме полетата от шаблона с имената на статистиките
     event_fields_to_stats = {
         "goals": "goals",
         "assists": "assists",
@@ -202,65 +231,47 @@ def update_player_stats_from_template(match, template, players):
         "conceded": "conceded"
     }
 
+    # Записване на статистиките от шаблона
     for field, stat_name in event_fields_to_stats.items():
-        stat_value = getattr(template, field)
+        stat_value = getattr(template, field, 0)
 
-        # Проверяваме за голямо значение (като 1, за да има ефект)
         if stat_value > 0:
-            if stat_name == "assists" and len(players) > 1:
-                # Асистенцията се записва на втория играч (ако има втори играч)
-                player_2 = players[1]
-                if player_2 and "assists" in stats_dict[player_2]:
-                    stats_dict[player_2]["assists"] += stat_value
-                elif player_2:
-                    stats_dict[player_2]["assists"] = stat_value
-            elif stat_name == "passes" and len(players) > 1:
-                # За паса добавяме само на подаващия, без ефект върху получателя
-                if "passes" in stats_dict[players[0]]:
-                    stats_dict[players[0]]["passes"] += stat_value
-                else:
-                    stats_dict[players[0]]["passes"] = stat_value
-            elif stat_name == "conceded" and opposing_goalkeeper:
-                # Допуснат гол се записва на вратаря на противниковия отбор
-                if goalie_stats and "conceded" in goalie_stats:
-                    goalie_stats["conceded"] += stat_value
-                elif goalie_stats:
-                    goalie_stats["conceded"] = stat_value
-            else:
-                # Добавяме стойността към всички играчи
-                for player in players:
-                    if stat_name in stats_dict[player]:
-                        stats_dict[player][stat_name] += stat_value
-                    else:
-                        stats_dict[player][stat_name] = stat_value
 
-    # Запазваме промените за всички играчи
+            if stat_name == "assists" and len(players) > 1:
+                player_2 = players[1]
+                stats_dict[player_2]["assists"] = stats_dict[player_2].get("assists", 0) + stat_value
+            elif stat_name == "passes" and len(players) > 1:
+                stats_dict[players[0]]["passes"] = stats_dict[players[0]].get("passes", 0) + stat_value
+            elif stat_name == "conceded" and opposing_goalkeeper:
+                goalie_stats["conceded"] = goalie_stats.get("conceded", 0) + stat_value
+            elif stat_name == "goals":
+                stats_dict[players[0]]["goals"] = stats_dict[players[0]].get("goals", 0) + stat_value
+            else:
+                for player in players:
+                    stats_dict[player][stat_name] = stats_dict[player].get(stat_name, 0) + stat_value
+
+    # Запазване на статистиките
     for player, stats in stats_dict.items():
         for stat_name, value in stats.items():
-            try:
-                player_stat, created = PlayerMatchStatistic.objects.get_or_create(
-                    player=player,
-                    match=match,
-                    statistic__name=stat_name
-                )
-                player_stat.value = value
-                player_stat.save()
-            except Exception as e:
-                print(f"Error saving stat for player {player.id}: {stat_name} - {e}")
+            player_stat, created = PlayerMatchStatistic.objects.get_or_create(
+                player=player,
+                match=match,
+                statistic__name=stat_name,
+                defaults={'value': 0}
+            )
+            player_stat.value = value
+            player_stat.save()
 
-    # Ако има вратар на противника, също актуализираме неговите статистики
     if opposing_goalkeeper and goalie_stats:
         for stat_name, value in goalie_stats.items():
-            try:
-                player_stat, created = PlayerMatchStatistic.objects.get_or_create(
-                    player=opposing_goalkeeper,
-                    match=match,
-                    statistic__name=stat_name
-                )
-                player_stat.value = value
-                player_stat.save()
-            except Exception as e:
-                print(f"Error saving stat for goalkeeper {opposing_goalkeeper.id}: {stat_name} - {e}")
+            player_stat, created = PlayerMatchStatistic.objects.get_or_create(
+                player=opposing_goalkeeper,
+                match=match,
+                statistic__name=stat_name,
+                defaults={'value': 0}
+            )
+            player_stat.value = value
+            player_stat.save()
 
 
 def update_matchscore(template, match, team_with_initiative):
@@ -272,9 +283,9 @@ def update_matchscore(template, match, team_with_initiative):
     match.save()
 
 
-def log_match_event(match, minute, template, formattedText, players):
+def log_match_event(match, minute, template, formattedText, players=None):
     # Проверка дали всички елементи в 'players' са обекти от тип 'Player'
-    if not all(isinstance(player, Player) for player in players):
+    if players and not all(isinstance(player, Player) for player in players):
         raise ValueError("Всички елементи в 'players' трябва да бъдат обекти от типа 'Player'.")
 
     try:
@@ -288,24 +299,40 @@ def log_match_event(match, minute, template, formattedText, players):
             possession_kept=template.possession_kept
         )
 
-        # Записване на играчите, свързани със събитието
-        match_event.players.set(players)
+        # Записване на играчите, свързани със събитието, само ако има такива
+        if players:
+            match_event.players.set(players)
+
         match_event.save()
 
-        # Логване на събитието в конзолата
-        print(f"Записано събитие: Мин. {minute}, Тип: {template.event_type.type}, Текст: {formattedText}")
-
-
     except Exception as e:
-        print(f"Грешка при записване на събитие: {e}")
+        print(f'Error: {e}')
 
 
 def check_initiative(template, match):
     if template.possession_kept:
-        # Инициативата остава на текущия отбор
         print("Инициативата се запазва.")
     else:
         # Смяна на инициативата
         match.is_home_initiative = not match.is_home_initiative
         match.save()
-        print(f"Инициативата преминава към: {'домакините' if match.is_home_initiative else 'гостите'}")
+
+
+def finalize_match(match):
+    match.is_played = True
+    match.save()
+    # Взимаме статистиките на играчите за този мач
+    player_match_stats = PlayerMatchStatistic.objects.filter(match=match)
+
+    with transaction.atomic():
+        for match_stat in player_match_stats:
+            # Намираме съществуващата сезонна статистика и я обновяваме
+            season_stat, created = PlayerSeasonStatistic.objects.get_or_create(
+                player=match_stat.player,
+                statistic=match_stat.statistic,
+                season=match.season,
+                defaults={'value': 0}
+            )
+
+            season_stat.value = F('value') + match_stat.value
+            season_stat.save()

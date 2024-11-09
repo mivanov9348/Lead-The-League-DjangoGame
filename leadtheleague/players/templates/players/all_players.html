@@ -4,131 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/all_players.css' %}">
     <title>All Players</title>
-    <style>
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .pagination a {
-            margin: 0 5px;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #333;
-        }
-
-        .pagination a.active {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .pagination a:hover:not(.active) {
-            background-color: #f1f1f1;
-        }
-    </style>
 </head>
-{% include 'menu/_navbar.html' %}
 <body>
+{% include 'menu/_navbar.html' %}
 <h1>All Players</h1>
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Nationality</th>
-        <th>Goals</th>
-        <th>Assists</th>
-        <th>Matches Played</th>
-        <th>Handling (H)</th>
-        <th>Reflexes (R)</th>
-        <th>Diving (D)</th>
-        <th>Positioning (P)</th>
-        <th>Communication (C)</th>
-        <th>Tackling (T)</th>
-        <th>Marking (M)</th>
-        <th>Heading (H)</th>
-        <th>Strength (S)</th>
-        <th>Passing (P)</th>
-        <th>Vision (V)</th>
-        <th>Work Rate (W)</th>
-        <th>Ball Control (BC)</th>
-        <th>Finishing (F)</th>
-        <th>Dribbling (Dr)</th>
-        <th>Pace (Pa)</th>
-        <th>Technique (Te)</th>
-        <th>Creativity (Cr)</th>
-        <th>Teamwork (T)</th>
-        <th>Determination (De)</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for player in player_data %}
-    <tr>
-        <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
-        <td>{{ player.player.age }}</td>
-        <td>{{ player.player.nationality.name }}</td>
-        <td>{{ player.season_stats.goals }}</td>
-        <td>{{ player.season_stats.assists }}</td>
-        <td>{{ player.season_stats.matches }}</td>
-        <td>{{ player.attributes.Handling }}</td>
-        <td>{{ player.attributes.Reflexes }}</td>
-        <td>{{ player.attributes.Diving }}</td>
-        <td>{{ player.attributes.Positioning }}</td>
-        <td>{{ player.attributes.Communication }}</td>
-        <td>{{ player.attributes.Tackling }}</td>
-        <td>{{ player.attributes.Marking }}</td>
-        <td>{{ player.attributes.Heading }}</td>
-        <td>{{ player.attributes.Strength }}</td>
-        <td>{{ player.attributes.Passing }}</td>
-        <td>{{ player.attributes.Vision }}</td>
-        <td>{{ player.attributes.WorkRate }}</td>
-        <td>{{ player.attributes.BallControl }}</td>
-        <td>{{ player.attributes.Finishing }}</td>
-        <td>{{ player.attributes.Dribbling }}</td>
-        <td>{{ player.attributes.Pace }}</td>
-        <td>{{ player.attributes.Technique }}</td>
-        <td>{{ player.attributes.Creativity }}</td>
-        <td>{{ player.attributes.Teamwork }}</td>
-        <td>{{ player.attributes.Determination }}</td>
 
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+<!-- Филтриращ контейнер с полета -->
+<div class="filter-container">
+    <form method="get">
+        <label for="team">Team:</label>
+        <select name="team" id="team">
+            <option value="">All Teams</option>
+            {% for team in teams %}
+            <option value="{{ team.name }}" {% if team.name == request.GET.team %}selected{% endif %}>{{ team.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label for="age">Age:</label>
+        <input type="number" name="age" id="age" placeholder="Enter age" value="{{ request.GET.age }}">
+
+        <label for="nationality">Nationality:</label>
+        <select name="nationality" id="nationality">
+            <option value="">All Nationalities</option>
+            {% for nationality in nationalities %}
+            <option value="{{ nationality.abbr }}" {% if nationality.abbr == request.GET.nationality %}selected{% endif %}>
+                {{ nationality.abbr }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label for="position">Position:</label>
+        <select name="position" id="position">
+            <option value="">All Positions</option>
+            {% for position in positions %}
+            <option value="{{ position.abbr }}" {% if position.name == request.GET.position %}selected{% endif %}>{{ position.abbr }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Apply Filters</button>
+    </form>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Pos</th>
+            <th>Team</th>
+            <th>Nat</th>
+            <th>Matches</th>
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Shoots</th>
+            <th>On Target</th>
+            <th>Passes</th>
+            <th>Dribbles</th>
+            <th>Tackles</th>
+            <th>Yellow Cards</th>
+            <th>Red Cards</th>
+            <th>Fouls</th>
+            <th>Saves</th>
+            <th>Clean Sheets</th>
+            <th>Conceded</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for player in player_data %}
+        <tr>
+            <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
+            <td>{{ player.player.age }}</td>
+            <td>{{ player.player.position.abbr }}</td>
+            <td>{{ player.player.team.name }}</td>
+            <td>{{ player.player.nationality.abbr }}</td>
+            <td>{{ player.season_stats.matches }}</td>
+            <td>{{ player.season_stats.goals }}</td>
+            <td>{{ player.season_stats.assists }}</td>
+            <td>{{ player.season_stats.shoots }}</td>
+            <td>{{ player.season_stats.shootsOnTarget }}</td>
+            <td>{{ player.season_stats.passes }}</td>
+            <td>{{ player.season_stats.dribbles }}</td>
+            <td>{{ player.season_stats.tackles }}</td>
+            <td>{{ player.season_stats.yellowCards }}</td>
+            <td>{{ player.season_stats.redCards }}</td>
+            <td>{{ player.season_stats.fouls }}</td>
+            <td>{{ player.season_stats.saves }}</td>
+            <td>{{ player.season_stats.cleanSheets }}</td>
+            <td>{{ player.season_stats.conceded }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <div class="pagination">
+    {% if current_page > 1 %}
+    <a href="?page=1">First</a>
+    <a href="?page={{ current_page|add:-1 }}">Previous</a>
+    {% endif %}
+
     {% for page_num in pages %}
     <a href="?page={{ page_num }}" class="{% if page_num == current_page %}active{% endif %}">{{ page_num }}</a>
     {% endfor %}
+
+    {% if current_page < pages|last %}
+    <a href="?page={{ current_page|add:1 }}">Next</a>
+    <a href="?page={{ pages|last }}">Last</a>
+    {% endif %}
 </div>
+
 </body>
 </html>

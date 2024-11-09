@@ -1,5 +1,5 @@
 .custom-bottom-navbar {
-    background-color: #072933;
+    background-color: #1A2B42;
 }
 
 /* Profile Links */
@@ -17,8 +17,8 @@
 }
 
 .navbar-nav .nav-link {
-    color: #ffffff; /* Link color */
-    margin: 0 10px; /* Horizontal margin for links */
+   color: #FFFFFF;
+       margin: 0 10px; /* Horizontal margin for links */
     transition: color 0.3s ease, background-color 0.3s ease; /* Smooth color transition */
     border-radius: 4px; /* Rounded corners */
     font-size: 14px;

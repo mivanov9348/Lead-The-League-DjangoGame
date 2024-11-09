@@ -3,6 +3,7 @@ from teams.models import Team
 from datetime import timedelta
 import random
 
+
 def generate_fixtures(start_date, division, season, match_time):
     last_fixture = Fixture.objects.order_by('-fixture_number').first()
     fixture_number = last_fixture.fixture_number + 1 if last_fixture else 1
@@ -59,10 +60,12 @@ def generate_fixtures(start_date, division, season, match_time):
 
     return round_number
 
+
 def shuffle_teams(teams):
     team_list = list(teams)
     random.shuffle(team_list)
     return team_list
+
 
 def get_division_fixtures(division, round_number):
     if round_number is None:
@@ -70,8 +73,9 @@ def get_division_fixtures(division, round_number):
     else:
         return Fixture.objects.filter(
             division_id=division.id,
-            round_number=int(round_number)  # Конвертиране на round_number в int
+            round_number=int(round_number)
         ).order_by('date')
+
 
 def get_team_schedule(user_division, user_team):
     upcoming_matches = Fixture.objects.filter(
@@ -97,6 +101,7 @@ def get_team_schedule(user_division, user_team):
 
     return matches
 
+
 def update_fixtures(dummy_team, new_team):
     home_fixtures = Fixture.objects.filter(home_team=dummy_team)
     away_fixtures = Fixture.objects.filter(away_team=dummy_team)
@@ -108,3 +113,26 @@ def update_fixtures(dummy_team, new_team):
     for fixture in away_fixtures:
         fixture.away_team = new_team
         fixture.save()
+
+
+def match_to_fixture(match):
+    try:
+        fixture = Fixture.objects.get(
+            home_team=match.home_team,
+            away_team=match.away_team,
+            season=match.season,
+            division=match.division,
+            date=match.date.date()
+        )
+
+    except Fixture.DoesNotExist:
+        print("Fixture не е намерен за този мач.")
+        return
+
+    fixture.home_goals = match.home_goals
+    fixture.away_goals = match.away_goals
+    fixture.is_finished = True
+
+    fixture.save()
+    print(
+        f"Резултатът от мача ({match.home_team} {match.home_goals}:{match.away_goals} {match.away_team}) е записан във Fixture.")

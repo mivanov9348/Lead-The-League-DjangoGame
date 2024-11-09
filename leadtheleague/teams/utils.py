@@ -1,11 +1,12 @@
 import random
+from django.db import transaction
 from fixtures.utils import update_fixtures
 from game.utils import update_team_season_stats
 from leagues.models import League
 from match.utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils import generate_team_players, get_player_data, auto_select_starting_lineup, update_tactics
-from teams.models import AdjectiveTeamNames, NounTeamNames
+from teams.models import AdjectiveTeamNames, NounTeamNames, TeamSeasonStats
 from .models import Team, Division
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,7 +16,9 @@ import base64
 def generate_random_team_name():
     adjectives = list(AdjectiveTeamNames.objects.values_list('word', flat=True))
     nouns = list(NounTeamNames.objects.values_list('word', flat=True))
-    return f'{random.choice(adjectives)} {random.choice(nouns)}' if random.choice([True, False]) else random.choice(nouns)
+    return f'{random.choice(adjectives)} {random.choice(nouns)}' if random.choice([True, False]) else random.choice(
+        nouns)
+
 
 def fill_dummy_teams():
     Team.objects.filter(is_dummy=True).delete()
@@ -93,6 +96,7 @@ def replace_dummy_team(new_team):
                 return True
     return False
 
+
 def get_team_players_season_data(team):
     players = Player.objects.filter(team=team)
     standings_data = []
@@ -102,6 +106,7 @@ def get_team_players_season_data(team):
         standings_data.append(player_data)
 
     return standings_data
+
 
 def create_team_performance_chart(season_stats, team_name):
     stats_data = {
@@ -148,3 +153,55 @@ def create_team_performance_chart(season_stats, team_name):
     img = base64.b64encode(buf.read()).decode('utf-8')
 
     return img
+
+def update_team_stats(match):
+    if not match.is_played:
+        print('Match is still unplayed!')
+        return
+
+    home_team = match.home_team
+    away_team = match.away_team
+    home_goals = match.home_goals
+    away_goals = match.away_goals
+
+    home_stats, _ = TeamSeasonStats.objects.get_or_create(
+        team=home_team,
+        season=match.season,
+        division=match.division
+    )
+    away_stats, _ = TeamSeasonStats.objects.get_or_create(
+        team=away_team,
+        season=match.season,
+        division=match.division
+    )
+
+    with transaction.atomic():
+        home_stats.matches += 1
+        away_stats.matches += 1
+
+    if home_goals > away_goals:
+        home_stats.wins += 1
+        home_stats.points += 3
+        away_stats.losses += 1
+
+    elif home_goals < away_goals:
+        away_stats.wins += 1
+        away_stats.points += 3
+        home_stats.losses += 1
+
+    else:
+        home_stats.draws += 1
+        away_stats.draws += 1
+        home_stats.points += 1
+        away_stats.points += 1
+
+    home_stats.goalscored += home_goals
+    home_stats.goalconceded += away_goals
+    away_stats.goalscored += away_goals
+    away_stats.goalconceded += home_goals
+
+    home_stats.goaldifference = home_stats.goalscored - home_stats.goalconceded
+    away_stats.goaldifference = away_stats.goalscored - away_stats.goalconceded
+
+    home_stats.save()
+    away_stats.save()
