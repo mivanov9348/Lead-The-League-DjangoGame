@@ -2,12 +2,12 @@ import random
 from django.db import transaction
 from fixtures.utils import update_fixtures
 from game.utils import update_team_season_stats
-from leagues.models import League
+from leagues.models import League, Division
 from match.utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils import generate_team_players, get_player_data, auto_select_starting_lineup, update_tactics
 from teams.models import AdjectiveTeamNames, NounTeamNames, TeamSeasonStats
-from .models import Team, Division
+from .models import Team
 import pandas as pd
 import matplotlib.pyplot as plt
 import io

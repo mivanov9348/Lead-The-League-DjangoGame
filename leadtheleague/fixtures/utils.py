@@ -122,7 +122,7 @@ def match_to_fixture(match):
             away_team=match.away_team,
             season=match.season,
             division=match.division,
-            date=match.date.date()
+            date=match.match_date  # Промяна на date -> match_date, за да съвпадне с полето в Match
         )
 
     except Fixture.DoesNotExist:

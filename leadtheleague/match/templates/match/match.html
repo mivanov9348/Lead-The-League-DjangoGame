@@ -7,13 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/match.css' %}">
     {% include 'menu/_navbar.html' %}
 </head>
-<div class="button-container">
-    <form action="{% url 'match:next_event' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="match_id" value="{{ match.id }}">
-        <button type="submit" class="next-event-button">Next Event</button>
-    </form>
-</div>
+
 <body>
 
 <div class="match-container">
@@ -145,6 +139,11 @@
             </tbody>
         </table>
     </div>
+    <script>
+        setInterval(() => {
+            window.location.reload();
+        }, 5000);  // Презарежда страницата на всеки 5 секунди
+    </script>
 
 </div>
 </body>

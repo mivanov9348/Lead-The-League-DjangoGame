@@ -3,7 +3,6 @@ from teams.models import TeamTactics, Tactics
 from .models import Player, FirstName, LastName, Nationality, Position, PositionAttribute, PlayerAttribute, \
     Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
 
-
 def calculate_player_price(player):
 
     base_prices = {
@@ -19,7 +18,6 @@ def calculate_player_price(player):
     total_attributes = sum(PlayerAttribute.objects.filter(player=player).values_list('value', flat=True))
     return int(base_price * age_factor + total_attributes * 100)
 
-
 def get_random_name(region):
     first_names = list(FirstName.objects.filter(region=region))
     last_names = list(LastName.objects.filter(region=region))
@@ -33,7 +31,6 @@ def get_random_name(region):
     first_name = random.choice(first_names).name
     last_name = random.choice(last_names).name
     return first_name, last_name
-
 
 def generate_random_player(team=None, position=None):
     nationalities = Nationality.objects.all()

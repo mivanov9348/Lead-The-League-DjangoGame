@@ -1,15 +1,13 @@
 from django.db import transaction
 from fixtures.models import Fixture
 from game.models import Season
-from players.models import Player, PlayerMatchStatistic, Statistic, Position, PositionAttribute, PlayerAttribute, \
-    PlayerSeasonStatistic
+from players.models import Player, PlayerMatchStatistic, Statistic, Position, PlayerSeasonStatistic
 from players.utils import get_player_match_stats
 from .models import Match, EventTemplate, Event, AttributeEventWeight, MatchEvent
-from datetime import datetime
 import random
-from freezegun import freeze_time
-from django.utils import timezone
 from django.db.models import F
+from django.utils import timezone
+from datetime import datetime
 
 
 def generate_matches_for_season(season):
@@ -20,7 +18,8 @@ def generate_matches_for_season(season):
             home_team=fixture.home_team,
             away_team=fixture.away_team,
             division=fixture.division,
-            date=datetime.combine(fixture.date, fixture.match_time),
+            match_date=fixture.date,  # Използваме match_date вместо date
+            match_time=fixture.match_time,  # Използваме match_time вместо time
             home_goals=fixture.home_goals,
             away_goals=fixture.away_goals,
             is_played=fixture.is_finished,
@@ -41,13 +40,12 @@ def update_matches(dummy_team, new_team):
         match.save()
 
 
-@freeze_time("2024-11-07 11:00:00+00:00")
 def get_match_status(match):
     current_time = timezone.now()
 
     if match.is_played:
         match_status = 'Ended'
-    elif current_time < match.date:
+    elif current_time < timezone.make_aware(datetime.combine(match.match_date, match.match_time)):
         match_status = 'Upcoming'
     else:
         match_status = 'LIVE'

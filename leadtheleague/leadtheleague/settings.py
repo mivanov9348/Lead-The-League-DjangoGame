@@ -1,5 +1,6 @@
-import os
 from pathlib import Path
+from datetime import timedelta
+from huey import RedisHuey
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'huey.contrib.djhuey',
     'teams',
     'accounts',
     'game',
@@ -31,7 +33,7 @@ INSTALLED_APPS = [
     'leagues',
     'fixtures',
     'inbox',
-    'match'
+    'match',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +89,7 @@ DATABASES = {
 AUTH_USER_MODEL = 'accounts.CustomUser'
 AUTH_PASSWORD_VALIDATORS = []
 
-LOGIN_REDIRECT_URL = 'game:home'  
+LOGIN_REDIRECT_URL = 'game:home'
 LOGOUT_REDIRECT_URL = 'accounts:welcome_page'
 
 # Internationalization
@@ -111,32 +113,35 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+# В settings.py или в друга конфигурация за Huey
+HUEY = RedisHuey(
+    'leadtheleague',  # Името на проекта
+    immediate=False,   # Изключваме immediate режима
+    host='localhost',  # Адрес на Redis сървъра
+    port=6379,         # Порт на Redis сървъра
+)
+
+# Допълнителни настройки за Huey
+HUEY.consumer = {
+    'workers': 10,  # Задаваме 10 работника
+    'worker_type': 'process',  # Работниците ще бъдат процеси (може да е 'thread' или 'greenlet')
+}
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
-        'file': {
+        'console': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-            'formatter': 'verbose',
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['file'],
+        'django.db.backends': {
             'level': 'DEBUG',
-            'propagate': True,
+            'handlers': ['console'],
         },
     },
 }
