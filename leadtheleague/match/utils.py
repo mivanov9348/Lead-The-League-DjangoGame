@@ -3,7 +3,7 @@ from fixtures.models import Fixture
 from game.models import Season
 from players.models import Player, PlayerMatchStatistic, Statistic, Position, PlayerSeasonStatistic
 from players.utils import get_player_match_stats
-from .models import Match, EventTemplate, Event, AttributeEventWeight, MatchEvent
+from .models import Match, EventTemplate, Event, AttributeEventWeight, MatchEvent, EventResult
 import random
 from django.db.models import F
 from django.utils import timezone
@@ -136,18 +136,18 @@ def calculate_success_rate(event, attributes_and_weights):
 
 
 def get_event_template(event_type, success):
-    # Вземаме всички темплейти от дадения тип и ги сортираме по `event_threshold` във възходящ ред
-    event_templates = EventTemplate.objects.filter(event_type=event_type).order_by('event_threshold')
+    # Вземаме всички EventResults за дадения тип събитие и ги сортираме по `event_threshold` във възходящ ред
+    event_results = EventResult.objects.filter(event_type__type=event_type).order_by('event_threshold')
 
     chosen_template = None
-    # Обхождаме всеки темплейт и запазваме този, който покрива текущата стойност на успеха
-    for template in event_templates:
-        if success <= template.event_threshold:
-            chosen_template = template
+    # Обхождаме всеки EventResult и намираме първия съвпадащ EventTemplate
+    for event_result in event_results:
+        if success <= event_result.event_threshold:
+            # Вземаме съответния EventTemplate за този EventResult
+            chosen_template = EventTemplate.objects.filter(event_result=event_result).first()
             break  # Спряме се на първия валиден диапазон
 
     return chosen_template
-
 
 # Getting needed players for this event
 def get_event_players(template, main_player, team):
@@ -155,6 +155,7 @@ def get_event_players(template, main_player, team):
     players = [main_player]
 
     if num_players == 2:
+        # Избираме втори играч от отбора, като проверяваме да не е същия като основния играч
         while True:
             second_player = choose_event_random_player(team)
             if second_player != main_player:
@@ -163,40 +164,18 @@ def get_event_players(template, main_player, team):
 
     return players
 
-
-def get_team_template(match):
-    event_result = ""
-    if match.current_minute <= 1:
-        event_result = "Kick Off"
-
-    elif match.current_minute >= 45 <= match.current_minute < 46:
-        match.current_minute = 45
-        match.save()
-        event_result = "Half-Time"
-
-    elif match.current_minute >= 90:
-        match.current_minute = 90
-        match.save()
-        event_result = "Full-Time"
-
-    templates = EventTemplate.objects.filter(event_result=event_result)
-    if templates.exists():
-        return random.choice(templates)  # Връща произволен темплейт от наличните
-    return None
-
-
 def fill_template_with_players(template, players):
+    # Форматираме имената на играчите за използване в шаблона
     player_1_name = f"{players[0].first_name} {players[0].last_name} ({players[0].team.name})"
-    player_2_name = f"{players[1].first_name} {players[1].last_name} ({players[1].team.name}" if len(
-        players) > 1 else ""
+    player_2_name = f"{players[1].first_name} {players[1].last_name} ({players[1].team.name})" if len(players) > 1 else ""
 
+    # Форматираме текста на шаблона, като заменяме player_1 и player_2 с реалните имена
     formatted_text = template.template_text.format(
         player_1=player_1_name,
         player_2=player_2_name
     )
 
     return formatted_text
-
 
 def update_player_stats_from_template(match, template, players):
     stats_dict = {}
@@ -214,6 +193,7 @@ def update_player_stats_from_template(match, template, players):
 
     goalie_stats = get_player_match_stats(opposing_goalkeeper, match) if opposing_goalkeeper else None
 
+    # Създаваме мапинг между полетата от шаблона и статистиките
     event_fields_to_stats = {
         "goals": "goals",
         "assists": "assists",
@@ -234,7 +214,7 @@ def update_player_stats_from_template(match, template, players):
         stat_value = getattr(template, field, 0)
 
         if stat_value > 0:
-
+            # Добавяме статистика за втори играч, ако е необходимо
             if stat_name == "assists" and len(players) > 1:
                 player_2 = players[1]
                 stats_dict[player_2]["assists"] = stats_dict[player_2].get("assists", 0) + stat_value
@@ -245,10 +225,11 @@ def update_player_stats_from_template(match, template, players):
             elif stat_name == "goals":
                 stats_dict[players[0]]["goals"] = stats_dict[players[0]].get("goals", 0) + stat_value
             else:
+                # Разпределяме стойността на статистиката за всеки играч
                 for player in players:
                     stats_dict[player][stat_name] = stats_dict[player].get(stat_name, 0) + stat_value
 
-    # Запазване на статистиките
+    # Запазваме статистиките за играчите
     for player, stats in stats_dict.items():
         for stat_name, value in stats.items():
             player_stat, created = PlayerMatchStatistic.objects.get_or_create(
@@ -260,6 +241,7 @@ def update_player_stats_from_template(match, template, players):
             player_stat.value = value
             player_stat.save()
 
+    # Записваме статистиките за вратаря, ако има
     if opposing_goalkeeper and goalie_stats:
         for stat_name, value in goalie_stats.items():
             player_stat, created = PlayerMatchStatistic.objects.get_or_create(
@@ -271,15 +253,16 @@ def update_player_stats_from_template(match, template, players):
             player_stat.value = value
             player_stat.save()
 
-
 def update_matchscore(template, match, team_with_initiative):
-    if hasattr(template, 'goals') and template.goals > 0:
+    # Проверяваме дали шаблонът съдържа полето "goals" и дали има стойност по-голяма от 0
+    if hasattr(template.event_result, 'goals') and template.event_result.goals > 0:
+        # Ако отбора с инициатива е домашен, увеличаваме головете на домашния отбор
         if team_with_initiative == match.home_team:
             match.home_goals += 1
         else:
+            # Ако отбора с инициатива е гост, увеличаваме головете на гостувания отбор
             match.away_goals += 1
-    match.save()
-
+        match.save()
 
 def log_match_event(match, minute, template, formattedText, players=None):
     # Проверка дали всички елементи в 'players' са обекти от тип 'Player'
@@ -287,25 +270,25 @@ def log_match_event(match, minute, template, formattedText, players=None):
         raise ValueError("Всички елементи в 'players' трябва да бъдат обекти от типа 'Player'.")
 
     try:
-        # Създаване на запис за събитието
+        # Създаваме запис за събитието в базата данни
         match_event = MatchEvent.objects.create(
             match=match,
             minute=minute,
-            event_type=template.event_type.type,
+            event_type=template.event_result.event_type.type,  # Вземаме типа на събитието от EventResult
             description=formattedText,
-            is_negative_event=template.is_negative_event,
-            possession_kept=template.possession_kept
+            is_negative_event=template.event_result.is_negative_event,  # Вземаме дали е негативно събитие
+            possession_kept=template.event_result.possession_kept  # Вземаме дали е запазено притежанието на топката
         )
 
-        # Записване на играчите, свързани със събитието, само ако има такива
+        # Ако има играчи, свързваме ги със събитието
         if players:
             match_event.players.set(players)
 
+        # Записваме събитието
         match_event.save()
 
     except Exception as e:
         print(f'Error: {e}')
-
 
 def check_initiative(template, match):
     if template.possession_kept:

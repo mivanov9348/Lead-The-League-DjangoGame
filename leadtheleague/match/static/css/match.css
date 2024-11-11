@@ -1,134 +1,121 @@
-body {
-    background: linear-gradient(135deg, #0e4b5b, #5cb8a6);
-}
-
+/* Основен контейнер за мача */
+/* Основен контейнер за мача */
 .match-container {
-    display: grid;
-    grid-template-areas:
-        "score score score"
-        "home-lineup match-field away-lineup";
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: 20px;
-    max-width: 2100px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 10px;
-
+    width: 100%; /* Контейнерът заема 100% от ширината на екрана */
+    margin: 0; /* Няма нужда от допълнителен отстъп */
+    box-sizing: border-box; /* Включваме падингите и бордерите в общата ширина */
 }
 
+
+/* Стил за score bar */
 .score-bar {
-    border: 4px solid black;
-    grid-area: score;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%; /* Дължината на целия ред */
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    border: 4px solid black;
     font-size: 24px;
     font-weight: bold;
-    padding: 10px;
-    background-color: #f8f8f8;
-    color: black;
-    border-radius: 8px;
-}
-
-.match-events {
-    grid-area: match-field;
-    background-color: #e8e8e8;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
 }
 
 .score {
-    text-align: center; /* Центрирайте текста в score */
-    font-size: 28px; /* Размер на шрифта за резултата */
-    margin: 0; /* Премахнете страничните отстъпи */
     display: flex;
-    flex-direction: column; /* Вертикално подреждане на резултата и времето */
+    flex-direction: column;
+    align-items: center;
 }
 
 .match-time {
-    font-size: 20px; /* Размер на шрифта за времето */
-    margin-top: 1px; /* Отстъп над времето */
+    font-size: 20px;
+    margin-top: 5px;
 }
 
-.score-bar .team {
-    flex: 1; /* Съотношение на ширината на екипите */
-    text-align: center; /* Центрирайте текста на екипите */
-    margin: 0 10px; /* Премахнете големите отстъпи и задайте малки странични отстъпи */
-}
-
-.score-bar .score {
-    font-size: 28px;
+.team {
+    flex: 1;
+    text-align: center;
     margin: 0 20px;
-
 }
 
-.lineup {
-border: 4px solid black;
+/* Контейнер за lineup и events */
+.lineup-container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 20px; /* Разстояние между блоковете */
+}
+
+/* Стилове за home lineup */
+.lineup-home, .lineup-away {
+    width: 30%; /* Размер на всяка линия */
     background-color: #f8f8f8;
     padding: 10px;
     border-radius: 8px;
+    border: 4px solid black;
+    overflow-x: auto; /* За да се показват таблиците правилно при голямо съдържание */
 }
 
+.lineup-home h3, .lineup-away h3 {
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+/* Стил за таблица в lineup */
 .lineup table {
     width: 100%;
     border-collapse: collapse;
 }
 
 .lineup th, .lineup td {
-    border: 1px solid #ddd;
     padding: 8px;
+    border: 1px solid #ddd;
     text-align: center;
 }
 
-.lineup {
-    text-align: center;
-    background-color: #f2f2f2;
-    font-size:10px;
+.lineup th {
+    background-color: #f0f0f0;
 }
 
-.lineup h3 {
-    text-align: center;
-    font-size: 25px;
-    font-style:"Soccer League"
-}
-
+/* Стил за match events */
 .match-events {
-    grid-area: match-field;
+    width: 40%; /* Размер на секцията за събитията */
     background-color: #e8e8e8;
     padding: 10px;
     border-radius: 8px;
+    border: 4px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.match-status h4, .match-status h5 {
     text-align: center;
-    border: 4px solid black; /* Add this line */
 }
 
 .match-events-container {
     overflow-y: auto;
-    height: 100%;
+    height: 350px; /* Ограничаваме височината на събитията, за да не излиза от екрана */
     width: 100%;
-    display: flex;
-    flex-direction: column;
+    margin-top: 10px;
 }
 
 .match-events p {
-    margin: 5px 0;
     padding: 8px;
     border-radius: 4px;
+    margin-bottom: 5px;
+    text-align: center;
 }
 
-.lineup-away {
-    grid-area: away-lineup;
-}
+/* Стил за автоматично презареждане на страницата */
+@media screen and (max-width: 768px) {
+    .lineup-container {
+        flex-direction: column; /* На по-малки екрани, подреждаме блоковете вертикално */
+    }
 
-.lineup ul {
-    display: flex;
-    flex-direction: column;
-    list-style: none;
-    padding: 0;
-}
-
-.match-events h3 {
-    margin-bottom: 10px;
+    .lineup-home, .lineup-away, .match-events {
+        width: 100%; /* Всеки блок заема цялата ширина */
+        margin-bottom: 20px;
+    }
 }

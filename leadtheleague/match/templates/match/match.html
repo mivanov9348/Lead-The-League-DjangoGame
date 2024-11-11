@@ -1,18 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Match Preview</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/match.css' %}">
-    {% include 'menu/_navbar.html' %}
-</head>
+{% extends 'base.html' %}
 
-<body>
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/match.css' %}">
 
 <div class="match-container">
-
-    <div class="score-bar" style="font-size:50px;font-family:OLD SPORT 01 COLLEGE NCV">
+    <div class="score-bar">
         <div class="team home-team">{{ match.home_team.name }}</div>
         <div class="score">
             {{ match.home_goals }} - {{ match.away_goals }}
@@ -21,131 +15,131 @@
         <div class="team away-team">{{ match.away_team.name }}</div>
     </div>
 
-    <!-- Home Team Lineup -->
-    <div class="lineup lineup-home">
-        <h3>{{ match.home_team.name }}</h3>
-        <table>
-            <thead>
-            <tr>
-                <th colspan="2">Name</th>
-                <th title="Position">P</th>
-                <th title="Goals">⚽</th>
-                <th title="Assists">🤝</th>
-                <th title="Shoots">💢</th>
-                <th title="Shoots On Target">🎯</th>
-                <th title="Passes">🦶</th>
-                <th title="Dribbles">💨</th>
-                <th title="Tackles">💥</th>
-                <th title="Yellow Cards">🟡</th>
-                <th title="Red Cards">🔴</th>
-                <th title="Saves">🧤</th>
-                <th title="Conceded">🥅</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for player_data in home_lineup %}
-            <tr>
-                <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
-                <td>{{ player_data.player.position.abbr }}</td>
-                <td>{{ player_data.stats.goals|default:0 }}</td>
-                <td>{{ player_data.stats.assists|default:0 }}</td>
-                <td>{{ player_data.stats.shoots|default:0 }}</td>
-                <td>{{ player_data.stats.shootsOnTarget|default:0 }}</td>
-                <td>{{ player_data.stats.passes|default:0 }}</td>
-                <td>{{ player_data.stats.dribbles|default:0 }}</td>
-                <td>{{ player_data.stats.tackles|default:0 }}</td>
-                <td>{{ player_data.stats.yellowcards|default:0 }}</td>
-                <td>{{ player_data.stats.redcards|default:0 }}</td>
-                <td>{{ player_data.stats.saves|default:0 }}</td>
-                <td>{{ player_data.stats.conceded|default:0 }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No players found.</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Match Events Section -->
-    <div class="match-events">
-        <div class="match-status">
-            {% if match_status == 'Upcoming' %}
-            <h4>Starting At {{ match.date|date:"H:i" }}</h4>
-            {% elif match_status == 'LIVE' %}
-            <h5 style="color:red">🔴 LIVE</h5>
-            {% else %}
-            <h4>Finished</h4>
-            {% endif %}
+    <div class="lineup-container">
+        <!-- Home Team Lineup -->
+        <div class="lineup lineup-home">
+            <h3>{{ match.home_team.name }}</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th colspan="2">Name</th>
+                    <th title="Position">P</th>
+                    <th title="Goals">⚽</th>
+                    <th title="Assists">🤝</th>
+                    <th title="Shoots">💢</th>
+                    <th title="Shoots On Target">🎯</th>
+                    <th title="Passes">🦶</th>
+                    <th title="Dribbles">💨</th>
+                    <th title="Tackles">💥</th>
+                    <th title="Yellow Cards">🟡</th>
+                    <th title="Red Cards">🔴</th>
+                    <th title="Saves">🧤</th>
+                    <th title="Conceded">🥅</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for player_data in home_lineup %}
+                <tr>
+                    <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
+                    <td>{{ player_data.player.position.abbr }}</td>
+                    <td>{{ player_data.stats.goals|default:0 }}</td>
+                    <td>{{ player_data.stats.assists|default:0 }}</td>
+                    <td>{{ player_data.stats.shoots|default:0 }}</td>
+                    <td>{{ player_data.stats.shootsOnTarget|default:0 }}</td>
+                    <td>{{ player_data.stats.passes|default:0 }}</td>
+                    <td>{{ player_data.stats.dribbles|default:0 }}</td>
+                    <td>{{ player_data.stats.tackles|default:0 }}</td>
+                    <td>{{ player_data.stats.yellowcards|default:0 }}</td>
+                    <td>{{ player_data.stats.redcards|default:0 }}</td>
+                    <td>{{ player_data.stats.saves|default:0 }}</td>
+                    <td>{{ player_data.stats.conceded|default:0 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No players found.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
 
-        <hr/>
-        <div class="match-events-container">
-            {% for event in events %}
-            <p>{{ event.minute }}' - {{ event.description }}</p>
-            {% empty %}
-            <p>No events yet.</p>
-            {% endfor %}
+        <!-- Match Events Section -->
+        <div class="match-events">
+            <div class="match-status">
+                {% if match_status == 'Upcoming' %}
+                <h4>Starting At {{ match.date|date:"H:i" }}</h4>
+                {% elif match_status == 'LIVE' %}
+                <h5 style="color:red">🔴 LIVE</h5>
+                {% else %}
+                <h4>Finished</h4>
+                {% endif %}
+            </div>
+
+            <hr/>
+            <div class="match-events-container">
+                {% for event in events %}
+                <p>{{ event.minute }}' - {{ event.description }}</p>
+                {% empty %}
+                <p>No events yet.</p>
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Button for next event -->
-
+        <!-- Away Team Lineup -->
+        <div class="lineup lineup-away">
+            <h3>{{ match.away_team.name }}</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th colspan="2">Name</th>
+                    <th title="Position">P</th>
+                    <th title="Goals">⚽</th>
+                    <th title="Assists">🤝</th>
+                    <th title="Shoots">💢</th>
+                    <th title="Shoots On Target">🎯</th>
+                    <th title="Passes">🦶</th>
+                    <th title="Dribbles">💨</th>
+                    <th title="Tackles">💥</th>
+                    <th title="Yellow Cards">🟡</th>
+                    <th title="Red Cards">🔴</th>
+                    <th title="Saves">🧤</th>
+                    <th title="Conceded">🥅</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for player_data in away_lineup %}
+                <tr>
+                    <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
+                    <td>{{ player_data.player.position.abbr }}</td>
+                    <td>{{ player_data.stats.goals|default:0 }}</td>
+                    <td>{{ player_data.stats.assists|default:0 }}</td>
+                    <td>{{ player_data.stats.shoots|default:0 }}</td>
+                    <td>{{ player_data.stats.shootsOnTarget|default:0 }}</td>
+                    <td>{{ player_data.stats.passes|default:0 }}</td>
+                    <td>{{ player_data.stats.dribbles|default:0 }}</td>
+                    <td>{{ player_data.stats.tackles|default:0 }}</td>
+                    <td>{{ player_data.stats.yellowCards|default:0 }}</td>
+                    <td>{{ player_data.stats.redCards|default:0 }}</td>
+                    <td>{{ player_data.stats.saves|default:0 }}</td>
+                    <td>{{ player_data.stats.conceded|default:0 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No players found.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Away Team Lineup -->
-    <div class="lineup lineup-away">
-        <h3>{{ match.away_team.name }}</h3>
-        <table>
-            <thead>
-            <tr>
-                <th colspan="2">Name</th>
-                <th title="Position">P</th>
-                <th title="Goals">⚽</th>
-                <th title="Assists">🤝</th>
-                <th title="Shoots">💢</th>
-                <th title="Shoots On Target">🎯</th>
-                <th title="Passes">🦶</th>
-                <th title="Dribbles">💨</th>
-                <th title="Tackles">💥</th>
-                <th title="Yellow Cards">🟡</th>
-                <th title="Red Cards">🔴</th>
-                <th title="Saves">🧤</th>
-                <th title="Conceded">🥅</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for player_data in away_lineup %}
-            <tr>
-                <td colspan="2">{{ player_data.player.first_name }} {{ player_data.player.last_name }}</td>
-                <td>{{ player_data.player.position.abbr }}</td>
-                <td>{{ player_data.stats.goals|default:0 }}</td>
-                <td>{{ player_data.stats.assists|default:0 }}</td>
-                <td>{{ player_data.stats.shoots|default:0 }}</td>
-                <td>{{ player_data.stats.shootsOnTarget|default:0 }}</td>
-                <td>{{ player_data.stats.passes|default:0 }}</td>
-                <td>{{ player_data.stats.dribbles|default:0 }}</td>
-                <td>{{ player_data.stats.tackles|default:0 }}</td>
-                <td>{{ player_data.stats.yellowCards|default:0 }}</td>
-                <td>{{ player_data.stats.redCards|default:0 }}</td>
-                <td>{{ player_data.stats.saves|default:0 }}</td>
-                <td>{{ player_data.stats.conceded|default:0 }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No players found.</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
     <script>
         setInterval(() => {
             window.location.reload();
         }, 5000);  // Презарежда страницата на всеки 5 секунди
     </script>
-
 </div>
-</body>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/match.css' %}">
 
-</html>
+{% endblock %}

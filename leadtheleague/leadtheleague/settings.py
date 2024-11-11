@@ -2,11 +2,14 @@ from pathlib import Path
 from datetime import timedelta
 from huey import RedisHuey
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+
+BASE_DIR = Path(__file__).resolve().parent
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-0gbf8qk)(69!mk&kc-ln^$7p!4yhz#v*z7wrvpw@qw26ku9@^%"
@@ -50,19 +53,18 @@ ROOT_URLCONF = "leadtheleague.urls"
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
-    },
-]
+    }, ]
 
 WSGI_APPLICATION = "leadtheleague.wsgi.application"
 
@@ -113,13 +115,12 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 # В settings.py или в друга конфигурация за Huey
 HUEY = RedisHuey(
     'leadtheleague',  # Името на проекта
-    immediate=False,   # Изключваме immediate режима
+    immediate=False,  # Изключваме immediate режима
     host='localhost',  # Адрес на Redis сървъра
-    port=6379,         # Порт на Redis сървъра
+    port=6379,  # Порт на Redis сървъра
 )
 
 # Допълнителни настройки за Huey
@@ -127,7 +128,6 @@ HUEY.consumer = {
     'workers': 10,  # Задаваме 10 работника
     'worker_type': 'process',  # Работниците ще бъдат процеси (може да е 'thread' или 'greenlet')
 }
-
 
 LOGGING = {
     'version': 1,

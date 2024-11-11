@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
-</head>
-<body>
+{% extends 'base.html' %}
 
-{% include 'menu/_navbar.html' %}
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
 
+{% block content %}
 <div class="container mt-4">
 
     <div class="row mt-4">
@@ -29,7 +24,7 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p>No recent messages.</p>
+                    <p class="text-muted">No recent messages.</p>
                     {% endif %}
                 </div>
             </div>
@@ -51,10 +46,10 @@
                         <tbody>
                         {% for standing in standings %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>  <!-- Automatically increments position -->
-                            <td>{{ standing.team.name }}</td> <!-- Assuming 'team' is an attribute of DivisionTeam -->
-                            <td>{{ standing.matches }}</td> <!-- Assuming 'points' is an attribute of DivisionTeam -->
-                            <td>{{ standing.points }}</td>    <!-- Assuming 'wins' is an attribute of DivisionTeam -->
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ standing.team.name }}</td>
+                            <td>{{ standing.matches }}</td>
+                            <td>{{ standing.points }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -79,7 +74,7 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p>No upcoming matches.</p>
+                    <p class="text-muted">No upcoming matches.</p>
                     {% endif %}
                 </div>
             </div>
@@ -115,7 +110,7 @@
                         </tbody>
                     </table>
                     {% else %}
-                    <p>No players found for this team.</p>
+                    <p class="text-muted">No players found for this team.</p>
                     {% endif %}
                 </div>
             </div>
@@ -125,7 +120,6 @@
             <div class="card mb-4">
                 <div class="card-header">Team Statistics</div>
                 <div class="card-body">
-
                     <!-- Add dynamic awards content here -->
                 </div>
             </div>
@@ -135,7 +129,6 @@
             <div class="card mb-4">
                 <div class="card-header">Player Statistics</div>
                 <div class="card-body">
-
                     <!-- Add dynamic fan engagement content here -->
                 </div>
             </div>
@@ -175,6 +168,4 @@
     </div>
 
 </div>
-
-</body>
-</html>
+{% endblock %}

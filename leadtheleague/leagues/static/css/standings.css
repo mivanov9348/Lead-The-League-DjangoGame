@@ -1,77 +1,82 @@
-body {
-            background: linear-gradient(135deg, #0e4b5b, #5cb8a6);
-            font-family: 'Open Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
 .table-container {
-            text-align: center;
-            margin-top:10px;
-            justify-content: center;
-        }
+    display: flex;
+    flex-wrap: wrap;
+}
 
 table {
-            display: inline-block;
-            vertical-align: top;
-            background: #012B39;
-            border-radius: 0.25em;
-            border-collapse: collapse;
-            width: 90%;
-            max-width: 600px;
-            min-width: 300px;
-            margin: 20px 2em;
-            justify-content: center;
-            border: 2px solid #E2B842;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
+background: linear-gradient(to bottom right, #001a33, #002d4d); /* По-тъмно синьо градиент */
+    border-radius: 0.25em;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 3px solid #99ccff; /* Светло синьо за границата */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Намалена интензивност на сянката */
+    flex-shrink: 1; /* Не позволява таблиците да се свиват */
+}
+
+.standings-table {
+    width: 75%; /* Лявата таблица ще заема 70% */
+}
+
+.fixture-table {
+    width: 5%; /* Дясната таблица ще заема 30% */
+}
 
 th {
-            border-bottom: 1px solid #364043;
-            color: #E2B842;
-            font-size: 0.85em;
-            font-weight: 600;
-            padding: 0.5em 1em;
-            text-align: left;
-        }
+    border-bottom: 1px solid #003366; /* По-тъмно синьо за разделител */
+    color: #E2B842; /* Запазваме златистото за акцент */
+    font-size: 0.85em;
+    font-weight: 600;
+    padding: 0.5em 1em;
+    text-align: center;
+}
 
 td {
-            color: #fff;
-            font-weight: 400;
-            padding: 0.25em 1em;
-        }
+    color: #cce0ff; /* Светло синьо за текста */
+    font-weight: 400;
+    padding: 0.25em 1em;
+}
 
 .disabled td {
-            color: #4F5F64;
-        }
+    color: #b3c6cc; /* Светло сиво-синьо за неактивни елементи */
+}
 
 th, td {
-            text-align: center;
-        }
+    text-align: center;
+}
 
 tbody tr {
-            transition: background 0.25s ease;
-            height: auto;
-            text-align: center;
-        }
+    transition: background 0.25s ease;
+    height: auto;
+    text-align: center;
+}
 
 tbody tr:hover {
-            background: #014055;
-        }
+    background: #004d80; /* Тъмно синьо при hover ефект */
+}
 
 .navigation {
-            margin-bottom: 10px;
-        }
+    margin-bottom: 10px;
+}
 
 .nav-arrow {
-            cursor: pointer;
-            color: #E2B842;
-            font-size: 1.5em;
-            padding: 0 10px;
-        }
+    cursor: pointer;
+    color: #E2B842;
+    font-size: 1.5em;
+    padding: 0 10px;
+}
 
 .pagination {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 5px;
-        }
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.champion {
+    background-color: #28a745; /* Зелен за шампиона */
+    color: #ffffff; /* Белият текст ще се вижда добре на зелен фон */
+}
+
+.relegated {
+    background-color: #dc3545; /* Червен за изпадащите */
+    color: #ffffff; /* Белият текст ще се вижда добре на червен фон */
+}

@@ -1,22 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Table</title>
-    {% include 'menu/_navbar.html' %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/standings.css' %}">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
-</head>
-<body>
+{% extends 'base.html' %}
 
+{% block title %}Standings{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/standings.css' %}">
+{% endblock %}
+
+{% block content %}
 <div class="table-container">
     <table class="standings-table">
         <thead>
         <tr>
             <th>#</th>
-            <th>Team</th>
+            <th style="width:200px">Team</th>
             <th>M</th>
             <th>W</th>
             <th>D</th>
@@ -49,7 +46,7 @@
         </tbody>
     </table>
 
-    <table>
+    <table class="fixture-table">
         <thead>
         <tr>
             <th colspan="6">
@@ -65,8 +62,6 @@
             </th>
         </tr>
         <tr>
-            <th>🕕</th>
-            <th>📅</th>
             <th>H</th>
             <th>HG</th>
             <th>AG</th>
@@ -76,8 +71,6 @@
         <tbody>
         {% for fixture in fixtures %}
         <tr>
-            <td>{{ fixture.date }}</td>
-            <td>{{ fixture.match_time }}</td>
             <td>{{ fixture.home_team.name }}</td>
             <td>{{ fixture.home_goals }}</td>
             <td>{{ fixture.away_goals }}</td>
@@ -90,8 +83,5 @@
         {% endfor %}
         </tbody>
     </table>
-
 </div>
-
-</body>
-</html>
+{% endblock %}
