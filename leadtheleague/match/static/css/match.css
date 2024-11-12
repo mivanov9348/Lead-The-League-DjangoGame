@@ -1,8 +1,8 @@
-/* Основен контейнер за мача */
-/* Основен контейнер за мача */
 .match-container {
     width: 100%; /* Контейнерът заема 100% от ширината на екрана */
-    margin: 0; /* Няма нужда от допълнителен отстъп */
+    margin-left: -20px; /* Отстъп от 10px отляво */
+        margin-right: -10px; /* Отстъп от 10px отляво */
+
     box-sizing: border-box; /* Включваме падингите и бордерите в общата ширина */
 }
 
@@ -48,7 +48,7 @@
 
 /* Стилове за home lineup */
 .lineup-home, .lineup-away {
-    width: 30%; /* Размер на всяка линия */
+    width: 40%; /* Размер на всяка линия */
     background-color: #f8f8f8;
     padding: 10px;
     border-radius: 8px;
@@ -80,7 +80,7 @@
 
 /* Стил за match events */
 .match-events {
-    width: 40%; /* Размер на секцията за събитията */
+    width: 60%; /* Размер на секцията за събитията */
     background-color: #e8e8e8;
     padding: 10px;
     border-radius: 8px;

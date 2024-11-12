@@ -1,27 +1,14 @@
-/* Center body content */
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #1d3557, #457b9d);
-    color: #f1faee;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
 .schedule-container {
-    width: 100%;
-    max-width: 1500px;
     margin: 0 auto;
-    padding: 20px;
+    width: 100%;
 }
 
 .fixture-table {
     width: 100%;
     border-collapse: collapse;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background-color: #fff;
-    color: #1d3557;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fafafa;
+    color: #333;
     border-radius: 8px;
     overflow: hidden;
 }
@@ -33,25 +20,25 @@ th, td {
 }
 
 th {
-    background-color: #457b9d;
-    color: #f1faee;
+    background-color: #e0f7fa; /* Светъл фон за заглавията на колоните */
+    color: #00695c;
     text-transform: uppercase;
     font-weight: bold;
 }
 
 tr:nth-child(even) {
-    background-color: #a8dadc;
+    background-color: #f9f9f9; /* Светло сив фон за четните редове */
 }
 
 tr:hover {
-    background-color: #f1faee;
+    background-color: #e3f2fd; /* Лек син фон при hover */
     cursor: pointer;
 }
 
 .no-fixtures {
     text-align: center;
     font-size: 1.2rem;
-    color: #1d3557;
+    color: #333;
     padding: 20px;
 }
 

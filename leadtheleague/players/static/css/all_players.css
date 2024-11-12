@@ -1,85 +1,86 @@
-
 h1 {
-            text-align: center;
-            color: #333;
- }
+    text-align: center;
+    color: #333;
+}
 
 .filter-container {
-            width: 90%;
-            margin: 20px auto;
-            padding: 15px;
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+    width: 100%;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
 
 .filter-container input, .filter-container select {
-            margin: 5px;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+    margin: 5px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
 
 .filter-container label {
-            font-weight: bold;
-        }
+    font-weight: bold;
+}
 
-table {
+.table-container {
+    justify-content:center;
+    width:100%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    border: 1px solid white; /* Бордър на цялата таблица */
+    text-align: center;
+    background-color: #333; /* Тъмен фон на таблицата */
+    color: white; /* Бял текст */
+}
 
-            width: 90%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            text-align:center;
-        }
 
 th, td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
+    padding: 12px;
+    border: 1px solid white; /* Бял бордюр на клетките */
+}
 
 th {
-            background-color: #f2f2f2;
-        }
+    background-color: #444; /* По-светъл фон за хедъра */
+    color: white;
+}
 
 tr:hover {
-            background-color: #f1f1f1;
-        }
+    background-color: #555; /* По-тъмен фон при задържане на ред */
+}
 
-        /* Пагинацията да е в центъра */
 .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            padding: 10px 0;
-        }
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 10px 0;
+}
 
 .pagination a {
-            margin: 0 5px;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #333;
-        }
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+}
 
 .pagination a.active {
-            background-color: #007bff;
-            color: white;
-        }
+    background-color: #007bff;
+    color: white;
+}
 
 .pagination a:hover:not(.active) {
-            background-color: #f1f1f1;
-        }
+    background-color: #f1f1f1;
+}
 
 .pagination a.disabled {
-            background-color: #ddd;
-            pointer-events: none;
-        }
+    background-color: #ddd;
+    pointer-events: none;
+}
 
-        /* За да не се разтяга таблицата */
 .table-container {
-            max-width: 100%;
-            overflow-x: auto;
-        }
+    max-width: 100%;
+    overflow-x: auto;
+}

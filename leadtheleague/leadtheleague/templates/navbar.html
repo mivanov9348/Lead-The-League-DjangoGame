@@ -32,7 +32,8 @@
                     <ul class="dropdown-menu" aria-labelledby="leaguesDropdown">
                         <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i class="fas fa-flag"></i>Standings</a>
                         </li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-globe"></i> All Leagues</a></li>
+                        <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i class="fas fa-flag"></i>Schedule</a>
+                        </li>
                     </ul>
                 </li>
 
@@ -64,11 +65,9 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="otherDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-ellipsis-h"></i> Other
-                    </a>
+                        <i class="fas fa-ellipsis-h"></i>Other</a>
                     <ul class="dropdown-menu" aria-labelledby="otherDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-question-circle"></i> Help</a></li>
+                        <li><a class="dropdown-item" href="{% url 'players:all_players' %}"><i class="fas fa-cog"></i>Players</a></li>
                     </ul>
                 </li>
             </ul>
@@ -97,61 +96,62 @@
 
 <style>
     .custom-navbar {
-        background: linear-gradient(to bottom right, #00071a, #000d33); /* Много тъмно синьо към още по-тъмно синьо */
-        color: black;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-        padding: 10px 0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
-        border-bottom:2px solid white
-    }
+background: rgb(0,0,0);
+background: linear-gradient(90deg, rgba(0,0,0,1) 4%, rgba(51,51,51,1) 100%);
 
-    .custom-navbar a {
-        color: white;
-        text-decoration: none;
-        padding: 10px 20px;
-        margin: 0 5px;
-        font-weight: bold;
-    }
+     color: black;
+     position: fixed;
+     top: 0;
+     width: 100%;
+     z-index: 1000;
+     padding: 10px 0;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+     border-bottom: 2px solid white;
+ }
 
-    .custom-navbar a:hover {
-        background-color: #d4af37;
-        border-radius: 5px;
-    }
+ .custom-navbar a {
+     color: white;
+     text-decoration: none;
+     padding: 10px 20px;
+     margin: 0 5px;
+     font-weight: bold;
+ }
 
-    .navbar-nav .nav-link {
-        color: white;
-        margin: 0 10px;
-        transition: color 0.3s ease, background-color 0.3s ease;
-        border-radius: 4px;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-    }
+ .navbar-nav .nav-link {
+     color: white;
+     margin: 0 10px;
+     transition: color 0.3s ease, background-color 0.3s ease;
+     border-radius: 4px;
+     font-size: 14px;
+     display: flex;
+     align-items: center;
+ }
 
-    .navbar-nav .nav-link:hover {
-        color: #f8f9fa;
-        background-color: rgba(255, 255, 255, 0.2);
-    }
+ .navbar-nav .nav-link:hover {
+     color: #f8f9fa;
+     background-color: rgba(255, 255, 255, 0.2);
+ }
 
-    .dropdown-menu {
-        background-color: #6c757d;
-        border: none;
-    }
+ .navbar-nav .nav-link i {
+     margin-right: 10px;
+ }
 
-    .dropdown-item {
-        color: #ffffff;
-    }
+ .dropdown-menu {
+     background-color: #6c757d;
+     border: none;
+     padding: 0; /* Премахваме външния отстъп */
+ }
 
-    .dropdown-item:hover {
-        background-color: #007bff;
-        color: #ffffff;
-    }
+ .dropdown-item {
+     color: #ffffff;
+     padding: 8px 15px;
+     font-size: 11px;
+ }
 
-    .navbar-nav .nav-link i {
-        margin-right: 5px;
-    }
+ .dropdown-item:hover {
+     background-color: #007bff;
+     color: #ffffff;
+ }
+
 
 </style>

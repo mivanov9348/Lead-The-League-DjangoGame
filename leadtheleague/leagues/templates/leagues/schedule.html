@@ -1,18 +1,17 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {% include 'menu/_navbar.html' %}
-    <title>Schedule</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/schedule.css' %}">
-</head>
-<body>
-<div class="schedule-container">
-    <table class="fixture-table">
-        <thead>
+{% extends 'base.html' %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/schedule.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="schedule-container">
+        <table class="table table-bordered table-striped fixture-table">
+            <thead class="thead-dark">
             <tr>
                 <th>Date</th>
                 <th>Round</th>
@@ -21,8 +20,8 @@
                 <th>Time</th>
                 <th>Type</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             {% for fixture in fixtures %}
             <tr class="fixture-row">
                 <td>{{ fixture.date }}</td>
@@ -34,13 +33,13 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="no-fixtures">
+                <td colspan="6" class="no-fixtures text-center">
                     No fixtures available.
                 </td>
             </tr>
             {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}

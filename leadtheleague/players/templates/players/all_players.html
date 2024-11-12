@@ -1,15 +1,13 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/all_players.css' %}">
-    <title>All Players</title>
-</head>
-<body>
-{% include 'menu/_navbar.html' %}
+{% extends 'base.html' %}
+
+{% block title %}All Players{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/all_players.css' %}">
+{% endblock %}
+
+{% block content %}
 <h1>All Players</h1>
 
 <!-- Филтриращ контейнер с полета -->
@@ -59,20 +57,22 @@
             <th>Pos</th>
             <th>Team</th>
             <th>Nat</th>
-            <th>Matches</th>
-            <th>Goals</th>
-            <th>Assists</th>
-            <th>Shoots</th>
-            <th>On Target</th>
-            <th>Passes</th>
-            <th>Dribbles</th>
-            <th>Tackles</th>
-            <th>Yellow Cards</th>
-            <th>Red Cards</th>
-            <th>Fouls</th>
-            <th>Saves</th>
-            <th>Clean Sheets</th>
-            <th>Conceded</th>
+            <th title="Matches"><img src="{% static 'images/matches.png' %}" alt="icon"
+                     style="width:30px; height:16px; vertical-align:middle;"></th>
+
+            <th>G</th>
+            <th>A</th>
+            <th>S</th>
+            <th>St</th>
+            <th>P</th>
+            <th>D</th>
+            <th>T</th>
+            <th>YC</th>
+            <th>RC</th>
+            <th>F</th>
+            <th>S</th>
+            <th>CS</th>
+            <th>C</th>
         </tr>
         </thead>
         <tbody>
@@ -118,6 +118,4 @@
     <a href="?page={{ pages|last }}">Last</a>
     {% endif %}
 </div>
-
-</body>
-</html>
+{% endblock %}
