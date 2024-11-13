@@ -10,6 +10,7 @@
 {% block content %}
 <div class="table-container">
     <table class="standings-table">
+        <!-- Съдържание за класирането -->
         <thead>
         <tr>
             <th>#</th>
@@ -47,17 +48,18 @@
     </table>
 
     <table class="fixture-table">
+        <!-- Съдържание за мачовете по кръг -->
         <thead>
         <tr>
-            <th colspan="6">
+            <th colspan="4">
                 <div class="pagination">
                     {% if current_round > 1 %}
-                    <a class="nav-arrow" href="?round={{ current_round|add:-1 }}">&#9664;</a> <!-- Left Arrow -->
+                    <a class="nav-arrow" href="?round={{ current_round|add:-1 }}">&#9664;</a>
                     {% else %}
-                    <span class="nav-arrow" style="color: gray;">&#9664;</span> <!-- Disabled Left Arrow -->
+                    <span class="nav-arrow" style="color: gray;">&#9664;</span>
                     {% endif %}
                     <span>Round {{ current_round }}</span>
-                    <a class="nav-arrow" href="?round={{ current_round|add:1 }}">&#9654;</a> <!-- Right Arrow -->
+                    <a class="nav-arrow" href="?round={{ current_round|add:1 }}">&#9654;</a>
                 </div>
             </th>
         </tr>
@@ -78,10 +80,11 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6">No fixtures available.</td>
+            <td colspan="4">No fixtures available.</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
+
 {% endblock %}

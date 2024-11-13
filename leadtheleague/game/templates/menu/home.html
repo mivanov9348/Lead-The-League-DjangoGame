@@ -117,13 +117,17 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">Team Statistics</div>
-                <div class="card-body">
-                    <!-- Add dynamic awards content here -->
-                </div>
-            </div>
+    <div class="card mb-4">
+        <div class="card-header">Live Match Scores</div>
+        <div class="card-body">
+            <ul id="live-score-list" class="list-unstyled">
+                <!-- Тук ще се добавят мачовете динамично -->
+            </ul>
         </div>
+    </div>
+</div>
+
+
 
         <div class="col-md-4">
             <div class="card mb-4">
@@ -166,6 +170,50 @@
             </div>
         </div>
     </div>
+    <script>
+    // Тази променлива трябва да съдържа ID на мачовете, които се играят днес
+    const matches = [
+        {% for match in matches %}
+            { match_id: {{ match.id }}, home_team: '{{ match.home_team.name }}', away_team: '{{ match.away_team.name }}' }
+        {% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
 
+    console.log('Мачове за днес:', matches);
+
+    // WebSocket връзка за всеки мач
+    matches.forEach(match => {
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/match/' + match.match_id + '/');
+
+        // Добавяме мачовете към списъка в началната страница
+        const listItem = document.createElement('li');
+        listItem.id = 'match-' + match.match_id;
+        listItem.classList.add('match-line');
+        listItem.innerHTML = `
+            <div class="d-flex justify-content-center align-items-center">
+                <span class="team-name">${match.home_team}</span> -
+                <span class="score-box" id="score-${match.match_id}">0 - 0</span>
+                <span class="team-name">${match.away_team}</span>
+            </div>
+        `;
+        document.getElementById('live-score-list').appendChild(listItem);
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('Получени данни:', data);
+
+            const scoreElement = document.getElementById('score-' + match.match_id);
+            if (scoreElement) {
+                scoreElement.innerHTML = `${data.home_goals} - ${data.away_goals}`;
+            } else {
+                console.error('Не можах да намеря елемента с ID:', 'score-' + match.match_id);
+            }
+        };
+
+        socket.onclose = function(e) {
+            console.error('Socket closed unexpectedly');
+        };
+    });
+</script>
 </div>
 {% endblock %}

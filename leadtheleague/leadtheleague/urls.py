@@ -13,5 +13,5 @@ urlpatterns = [
     path('leagues/', include('leagues.urls', namespace='leagues')),
     path('fixtures/', include('fixtures.urls', namespace='fixtures')),
     path('inbox/', include('inbox.urls', namespace='inbox')),
-    path('match/', include('match.urls', namespace='match'))
+    path('match/', include('match.urls', namespace='match')),
 ]
