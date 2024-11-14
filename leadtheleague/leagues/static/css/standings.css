@@ -1,88 +1,62 @@
-.table-container {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
+.content-info {
+    background: #f9f9f9;
+    padding: 40px 0;
+    background-size: cover!important;
+    background-position: top center!important;
+    background-repeat: no-repeat!important;
+    position: relative;
+   padding-bottom:100px;
 }
 
 table {
-    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-    color:grey;
-    border-radius: 0.25em;
-    border-collapse: collapse;
-    margin: 20px 0;
-    border: 3px solid black;
-    box-shadow: 0 11px 20px rgba(0, 0, 0, 0.3);
-    flex-shrink: 1;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #dedede;
 }
 
-.standings-table {
-        flex: 4;
+table thead tr th {
+    padding: 20px;
+    border: 1px solid #dedede;
+    color: #000;
 }
 
-.fixture-table {
-    flex: 1; /* Заема по-малко място */
-    align-self: flex-start; /* Позиционира се отгоре */
-    margin-top: 20px; /* Допълнителен отстъп, за по-добро визуално разстояние */
-    height:500px;
+table.table-striped tbody tr:nth-of-type(odd) {
+    background: #f9f9f9;
 }
 
-th {
-    border-bottom: 1px solid #003366; /* По-тъмно синьо за разделител */
-    color: black; /* Запазваме златистото за акцент */
-    font-size: 0.85em;
-    font-weight: 600;
-    padding: 0.5em 1em;
-    text-align: center;
+table.result-point tr td.number {
+    width: 100px;
+    position: relative;
 }
 
-td {
-    color: black;
-    font-weight: 400;
-    padding: 0.25em 1em;
+.text-left {
+    text-align: left!important;
 }
 
-.disabled td {
-    color: #b3c6cc; /* Светло сиво-синьо за неактивни елементи */
+table tr td {
+    padding: 10px 20px;
+    border: 1px solid #dedede;
+}
+table.result-point tr td .fa.fa-caret-up {
+    color: green;
 }
 
-th, td {
-    text-align: center;
+table.result-point tr td .fa {
+    font-size: 20px;
+    position: absolute;
+    right: 20px;
 }
 
-tbody tr {
-    transition: background 0.25s ease;
-    height: auto;
-    text-align: center;
+table tr td {
+    padding: 10px 40px;
+    border: 1px solid #dedede;
 }
 
-tbody tr:hover {
-    background: grey; /* Тъмно синьо при hover ефект */
-    color:white;
+table tr td img {
+    max-width: 32px;
+    float: left;
+    margin-right: 11px;
+    margin-top: 1px;
+    border: 1px solid #dedede;
 }
 
-.navigation {
-    margin-bottom: 10px;
-}
-
-.nav-arrow {
-    cursor: pointer;
-    color: #E2B842;
-    font-size: 1.5em;
-    padding: 0 10px;
-}
-
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 5px;
-}
-
-.champion {
-    background-color: #28a745; /* Зелен за шампиона */
-    color: #ffffff; /* Белият текст ще се вижда добре на зелен фон */
-}
-
-.relegated {
-    background-color: #dc3545; /* Червен за изпадащите */
-    color: #ffffff; /* Белият текст ще се вижда добре на червен фон */
-}

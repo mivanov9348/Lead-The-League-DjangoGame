@@ -1,18 +1,15 @@
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
+from numpy.f2py.capi_maps import modsign2map
+
 from accounts.models import CustomUser
 
-class AdjectiveTeamNames(models.Model):
-    word = models.CharField(max_length=50)
+class DummyTeamNames(models.Model):
+    name = models.CharField(max_length=100)
+    abbr = models.CharField(max_length=3, validators=[MinLengthValidator(2), MaxLengthValidator(3)])
 
     def __str__(self):
-        return self.word
-
-class NounTeamNames(models.Model):
-    word = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.word
+        return self.name
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
@@ -42,6 +39,7 @@ class TeamSeasonStats(models.Model):
     class Meta:
         unique_together = ('season', 'team')
 
+
 class Tactics(models.Model):
     name = models.CharField(max_length=30)
     num_goalkeepers = models.IntegerField(default=1)
@@ -51,6 +49,7 @@ class Tactics(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
 
 class TeamTactics(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)

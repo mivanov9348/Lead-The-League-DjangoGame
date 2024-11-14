@@ -1,0 +1,83 @@
+.inbox-container{
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+    gap:5px;
+    width: 100%;
+    align-content:center;
+    height:600px;
+    display:flex;
+}
+
+.sidebar {
+    text-align:center;
+    border-radius: 8px;
+    border:3px solid black;
+    padding: 10px;
+    width:15%;
+}
+
+.compose-button {
+    font-weight: bold;
+}
+
+.list-group-item {
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+    font-size: 16px;
+    color: #333;
+    text-align:center;
+
+    align-items: center;
+    padding: 12px 20px;
+    border: none;
+    font-style:italic;
+}
+
+.list-group-item.active {
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+    color: #00695c;
+}
+
+.message-header{
+padding:10px;
+}
+
+.messages-panel {
+    border:3px solid black;
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+    border-radius: 8px;
+    width:85%;
+}
+
+/* Message card */
+.message-card {
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+
+
+    }
+
+.message-header {
+    align-items: center;
+}
+
+.profile-pic {
+    width: 60px;
+    height: 60px;
+}
+
+.sender-name {
+    font-size: 18px;
+}
+
+.sender-email {
+    font-size: 12px;
+}
+
+.time-stamp {
+    color: #999;
+    font-size: 12px;
+}
+
+.message-card p {
+    color: #444;
+    font-size: 15px;
+    line-height: 1.6;
+}

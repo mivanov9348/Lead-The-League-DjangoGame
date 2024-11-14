@@ -6,18 +6,23 @@ from leagues.models import League, Division
 from match.utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils import generate_team_players, get_player_data, auto_select_starting_lineup, update_tactics
-from teams.models import AdjectiveTeamNames, NounTeamNames, TeamSeasonStats
+from teams.models import TeamSeasonStats, DummyTeamNames
 from .models import Team
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
 
+
 def generate_random_team_name():
-    adjectives = list(AdjectiveTeamNames.objects.values_list('word', flat=True))
-    nouns = list(NounTeamNames.objects.values_list('word', flat=True))
-    return f'{random.choice(adjectives)} {random.choice(nouns)}' if random.choice([True, False]) else random.choice(
-        nouns)
+    all_team_info = list(DummyTeamNames.objects.values_list('name', 'abbr'))
+
+    while True:
+        # Генерираме случайно име и абревиатура
+        team_name, team_abbr = random.choice(all_team_info)
+        # Проверяваме дали отбор с това име и абревиатура вече съществува
+        if not Team.objects.filter(name=team_name).exists() and not Team.objects.filter(abbr=team_abbr).exists():
+            return team_name, team_abbr
 
 
 def fill_dummy_teams():
@@ -33,11 +38,11 @@ def fill_dummy_teams():
             teams_needed = division.teams_count - existing_team_count
 
             for _ in range(teams_needed):
-                name = generate_random_team_name()
+                team_name, team_abbr = generate_random_team_name()
                 color = random.choice(colors)
                 team = Team.objects.create(
-                    name=name,
-                    abbr=name[:3].upper(),
+                    name=team_name,
+                    abbr=team_abbr,
                     color=color,
                     user=None,
                     is_dummy=True,
@@ -153,6 +158,7 @@ def create_team_performance_chart(season_stats, team_name):
     img = base64.b64encode(buf.read()).decode('utf-8')
 
     return img
+
 
 def update_team_stats(match):
     if not match.is_played:

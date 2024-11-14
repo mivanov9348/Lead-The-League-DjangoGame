@@ -1,5 +1,5 @@
 from django.contrib import admin, messages
-from .models import Team, AdjectiveTeamNames, NounTeamNames
+from .models import Team, DummyTeamNames
 from .utils import fill_dummy_teams
 
 @admin.register(Team)
@@ -14,13 +14,7 @@ class TeamAdmin(admin.ModelAdmin):
 
     fill_with_dummy_teams.short_description = "Create Dummy Teams to Fill Divisions"  # Set a descriptive label
 
-@admin.register(AdjectiveTeamNames)
+@admin.register(DummyTeamNames)
 class AdjectiveTeamNamesAdmin(admin.ModelAdmin):
-    list_display = ('word',)  # Adjust this if your model has other fields
-    search_fields = ('word',)  # Enable searching by the adjective word
-
-
-@admin.register(NounTeamNames)
-class NounTeamNamesAdmin(admin.ModelAdmin):
-    list_display = ('word',)  # Adjust this if your model has other fields
-    search_fields = ('word',)  # Enable searching by the noun word
+    list_display = ('name', 'abbr')  # Adjust this if your model has other fields
+    search_fields = ('name', 'abbr')  # Enable searching by the adjective word

@@ -18,8 +18,16 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'game:home' %}"><i class="fas fa-home"></i>Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'inbox:inbox_view' %}"><i class="fas fa-inbox"></i>Inbox</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="inboxDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-inbox"></i>Inbox</a>
+                        <ul class="dropdown-menu" aria-labelledby="leaguesDropdown">
+                            <li><a class="dropdown-item" href="{% url 'messaging:inbox_view' %}"><i
+                                    class="fas fa-flag"></i>Messages</a></li>
+                            <li><a class="dropdown-item" href="{% url 'messaging:chat_view' %}"><i
+                                    class="fas fa-calendar"></i>Chat</a></li>
+
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'match:user_match' %}"><i class="fas fa-futbol"></i>Match</a>
@@ -33,6 +41,8 @@
                                     class="fas fa-flag"></i>Standings</a></li>
                             <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i
                                     class="fas fa-calendar"></i>Schedule</a></li>
+                            <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i
+                                    class="fas fa-calendar"></i>Livescore</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -96,75 +106,74 @@
 <!-- Styling -->
 <style>
 
-.custom-navbar {
-  background: rgb(0, 0, 0);
-  background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-  color: black;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  padding: 5px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
-  border-bottom: 2px solid white;
-}
+    .custom-navbar {
+      background: rgb(0, 0, 0);
+      background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+      color: black;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 5px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+      border-bottom: 2px solid white;
+    }
 
-.custom-navbar a {
-  color: black;
-  text-decoration: none;
-  padding: 10px 20px;
-  margin: 0 5px;
-  font-weight: bold;
-}
+    .custom-navbar a {
+      color: black;
+      text-decoration: none;
+      padding: 10px 20px;
+      margin: 0 5px;
+      font-weight: bold;
+    }
 
-.navbar-nav .nav-link {
-  color: black;
-  margin: 0 10px;
-  transition: color 0.3s ease, background-color 0.3s ease;
-  border-radius: 4px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-}
+    .navbar-nav .nav-link {
+      color: black;
+      margin: 0 10px;
+      transition: color 0.3s ease, background-color 0.3s ease;
+      border-radius: 4px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
 
-.navbar-nav .nav-link:hover {
-  color: #f8f9fa;
-  background-color: rgba(255, 255, 255, 0.2);
-}
+    .navbar-nav .nav-link:hover {
+      color: #f8f9fa;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
 
-.navbar-nav .nav-link i {
-  margin-right: 10px;
-}
+    .navbar-nav .nav-link i {
+      margin-right: 10px;
+    }
 
-.dropdown-menu {
-  background-color: #6c757d;
-  border: none;
-  padding: 0;
-  min-width: 200px; /* Ensures uniform width */
-  border-radius: 4px; /* Rounded corners */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Optional: subtle shadow */
-  overflow: hidden; /* Prevents any overflow */
-}
+    .dropdown-menu {
+      background-color: #6c757d;
+      border: none;
+      padding: 0;
+      min-width: 200px; /* Ensures uniform width */
+      border-radius: 4px; /* Rounded corners */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Optional: subtle shadow */
+      overflow: hidden; /* Prevents any overflow */
+    }
 
-.dropdown-item {
-  color: #ffffff;
-  padding: 12px 20px; /* Padding for consistent spacing */
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  transition: color 0.3s ease; /* Smooth color change on hover */
-}
+    .dropdown-item {
+      color: #ffffff;
+      padding: 12px 20px; /* Padding for consistent spacing */
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease; /* Smooth color change on hover */
+    }
 
-.dropdown-item:hover {
-  color: #007bff; /* Change text color on hover */
-  background-color: transparent; /* No background on hover */
-  cursor: pointer;
-}
+    .dropdown-item:hover {
+      color: #007bff; /* Change text color on hover */
+      background-color: transparent; /* No background on hover */
+      cursor: pointer;
+    }
 
-.dropdown-item i {
-  margin-right: 10px;
-}
-
+    .dropdown-item i {
+      margin-right: 10px;
+    }
 
 
 </style>

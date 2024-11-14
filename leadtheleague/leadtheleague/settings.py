@@ -1,6 +1,5 @@
-import os
+
 from pathlib import Path
-from datetime import timedelta
 from huey import RedisHuey
 
 # Quick-start development settings - unsuitable for production
@@ -11,7 +10,6 @@ BASE_DIR = Path(__file__).resolve().parent
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    BASE_DIR / "frontend/build/static",
     BASE_DIR / "static",  # Добавяне на папката "static"
 ]
 
@@ -36,28 +34,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'huey.contrib.djhuey',
-    'corsheaders',
-    'channels',
     'teams',
     'accounts',
     'game',
     'players',
     'leagues',
     'fixtures',
-    'inbox',
+    'messaging',
     'match',
 ]
-
-ASGI_APPLICATION = 'leadtheleague.asgi.application'
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

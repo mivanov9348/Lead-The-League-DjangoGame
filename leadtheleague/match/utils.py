@@ -317,3 +317,4 @@ def finalize_match(match):
 
             season_stat.value = F('value') + match_stat.value
             season_stat.save()
+

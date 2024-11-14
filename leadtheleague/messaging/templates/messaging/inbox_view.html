@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/inbox_view.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="inbox-container">
+    <!-- Left sidebar -->
+    <div class="sidebar col-lg-3 col-md-4">
+        <a href="mail-compose.html" class="compose-button btn btn-danger btn-block">New Mail</a>
+        <div class="card shadow-none mt-3">
+            <div class="list-group">
+                <a href="javascript:void();" class="list-group-item active">Inbox <b>(12)</b></a>
+                <a href="javascript:void();" class="list-group-item"><i class="fa fa-paper-plane-o mr-2"></i>Sent
+                    Mail</a>
+                <a href="javascript:void();" class="list-group-item"><i class="fa fa-trash-o mr-2"></i>Trash
+                    <b>(320)</b></a>
+            </div>
+        </div>
+    </div>
+    <!-- End Left sidebar -->
+
+    <!-- Right Sidebar -->
+    <div class="messages-panel col-lg-9 col-md-8">
+        <div class="media mb-3 message-header">
+            <img src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                 class="profile-pic rounded-circle mr-3 shadow" alt="media image">
+            <div class="media-body">
+                <span class="time-stamp float-right">08:22 AM</span>
+                <h4 class="sender-name text-primary">John Doe</h4>
+                <small class="sender-email text-muted">From: info@example.com</small>
+            </div>
+        </div>
+        <!-- Message card -->
+        <div class="message-card card shadow-none mt-3 border border-light">
+            <div class="card-body">
+
+                <p><b>Hi Sir...</b></p>
+                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</p>
+                <p>Aenean vulputate eleifend tellus...</p>
+                <hr>
+            </div>
+        </div> <!-- End message card -->
+    </div> <!-- End messages-panel -->
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}
