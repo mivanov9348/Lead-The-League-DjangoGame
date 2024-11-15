@@ -1,62 +1,69 @@
-.content-info {
-    background: #f9f9f9;
-    padding: 40px 0;
-    background-size: cover!important;
-    background-position: top center!important;
-    background-repeat: no-repeat!important;
-    position: relative;
-   padding-bottom:100px;
+.standings-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 100px;
+
 }
 
-table {
-    width: 100%;
-    background: #fff;
-    border: 1px solid #dedede;
+.standings-table {
+    width: 60%;
+    border-collapse: collapse;
+    text-align: center;
+    box-shadow: 10px 10px 10px 10px black;
+    border-radius: 10px;
+    font-size:20px;
+     padding: 100px;
 }
 
-table thead tr th {
-    padding: 20px;
-    border: 1px solid #dedede;
-    color: #000;
+.team-name{
+width:250px;
 }
 
-table.table-striped tbody tr:nth-of-type(odd) {
-    background: #f9f9f9;
+.top-players-table {
+    width: 35%;
+    border-collapse: collapse;
+    text-align: center;
+    box-shadow: 10px 10px 10px 10px black;
+    border-radius: 10px;
 }
 
-table.result-point tr td.number {
-    width: 100px;
-    position: relative;
+.top-players-table {
+    border-radius: 10px;
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
 }
 
-.text-left {
-    text-align: left!important;
+.top-players-table thead {
+    border-radius: 10px;
+    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+    color: black;
 }
 
-table tr td {
-    padding: 10px 20px;
-    border: 1px solid #dedede;
-}
-table.result-point tr td .fa.fa-caret-up {
-    color: green;
+.top-players-table th, .top-players-table td {
+
+    padding: 15px;
+    font-size: 14px;
 }
 
-table.result-point tr td .fa {
-    font-size: 20px;
-    position: absolute;
-    right: 20px;
+.top-players-table .player-name {
+    font-weight: bold;
+    color: #ff4d4d;
+    text-align: left;
 }
 
-table tr td {
-    padding: 10px 40px;
-    border: 1px solid #dedede;
+.top-players-table .player-rating {
+    font-weight: bold;
+    color: #ff6600;
 }
 
-table tr td img {
-    max-width: 32px;
-    float: left;
-    margin-right: 11px;
-    margin-top: 1px;
-    border: 1px solid #dedede;
+.top-players-table tbody tr:nth-child(odd) {
+
 }
 
+.top-players-table tbody tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+.top-players-table td {
+
+    width: 20px;
+}

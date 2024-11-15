@@ -4,7 +4,6 @@ from .models import Player, FirstName, LastName, Nationality, Position, Position
     Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
 
 def calculate_player_price(player):
-
     base_prices = {
         'Goalkeeper': 20000,
         'Defender': 30000,
@@ -17,6 +16,7 @@ def calculate_player_price(player):
 
     total_attributes = sum(PlayerAttribute.objects.filter(player=player).values_list('value', flat=True))
     return int(base_price * age_factor + total_attributes * 100)
+
 
 def get_random_name(region):
     first_names = list(FirstName.objects.filter(region=region))
@@ -31,6 +31,7 @@ def get_random_name(region):
     first_name = random.choice(first_names).name
     last_name = random.choice(last_names).name
     return first_name, last_name
+
 
 def generate_random_player(team=None, position=None):
     nationalities = Nationality.objects.all()
@@ -82,6 +83,7 @@ def generate_random_player(team=None, position=None):
 
     return player
 
+
 def generate_team_players(team):
     position_gk = Position.objects.get(position_name='Goalkeeper')
     position_def = Position.objects.get(position_name='Defender')
@@ -109,37 +111,52 @@ def generate_team_players(team):
 def get_team_match_stats(userteam):
     return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
 
-def get_player_data(player):
-    player_season_stats = player.season_stats.filter(season__isnull=False).select_related('statistic').first()
+def get_basic_player_data(player):
+    # Не е нужно да използвате select_related тук, защото 'player' вече е инстанция
+    return player
 
-    attribute_values = {
-        attr.attribute.name: attr.value
-        for attr in player.playerattribute_set.prefetch_related('attribute').all()
-    }
+def get_player_attributes(player):
+    return {attr.attribute.name: attr.value for attr in player.playerattribute_set.prefetch_related('attribute').all()}
+
+def get_player_season_stats(player):
+    # Извличаме статистики за сезона на играча
+    player_season_stats = player.season_stats.filter(season__isnull=False).select_related('statistic').first()
 
     stats_data = {}
     if player_season_stats:
-        # Вземете стойностите на статистиките от PlayerSeasonStatistic
+        # Вземаме стойностите на статистиките за текущия сезон
         season_stats = PlayerSeasonStatistic.objects.filter(player=player, season=player_season_stats.season)
 
         for stat in season_stats:
-            stats_data[stat.statistic.name] = stat.value  # Добавяне на стойността на статистиката
+            stats_data[stat.statistic.name] = stat.value  # Добавяме стойностите на статистиките
 
+    return stats_data
+
+
+def get_player_data(player):
+    # Извличаме основната информация за играча
+    basic_data = get_basic_player_data(player)
+
+    # Извличаме атрибутите на играча
+    attributes = get_player_attributes(player)
+
+    # Извличаме сезонните статистики на играча
+    season_stats = get_player_season_stats(player)
+
+    # Връщаме комбинираните данни
     return {
-        'player': player,
-        'attributes': attribute_values,
-        'season_stats': stats_data,
+        'player': basic_data,
+        'attributes': attributes,
+        'season_stats': season_stats,
     }
 
-def get_player_attributes(player):
-    player_attributes = {pa.attribute: pa.value for pa in PlayerAttribute.objects.filter(player=player)}
-    return player_attributes
 
 def get_player_match_stats(player, match):
     stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
 
     stats_dict = {stat.statistic.name: stat.value for stat in stats}
     return stats_dict
+
 
 def auto_select_starting_lineup(team):
     if Player.objects.filter(team=team, is_starting=True).count() >= 11:
@@ -179,6 +196,7 @@ def auto_select_starting_lineup(team):
     TeamTactics.objects.create(team=team, tactic=tactic)
 
     return selected_players
+
 
 def update_tactics(dummy_team, new_team):
     dummy_team_tactics = TeamTactics.objects.filter(team=dummy_team).first()

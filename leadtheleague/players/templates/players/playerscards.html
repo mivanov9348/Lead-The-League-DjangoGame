@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}All Players{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/playerscards.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="sport-card" onclick="window.location.href='player-details.html';">
+        <div class="player-image">
+            <img src="{% static 'images/2.png' %}" alt="Player Image">
+        </div>
+        <div class="player-info">
+            <h2>Martin Ivanov</h2>
+            <p class="age">Възраст: 25</p>
+            <p class="team">Отбор: Red Sofia</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

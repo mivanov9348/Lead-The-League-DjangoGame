@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Inbox{% endblock %}
+{% block title %}Notifications{% endblock %}
 
 {% block extra_css %}
 {% load static %}
@@ -9,47 +9,38 @@
 
 {% block content %}
 
-<div class="inbox-container">
-    <!-- Left sidebar -->
-    <div class="sidebar col-lg-3 col-md-4">
-        <a href="mail-compose.html" class="compose-button btn btn-danger btn-block">New Mail</a>
-        <div class="card shadow-none mt-3">
-            <div class="list-group">
-                <a href="javascript:void();" class="list-group-item active">Inbox <b>(12)</b></a>
-                <a href="javascript:void();" class="list-group-item"><i class="fa fa-paper-plane-o mr-2"></i>Sent
-                    Mail</a>
-                <a href="javascript:void();" class="list-group-item"><i class="fa fa-trash-o mr-2"></i>Trash
-                    <b>(320)</b></a>
-            </div>
-        </div>
+<div class="news-grid">
+    <!-- Главната новина (най-новата) -->
+    {% for notification in page_obj %}
+    {% if forloop.first %}
+    <div class="news-item main-news">
+        <h1>{{ notification.title }}</h1>
+        <p>{{ notification.message }}</p>
+        <small>{{ notification.date_sent|date:"d-m-Y H:i" }}</small>
     </div>
-    <!-- End Left sidebar -->
-
-    <!-- Right Sidebar -->
-    <div class="messages-panel col-lg-9 col-md-8">
-        <div class="media mb-3 message-header">
-            <img src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                 class="profile-pic rounded-circle mr-3 shadow" alt="media image">
-            <div class="media-body">
-                <span class="time-stamp float-right">08:22 AM</span>
-                <h4 class="sender-name text-primary">John Doe</h4>
-                <small class="sender-email text-muted">From: info@example.com</small>
-            </div>
-        </div>
-        <!-- Message card -->
-        <div class="message-card card shadow-none mt-3 border border-light">
-            <div class="card-body">
-
-                <p><b>Hi Sir...</b></p>
-                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</p>
-                <p>Aenean vulputate eleifend tellus...</p>
-                <hr>
-            </div>
-        </div> <!-- End message card -->
-    </div> <!-- End messages-panel -->
-
+    {% else %}
+    <div class="news-item">
+        <h2>{{ notification.title }}</h2>
+        <p>{{ notification.message }}</p>
+        <small>{{ notification.date_sent|date:"d-m-Y H:i" }}</small>
+    </div>
+    {% endif %}
+    {% endfor %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- Пагинация -->
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page=1">&laquo; първа</a>
+    <a href="?page={{ page_obj.previous_page_number }}">предишна</a>
+    {% endif %}
+
+    <span>Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">следваща</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}">последна &raquo;</a>
+    {% endif %}
+</div>
+
 {% endblock %}
