@@ -5,9 +5,10 @@ from players.models import Player, PlayerMatchStatistic, Statistic, Position, Pl
 from players.utils import get_player_match_stats
 from .models import Match, EventTemplate, Event, AttributeEventWeight, MatchEvent, EventResult
 import random
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 from datetime import datetime
+from teams.models import Team
 
 
 def generate_matches_for_season(season):
@@ -38,6 +39,18 @@ def update_matches(dummy_team, new_team):
     for match in away_matches:
         match.away_team = new_team
         match.save()
+
+
+def get_user_today_match(user):
+    today = timezone.now().date()
+    user_team = Team.objects.get(user=user)
+
+    next_match = Match.objects.filter(
+        Q(home_team=user_team) | Q(away_team=user_team),
+        match_date__gte=today
+    ).first()
+
+    return next_match
 
 
 def get_match_status(match):
@@ -149,6 +162,7 @@ def get_event_template(event_type, success):
 
     return chosen_template
 
+
 # Getting needed players for this event
 def get_event_players(template, main_player, team):
     num_players = template.num_players
@@ -164,10 +178,12 @@ def get_event_players(template, main_player, team):
 
     return players
 
+
 def fill_template_with_players(template, players):
     # Форматираме имената на играчите за използване в шаблона
     player_1_name = f"{players[0].first_name} {players[0].last_name} ({players[0].team.name})"
-    player_2_name = f"{players[1].first_name} {players[1].last_name} ({players[1].team.name})" if len(players) > 1 else ""
+    player_2_name = f"{players[1].first_name} {players[1].last_name} ({players[1].team.name})" if len(
+        players) > 1 else ""
 
     # Форматираме текста на шаблона, като заменяме player_1 и player_2 с реалните имена
     formatted_text = template.template_text.format(
@@ -176,6 +192,7 @@ def fill_template_with_players(template, players):
     )
 
     return formatted_text
+
 
 def update_player_stats_from_template(match, template, players):
     stats_dict = {}
@@ -253,6 +270,7 @@ def update_player_stats_from_template(match, template, players):
             player_stat.value = value
             player_stat.save()
 
+
 def update_matchscore(template, match, team_with_initiative):
     # Проверяваме дали шаблонът съдържа полето "goals" и дали има стойност по-голяма от 0
     if hasattr(template.event_result, 'goals') and template.event_result.goals > 0:
@@ -263,6 +281,7 @@ def update_matchscore(template, match, team_with_initiative):
             # Ако отбора с инициатива е гост, увеличаваме головете на гостувания отбор
             match.away_goals += 1
         match.save()
+
 
 def log_match_event(match, minute, template, formattedText, players=None):
     # Проверка дали всички елементи в 'players' са обекти от тип 'Player'
@@ -289,6 +308,7 @@ def log_match_event(match, minute, template, formattedText, players=None):
 
     except Exception as e:
         print(f'Error: {e}')
+
 
 def check_initiative(template, match):
     if template.possession_kept:
@@ -317,4 +337,3 @@ def finalize_match(match):
 
             season_stat.value = F('value') + match_stat.value
             season_stat.save()
-

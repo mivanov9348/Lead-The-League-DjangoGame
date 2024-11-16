@@ -1,196 +1,218 @@
 <header>
-    <!-- Secondary Navbar (Top) -->
-    <header>
-        <!-- Secondary Navbar (Top) -->
-        <nav class="navbar navbar-light secondary-navbar">
-            <div class="container-fluid justify-content-between">
-                <a class="navbar-brand secondary-brand" href="{% url 'game:home' %}">
-                    <strong>LeadTheLeague</strong>
+    {% load static %}
+    <nav class="navbar secondary-navbar">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="{% url 'game:home' %}">
+                LeadTheLeague
+            </a>
+
+            <div class="team-info d-flex flex-column align-items-center">
+                {% if user_team %}
+                <p class="team-name">{{ user_team.name }}</p>
+
+                {% else %}
+                <p class="no-team">No Team</p>
+                {% endif %}
+            </div>
+
+
+            <div class="d-flex align-items-center">
+                <a class="nav-link chat-btn" href="{% url 'messaging:chat_view' %}">
+                    <i class="fas fa-comments"></i> Chat
                 </a>
 
-                <div class="d-flex align-items-center">
-                    <!-- Chat Link -->
-                    <a class="nav-link" href="{% url 'messaging:chat_view' %}">Chat</a>
-
-                    {% if user.is_authenticated %}
-                    <!-- User Dropdown -->
-                    <div class="dropdown">
-                        <button class="btn text-light dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ user.username }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                            <li><a class="dropdown-item" href="#">{{ user.username }}</a></li>
-                            <li><a class="dropdown-item" href="{% url 'messaging:chat_view' %}">Chat</a></li>
-                            <li>
-                                <form method="POST" action="{% url 'accounts:logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                    {% endif %}
+                {% if user.is_authenticated %}
+                <div class="dropdown ms-3">
+                    <img src="{% static 'images/1.png' %}" alt="User Profile" class="profile-icon"
+                         data-bs-toggle="dropdown" aria-expanded="false">
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#settings"><i class="fas fa-cog"></i> Profile</a></li>
+                        <li>
+                            <form method="POST" action="{% url 'accounts:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <!-- Main Navigation (Bottom) -->
-    <nav class="navbar navbar-expand-lg custom-navbar" style="z-index: 1200;">
-        <div class="container-fluid">
-            <!-- Navbar brand -->
-            <a class="navbar-brand nav-link" href="{% url 'game:home' %}">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'game:home' %}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="inboxDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-inbox"></i> Inbox</a>
-                        <ul class="dropdown-menu" aria-labelledby="inboxDropdown">
-                            <li><a class="dropdown-item" href="{% url 'messaging:inbox_view' %}"><i
-                                    class="fas fa-envelope"></i> Messages</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'match:user_match' %}"><i class="fas fa-futbol"></i> Match</a>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="leaguesDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i> Leagues</a>
-                        <ul class="dropdown-menu" aria-labelledby="leaguesDropdown">
-                            <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i
-                                    class="fas fa-list-ol"></i> Standings</a></li>
-                            <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i
-                                    class="fas fa-calendar"></i> Schedule</a></li>
-                            <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
-                                Livescore</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="playersDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i> Leagues</a>
-                        <ul class="dropdown-menu" aria-labelledby="leaguesDropdown">
-                            <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i
-                                    class="fas fa-list-ol"></i> Standings</a></li>
-                            <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i
-                                    class="fas fa-calendar"></i> Schedule</a></li>
-                            <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
-                                Livescore</a></li>
-                        </ul>
-                    </li>
-                </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
 </header>
 
-<style>
+<nav class="navbar navbar-expand-lg custom-navbar">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="{% url 'game:home' %}"><i class="fas fa-home"></i>
+                    Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'messaging:inbox_view' %}"><i
+                        class="fas fa-newspaper"></i> News</a></li>
 
-.secondary-navbar {
-        background-color: #333;
-        color: white;
-        padding:2px 0;
-        font-size: 12px;
-        box-shadow: 1px 1px 1px 1px black;
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="teamsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i>Team</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'teams:squad' %}"><i class="fas fa-list-ol"></i>
+                            Squad</a></li>
+                        <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i class="fas fa-calendar"></i>
+                            Line-up</a></li>
+                        <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
+                            Training</a></li>
+                        <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
+                            Facilities</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="leaguesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i> League</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i class="fas fa-list-ol"></i>
+                            League Table</a></li>
+                        <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i class="fas fa-calendar"></i>
+                            Results</a></li>
+                        <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
+                            Fixtures</a></li>
+                        <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
+                            Statistic</a></li>
+                        <li><a class="dropdown-item" href="{% url 'match:livescore' %}"><i class="fas fa-clock"></i>
+                            Livescore</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="transfersDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-exchange-alt"></i>Transfers</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#transferMarket"><i class="fas fa-store"></i>Transfer Market</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#negotiations"><i
+                                class="fas fa-handshake"></i>Negotiations</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#history"><i class="fas fa-history"></i>Transfer History</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="clubDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-building"></i> Club</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#academy"><i class="fas fa-user-graduate"></i> Academy</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#statistics"><i class="fas fa-chart-line"></i> Statistics</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#facilities"><i class="fas fa-dumbbell"></i> Facilities</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    /* Navbar Styles */
+    .secondary-navbar {
+        background-color: rgba(105, 105, 105, 0.9); /* Черен фон с прозрачност */
+        color: #fff;
+        padding: 5px 0;
+        font-size: 14px;
+        font-family: 'OLD SPORT 02 ATHLETIC NCV';
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5);
         position: fixed;
         top: 0;
         width: 100%;
         z-index: 1300;
-        border-bottom:2px black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-.secondary-navbar .navbar-brand {
+    .custom-navbar {
+    background-color: rgba(0, 0, 0, 0.9); /* Черен фон с прозрачност */
+        padding: 5px;
+        top: 45px;
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar-brand {
+        font-size: 20px;
+        font-weight: 700;
         color: #f8f9fa;
-        font-weight: bold;
-        font-size: 16px;
     }
 
-.secondary-navbar .navbar-nav .nav-link {
+    .navbar-toggler {
+        color: #f8f9fa;
+    }
+
+    .navbar-nav .nav-link {
         color: #ddd;
-        margin: 0 5px;
-        font-size: 12px;
-        transition: color 0.3s;
+        margin: 0 8px;
+        padding: 15px 16px;
+        font-size: 16px;
+        font-family: 'OLD SPORT 02 ATHLETIC NCV';
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        transition: color 0.3s, background-color 0.3s;
     }
 
-.secondary-navbar .navbar-nav .nav-link:hover {
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
         color: #fff;
     }
 
- .custom-navbar {
-        background: rgb(0, 0, 0);
-        background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-        color: black;
-        position: fixed;
-        top: 40px; /* Adjusted to be below the secondary navbar */
-        width: 100%;
-        z-index: 1000;
-        padding: 5px 0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
-        border-bottom: 2px solid white;
-    }
-
-.custom-navbar a {
-        color: black;
-        text-decoration: none;
-        padding: 10px 20px;
-        margin: 0 5px;
-        font-weight: bold;
-    }
-
-.navbar-nav .nav-link {
-        color: black;
-        margin: 0 10px;
-        transition: color 0.3s ease, background-color 0.3s ease;
-        border-radius: 4px;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-    }
-
-.navbar-nav .nav-link:hover {
-        color: #f8f9fa;
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-.navbar-nav .nav-link i {
-        margin-right: 10px;
-    }
-
-.dropdown-menu {
-        background-color: #6c757d;
+    /* Dropdown Menu Styles */
+    .dropdown-menu {
+        background-color: #333;
+        border-radius: 5px;
         border: none;
-        padding: 0;
-        min-width: 200px;
-        border-radius: 4px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
+        padding: 10px;
     }
 
-.dropdown-item {
-        color: #ffffff;
-        padding: 12px 20px;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        transition: color 0.3s ease;
+    .dropdown-item {
+        color: #fff;
+        padding: 8px 20px;
+        transition: color 0.3s;
     }
 
-.dropdown-item:hover {
+    .dropdown-item:hover {
         color: #007bff;
-        background-color: transparent;
+        background-color: #444;
+    }
+
+    /* Profile Icon */
+    .profile-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
         cursor: pointer;
     }
 
-.dropdown-item i {
-        margin-right: 10px;
+    .chat-btn {
+        color: #fff;
+        background-color: #007bff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background-color 0.3s;
+    }
+
+    .chat-btn:hover {
+        background-color: #0056b3;
     }
 </style>

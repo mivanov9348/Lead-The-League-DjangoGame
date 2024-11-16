@@ -112,7 +112,6 @@ def get_team_players_season_data(team):
 
     return standings_data
 
-
 def create_team_performance_chart(season_stats, team_name):
     stats_data = {
         "Year": [],

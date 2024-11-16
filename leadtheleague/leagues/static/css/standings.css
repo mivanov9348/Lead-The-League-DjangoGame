@@ -1,69 +1,67 @@
 .standings-container {
     display: flex;
-    justify-content: space-around;
-    margin-top: 100px;
+    justify-content: space-between;
+    margin-top: 130px;
+    gap: 20px; /* Разстояние между таблиците */
+}
 
+.standings-table, .top-players-table {
+       border-collapse: collapse;
+    text-align: center;
+    border: none; /* Премахване на граници */
+    color: white;
+    background: none;
+    font-size: 18px;
+    box-shadow: 0 10px 15px rgba(192, 192, 192, 0.6), 0 4px 6px rgba(0, 0, 0, 0.2); /* Металически стил */
+    border-radius: 10px;
+    transform: translateY(-5px); /* Повдигане на таблиците */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.standings-table:hover, .top-players-table:hover {
+
+    transform: translateY(-10px); /* Повече повдигане при hover */
+    box-shadow: 0 15px 20px rgba(192, 192, 192, 0.8), 0 6px 8px rgba(0, 0, 0, 0.3); /* Подсилен ефект */
 }
 
 .standings-table {
-    width: 60%;
-    border-collapse: collapse;
-    text-align: center;
-    box-shadow: 10px 10px 10px 10px black;
-    border-radius: 10px;
-    font-size:20px;
-     padding: 100px;
-}
 
-.team-name{
-width:250px;
+    width: 70%;
 }
 
 .top-players-table {
-    width: 35%;
-    border-collapse: collapse;
-    text-align: center;
-    box-shadow: 10px 10px 10px 10px black;
-    border-radius: 10px;
+    width: 30%;
 }
 
-.top-players-table {
-    border-radius: 10px;
-    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-}
-
-.top-players-table thead {
-    border-radius: 10px;
-    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-    color: black;
-}
-
+.standings-table th, .standings-table td,
 .top-players-table th, .top-players-table td {
+    text-align: center;
 
     padding: 15px;
-    font-size: 14px;
 }
 
-.top-players-table .player-name {
+.standings-table thead, .top-players-table thead {
     font-weight: bold;
-    color: #ff4d4d;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.standings-table tbody tr:nth-child(odd),
+.top-players-table tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.standings-table tbody tr:nth-child(even),
+.top-players-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.team-name, .player-name {
+    font-weight: bold;
     text-align: left;
 }
 
-.top-players-table .player-rating {
+.points, .player-rating {
     font-weight: bold;
-    color: #ff6600;
-}
-
-.top-players-table tbody tr:nth-child(odd) {
-
-}
-
-.top-players-table tbody tr:nth-child(even) {
-    background-color: #ffffff;
-}
-
-.top-players-table td {
-
-    width: 20px;
+    color: #FFD700; /* Златисто за подчертаване */
 }

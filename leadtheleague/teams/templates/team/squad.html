@@ -1,83 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Squad</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/team_squad.css' %}">
+{% extends 'base.html' %}
 
-</head>
-{% include 'menu/_navbar.html' %}
-<body>
-<div class="container">
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped fixed-table">
-            <thead class="table-dark">
-<tr>
-    <th colspan="5" class="text-center">Player Info</th>
-    <th colspan="14" class="statistics">Statistics</th>
-</tr>
-<tr>
-    <!-- Лична информация -->
-    <th class="shirt-number">N</th>
-    <th class="player-name">Name</th>
-    <th class="age">Age</th>
-    <th class="nat">Nat</th>
-    <th class="player-info-border pos">Pos</th> <!-- Apply class here -->
+{% block title %}All Players{% endblock %}
 
-   <th><span title="Matches Played">⚽️</span></th>
-    <th><span title="Goals">🥅</span></th>
-    <th><span title="Assists">🤝</span></th>
-    <th><span title="Passes">➡️</span></th>
-    <th><span title="Shots">🔫</span></th>
-    <th><span title="Shots on Target">🎯</span></th>
-    <th><span title="Tackles">🛡️</span></th>
-    <th><span title="Dribbles">🔄</span></th>
-    <th><span title="Yellow Cards">💛</span></th>
-    <th><span title="Red Cards">❤️</span></th>
-    <th><span title="Minutes Played">⏱️</span></th>
-    <th><span title="Saves">🥅</span></th>
-    <th><span title="Clean Sheets">🧼</span></th>
-    <th><span title="Conceded">⚠️</span></th>
-</tr>
-</thead>
-<tbody>
-{% for entry in players_data %}
-<tr>
-    <!-- Лична информация -->
-    <td>1</td>
-    <td>{{ entry.player.first_name }} {{ entry.player.last_name }}</td>
-    <td>{{ entry.player.age }}</td>
-    <td>{{ entry.player.nationality.abbr }}</td>
-    <td class="player-info-border">{{ entry.player.position.abbr }}</td> <!-- Apply class here -->
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/squad.css' %}">
+{% endblock %}
 
-    <!-- Статистика -->
-    <td>{{ entry.season_stats.matches }}</td>
-    <td>{{ entry.season_stats.goals }}</td>
-    <td>{{ entry.season_stats.assists }}</td>
-    <td>{{ entry.season_stats.passes }}</td>
-    <td>{{ entry.season_stats.shoots }}</td>
-    <td>{{ entry.season_stats.shootsOnTarget }}</td>
-    <td>{{ entry.season_stats.tackles }}</td>
-    <td>{{ entry.season_stats.dribbles }}</td>
-    <td>{{ entry.season_stats.yellowCards }}</td>
-    <td>{{ entry.season_stats.redCards }}</td>
-    <td>{{ entry.season_stats.minutesPlayed }}</td>
-    <td>{{ entry.season_stats.saves }}</td>
-    <td>{{ entry.season_stats.cleanSheets }}</td>
-    <td>{{ entry.season_stats.conceded }}</td>
-</tr>
-{% empty %}
-<tr>
-    <td colspan="38" class="text-center">No players found</td>
-</tr>
-{% endfor %}
-</tbody>
+{% block content %}
+<div class="table-container">
+    <div class="table-section player-info">
+        <div class="section-title">Player Info</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>N</th>
+                    <th>Name</th>
+                    <th>P</th>
+                    <th>🏴</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in players_data %}
+                <tr>
+                    <td>1</td>
+                    <td>{{ entry.player.first_name }} {{ entry.player.last_name }}</td>
+                    <td>{{ entry.player.positionabbr }}</td>
+                    <td>{{ entry.player.nationalityabbr }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">Няма налични играчи</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+    <div class="table-section player-stats">
+        <div class="section-title">Statistic</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>⚽</th>
+                    <th>🤝</th>
+                    <th>💥</th>
+                    <th>💢</th>
+                    <th>🦶</th>
+                    <th>💨</th>
+                    <th>❎</th>
+                    <th>🟨</th>
+                    <th>🟥</th>
+                    <th>💉</th>
+                    <th>🧤</th>
+                    <th>🥅</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in players_data %}
+                <tr>
+                    <td>{{ entry.season_stats.goals }}</td>
+                    <td>{{ entry.season_stats.assists }}</td>
+                    <td>{{ entry.season_stats.shoots }}</td>
+                    <td>{{ entry.season_stats.shootsOnTarget }}</td>
+                    <td>{{ entry.season_stats.passes }}</td>
+                    <td>{{ entry.season_stats.dribbles }}</td>
+                    <td>{{ entry.season_stats.tackles }}</td>
+                    <td>{{ entry.season_stats.yellowCards }}</td>
+                    <td>{{ entry.season_stats.redCards }}</td>
+                    <td>{{ entry.season_stats.fouls }}</td>
+                    <td>{{ entry.season_stats.saves }}</td>
+                    <td>{{ entry.season_stats.conceded }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-section player-attributes">
+        <div class="section-title">Attributes</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>R</th>
+                    <th>H</th>
+                    <th>R</th>
+                    <th>F</th>
+                    <th>S</th>
+                    <th>T</th>
+                    <th>P</th>
+                    <th>C</th>
+                    <th>T</th>
+                    <th>S</th>
+                    <th>D</th>
+                    <th>B</th>
+                    <th>D</th>
+                    <th>S</th>
+                    <th>V</th>
+                    <th>W</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in players_data %}
+                <tr>
+                    <td>{{ entry.attributes.Reflexes }}</td>
+                    <td>{{ entry.attributes.Handling }}</td>
+                    <td>{{ entry.attributes.Reflexes }}</td>
+                    <td>{{ entry.attributes.Finishing }}</td>
+                    <td>{{ entry.attributes.Shooting }}</td>
+                    <td>{{ entry.attributes.Technique }}</td>
+                    <td>{{ entry.attributes.Passing }}</td>
+                    <td>{{ entry.attributes.Crossing }}</td>
+                    <td>{{ entry.attributes.Tackling }}</td>
+                    <td>{{ entry.attributes.Strength }}</td>
+                    <td>{{ entry.attributes.Determination }}</td>
+                    <td>{{ entry.attributes.BallControl }}</td>
+                    <td>{{ entry.attributes.Dribbling }}</td>
+                    <td>{{ entry.attributes.Speed }}</td>
+                    <td>{{ entry.attributes.Vision }}</td>
+                    <td>{{ entry.attributes.WorkRate }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
-</body>
-</html>
+{% endblock %}

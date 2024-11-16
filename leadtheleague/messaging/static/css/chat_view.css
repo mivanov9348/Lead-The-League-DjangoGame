@@ -1,253 +1,103 @@
+.chat-container {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    color: white;
+    background: none; /* Премахва бекграунда */
+}
 
-.card {
-    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-    transition: .5s;
-    border: 0;
-    margin-bottom: 30px;
-    border-radius: .55rem;
-    position: relative;
+.user-list {
+    width: 25%;
+    border-right: 1px solid #444;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.search-box {
+    margin-bottom: 10px;
+}
+
+.search-box input {
     width: 100%;
-    box-shadow: 1px 1px 5px 1px black;
-}
-.chat-app .people-list {
-    width: 280px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    padding: 20px;
-    z-index: 7
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background: #333;
+    color: white;
 }
 
-.chat-app .chat {
-    margin-left: 280px;
-    border-left: 1px solid #eaeaea
-}
-
-.people-list {
-    -moz-transition: .5s;
-    -o-transition: .5s;
-    -webkit-transition: .5s;
-    transition: .5s
-}
-
-.people-list .chat-list li {
-    padding: 10px 15px;
+#user-list {
     list-style: none;
-    border-radius: 3px
+    padding: 0;
+    margin: 0;
 }
 
-.people-list .chat-list li:hover {
-    background: #efefef;
-    cursor: pointer
+#user-list li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #444;
 }
 
-.people-list .chat-list li.active {
-    background: #efefef
+#user-list li:hover {
+    background: #555;
 }
 
-.people-list .chat-list li .name {
-    font-size: 15px
+.chat-box {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
 }
 
-.people-list .chat-list img {
-    width: 45px;
-    border-radius: 50%
+.chat-header {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    text-align: center;
+    font-size: 1.2em;
 }
 
-.people-list img {
-    float: left;
-    border-radius: 50%
+.chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #444;
 }
 
-.people-list .about {
-    float: left;
-    padding-left: 8px
+.chat-history div {
+    margin-bottom: 10px;
 }
 
-.people-list .status {
-    color: #999;
-    font-size: 13px
+.chat-input {
+    display: flex;
+    padding: 10px;
+    gap: 10px;
 }
 
-.chat .chat-header {
-    padding: 15px 20px;
-    border-bottom: 2px solid #f4f7f6
+.chat-input input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background: #333;
+    color: white;
 }
 
-.chat .chat-header img {
-    float: left;
-    border-radius: 40px;
-    width: 40px
+.chat-input button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background: #555;
+    color: white;
+    cursor: pointer;
 }
 
-.chat .chat-header .chat-about {
-    float: left;
-    padding-left: 10px
+.chat-input button:hover {
+    background: #777;
 }
 
-.chat .chat-history {
-    padding: 20px;
-    border-bottom: 2px solid #fff
-}
-
-.chat .chat-history ul {
-    padding: 0
-}
-
-.chat .chat-history ul li {
-    list-style: none;
-    margin-bottom: 30px
-}
-
-.chat .chat-history ul li:last-child {
-    margin-bottom: 0px
-}
-
-.chat .chat-history .message-data {
-    margin-bottom: 15px
-}
-
-.chat .chat-history .message-data img {
-    border-radius: 40px;
-    width: 40px
-}
-
-.chat .chat-history .message-data-time {
-    color: #434651;
-    padding-left: 6px
-}
-
-.chat .chat-history .message {
-    color: #444;
-    padding: 18px 20px;
-    line-height: 26px;
-    font-size: 16px;
-    border-radius: 7px;
-    display: inline-block;
-    position: relative
-}
-
-.chat .chat-history .message:after {
-    bottom: 100%;
-    left: 7%;
-    border: solid transparent;
-    content: " ";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-bottom-color: #fff;
-    border-width: 10px;
-    margin-left: -10px
-}
-
-.chat .chat-history .my-message {
-    background: #efefef
-}
-
-.chat .chat-history .my-message:after {
-    bottom: 100%;
-    left: 30px;
-    border: solid transparent;
-    content: " ";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-bottom-color: #efefef;
-    border-width: 10px;
-    margin-left: -10px
-}
-
-.chat .chat-history .other-message {
-    background: #e8f1f3;
-    text-align: right
-}
-
-.chat .chat-history .other-message:after {
-    border-bottom-color: #e8f1f3;
-    left: 93%
-}
-
-.chat .chat-message {
-    padding: 20px
-}
-
-.online,
-.offline,
-.me {
-    margin-right: 2px;
-    font-size: 8px;
-    vertical-align: middle
-}
-
-.online {
-    color: #86c541
-}
-
-.offline {
-    color: #e47297
-}
-
-.me {
-    color: #1d8ecd
-}
-
-.float-right {
-    float: right
-}
-
-.clearfix:after {
-    visibility: hidden;
-    display: block;
-    font-size: 0;
-    content: " ";
-    clear: both;
-    height: 0
-}
-
-@media only screen and (max-width: 767px) {
-    .chat-app .people-list {
-        height: 465px;
-        width: 100%;
-        overflow-x: auto;
-        background: #fff;
-        left: -400px;
-        display: none
-    }
-    .chat-app .people-list.open {
-        left: 0
-    }
-    .chat-app .chat {
-        margin: 0
-    }
-    .chat-app .chat .chat-header {
-        border-radius: 0.55rem 0.55rem 0 0
-    }
-    .chat-app .chat-history {
-        height: 300px;
-        overflow-x: auto
-    }
-}
-
-@media only screen and (min-width: 768px) and (max-width: 992px) {
-    .chat-app .chat-list {
-        height: 650px;
-        overflow-x: auto
-    }
-    .chat-app .chat-history {
-        height: 600px;
-        overflow-x: auto
-    }
-}
-
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
-    .chat-app .chat-list {
-        height: 480px;
-        overflow-x: auto
-    }
-    .chat-app .chat-history {
-        height: calc(100vh - 350px);
-        overflow-x: auto
-    }
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
 }

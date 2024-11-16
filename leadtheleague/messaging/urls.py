@@ -1,5 +1,6 @@
 from django.urls import path
-from messaging.views import inbox_view, chat_view, get_chat_messages, notification_detail
+from messaging import ChatConsumer
+from messaging.views import inbox_view, chat_view, get_chat_messages, message_detail
 
 app_name = 'messaging'
 
@@ -7,5 +8,7 @@ urlpatterns = [
     path('chat_view/', chat_view, name='chat_view'),
     path('get-chat-messages/<int:user_id>/', get_chat_messages, name='get_chat_messages'),
     path('inbox_view/', inbox_view, name='inbox_view'),
-    path('notification/<int:id>/', notification_detail, name='notification_detail'),
+    path('message/<int:id>/', message_detail, name='message_detail'),
+
 ]
+

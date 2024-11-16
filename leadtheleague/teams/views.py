@@ -33,10 +33,10 @@ def create_team(request):
     return render(request, 'team/create_team.html', context)
 
 
-def team_squad(request):
+def squad(request):
     team = get_object_or_404(Team, user=request.user)
     players_data = get_team_players_season_data(team)
-
+    print(players_data)
     context = {
         'team': team,
         'players_data': players_data

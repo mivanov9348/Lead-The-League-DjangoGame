@@ -1,14 +1,11 @@
 from django.db.models import Q
-from messaging.models import ChatMessage
+from messaging.models import ChatMessage, SystemNotification
 
-def get_last_message_preview(user, contact_user):
-    # Намираме последното съобщение от дадения контакт (или изпратено, или получено)
-    last_message = ChatMessage.objects.filter(
-        (Q(sender=user) & Q(recipient=contact_user)) |
-        (Q(sender=contact_user) & Q(recipient=user))
-    ).order_by('-timestamp').first()
 
-    # Връщаме първите 15 символа от съобщението, ако има такова
-    if last_message:
-        return last_message.content[:15]  # Връщаме само първите 15 знака
-    return ''
+def get_message_preview(message):
+    preview_text = message.content[:15]  # Връщаме само първите 15 знака
+
+    message.preview = preview_text
+    message.save()
+
+    return preview_text

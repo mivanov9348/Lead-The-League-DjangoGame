@@ -1,5 +1,8 @@
 body {
-    background: linear-gradient(to right, #f2f2f2, #d9d9d9);
+     background-image: url("../images/background.jpg"); /* Проверете дали пътят е правилен */
+    background-size: cover; /* Разтяга изображението така, че да покрива целия екран */
+    background-repeat: no-repeat; /* Предотвратява повторението */
+    background-attachment: fixed; /* Запазва фона фиксиран при скролиране */
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -15,4 +18,16 @@ body {
     font-size: 1.1rem;
     line-height: 1.6;
     color: #444;
+}
+
+/* Footer стилове */
+.footer {
+    background-color: #222;
+    color: #fff;
+    margin-top: 50px;
+}
+
+.footer p {
+    margin: 0;
+    font-size: 14px;
 }

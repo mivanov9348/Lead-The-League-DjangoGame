@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from huey import RedisHuey
 
@@ -12,7 +11,6 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # Добавяне на папката "static"
 ]
-
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -34,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'huey.contrib.djhuey',
+    'channels',
     'teams',
     'accounts',
     'game',
@@ -68,7 +67,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.static'
+                'django.template.context_processors.static',
+                'game.navbar_processors.user_team',
             ],
         },
     }, ]
@@ -121,10 +121,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+ASGI_APPLICATION = 'leadtheleague.asgi.application'
+
+# Настройка за Channels и Redis (необходим за WebSocket комуникация)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],  # Увери се, че Redis работи
+        },
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

@@ -1,0 +1,89 @@
+/* Контейнер за секциите */
+.table-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Всяка секция в таблицата */
+.table-section {
+    flex: 1 1 calc(33% - 20px);
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #444;
+    color: white;
+}
+
+/* Заглавия на секции */
+.section-title {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #555;
+    color: white;
+}
+
+/* Таблиците в секциите */
+.table-section table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+}
+
+/* Заглавия на таблиците */
+.table-section th {
+    background-color: #555;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd; /* Бордъри около клетките */
+}
+
+/* Клетки на таблиците */
+.table-section td {
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ddd; /* Бордъри около клетките */
+}
+
+/* Hover ефект */
+.table-section tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Контейнер за хоризонтално превъртане */
+.table-section {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #444;
+}
+
+/* Стилове за скролбара (за webkit браузъри) */
+.table-section::-webkit-scrollbar {
+    height: 8px;
+}
+.table-section::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+.table-section::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* Добавяне на стилове за празен ред */
+.table-section .text-center {
+    color: #bbb;
+    font-style: italic;
+}
+
+/* Адаптивност за мобилни устройства */
+@media (max-width: 768px) {
+    .table-section {
+        flex: 1 1 100%;
+    }
+}

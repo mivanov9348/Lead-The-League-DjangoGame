@@ -3,6 +3,7 @@ from teams.models import TeamTactics, Tactics
 from .models import Player, FirstName, LastName, Nationality, Position, PositionAttribute, PlayerAttribute, \
     Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
 
+
 def calculate_player_price(player):
     base_prices = {
         'Goalkeeper': 20000,
@@ -34,34 +35,31 @@ def get_random_name(region):
 
 
 def generate_random_player(team=None, position=None):
+    # Кешираме националностите и позициите
     nationalities = Nationality.objects.all()
+    positions = Position.objects.all()
+    attributes = {attr.name: random.randint(1, 20) for attr in Attribute.objects.all()}
+
     nationality = random.choice(nationalities)
     region = nationality.region
     first_name, last_name = get_random_name(region)
 
-    # Определяме позицията на играча, ако не е зададена
+    # Ако позицията не е зададена, избираме случайна
     if position is None:
-        position = random.choice(Position.objects.all())
+        position = random.choice(positions)
 
-    # Инициализираме атрибутите на играча с произволни стойности от 1 до 20
-    attributes = {attr.name: random.randint(1, 20) for attr in Attribute.objects.all()}
-
-    # Получаваме атрибутите, които са важни за съответната позиция
+    # Извличаме атрибутите за позицията
     position_attributes = PositionAttribute.objects.filter(position=position)
 
     # Настройваме стойностите на атрибутите според важността
     for pos_attr in position_attributes:
         if pos_attr.attribute.name in attributes:
-            # Присвояваме нова стойност на атрибута спрямо важността (importance)
-            base_value = attributes[pos_attr.attribute.name]  # Основната стойност на атрибута
-            # Увеличаваме стойността в рамките на 1 до 20, без да надвишава 20
+            base_value = attributes[pos_attr.attribute.name]
             boosted_value = min(int(base_value * (1 + (pos_attr.importance - 1) * 0.3)), 20)
             attributes[pos_attr.attribute.name] = boosted_value
 
-    # Задаваме случайна възраст
+    # Създаване на нов играч
     age = random.randint(18, 35)
-
-    # Създаваме обекта Player и го запазваме
     player = Player(
         first_name=first_name,
         last_name=last_name,
@@ -72,12 +70,11 @@ def generate_random_player(team=None, position=None):
     )
     player.save()
 
-    # Създаваме PlayerAttribute записи за всички атрибути с изчислените стойности
+    # Записване на атрибути
     for attr_name, value in attributes.items():
         attr = Attribute.objects.get(name=attr_name)
         PlayerAttribute.objects.create(player=player, attribute=attr, value=value)
 
-    # Пресмятаме цената на играча
     player.price = calculate_player_price(player)
     player.save()
 
@@ -111,12 +108,15 @@ def generate_team_players(team):
 def get_team_match_stats(userteam):
     return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
 
+
 def get_basic_player_data(player):
     # Не е нужно да използвате select_related тук, защото 'player' вече е инстанция
     return player
 
+
 def get_player_attributes(player):
     return {attr.attribute.name: attr.value for attr in player.playerattribute_set.prefetch_related('attribute').all()}
+
 
 def get_player_season_stats(player):
     # Извличаме статистики за сезона на играча
@@ -134,18 +134,29 @@ def get_player_season_stats(player):
 
 
 def get_player_data(player):
-    # Извличаме основната информация за играча
-    basic_data = get_basic_player_data(player)
+    # Извличаме данните за играча с използване на select_related и prefetch_related
+    player_data = Player.objects.select_related('position', 'team', 'nationality') \
+        .prefetch_related('playerattribute_set__attribute', 'season_stats__statistic') \
+        .get(id=player.id)
 
-    # Извличаме атрибутите на играча
-    attributes = get_player_attributes(player)
+    # Извличаме атрибутите на играча като речник
+    attributes = {attr.attribute.name: attr.value for attr in player_data.playerattribute_set.all()}
 
     # Извличаме сезонните статистики на играча
-    season_stats = get_player_season_stats(player)
+    season_stats = {stat.statistic.name: stat.value for stat in player_data.season_stats.all()}
 
     # Връщаме комбинираните данни
     return {
-        'player': basic_data,
+        'player': {
+            'first_name': player_data.first_name,
+            'last_name': player_data.last_name,
+            'age': player_data.age,
+            'position': player_data.position.position_name,
+            'team': player_data.team.name,
+            'nationality': player_data.nationality.name,
+            'positionabbr': player_data.position.abbr,
+            'nationalityabbr': player_data.nationality.abbr
+        },
         'attributes': attributes,
         'season_stats': season_stats,
     }
@@ -187,11 +198,16 @@ def auto_select_starting_lineup(team):
             if len(selected_players[player.position.abbr]) < required_positions[player.position.abbr]:
                 selected_players[player.position.abbr].append(player)
 
+    # Актуализиране на играчите с is_starting
     Player.objects.filter(team=team, is_starting=True).update(is_starting=False)
+    starting_players = []
     for position, players in selected_players.items():
         for player in players:
             player.is_starting = True
-            player.save()
+            starting_players.append(player)
+
+    # Bulk update на всички стартови играчи
+    Player.objects.bulk_update(starting_players, ['is_starting'])
 
     TeamTactics.objects.create(team=team, tactic=tactic)
 

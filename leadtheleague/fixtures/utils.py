@@ -126,7 +126,6 @@ def match_to_fixture(match):
         )
 
     except Fixture.DoesNotExist:
-        print("Fixture не е намерен за този мач.")
         return
 
     fixture.home_goals = match.home_goals
@@ -134,5 +133,3 @@ def match_to_fixture(match):
     fixture.is_finished = True
 
     fixture.save()
-    print(
-        f"Резултатът от мача ({match.home_team} {match.home_goals}:{match.away_goals} {match.away_team}) е записан във Fixture.")

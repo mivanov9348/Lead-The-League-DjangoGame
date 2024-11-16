@@ -8,39 +8,47 @@
 {% endblock %}
 
 {% block content %}
+<div class="news-page">
+    <!-- Sidebar with news list -->
+    <div class="news-sidebar">
+        <form method="get" action="">
+            <input type="text" name="search" placeholder="Search messages..." value="{{ request.GET.search }}">
+        </form>
+        <hr/>
+        <ul class="news-list">
+            {% for notification in context %}
+            <li class="news-item {% if notification.is_read %}read{% else %}unread{% endif %}">
+                <a href="?notification_id={{ notification.id }}">
+                    <p class="notification-title">{{ notification.title }}</p>
+                    <p>{{ notification.preview|default:"No preview" }}</p>
+                    <p class="date-text">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
 
-<div class="news-grid">
-    <!-- Главната новина (най-новата) -->
-    {% for notification in page_obj %}
-    {% if forloop.first %}
-    <div class="news-item main-news">
-        <h1>{{ notification.title }}</h1>
-        <p>{{ notification.message }}</p>
-        <small>{{ notification.date_sent|date:"d-m-Y H:i" }}</small>
+        <!-- Pagination controls -->
+        <div class="pagination">
+            {% if context.has_previous %}
+            <a href="?page={{ context.previous_page_number }}">&laquo; Назад</a>
+            {% endif %}
+            <span>Page {{ context.number }} от {{ context.paginator.num_pages }}</span>
+            {% if context.has_next %}
+            <a href="?page={{ context.next_page_number }}">Forward &raquo;</a>
+            {% endif %}
+        </div>
     </div>
-    {% else %}
-    <div class="news-item">
+
+    <!-- News detail view -->
+    <div class="news-detail">
+        {% if notification %}
         <h2>{{ notification.title }}</h2>
+        <p class="date-text">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
+        <hr/>
         <p>{{ notification.message }}</p>
-        <small>{{ notification.date_sent|date:"d-m-Y H:i" }}</small>
+        {% else %}
+        <h2>Select a message to view details</h2>
+        {% endif %}
     </div>
-    {% endif %}
-    {% endfor %}
 </div>
-
-<!-- Пагинация -->
-<div class="pagination">
-    {% if page_obj.has_previous %}
-    <a href="?page=1">&laquo; първа</a>
-    <a href="?page={{ page_obj.previous_page_number }}">предишна</a>
-    {% endif %}
-
-    <span>Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}</span>
-
-    {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}">следваща</a>
-    <a href="?page={{ page_obj.paginator.num_pages }}">последна &raquo;</a>
-    {% endif %}
-</div>
-
 {% endblock %}
