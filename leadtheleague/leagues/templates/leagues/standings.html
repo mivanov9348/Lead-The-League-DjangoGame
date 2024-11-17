@@ -12,8 +12,12 @@
     <table class="standings-table">
         <thead>
         <tr>
+            <th class="table-title" colspan="11">Standings</th>
+        </tr>
+        <tr>
             <th>#</th>
             <th>Team</th>
+            <th>User</th>
             <th>M</th>
             <th>W</th>
             <th>D</th>
@@ -29,6 +33,13 @@
         <tr>
             <td>{{ forloop.counter }}</td>
             <td class="team-name">{{ team.team.name }}</td>
+            <td style="font-size:12px; color:red">
+                {% if team.team.user %}
+                {{ team.team.user.username }}
+                {% else %}
+                COM
+                {% endif %}
+            </td>
             <td>{{ team.matches }}</td>
             <td>{{ team.wins }}</td>
             <td>{{ team.draws }}</td>
@@ -45,6 +56,9 @@
     <table class="top-players-table">
         <thead>
         <tr>
+            <th class="table-title" colspan="7">Top Players</th>
+        </tr>
+        <tr>
             <th>#</th>
             <th>Player</th>
             <th>Team</th>
@@ -58,11 +72,11 @@
         {% for player in players %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td class="player-name">{{ player.name }}</td>
-            <td>{{ player.team.name }}</td>
-            <td>{{ player.matches }}</td>
-            <td>{{ player.goals }}</td>
-            <td>{{ player.assists }}</td>
+            <td class="player-name">{{ player.player.first_name }} {{ player.player.last_name }}</td>
+            <td>{{ player.player.team }}</td>
+            <td>{{ player.season_stats.matches }}</td>
+            <td>{{ player.season_stats.goals }}</td>
+            <td>{{ player.season_stats.assists }}</td>
             <td class="player-rating">{{ player.rating }}</td>
         </tr>
         {% endfor %}

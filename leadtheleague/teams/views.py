@@ -1,7 +1,10 @@
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.http import require_POST
-from django.contrib import messages
-from players.utils import get_player_data
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+from game.utils import get_current_season
+from players.utils import get_player_season_stats_by_team
 from .forms import TeamCreationForm
 from players.models import Player
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats
@@ -44,103 +47,6 @@ def squad(request):
 
     return render(request, 'team/squad.html', context)
 
-def line_up(request):
-    team_players = Player.objects.filter(team=request.user.team)
-    starting_players = team_players.filter(is_starting=True).order_by('position_id')
-    available_players = team_players.filter(is_starting=False).order_by('position_id')
-
-    selected_player = None
-    player_id = request.GET.get('player_id')
-    if player_id:
-        try:
-            selected_player = Player.objects.get(id=player_id)
-        except Player.DoesNotExist:
-            selected_player = None
-
-    available_players_data = [get_player_data(player) for player in available_players]
-    team_tactics = TeamTactics.objects.filter(team_id=request.user.team.id).first()
-
-    return render(request, 'team/line_up.html', {
-        'starting_players': starting_players,
-        'available_players': available_players_data,
-        'team_tactics': team_tactics,
-        'tactics': Tactics.objects.all(),
-        'selected_player': selected_player,  # Pass selected player to the template
-    })
-
-def select_tactics(request):
-    tactic_id = request.POST.get('tactic_id')
-    if tactic_id:
-        Player.objects.filter(team=request.user.team, is_starting=True).update(is_starting=False)
-        team_tactics, created = TeamTactics.objects.update_or_create(team=request.user.team,
-                                                                     defaults={'tactic_id': tactic_id})
-
-    return redirect('teams:line_up')
-
-@require_POST
-def add_starting_player(request):
-    player_id = request.POST.get("player_id")
-
-    team_tactics = TeamTactics.objects.filter(team=request.user.team).first()
-
-    if not team_tactics:
-        messages.error(request, "No tactics found for your team.")
-        return redirect('teams:line_up')
-
-    if player_id:
-        try:
-            player = Player.objects.get(id=player_id)
-
-            starting_players = Player.objects.filter(is_starting=True, team=request.user.team)
-
-            position_count = {
-                'GK': 0,
-                'DF': 0,
-                'MF': 0,
-                'ATT': 0,
-            }
-
-            for sp in starting_players:
-                position_count[sp.position.abbr] += 1
-            print("Position count:", position_count)  # Check if position count is correct
-
-            if len(starting_players) >= 11:
-                messages.error(request, "Cannot add more than 11 players to the starting lineup.")
-                return redirect('teams:line_up')
-
-            if player.position.abbr == 'GK' and position_count['GK'] < team_tactics.tactic.num_goalkeepers:
-                player.is_starting = True
-            elif player.position.abbr == 'DF' and position_count['DF'] < team_tactics.tactic.num_defenders:
-                player.is_starting = True
-            elif player.position.abbr == 'MF' and position_count['MF'] < team_tactics.tactic.num_midfielders:
-                player.is_starting = True
-            elif player.position.abbr == 'ATT' and position_count['ATT'] < team_tactics.tactic.num_forwards:
-                player.is_starting = True
-            else:
-                messages.error(request,
-                               f"Cannot add {player.first_name} {player.last_name} to the starting lineup. Maximum limit reached for position.")
-                return redirect('teams:line_up')
-
-            player.save()
-            messages.success(request, f"{player.first_name} {player.last_name} was added to the starting lineup.")
-
-        except Player.DoesNotExist:
-            messages.error(request, "Player not found.")
-            return redirect('teams:line_up')
-
-    return redirect('teams:line_up')
-
-@require_POST
-def remove_starting_player(request):
-    player_id = request.POST.get("player_id")
-    if player_id:
-        try:
-            player = Player.objects.get(id=player_id)
-            player.is_starting = False
-            player.save()
-        except Player.DoesNotExist:
-            pass
-    return redirect('teams:line_up')
 
 def team_stats(request):
     team = Team.objects.get(id=request.user.team.id)  # Assuming the user is linked to a team
@@ -156,3 +62,62 @@ def team_stats(request):
 
     return render(request, 'team/team_stats.html', context)
 
+
+@csrf_exempt
+def line_up(request):
+    user_team = get_object_or_404(Team, user=request.user)
+    season = get_current_season()
+
+    players = get_player_season_stats_by_team(user_team, season)
+
+    startingPlayers = [
+        player for player in players
+        if player['player_data']['player']['is_starting']  # Ако играчът е титулярен
+    ]
+    reservePlayers = [
+        player for player in players
+        if not player['player_data']['player']['is_starting']  # Ако играчът не е титулярен
+    ]
+
+    print(reservePlayers)
+
+    positions = {
+        "GK": ["GK"],
+        "DF": ["DF", "DF", "DF", "DF"],
+        "MF": ["MF", "MF", "MF", "MF"],
+        "ATT": ["ATT", "ATT"],
+    }
+
+    slots = range(1, 12)
+
+    context = {
+        'slots': slots,
+        'startingPlayers': startingPlayers,
+        'reservePlayers': reservePlayers,
+        'positions': positions,
+        'team': user_team
+    }
+
+    return render(request, "team/line_up.html", context)
+
+
+def modify_lineup(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        player_id = request.POST.get('player_id')
+
+        # Handle adding player to lineup
+        if action == 'add' and player_id:
+            player = Player.objects.get(id=player_id)
+            player.is_starting = True
+            player.save()
+
+        # Handle removing player from lineup
+        elif action == 'remove' and player_id:
+            player = Player.objects.get(id=player_id)
+            player.is_starting = False
+            player.save()
+
+        return redirect('teams:line_up')
+
+    return redirect('teams:line_up')

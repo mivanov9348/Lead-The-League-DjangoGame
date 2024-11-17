@@ -1,10 +1,9 @@
-from fixtures.views import fixtures
+from fixtures.views import results
 from django.urls import path
 
 app_name = 'fixtures'
 
 urlpatterns = [
-    path('fixtures', fixtures, name='fixtures'),
-    path('round/<int:round_number>/', fixtures, name='fixtures_list_with_round'),
-
+    path('results', results, name='results'),
+    path('round/<int:round_number>/', results, name='fixtures_list_with_round'),
 ]

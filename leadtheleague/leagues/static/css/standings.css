@@ -6,7 +6,7 @@
 }
 
 .standings-table, .top-players-table {
-       border-collapse: collapse;
+    border-collapse: collapse;
     text-align: center;
     border: none; /* Премахване на граници */
     color: white;
@@ -19,13 +19,11 @@
 }
 
 .standings-table:hover, .top-players-table:hover {
-
     transform: translateY(-10px); /* Повече повдигане при hover */
     box-shadow: 0 15px 20px rgba(192, 192, 192, 0.8), 0 6px 8px rgba(0, 0, 0, 0.3); /* Подсилен ефект */
 }
 
 .standings-table {
-
     width: 70%;
 }
 
@@ -36,7 +34,6 @@
 .standings-table th, .standings-table td,
 .top-players-table th, .top-players-table td {
     text-align: center;
-
     padding: 15px;
 }
 
@@ -65,3 +62,10 @@
     font-weight: bold;
     color: #FFD700; /* Златисто за подчертаване */
 }
+
+.table-title{
+    background-color: rgba(255, 255, 255, 0.1);
+    color:white;
+    border-radius:5px;
+    font-family: 'POSTERABLE';
+    }

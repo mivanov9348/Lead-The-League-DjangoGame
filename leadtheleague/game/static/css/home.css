@@ -3,39 +3,40 @@
     flex-direction: column;
     gap: 5px;
 }
-.next-match .card {
-    background-color: rgba(0, 0, 0, 0.9); /* Черен фон с прозрачност */
-    color: white;
-    border: 2px solid #0a58ca;
+
+.card {
+    background-color: transparent; /* Прозрачен фон */
+    color: white; /* Текст в бял цвят */
+    border: 2px solid rgba(255, 255, 255, 0.5); /* Полупрозрачен бордър */
     border-radius: 10px;
-    padding: 10px;
-    position: relative; /* За да запази нормалното позициониране */
-}
-
-.next-match .card.poster-card {
-    background-color: rgba(0, 0, 0, 0.4); /* Черен фон с прозрачност */
-    color: white;
-    border: 3px solid white;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    padding: 30px;
-    position: relative; /* Оставя нормалното позициониране */
-    overflow: hidden; /* Избягваме излизането извън картата */
-}
-
-.next-match .card-header {
-    background-color: rgba(0, 0, 0, 0.4); /* Черен фон с прозрачност */
-    color: white;
-    font-size: 1.5em;
-    text-align: center;
+    box-shadow: 0 8px 50px rgba(0, 0, 0, 0.9); /* Сенки за стил */
     padding: 15px;
-    border-radius:10px;
-    border:1px solid white
 }
 
-.next-match .card-header:hover{
-    background-color: rgba(255,255,255, 0.2);
-    cursor:pointer;
+.card-header {
+    background-color: transparent; /* Прозрачен фон */
+    color: white; /* Бял текст */
+    font-size: 18px;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Полупрозрачен бордър */
+}
+
+.card-body {
+    padding: 15px;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.team-info .card,
+.next-match .card {
+    border: 2px solid rgba(255, 255, 255, 0.8); /* По-видим бордър за тези секции */
+}
+
+.team-logo img,
+.opponent-icon {
+    width: 60px;
+    height: 60px;
 }
 
 .match-info p {
@@ -49,66 +50,11 @@
     color: white;
 }
 
-.highlighted-card {
-    background-color: #f0e68c;
-    border: 2px solid #ffd700;
-}
-
 .match-details {
     display: flex;
-    justify-content: space-between; /* Разделя информацията между двете колони */
+    justify-content: space-between;
     align-items: center;
     gap: 20px;
-}
-
-.match-info {
-    flex: 1;  /* Запазва колона с информацията за мача по-малка */
-}
-
-.opponent-info {
-    display: flex;
-    align-items: center;
-}
-
-.opponent-icon {
-    width: 60px; /* Променихме размера на иконата */
-    height: 60px;
-  }
-
-.stats-row, .news-row {
-    display: flex;
-    justify-content: space-between;
-}
-
-.card {
-    flex: 1;
-    border-radius: 10px;
-    box-shadow: 0 8px 50px rgba(0, 0, 0, 0.9);
-}
-
-.card-header {
-    background-color: black;
-    color: #fff;
-    font-size: 16px;
-    text-align: center;
-    padding: 10px;
-    border-bottom: 2px solid #ffd700;
-}
-
-.card-body {
-    padding: 15px;
-    overflow-y: auto;
-    max-height: 200px;
-}
-
-.table-container {
-    display: flex;
-    justify-content: center;
-}
-
-.table {
-    width: 90%;  /* Ограничете ширината за по-добра центрация */
-    margin: 0 auto;
 }
 
 .poster-body {
@@ -117,4 +63,42 @@
     align-items: center;
     text-align: center;
     color: #333;
+}
+
+.stats-row,
+.news-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Добавен разстояние между секциите */
+}
+
+.table-container {
+    display: flex;
+    justify-content: center;
+}
+
+.table {
+    width: 90%;
+    margin: 0 auto;
+    color: white; /* Бял текст за таблиците */
+    border-collapse: collapse;
+    background-color: transparent; /* Без фон */
+}
+
+.table th,
+.table td {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Полупрозрачна рамка */
+    padding: 8px;
+    text-align: center;
+    background-color: transparent; /* Без фон за клетките */
+}
+
+.table th {
+    font-weight: bold;
+    color: white; /* Остави текста бял */
+}
+
+.table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05); /* Леки редуващи се цветове */
 }

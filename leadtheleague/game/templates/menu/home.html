@@ -3,36 +3,53 @@
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
-
 {% endblock %}
 
 {% block content %}
 <div class="container main-content mt-4">
-    <!-- Следващ мач -->
-    <div class="row next-match">
-        <div class="col-md-12">
-            <div class="card highlighted-card poster-card">
-                <a href="{% url 'match:user_match' %}" class="card-header" style="text-decoration: none;">Next Match</a>
-                <div class="card-body poster-body">
-                    <div class="match-details">
-                        <div class="match-info">
-                            <p><strong>Opponent:</strong> {{ next_match.opponent }}</p>
-                            <p>{{ next_match.division }}</p>
-                            <p><strong>Date:</strong> {{ next_match.match_date }}</p>
-                            <p><strong>Time:</strong> {{ next_match.match_time }}</p>
-                        </div>
-                        <div class="opponent-info">
-                            <img src="{% static 'images/1.png' %}" alt="Opponent Icon" class="opponent-icon">
-                        </div>
+    <!-- Първи ред: Следващ мач -->
+    <div class="row team-next-match">
+    <!-- Информация за отбора -->
+    <div class="col-md-6">
+        <div class="card team-info">
+            <div class="card-header">Team Overview</div>
+            <div class="card-body">
+                <div class="team-details">
+                    <p><strong>Team:</strong> {{ team.name }}</p>
+                    <p><strong>Division:</strong> {{ team.division }}</p>
+                    <p><strong>Points:</strong> {{ team.points }}</p>
+                    <div class="team-logo">
+                        <img src="{% static 'images/team_logo.png' %}" alt="Team Logo" class="team-logo-icon">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Следващ мач -->
+    <div class="col-md-6">
+        <div class="card highlighted-card poster-card">
+            <a href="{% url 'match:user_match' %}" class="card-header" style="text-decoration: none;">Next Match</a>
+            <div class="card-body poster-body">
+                <div class="match-details">
+                    <div class="match-info">
+                        <p><strong>Opponent:</strong> {{ next_match.opponent }}</p>
+                        <p>{{ next_match.division }}</p>
+                        <p><strong>Date:</strong> {{ next_match.match_date }}</p>
+                        <p><strong>Time:</strong> {{ next_match.match_time }}</p>
+                    </div>
+                    <div class="opponent-info">
+                        <img src="{% static 'images/1.png' %}" alt="Opponent Icon" class="opponent-icon">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- Статистически ред -->
-    <div class="row stats-row mt-4">
+
+    <!-- Втори ред: Статистики и класации -->
+    <div class="row mt-4">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">Latest News</div>
@@ -41,70 +58,67 @@
                 </div>
             </div>
         </div>
-
-        <!-- Оправена структура за Standings -->
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">Standings</div>
                 <div class="card-body table-container">
                     <table class="table table-striped table-sm">
                         <thead>
-                        <tr>
-                            <th>R</th>
-                            <th>Name</th>
-                            <th>M</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                            <th>GS</th>
-                            <th>GC</th>
-                            <th>GD</th>
-                            <th>P</th>
-                        </tr>
+                            <tr>
+                                <th>R</th>
+                                <th>Name</th>
+                                <th>M</th>
+                                <th>W</th>
+                                <th>D</th>
+                                <th>L</th>
+                                <th>GS</th>
+                                <th>GC</th>
+                                <th>GD</th>
+                                <th>P</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {% for team in standings %}
-                        <tr>
-                            <td>1</td>
-                            <td>{{ team.team.name }}</td>
-                            <td>{{ team.matches }}</td>
-                            <td>{{ team.wins }}</td>
-                            <td>{{ team.draws }}</td>
-                            <td>{{ team.losses }}</td>
-                            <td>{{ team.goalscored }}</td>
-                            <td>{{ team.goalconceded }}</td>
-                            <td>{{ team.goaldifference }}</td>
-                            <td>{{ team.points }}</td>
-                        </tr>
-                        {% endfor %}
+                            {% for team in standings %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ team.team.name }}</td>
+                                <td>{{ team.matches }}</td>
+                                <td>{{ team.wins }}</td>
+                                <td>{{ team.draws }}</td>
+                                <td>{{ team.losses }}</td>
+                                <td>{{ team.goalscored }}</td>
+                                <td>{{ team.goalconceded }}</td>
+                                <td>{{ team.goaldifference }}</td>
+                                <td>{{ team.points }}</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">Top Players</div>
                 <div class="card-body table-container">
                     <table class="table table-striped table-sm">
                         <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>G</th>
-                            <th>A</th>
-                            <th>R</th>
-                        </tr>
+                            <tr>
+                                <th>Name</th>
+                                <th>G</th>
+                                <th>A</th>
+                                <th>R</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {% for player in players %}
-                        <tr>
-                            <td>{{ player.player.name }}</td>
-                            <td>{{ player.season_stats.goals }}</td>
-                            <td>{{ player.season_stats.assists }}</td>
-                            <td>5.0</td>
-                        </tr>
-                        {% endfor %}
+                            {% for player in players %}
+                            <tr>
+                                <td>{{ player.player.name }}</td>
+                                <td>{{ player.season_stats.goals }}</td>
+                                <td>{{ player.season_stats.assists }}</td>
+                                <td>5.0</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -112,28 +126,28 @@
         </div>
     </div>
 
-    <!-- Ред с новини -->
-    <div class="row news-row mt-4">
+    <!-- Трети ред: График, трансфери, финанси -->
+    <div class="row mt-4">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">Schedule</div>
                 <div class="card-body table-container">
                     <table class="table table-striped table-sm">
                         <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Opponent</th>
-                            <th>H/A</th>
-                        </tr>
+                            <tr>
+                                <th>Date</th>
+                                <th>Opponent</th>
+                                <th>H/A</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {% for match in schedule %}
-                        <tr>
-                            <td>{{ match.date }}</td>
-                            <td>{{ match.opponent }}</td>
-                            <td>{{ match.location }}</td>
-                        </tr>
-                        {% endfor %}
+                            {% for match in schedule %}
+                            <tr>
+                                <td>{{ match.date }}</td>
+                                <td>{{ match.opponent }}</td>
+                                <td>{{ match.location }}</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -147,53 +161,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">Finance Overview</div>
-                <div class="card-body">
-                    <!-- Финанси -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row news-row mt-4">
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">Schedule</div>
-                <div class="card-body table-container">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Opponent</th>
-                            <th>H/A</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for match in schedule %}
-                        <tr>
-                            <td>{{ match.date }}</td>
-                            <td>{{ match.opponent }}</td>
-                            <td>{{ match.location }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">Latest Transfers</div>
-                <div class="card-body">
-                    <!-- Latest Transfers -->
-                </div>
-            </div>
-        </div>
-
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">Finance Overview</div>
@@ -204,5 +171,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

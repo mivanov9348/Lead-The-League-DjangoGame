@@ -10,36 +10,40 @@
 {% block content %}
 <div class="container mt-5">
     <div class="schedule-container">
-        <table class="table table-bordered table-striped fixture-table">
-            <thead class="thead-dark">
-            <tr>
-                <th>Date</th>
-                <th>Round</th>
-                <th>Home/Away</th>
-                <th>Opponent</th>
-                <th>Time</th>
-                <th>Type</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="calendar-grid">
             {% for fixture in fixtures %}
-            <tr class="fixture-row">
-                <td>{{ fixture.date }}</td>
-                <td>{{ fixture.round }}</td>
-                <td>{{ fixture.home_away }}</td>
-                <td>{{ fixture.opponent }}</td>
-                <td>{{ fixture.time }}</td>
-                <td>{{ fixture.type }}</td>
-            </tr>
+            <div class="calendar-day">
+                <div class="calendar-header">
+                    <strong>{{ fixture.date }}</strong>
+                    <hr/>
+                </div>
+                <div class="calendar-matches">
+                    {% for match in fixture.matches %}
+                    <div class="calendar-match">
+                        <div class="match-teams">
+                            <div class="opponent">{{ match.opponent }}</div>
+                            <div class="match-time">{{ match.time }}</div>
+                        </div>
+                        {% if match.result %}
+                        <div class="match-result">
+                            <span class="home-score">{{ match.result.home_score }}</span> -
+                            <span class="away-score">{{ match.result.away_score }}</span>
+                        </div>
+                        {% else %}
+                        <hr/>
+                        <div class="home-team">{{ match.home_away }}</div>
+                        <div class="match-type">{{ match.type }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
             {% empty %}
-            <tr>
-                <td colspan="6" class="no-fixtures text-center">
-                    No fixtures available.
-                </td>
-            </tr>
+            <div class="no-fixtures text-center">
+                No fixtures available.
+            </div>
             {% endfor %}
-            </tbody>
-        </table>
+        </div>
     </div>
 </div>
 {% endblock %}

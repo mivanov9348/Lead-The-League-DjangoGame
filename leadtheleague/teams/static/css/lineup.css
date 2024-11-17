@@ -1,0 +1,100 @@
+.parent-container {
+    display: flex;
+    gap: 20px; /* Разстояние между секциите */
+}
+
+.lineup-section, .players-section {
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.lineup-section h2, .players-section h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.lineup-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lineup-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #ffffff;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.lineup-slot .player-name {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.lineup-slot.filled {
+    background: #e6ffe6;
+    border-color: #28a745;
+}
+
+button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-player, .remove-player {
+    padding: 5px 10px;
+    margin: 2px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.add-player {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+.remove-player {
+    background-color: #f44336; /* Red */
+    color: white;
+}
+
+
+.players-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+.players-table th, .players-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.players-table th {
+    background: #f1f1f1;
+    font-size: 14px;
+}
+.add-btn, .remove-btn {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.add-btn:hover, .remove-btn:hover {
+    background-color: #0056b3;
+}

@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import io
 import base64
 
-
 def generate_random_team_name():
     all_team_info = list(DummyTeamNames.objects.values_list('name', 'abbr'))
 

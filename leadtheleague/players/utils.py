@@ -3,7 +3,6 @@ from teams.models import TeamTactics, Tactics
 from .models import Player, FirstName, LastName, Nationality, Position, PositionAttribute, PlayerAttribute, \
     Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
 
-
 def calculate_player_price(player):
     base_prices = {
         'Goalkeeper': 20000,
@@ -80,7 +79,6 @@ def generate_random_player(team=None, position=None):
 
     return player
 
-
 def generate_team_players(team):
     position_gk = Position.objects.get(position_name='Goalkeeper')
     position_def = Position.objects.get(position_name='Defender')
@@ -103,71 +101,6 @@ def generate_team_players(team):
     for _ in range(5):
         random_position = random.choice(all_positions)
         generate_random_player(team, random_position)
-
-
-def get_team_match_stats(userteam):
-    return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
-
-
-def get_basic_player_data(player):
-    # Не е нужно да използвате select_related тук, защото 'player' вече е инстанция
-    return player
-
-
-def get_player_attributes(player):
-    return {attr.attribute.name: attr.value for attr in player.playerattribute_set.prefetch_related('attribute').all()}
-
-
-def get_player_season_stats(player):
-    # Извличаме статистики за сезона на играча
-    player_season_stats = player.season_stats.filter(season__isnull=False).select_related('statistic').first()
-
-    stats_data = {}
-    if player_season_stats:
-        # Вземаме стойностите на статистиките за текущия сезон
-        season_stats = PlayerSeasonStatistic.objects.filter(player=player, season=player_season_stats.season)
-
-        for stat in season_stats:
-            stats_data[stat.statistic.name] = stat.value  # Добавяме стойностите на статистиките
-
-    return stats_data
-
-
-def get_player_data(player):
-    # Извличаме данните за играча с използване на select_related и prefetch_related
-    player_data = Player.objects.select_related('position', 'team', 'nationality') \
-        .prefetch_related('playerattribute_set__attribute', 'season_stats__statistic') \
-        .get(id=player.id)
-
-    # Извличаме атрибутите на играча като речник
-    attributes = {attr.attribute.name: attr.value for attr in player_data.playerattribute_set.all()}
-
-    # Извличаме сезонните статистики на играча
-    season_stats = {stat.statistic.name: stat.value for stat in player_data.season_stats.all()}
-
-    # Връщаме комбинираните данни
-    return {
-        'player': {
-            'first_name': player_data.first_name,
-            'last_name': player_data.last_name,
-            'age': player_data.age,
-            'position': player_data.position.position_name,
-            'team': player_data.team.name,
-            'nationality': player_data.nationality.name,
-            'positionabbr': player_data.position.abbr,
-            'nationalityabbr': player_data.nationality.abbr
-        },
-        'attributes': attributes,
-        'season_stats': season_stats,
-    }
-
-
-def get_player_match_stats(player, match):
-    stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
-
-    stats_dict = {stat.statistic.name: stat.value for stat in stats}
-    return stats_dict
-
 
 def auto_select_starting_lineup(team):
     if Player.objects.filter(team=team, is_starting=True).count() >= 11:
@@ -213,6 +146,102 @@ def auto_select_starting_lineup(team):
 
     return selected_players
 
+
+
+
+
+
+
+
+
+
+def get_team_match_stats(userteam):
+    return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
+
+
+# Основна информация за играча
+def get_personal_player_data(player):
+    return {
+        "first_name": player.first_name,
+        "last_name": player.last_name,
+        "position": player.position,
+        "nationality": player.nationality.name,  # Националност
+        "age": player.age,
+        "price": player.price,
+        'is_starting': player.is_starting
+    }
+
+
+def get_player_attributes(player):
+    return {attr.attribute.name: attr.value for attr in player.playerattribute_set.prefetch_related('attribute').all()}
+
+
+def get_player_season_stats(player, season):
+    # Извличаме статистики за сезона на играча за конкретния сезон
+    season_stats = PlayerSeasonStatistic.objects.filter(player=player, season=season).select_related('statistic')
+
+    stats_data = {}
+    for stat in season_stats:
+        stats_data[stat.statistic.name] = stat.value  # Добавяме стойностите на статистиките
+
+    return stats_data
+
+
+def get_player_season_stats_by_team(team, season):
+    players = team.players.filter(is_active=True)
+
+    team_stats_data = []
+
+    for player in players:
+        # Получаваме личната информация и статистиките за сезона
+        player_data = get_player_data(player)
+        player_stats = get_player_season_stats(player, season)
+
+        # Съхраняваме данните за играча
+        team_stats_data.append({
+            "player_data": player_data,
+            "stats": player_stats,
+        })
+
+    return team_stats_data
+
+
+# full player data
+def get_player_data(player):
+    # Извличаме данните за играча с използване на select_related и prefetch_related
+    player_data = Player.objects.select_related('position', 'team', 'nationality') \
+        .prefetch_related('playerattribute_set__attribute', 'season_stats__statistic') \
+        .get(id=player.id)
+
+    # Извличаме атрибутите на играча като речник
+    attributes = {attr.attribute.name: attr.value for attr in player_data.playerattribute_set.all()}
+
+    # Извличаме сезонните статистики на играча
+    season_stats = {stat.statistic.name: stat.value for stat in player_data.season_stats.all()}
+
+    # Връщаме комбинираните данни
+    return {
+        'player': {
+            'first_name': player_data.first_name,
+            'last_name': player_data.last_name,
+            'age': player_data.age,
+            'position': player_data.position.position_name,
+            'team': player_data.team.name,
+            'nationality': player_data.nationality.name,
+            'positionabbr': player_data.position.abbr,
+            'nationalityabbr': player_data.nationality.abbr,
+            'is_starting': player_data.is_starting
+        },
+        'attributes': attributes,
+        'season_stats': season_stats,
+    }
+
+
+def get_player_match_stats(player, match):
+    stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
+
+    stats_dict = {stat.statistic.name: stat.value for stat in stats}
+    return stats_dict
 
 def update_tactics(dummy_team, new_team):
     dummy_team_tactics = TeamTactics.objects.filter(team=dummy_team).first()

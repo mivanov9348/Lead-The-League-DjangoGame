@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Results{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/results.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Центриран контейнер за филтрите -->
+<div class="filter-container">
+    <form method="get" action="{% url 'fixtures:results' %}" id="filter-form">
+        <div class="filter-options">
+            <select name="league" id="league" onchange="this.form.submit()">
+                <!-- Добавяме обработчик за change събитие -->
+                {% for league in leagues %}
+                <option value="{{ league.id }}" {% if league.id == selected_league.id %}selected{% endif %}>{{ league }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<hr/>
+
+<!-- Pagination и Round -->
+<div class="pagination">
+    <a href="?league={{ selected_league.id }}&round_number={{ previous_round }}" class="prev-button" {% if current_round == 1 %}style="pointer-events: none; color: gray;" {% endif %}>⬅</a>
+    <span>Round {{ current_round }}</span>
+    <a href="?league={{ selected_league.id }}&round_number={{ next_round }}" class="next-button" {% if current_round == max_round %}style="pointer-events: none; color: gray;" {% endif %}>➡</a>
+</div>
+
+<hr/>
+
+<!-- Fixtures Table -->
+<table>
+    <thead>
+    <tr><td colspan="4">{{ fixtures.first.date }}</td></tr>
+    <tr>
+        <th>Home Team</th>
+        <th colspan="2">Result</th>
+        <th>Away Team</th>
+    </tr>
+    </thead>
+    <tbody>
+
+     {% for fixture in fixtures %}
+    <tr {% if fixture.home_team == current_user_team or fixture.away_team == current_user_team %}class="highlight-team"{% endif %}>
+        <td {% if fixture.home_team == current_user_team %}class="highlight-team"{% endif %}>{{ fixture.home_team }}</td>
+        <td>{{ fixture.home_goals }}</td>
+        <td>{{ fixture.away_goals }}</td>
+        <td {% if fixture.away_team == current_user_team %}class="highlight-team"{% endif %}>{{ fixture.away_team }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">No results for this round</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+    document.getElementById('league').addEventListener('change', function() {
+        document.getElementById('filter-form').submit(); // Изпраща формата автоматично
+    });
+</script>
+{% endblock %}
