@@ -1,36 +1,61 @@
-.container{
-    background-color:black;
-    padding:10px;
+.cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Разстояние между картите */
+    justify-content: center; /* Подравняване в центъра */
 }
 
 .sport-card {
-    width: 270px;
-    border-radius: 12px;
+    flex: 1 1 calc(20% - 20px); /* 20% ширина с отстъп от 20px */
+    max-width: 200px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-    background-color: gray;
-    border:5px solid white;
     text-align: center;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
 }
 
 .sport-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .player-image img {
     width: 100%;
     height: auto;
-    border-bottom: 3px solid black; /* Отделна рамка под снимката */
+    border-bottom: 1px solid #ccc;
+    border-radius: 10px 10px 0 0;
 }
 
 .player-info {
-    padding: 20px;
-    color: white;
-    font-weight:800;
+    padding: 10px;
 }
 
 .player-info h2 {
-    font-size: 1.
+    font-size: 1.2em;
+    margin: 0.5em 0;
+}
+
+.player-info p {
+    margin: 0.2em 0;
+    color: #555;
+}
+
+.attributes p {
+    font-size: 0.9em;
+    margin: 0.1em 0;
+}
+
+@media (max-width: 800px) {
+    .sport-card {
+        flex: 1 1 calc(50% - 20px); /* По 2 карти на ред при по-малки екрани */
+    }
+}
+
+@media (max-width: 500px) {
+    .sport-card {
+        flex: 1 1 calc(100% - 20px); /* По една карта на ред при още по-малки екрани */
+    }
+}

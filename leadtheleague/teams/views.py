@@ -1,16 +1,13 @@
-from django.http import JsonResponse, HttpResponseForbidden
+from collections import defaultdict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
-import json
-
-from game.utils import get_current_season
-from players.utils import get_player_season_stats_by_team
+from django.contrib import messages
 from .forms import TeamCreationForm
 from players.models import Player
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats
 from django.contrib.auth.decorators import login_required
-from .utils import replace_dummy_team, get_team_players_season_data, create_team_performance_chart
-
+from .utils import replace_dummy_team, get_team_players_season_data, create_team_performance_chart, \
+    create_position_template
 
 @login_required
 def create_team(request):
@@ -63,61 +60,130 @@ def team_stats(request):
     return render(request, 'team/team_stats.html', context)
 
 
+@login_required
 @csrf_exempt
 def line_up(request):
-    user_team = get_object_or_404(Team, user=request.user)
-    season = get_current_season()
+    try:
+        team = request.user.team
+    except AttributeError:
+        return redirect("error_page")
 
-    players = get_player_season_stats_by_team(user_team, season)
+    team_tactics, _ = TeamTactics.objects.get_or_create(team=team)
+    tactics = Tactics.objects.all()
+    selected_tactic = None
 
-    startingPlayers = [
-        player for player in players
-        if player['player_data']['player']['is_starting']  # Ако играчът е титулярен
-    ]
-    reservePlayers = [
-        player for player in players
-        if not player['player_data']['player']['is_starting']  # Ако играчът не е титулярен
-    ]
+    if request.method == "GET" and "tactic_id" in request.GET:
+        tactic_id = request.GET.get("tactic_id")
+        selected_tactic = Tactics.objects.filter(id=tactic_id).first()
 
-    print(reservePlayers)
+        if selected_tactic:
+            if team_tactics:
+                team_tactics.starting_players.clear()
+            team_tactics.tactic = selected_tactic
+            team_tactics.save()
 
-    positions = {
-        "GK": ["GK"],
-        "DF": ["DF", "DF", "DF", "DF"],
-        "MF": ["MF", "MF", "MF", "MF"],
-        "ATT": ["ATT", "ATT"],
-    }
+    if not selected_tactic:
+        selected_tactic = team_tactics.tactic
 
-    slots = range(1, 12)
+    starting_players = team_tactics.starting_players.all() if team_tactics else []
+    reserve_players = Player.objects.filter(team=team).exclude(id__in=[player.id for player in starting_players])
+
+    position_template = create_position_template(selected_tactic, starting_players)
 
     context = {
-        'slots': slots,
-        'startingPlayers': startingPlayers,
-        'reservePlayers': reservePlayers,
-        'positions': positions,
-        'team': user_team
+        "team": team,
+        "tactics": tactics,
+        "selected_tactic": selected_tactic,
+        "starting_players": starting_players,
+        "reservePlayers": reserve_players,
+        "position_template": position_template,
     }
 
     return render(request, "team/line_up.html", context)
 
+def lineup_add_player(request):
+    if request.method == "POST":
+        player_id = request.POST.get("player_id")
+        if not player_id:
+            messages.error(request, "No player selected.")
+            return redirect("teams:line_up")
 
-def modify_lineup(request):
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        player_id = request.POST.get('player_id')
+        # Намери играча
+        player = get_object_or_404(Player, id=player_id)
 
-        # Handle adding player to lineup
-        if action == 'add' and player_id:
-            player = Player.objects.get(id=player_id)
+        # Намери отбора на логнатия потребител
+        try:
+            team = request.user.team
+        except AttributeError:
+            messages.error(request, "You do not have a team.")
+            return redirect("teams:line_up")
+
+        # Намери или създай тактиката на отбора
+        team_tactics, created = TeamTactics.objects.get_or_create(team=team)
+
+        # Увери се, че тактиката е зададена
+        if not team_tactics.tactic:
+            messages.error(request, "Please select a tactic before adding players.")
+            return redirect("teams:line_up")
+
+        # Извлечи информацията за броя позиции от тактиката
+        tactic = team_tactics.tactic
+
+        # Брои играчите в стартовия състав за всяка позиция
+        position_counts = {
+            "goalkeeper": team_tactics.starting_players.filter(position__position_name="Goalkeeper").count(),
+            "defender": team_tactics.starting_players.filter(position__position_name="Defender").count(),
+            "midfielder": team_tactics.starting_players.filter(position__position_name="Midfielder").count(),
+            "attacker": team_tactics.starting_players.filter(position__position_name="Attacker").count(),
+        }
+
+        # Проверява дали добавянето на играча ще надвиши лимита
+        if player.position.position_name == "Goalkeeper" and position_counts[
+            "goalkeeper"] >= tactic.num_goalkeepers:
+            messages.error(request, "You cannot add more goalkeepers to the starting lineup.")
+        elif player.position.position_name == "Defender" and position_counts["defender"] >= tactic.num_defenders:
+            messages.error(request, "You cannot add more defenders to the starting lineup.")
+        elif player.position.position_name == "Midfielder" and position_counts[
+            "midfielder"] >= tactic.num_midfielders:
+            messages.error(request, "You cannot add more midfielders to the starting lineup.")
+        elif player.position.position_name == "Attacker" and position_counts["attacker"] >= tactic.num_forwards:
+            messages.error(request, "You cannot add more forwards to the starting lineup.")
+        else:
+            # Добави играча в стартовия състав
+            team_tactics.starting_players.add(player)
             player.is_starting = True
             player.save()
+            messages.success(request, f"{player.first_name} {player.last_name} added to the starting lineup.")
 
-        # Handle removing player from lineup
-        elif action == 'remove' and player_id:
-            player = Player.objects.get(id=player_id)
+        return redirect("teams:line_up")
+
+
+def lineup_remove_player(request):
+    if request.method == "POST":
+        player_id = request.POST.get("player_id")
+        if not player_id:
+            messages.error(request, "No player selected.")
+            return redirect("teams:line_up")
+
+        # Намери играча
+        player = get_object_or_404(Player, id=player_id)
+
+        # Намери отбора на логнатия потребител
+        try:
+            team = request.user.team
+        except AttributeError:
+            messages.error(request, "You do not have a team.")
+            return redirect("teams:line_up")
+
+        # Намери тактиката на отбора
+        team_tactics = TeamTactics.objects.filter(team=team).first()
+        if not team_tactics or player not in team_tactics.starting_players.all():
+            messages.warning(request, f"{player.first_name} {player.last_name} is not in the starting lineup.")
+        else:
+            # Премахни играча от стартовия състав
+            team_tactics.starting_players.remove(player)
             player.is_starting = False
             player.save()
+            messages.success(request, f"{player.first_name} {player.last_name} removed from the starting lineup.")
 
-        return redirect('teams:line_up')
-
-    return redirect('teams:line_up')
+        return redirect("teams:line_up")

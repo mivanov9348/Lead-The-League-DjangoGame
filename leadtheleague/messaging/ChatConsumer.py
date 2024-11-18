@@ -1,7 +1,9 @@
+# messaging/consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 from .models import ChatMessage
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -9,7 +11,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = f'chat_{min(self.scope["user"].username, self.other_username)}_{max(self.scope["user"].username, self.other_username)}'
         self.room_group_name = f'chat_{self.room_name}'
 
-        # Присъединяване към стаята
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -17,7 +18,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Напускане на стаята
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -30,14 +30,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         CustomUser = get_user_model()
         recipient = await CustomUser.objects.async_get(username=self.other_username)
 
-        # Запазване на съобщението в базата данни
         await ChatMessage.objects.acreate(
             sender=self.scope['user'],
             recipient=recipient,
             content=message
         )
 
-        # Изпращане на съобщението в групата
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -51,7 +49,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         sender = event['sender']
 
-        # Изпращане на съобщението към WebSocket клиента
         await self.send(text_data=json.dumps({
             'message': message,
             'sender': sender,

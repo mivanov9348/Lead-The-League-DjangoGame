@@ -8,126 +8,93 @@
 {% endblock %}
 
 {% block content %}
-<!-- Parent container for flexbox layout -->
-<div class="parent-container">
-    <!-- Line-Up Section (40%) -->
+
+<div>
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+
+<div class="parent-container" style="display: flex;">
     <div class="lineup-section">
+        <h3>Starting 11</h3>
         <div class="lineup-positions">
-            <!-- Display Starting Players -->
-            {% for pos in context.positions.GK %}
-                <div class="lineup-slot {% if pos.is_started %}filled{% endif %}" id="slot-{{ pos }}">
-                    {% if pos.is_started %}
-                        {{ pos.player.first_name }} {{ pos.player.last_name }}
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="remove">-</button>
-                        </form>
-                    {% else %}
-                        Goalkeeper ({{ pos }})
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="add">+</button>
-                        </form>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <!-- Display Defenders -->
-            {% for pos in context.positions.DF %}
-                <div class="lineup-slot {% if pos.is_started %}filled{% endif %}" id="slot-{{ pos }}">
-                    {% if pos.is_started %}
-                        {{ pos.player.first_name }} {{ pos.player.last_name }}
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="remove">-</button>
-                        </form>
-                    {% else %}
-                        Defender ({{ pos }})
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="add">+</button>
-                        </form>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <!-- Display Midfielders -->
-            {% for pos in context.positions.MF %}
-                <div class="lineup-slot {% if pos.is_started %}filled{% endif %}" id="slot-{{ pos }}">
-                    {% if pos.is_started %}
-                        {{ pos.player.first_name }} {{ pos.player.last_name }}
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="remove">-</button>
-                        </form>
-                    {% else %}
-                        Midfielder ({{ pos }})
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="add">+</button>
-                        </form>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <!-- Display Attackers -->
-            {% for pos in context.positions.ATT %}
-                <div class="lineup-slot {% if pos.is_started %}filled{% endif %}" id="slot-{{ pos }}">
-                    {% if pos.is_started %}
-                        {{ pos.player.first_name }} {{ pos.player.last_name }}
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="remove">-</button>
-                        </form>
-                    {% else %}
-                        Attacker ({{ pos }})
-                        <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="slot_id" value="{{ pos.id }}">
-                            <button type="submit" name="action" value="add">+</button>
-                        </form>
-                    {% endif %}
-                </div>
+            {% for slot in position_template %}
+            <div class="lineup-slot">
+                {% if slot.player %}
+                <span>{{ slot.player.first_name }} {{ slot.player.last_name }} - {{ slot.abbr }}</span>
+                <form method="post" action="{% url 'teams:lineup_remove_player' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="player_id" value="{{ slot.player.id }}">
+                    <button type="submit" class="remove-player">-</button>
+                </form>
+                {% else %}
+                <span>{{ slot.abbr }} - Empty</span>
+                {% endif %}
+            </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Players Section (60%) -->
-    <div class="players-section">
+    <div class="players-section" >
+        <h3>Available Players</h3>
         <table class="players-table">
             <thead>
-                <tr>
-                    <th>N</th>
-                    <th>Name</th>
-                    <th>Pos</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th title="Name">Name</th>
+                <th title="Position">Pos</th>
+                <th title="Nationality">Nat</th>
+                <th title="Matches">M</th>
+                <th title="Goals">G</th>
+                <th title="Assists">A</th>
+                <th title="Saves">S</th>
+                <th title="Shots on Target">SoT</th>
+                <th title="Passes">P</th>
+                <th title="Dribbles">D</th>
+                <th title="Tackles">T</th>
+                <th title="Yellow Cards">YC</th>
+                <th title="Red Cards">RC</th>
+                <th title="Fouls">F</th>
+                <th title="Shoots">S</th>
+                <th title="Clean Sheets">CS</th>
+                <th title="Conceded">C</th>
+                <th title="Conceded">+</th>
+
+            </tr>
             </thead>
-            <tbody id="players-list">
-                <!-- Display Reserve Players -->
-                {% for player in context.reservePlayers %}
-                    <tr class="player-item" id="player-{{ player.id }}">
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ player.player_data.player.first_name }} {{ player.player_data.player.last_name }}</td>
-                        <td>{{ player.player_data.player.positionabbr }}</td>
-                        <td>
-                            {% if not player.is_started %}
-                            <form action="{% url 'teams:modify_lineup' %}" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="player_id" value="{{ player.id }}">
-                                <button type="submit" name="action" value="add">+</button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
+            <tbody>
+            {% for player in reservePlayers %}
+            <tr>
+                <td>{{ player.first_name }} {{ player.last_name }}</td>
+                <td>{{ player.position.abbr }}</td>
+                <td>{{ player.nationality.abbr }}</td>
+                <td>{{ player.matches }}</td>
+                <td>{{ player.goals }}</td>
+                <td>{{ player.assists }}</td>
+                <td>{{ player.cleanSheets }}</td>
+                <td>{{ player.conceded }}</td>
+                <td>{{ player.dribbles }}</td>
+                <td>{{ player.fouls }}</td>
+                <td>{{ player.passes }}</td>
+                <td>{{ player.redCards }}</td>
+                <td>{{ player.saves }}</td>
+                <td>{{ player.shoots }}</td>
+                <td>{{ player.shootsOnTarget }}</td>
+                <td>{{ player.tackles }}</td>
+                <td>{{ player.yellowCards }}</td>
+                <td>
+                    <form method="post" action="{% url 'teams:lineup_add_player' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="player_id" value="{{ player.id }}">
+                        <button type="submit" class="add-player">+</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>

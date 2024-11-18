@@ -1,5 +1,4 @@
 from django.urls import path
-from messaging import ChatConsumer
 from messaging.views import inbox_view, chat_view, get_chat_messages, message_detail
 
 app_name = 'messaging'

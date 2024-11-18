@@ -1,4 +1,6 @@
 import random
+from collections import defaultdict
+
 from django.db import transaction
 from fixtures.utils import update_fixtures
 from game.utils import update_team_season_stats
@@ -209,3 +211,42 @@ def update_team_stats(match):
 
     home_stats.save()
     away_stats.save()
+
+
+def create_position_template(selected_tactic, starting_players):
+    if not selected_tactic:
+        return []
+
+    position_template = []
+
+    tactic_positions = {
+        'GK': selected_tactic.num_goalkeepers,
+        'DF': selected_tactic.num_defenders,
+        'MF': selected_tactic.num_midfielders,
+        'ATT': selected_tactic.num_forwards
+    }
+
+    for abbr, count in tactic_positions.items():
+        for _ in range(count):
+            position_template.append({"abbr": abbr, "player": None})
+
+    position_map = defaultdict(list)
+    for player in starting_players:
+        position_map[player.position.abbr].append(player)
+
+    used_players = set()
+    slot_counts = defaultdict(int)
+
+    for slot in position_template:
+        available_players = [
+            player for player in position_map[slot['abbr']]
+            if player not in used_players and slot_counts[slot['abbr']] < tactic_positions[slot['abbr']]
+        ]
+
+        if available_players:
+            selected_player = available_players[0]
+            slot["player"] = selected_player
+            used_players.add(selected_player)
+            slot_counts[slot['abbr']] += 1
+
+    return position_template

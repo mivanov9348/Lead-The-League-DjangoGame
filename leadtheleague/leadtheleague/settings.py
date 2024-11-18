@@ -47,7 +47,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -124,17 +123,16 @@ USE_TZ = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-ASGI_APPLICATION = 'leadtheleague.asgi.application'
-
-# Настройка за Channels и Redis (необходим за WebSocket комуникация)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],  # Увери се, че Redis работи
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }
+
+ASGI_APPLICATION = 'leadtheleague.asgi.application'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

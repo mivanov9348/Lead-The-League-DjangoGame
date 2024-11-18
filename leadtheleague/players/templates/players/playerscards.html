@@ -9,15 +9,10 @@
 
 {% block content %}
 <div class="container">
-    <div class="sport-card" onclick="window.location.href='player-details.html';">
-        <div class="player-image">
-            <img src="{% static 'images/2.png' %}" alt="Player Image">
-        </div>
-        <div class="player-info">
-            <h2>Martin Ivanov</h2>
-            <p class="age">Възраст: 25</p>
-            <p class="team">Отбор: Red Sofia</p>
-        </div>
+    <div class="cards-wrapper">
+        {% for player in players %}
+            {% include 'partials/_player_card.html' with player=player %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
