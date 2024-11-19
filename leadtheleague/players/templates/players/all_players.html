@@ -29,8 +29,8 @@
         <select name="nationality" id="nationality">
             <option value="">All Nationalities</option>
             {% for nationality in nationalities %}
-            <option value="{{ nationality.abbr }}" {% if nationality.abbr == request.GET.nationality %}selected{% endif %}>
-                {{ nationality.abbr }}
+            <option value="{{ nationality.abbreviation }}" {% if nationality.abbreviation == request.GET.nationality %}selected{% endif %}>
+                {{ nationality.abbreviation }}
             </option>
             {% endfor %}
         </select>
@@ -39,7 +39,7 @@
         <select name="position" id="position">
             <option value="">All Positions</option>
             {% for position in positions %}
-            <option value="{{ position.abbr }}" {% if position.name == request.GET.position %}selected{% endif %}>{{ position.abbr }}
+            <option value="{{ position.abbreviation }}" {% if position.name == request.GET.position %}selected{% endif %}>{{ position.abbreviation }}
             </option>
             {% endfor %}
         </select>
@@ -80,9 +80,9 @@
         <tr>
             <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
             <td>{{ player.player.age }}</td>
-            <td>{{ player.player.position.abbr }}</td>
+            <td>{{ player.player.position.abbreviation }}</td>
             <td>{{ player.player.team.name }}</td>
-            <td>{{ player.player.nationality.abbr }}</td>
+            <td>{{ player.player.nationality.abbreviation }}</td>
             <td>{{ player.season_stats.matches }}</td>
             <td>{{ player.season_stats.goals }}</td>
             <td>{{ player.season_stats.assists }}</td>

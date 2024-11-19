@@ -8,65 +8,74 @@
 {% endblock %}
 
 {% block content %}
-<!-- Центриран контейнер за филтрите -->
 <div class="filter-container">
-    <form method="get" action="{% url 'fixtures:results' %}" id="filter-form">
-        <div class="filter-options">
-            <select name="league" id="league" onchange="this.form.submit()">
-                <!-- Добавяме обработчик за change събитие -->
-                {% for league in leagues %}
-                <option value="{{ league.id }}" {% if league.id == selected_league.id %}selected{% endif %}>{{ league }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    <form method="get">
+        <input type="date" id="date" name="date" value="{{ selected_date }}">
+        <button type="submit">Select</button>
     </form>
 </div>
 
-<hr/>
-
-<!-- Pagination и Round -->
-<div class="pagination">
-    <a href="?league={{ selected_league.id }}&round_number={{ previous_round }}" class="prev-button" {% if current_round == 1 %}style="pointer-events: none; color: gray;" {% endif %}>⬅</a>
-    <span>Round {{ current_round }}</span>
-    <a href="?league={{ selected_league.id }}&round_number={{ next_round }}" class="next-button" {% if current_round == max_round %}style="pointer-events: none; color: gray;" {% endif %}>➡</a>
-</div>
-
-<hr/>
-
-<!-- Fixtures Table -->
-<table>
-    <thead>
-    <tr><td colspan="4">{{ fixtures.first.date }}</td></tr>
-    <tr>
-        <th>Home Team</th>
-        <th colspan="2">Result</th>
-        <th>Away Team</th>
-    </tr>
-    </thead>
-    <tbody>
-
-     {% for fixture in fixtures %}
-    <tr {% if fixture.home_team == current_user_team or fixture.away_team == current_user_team %}class="highlight-team"{% endif %}>
-        <td {% if fixture.home_team == current_user_team %}class="highlight-team"{% endif %}>{{ fixture.home_team }}</td>
-        <td>{{ fixture.home_goals }}</td>
-        <td>{{ fixture.away_goals }}</td>
-        <td {% if fixture.away_team == current_user_team %}class="highlight-team"{% endif %}>{{ fixture.away_team }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4">No results for this round</td>
-    </tr>
+<div class="livescore-container">
+    <div class="navigation-container" style="display: flex; justify-content: space-between;">
+        <a href="?date={{ previous_date }}">Previous</a>
+        <a href="?date={{ next_date }}">Next</a>
+    </div>
+    {% for league in leagues %}
+    <div class="league">
+        <div class="league-header">
+            <span class="league-name">{{ league }}</span>
+        </div>
+        {% for fixture in fixtures %}
+        {% if fixture.division == league %}
+        <div class="match">
+            <div class="time">{{ fixture.time }}</div>
+            <div class="status">{{ fixture.status }}</div>
+            <div class="home-team">{{ fixture.home_team.name }}</div>
+            <div class="score">
+                <a href="">
+                    {{ fixture.home_goals }} - {{ fixture.away_goals }}
+                </a>
+            </div>
+            <div class="away-team">{{ fixture.away_team.name }}</div>
+            <div class="half-score">{{ fixture.half_time_score }}</div>
+            <div class="toggle-button" onclick="toggleGoalscorers({{ fixture.id }})">&#9660;</div>
+        </div>
+        <div id="goalscorers-{{ fixture.id }}" class="goalscorers-panel" style="display: none;">
+            <div class="goalscorers">
+                <strong>Home Team Goalscorers:</strong>
+                <ul>
+                    {% for player in fixture.home_team_goalscorers.all %}
+                    <li>{{ player.name }}</li>
+                    {% endfor %}
+                </ul>
+                <strong>Away Team Goalscorers:</strong>
+                <ul>
+                    {% for player in fixture.away_team_goalscorers.all %}
+                    <li>{{ player.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
     {% endfor %}
-    </tbody>
-</table>
-
+</div>
 {% endblock %}
 
-{% block extra_js %}
+{% block script %}
 <script>
-
-    document.getElementById('league').addEventListener('change', function() {
-        document.getElementById('filter-form').submit(); // Изпраща формата автоматично
+    document.addEventListener('DOMContentLoaded', function() {
+        function toggleGoalscorers(matchId) {
+            var panel = document.getElementById('goalscorers-' + matchId);
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+        // Прикрепяне на функцията global scope, за да бъде видима при клик.
+        window.toggleGoalscorers = toggleGoalscorers;
     });
 </script>
 {% endblock %}

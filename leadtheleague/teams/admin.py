@@ -4,8 +4,8 @@ from .utils import fill_dummy_teams
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbr', 'color')  # Fields to display in the admin list view
-    search_fields = ('name', 'abbr')  # Fields to enable search
+    list_display = ('name', 'abbreviation', 'color')  # Fields to display in the admin list view
+    search_fields = ('name', 'abbreviation')  # Fields to enable search
     actions = ['fill_with_dummy_teams']  # Register the action to fill divisions with dummy teams
 
     def fill_with_dummy_teams(self, request, queryset):
@@ -16,5 +16,5 @@ class TeamAdmin(admin.ModelAdmin):
 
 @admin.register(DummyTeamNames)
 class AdjectiveTeamNamesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbr')  # Adjust this if your model has other fields
-    search_fields = ('name', 'abbr')  # Enable searching by the adjective word
+    list_display = ('name', 'abbreviation')  # Adjust this if your model has other fields
+    search_fields = ('name', 'abbreviation')  # Enable searching by the adjective word

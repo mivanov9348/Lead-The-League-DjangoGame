@@ -26,14 +26,14 @@
             {% for slot in position_template %}
             <div class="lineup-slot">
                 {% if slot.player %}
-                <span>{{ slot.player.first_name }} {{ slot.player.last_name }} - {{ slot.abbr }}</span>
+                <span>{{ slot.player.first_name }} {{ slot.player.last_name }} - {{ slot.abbreviation }}</span>
                 <form method="post" action="{% url 'teams:lineup_remove_player' %}">
                     {% csrf_token %}
                     <input type="hidden" name="player_id" value="{{ slot.player.id }}">
                     <button type="submit" class="remove-player">-</button>
                 </form>
                 {% else %}
-                <span>{{ slot.abbr }} - Empty</span>
+                <span>{{ slot.abbreviation }} - Empty</span>
                 {% endif %}
             </div>
             {% endfor %}
@@ -70,8 +70,8 @@
             {% for player in reservePlayers %}
             <tr>
                 <td>{{ player.first_name }} {{ player.last_name }}</td>
-                <td>{{ player.position.abbr }}</td>
-                <td>{{ player.nationality.abbr }}</td>
+                <td>{{ player.position.abbreviation }}</td>
+                <td>{{ player.nationality.abbreviation }}</td>
                 <td>{{ player.matches }}</td>
                 <td>{{ player.goals }}</td>
                 <td>{{ player.assists }}</td>

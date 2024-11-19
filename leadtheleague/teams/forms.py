@@ -4,7 +4,7 @@ from .models import Team
 class TeamCreationForm(forms.ModelForm):
     class Meta:
         model = Team
-        fields = ['name', 'abbr', 'color']
+        fields = ['name', 'abbreviation', 'color']
 
     COLOR_CHOICES = [
         ('red', 'Red'),

@@ -131,27 +131,26 @@ def lineup_add_player(request):
 
         # Брои играчите в стартовия състав за всяка позиция
         position_counts = {
-            "goalkeeper": team_tactics.starting_players.filter(position__position_name="Goalkeeper").count(),
-            "defender": team_tactics.starting_players.filter(position__position_name="Defender").count(),
-            "midfielder": team_tactics.starting_players.filter(position__position_name="Midfielder").count(),
-            "attacker": team_tactics.starting_players.filter(position__position_name="Attacker").count(),
+            "goalkeeper": team_tactics.starting_players.filter(position__name="Goalkeeper").count(),
+            "defender": team_tactics.starting_players.filter(position__name="Defender").count(),
+            "midfielder": team_tactics.starting_players.filter(position__name="Midfielder").count(),
+            "attacker": team_tactics.starting_players.filter(position__name="Attacker").count(),
         }
 
         # Проверява дали добавянето на играча ще надвиши лимита
-        if player.position.position_name == "Goalkeeper" and position_counts[
+        if player.position.name == "Goalkeeper" and position_counts[
             "goalkeeper"] >= tactic.num_goalkeepers:
             messages.error(request, "You cannot add more goalkeepers to the starting lineup.")
-        elif player.position.position_name == "Defender" and position_counts["defender"] >= tactic.num_defenders:
+        elif player.position.name == "Defender" and position_counts["defender"] >= tactic.num_defenders:
             messages.error(request, "You cannot add more defenders to the starting lineup.")
-        elif player.position.position_name == "Midfielder" and position_counts[
+        elif player.position.name == "Midfielder" and position_counts[
             "midfielder"] >= tactic.num_midfielders:
             messages.error(request, "You cannot add more midfielders to the starting lineup.")
-        elif player.position.position_name == "Attacker" and position_counts["attacker"] >= tactic.num_forwards:
+        elif player.position.name == "Attacker" and position_counts["attacker"] >= tactic.num_attackers:
             messages.error(request, "You cannot add more forwards to the starting lineup.")
         else:
             # Добави играча в стартовия състав
             team_tactics.starting_players.add(player)
-            player.is_starting = True
             player.save()
             messages.success(request, f"{player.first_name} {player.last_name} added to the starting lineup.")
 
@@ -182,7 +181,6 @@ def lineup_remove_player(request):
         else:
             # Премахни играча от стартовия състав
             team_tactics.starting_players.remove(player)
-            player.is_starting = False
             player.save()
             messages.success(request, f"{player.first_name} {player.last_name} removed from the starting lineup.")
 

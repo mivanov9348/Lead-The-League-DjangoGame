@@ -8,7 +8,7 @@ import random
 from django.db.models import F, Q
 from django.utils import timezone
 from datetime import datetime
-from teams.models import Team
+from teams.models import Team, TeamTactics
 
 
 def generate_matches_for_season(season):
@@ -65,6 +65,15 @@ def get_match_status(match):
     return match_status
 
 
+def get_starting_lineup(team):
+    try:
+        team_tactics = TeamTactics.objects.get(team=team)
+        starting_players = team_tactics.starting_players.all().order_by('position_id')
+        return starting_players
+    except TeamTactics.DoesNotExist:
+        return Player.objects.none()  # Връща празен QuerySet ако няма намерен TeamTactics
+
+
 def get_lineup_data(players, match):
     return [
         {
@@ -118,9 +127,17 @@ def get_match_team_initiative(match):
 
 
 def choose_event_random_player(team):
-    players = team.players.filter(is_starting=True)
-    selected_player = random.choice(players)
-    return selected_player
+    try:
+        team_tactics = TeamTactics.objects.get(team=team)
+        starting_player_ids = list(team_tactics.starting_players.values_list('id', flat=True))
+        if starting_player_ids:
+            selected_player_id = random.choice(starting_player_ids)
+            selected_player = Player.objects.get(id=selected_player_id)
+            return selected_player
+        else:
+            return None
+    except TeamTactics.DoesNotExist:
+        return None
 
 
 def get_random_event():
@@ -205,7 +222,7 @@ def update_player_stats_from_template(match, template, players):
     opponent_team = match.away_team if players[0].team == match.home_team else match.home_team
 
     # Откриваме вратаря на противниковия отбор
-    goalkeeper_position = Position.objects.get(position_name='Goalkeeper')
+    goalkeeper_position = Position.objects.get(name='Goalkeeper')
     opposing_goalkeeper = opponent_team.players.filter(position=goalkeeper_position).first()
 
     goalie_stats = get_player_match_stats(opposing_goalkeeper, match) if opposing_goalkeeper else None

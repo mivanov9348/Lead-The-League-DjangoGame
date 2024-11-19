@@ -6,14 +6,14 @@ from accounts.models import CustomUser
 
 class DummyTeamNames(models.Model):
     name = models.CharField(max_length=100)
-    abbr = models.CharField(max_length=3, validators=[MinLengthValidator(2), MaxLengthValidator(3)])
+    abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(2), MaxLengthValidator(3)])
 
     def __str__(self):
         return self.name
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
-    abbr = models.CharField(max_length=3, validators=[MinLengthValidator(3), MaxLengthValidator(3)])
+    abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(3), MaxLengthValidator(3)])
     color = models.CharField(max_length=20)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
     division = models.ForeignKey('leagues.Division', on_delete=models.CASCADE, related_name='team', null=True)
@@ -39,13 +39,12 @@ class TeamSeasonStats(models.Model):
     class Meta:
         unique_together = ('season', 'team')
 
-
 class Tactics(models.Model):
     name = models.CharField(max_length=30)
     num_goalkeepers = models.IntegerField(default=1)
     num_defenders = models.IntegerField()
     num_midfielders = models.IntegerField()
-    num_forwards = models.IntegerField()
+    num_attackers = models.IntegerField()
 
     def __str__(self):
         return f'{self.name}'

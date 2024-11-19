@@ -1,8 +1,10 @@
+import os
 import random
+import shutil
+from leadtheleague import settings
 from teams.models import TeamTactics, Tactics
 from .models import Player, FirstName, LastName, Nationality, Position, PositionAttribute, PlayerAttribute, \
     Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
-
 
 def calculate_player_price(player):
     base_prices = {
@@ -12,7 +14,7 @@ def calculate_player_price(player):
         'Attacker': 50000
     }
 
-    base_price = base_prices.get(player.position.position_name, 2500)
+    base_price = base_prices.get(player.position.name, 2500)
     age_factor = 1.2 if player.age < 25 else 0.8 if player.age > 30 else 1.0
 
     total_attributes = sum(PlayerAttribute.objects.filter(player=player).values_list('value', flat=True))
@@ -32,6 +34,34 @@ def get_random_name(region):
     first_name = random.choice(first_names).name
     last_name = random.choice(last_names).name
     return first_name, last_name
+
+
+def get_random_player_image():
+    photo_folder = "E:/Data/playersImages"  # Път до папката със снимките
+    photos = [f for f in os.listdir(photo_folder) if os.path.isfile(os.path.join(photo_folder, f))]
+    if not photos:
+        print("Грешка: Папката със снимки е празна или не съществува.")
+        return None  # Ако папката е празна
+    selected_photo = os.path.join(photo_folder, random.choice(photos))
+    print(f"Избрана снимка: {selected_photo}")
+    return selected_photo
+
+
+def clear_player_images_folder():
+    static_path = os.path.join(settings.STATICFILES_DIRS[0], "playersimages")
+    if os.path.exists(static_path):
+        shutil.rmtree(static_path)
+        print(f"Изтрита папка: {static_path}")
+    os.makedirs(static_path)
+    print(f"Създадена нова папка: {static_path}")
+
+
+def copy_player_image_to_static(photo_path, player_id):
+    static_path = os.path.join(settings.STATICFILES_DIRS[0], "playersimages")
+    new_photo_path = os.path.join(static_path, f"{player_id}.png")
+    shutil.copy(photo_path, new_photo_path)
+    print(f"Копирана снимка в: {new_photo_path}")
+    return f'{player_id}.png'  # Връща само "id.png"
 
 
 def generate_random_player(team=None, position=None):
@@ -68,6 +98,9 @@ def generate_random_player(team=None, position=None):
         position=position,
         team=team
     )
+
+    print(f"Създаден играч: {player}")
+
     player.save()
 
     # Записване на атрибути
@@ -76,16 +109,28 @@ def generate_random_player(team=None, position=None):
         PlayerAttribute.objects.create(player=player, attribute=attr, value=value)
 
     player.price = calculate_player_price(player)
-    player.save()
+    print(f"Изчислена цена на играча: {player.price}")
+
+    # Изтриване на старата папка и създаване на нова
+    clear_player_images_folder()
+
+    photo_path = get_random_player_image()
+    if photo_path:
+        photo_file_name = copy_player_image_to_static(photo_path, player.id)
+        player.photo = photo_file_name
+        player.save()
+        print(f"Записана снимка на играча: {player.photo}")
+    else:
+        print("Няма налична снимка за копиране.")
 
     return player
 
 
 def generate_team_players(team):
-    position_gk = Position.objects.get(position_name='Goalkeeper')
-    position_def = Position.objects.get(position_name='Defender')
-    position_mid = Position.objects.get(position_name='Midfielder')
-    position_st = Position.objects.get(position_name='Attacker')
+    position_gk = Position.objects.get(name='Goalkeeper')
+    position_def = Position.objects.get(name='Defender')
+    position_mid = Position.objects.get(name='Midfielder')
+    position_st = Position.objects.get(name='Attacker')
 
     generate_random_player(team, position_gk)
 
@@ -106,7 +151,9 @@ def generate_team_players(team):
 
 
 def auto_select_starting_lineup(team):
-    if Player.objects.filter(team=team, is_starting=True).count() >= 11:
+    # Проверяваме дали вече има избран стартов състав чрез TeamTactics
+    team_tactics, created = TeamTactics.objects.get_or_create(team=team)
+    if team_tactics.starting_players.count() >= 11:
         return
 
     tactic = Tactics.objects.order_by('?').first()
@@ -117,7 +164,7 @@ def auto_select_starting_lineup(team):
         'GK': tactic.num_goalkeepers,
         'DF': tactic.num_defenders,
         'MF': tactic.num_midfielders,
-        'ATT': tactic.num_forwards,
+        'ATT': tactic.num_attackers,
     }
 
     selected_players = {
@@ -130,36 +177,43 @@ def auto_select_starting_lineup(team):
     players = Player.objects.filter(team=team)
 
     for player in players:
-        if player.position.abbr in required_positions:
-            if len(selected_players[player.position.abbr]) < required_positions[player.position.abbr]:
-                selected_players[player.position.abbr].append(player)
+        if player.position.abbreviation in required_positions:
+            if len(selected_players[player.position.abbreviation]) < required_positions[player.position.abbreviation]:
+                selected_players[player.position.abbreviation].append(player)
 
-    # Актуализиране на играчите с is_starting
-    Player.objects.filter(team=team, is_starting=True).update(is_starting=False)
-    starting_players = []
+    # Изчистване на предишните стартови играчи
+    team_tactics.starting_players.clear()
+
     for position, players in selected_players.items():
         for player in players:
-            player.is_starting = True
-            starting_players.append(player)
+            team_tactics.starting_players.add(player)
 
-    # Bulk update на всички стартови играчи
-    Player.objects.bulk_update(starting_players, ['is_starting'])
-
-    TeamTactics.objects.create(team=team, tactic=tactic)
+    team_tactics.tactic = tactic
+    team_tactics.save()
 
     return selected_players
 
-def get_players_by_position(players,position):
+
+def get_players_by_position(players, position):
     return [player for player in players if player['player_data']['player']['positionabbr'] == position]
 
-def split_players_by_starting_status(players):
-    startingPlayers = [player for player in players if player['player_data']['player']['is_starting']]
-    reservePlayers = [player for player in players if not player['player_data']['player']['is_starting']]
+
+def split_players_by_starting_status(players, team):
+    try:
+        team_tactics = TeamTactics.objects.get(team=team)
+        starting_player_ids = set(team_tactics.starting_players.values_list('id', flat=True))
+    except TeamTactics.DoesNotExist:
+        starting_player_ids = set()
+
+    startingPlayers = [player for player in players if player['player_data']['player']['id'] in starting_player_ids]
+    reservePlayers = [player for player in players if player['player_data']['player']['id'] not in starting_player_ids]
+
     return startingPlayers, reservePlayers
 
 
 def get_team_match_stats(userteam):
     return PlayerMatchStatistic.objects.filter(player__team=userteam).select_related('player')
+
 
 # Основна информация за играча
 def get_personal_player_data(player):
@@ -168,12 +222,12 @@ def get_personal_player_data(player):
         'id': player.id,
         "first_name": player.first_name,
         "last_name": player.last_name,
-        "position": player.position.position_name,
+        "position": player.position.name,
         "nationality": player.nationality.name,  # Националност
         "age": player.age,
         "price": player.price,
-        'is_starting': player.is_starting
     }
+
 
 def get_player_attributes(player):
     player = Player.objects.prefetch_related('playerattribute_set__attribute').get(id=player.id)
@@ -184,6 +238,7 @@ def get_player_season_stats(player, season):
     season_stats = PlayerSeasonStatistic.objects.filter(player=player, season=season).select_related('statistic')
     stats_data = {stat.statistic.name: stat.value for stat in season_stats}
     return stats_data
+
 
 def get_player_season_stats_by_team(team, season):
     players = Player.objects.filter(team=team, is_active=True).select_related('position',

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/match_stats.css' %}">
+
+<div class="statistics-board">
+    <div class="header">
+        <div class="team">
+            <img src="https://via.placeholder.com/80" alt="Лого на отбор 1" class="team-logo">
+            <div>{{ match.home_team }}</div>
+        </div>
+        <div>
+            <div class="time">90:00</div>
+            <div class="score">{{ match.score }}</div>
+        </div>
+        <div class="team">
+            <img src="https://via.placeholder.com/80" alt="Лого на отбор 2" class="team-logo">
+            <div>{{ match.away_team }}</div>
+        </div>
+    </div>
+    <table class="stats-table">
+        <tr>
+            <th></th>
+            <th>Статистики</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>Голове</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Удари в целта</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Общо удари</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Нарушения</td>
+            <td>9</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Жълти картони</td>
+            <td>12</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Влизания</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Засади</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>12</td>
+            <td>Корнери</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>47</td>
+            <td>Владение на топката, %</td>
+            <td>53</td>
+        </tr>
+    </table>
+</div>
+{% load static %}
+
+{% endblock %}

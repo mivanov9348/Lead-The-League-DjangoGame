@@ -16,13 +16,13 @@ import io
 import base64
 
 def generate_random_team_name():
-    all_team_info = list(DummyTeamNames.objects.values_list('name', 'abbr'))
+    all_team_info = list(DummyTeamNames.objects.values_list('name', 'abbreviation'))
 
     while True:
         # Генерираме случайно име и абревиатура
         team_name, team_abbr = random.choice(all_team_info)
         # Проверяваме дали отбор с това име и абревиатура вече съществува
-        if not Team.objects.filter(name=team_name).exists() and not Team.objects.filter(abbr=team_abbr).exists():
+        if not Team.objects.filter(name=team_name).exists() and not Team.objects.filter(abbreviation=team_abbr).exists():
             return team_name, team_abbr
 
 
@@ -43,7 +43,7 @@ def fill_dummy_teams():
                 color = random.choice(colors)
                 team = Team.objects.create(
                     name=team_name,
-                    abbr=team_abbr,
+                    abbreviation=team_abbr,
                     color=color,
                     user=None,
                     is_dummy=True,
@@ -223,30 +223,30 @@ def create_position_template(selected_tactic, starting_players):
         'GK': selected_tactic.num_goalkeepers,
         'DF': selected_tactic.num_defenders,
         'MF': selected_tactic.num_midfielders,
-        'ATT': selected_tactic.num_forwards
+        'ATT': selected_tactic.num_attackers
     }
 
-    for abbr, count in tactic_positions.items():
+    for abbreviation, count in tactic_positions.items():
         for _ in range(count):
-            position_template.append({"abbr": abbr, "player": None})
+            position_template.append({"abbreviation": abbreviation, "player": None})
 
     position_map = defaultdict(list)
     for player in starting_players:
-        position_map[player.position.abbr].append(player)
+        position_map[player.position.abbreviation].append(player)
 
     used_players = set()
     slot_counts = defaultdict(int)
 
     for slot in position_template:
         available_players = [
-            player for player in position_map[slot['abbr']]
-            if player not in used_players and slot_counts[slot['abbr']] < tactic_positions[slot['abbr']]
+            player for player in position_map[slot['abbreviation']]
+            if player not in used_players and slot_counts[slot['abbreviation']] < tactic_positions[slot['abbreviation']]
         ]
 
         if available_players:
             selected_player = available_players[0]
             slot["player"] = selected_player
             used_players.add(selected_player)
-            slot_counts[slot['abbr']] += 1
+            slot_counts[slot['abbreviation']] += 1
 
     return position_template

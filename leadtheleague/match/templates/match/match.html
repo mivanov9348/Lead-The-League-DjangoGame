@@ -6,136 +6,21 @@
 <link rel="stylesheet" href="{% static 'css/match.css' %}">
 
 <div class="match-container">
-    <div class="match">
-        <div class="match-header">
-            <div class="match-tournament">{{ division }}</div>
-        </div>
-        <div class="match-content">
-            <div class="column">
-                <div class="team team--home">
-                    <div class="team-logo">
-                        <img src="https://www.svgrepo.com/show/135042/soccer-ball.svg">
-                    </div>
-                    <h2 class="team-name">{{match.home_team.name}}</h2>
-                </div>
-            </div>
-
-            <div class="column">
-                <div class="match-details">
-                    <div class="match-date">
-                        {{ match.match_date }} at <strong>{{ match.match_time|date:"H:i" }}</strong>
-                    </div>
-                    <div class="match-score">
-                        <span class="match-score-number match-score-number--leading">{{ match.home_goals }}</span>
-                        <span class="match-score-divider">:</span>
-                        <span class="match-score-number">{{ match.away_goals }}</span>
-                    </div>
-                    <div class="match-time-lapsed">{{ current_minute }}'</div>
-
-                </div>
-            </div>
-
-            <div class="column">
-                <div class="team team--away">
-                    <div class="team-logo">
-                        <img src="https://www.svgrepo.com/show/135042/soccer-ball.svg">
-                    </div>
-                    <h2 class="team-name">{{match.away_team.name}}</h2>
-                </div>
-            </div>
-        </div>
+    <div class="match-header">
+        <h1>{{ match.home_team }} {{ match.score }} {{ match.away_team }}</h1>
+        <a href="{% url 'match_stats' id=match.id %}" class="match-link">Виж статистика на мача</a>
     </div>
 
-    <div class="table table-center">
-        <div class="event-text">
-            {% for event in events %}
-            <p>{{ event.minute }}' - {{ event.description }}</p>
-            {% empty %}
-            <p> dadsadas</p>
+    <div class="match-stats">
+        <div class="stat">
+            <h2>Голмайстори</h2>
+            {% for scorer in match.stats.Голмайстори %}
+            <p>{{ scorer.player }} ({{ scorer.team }}) - {{ scorer.goals }} гол</p>
             {% endfor %}
         </div>
+        <!-- Добавете допълнителни статистики тук -->
     </div>
-
-    <div class="lineup">
-        <div class="table table-left">
-            <!-- Съдържание на първата таблица отляво -->
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Pos</th>
-                    <th>⚽</th>
-                    <th>🤝</th>
-                    <th>🦶</th>
-                    <th>💨</th>
-                    <th>🦶</th>
-                    <th>💨</th>
-                    <th>💥</th>
-                    <th>🟡</th>
-                    <th>🔴</th>
-                    <th>🤷‍♂️</th>
-                    <th>🧤</th>
-                    <th>🥅</th>
-                </tr>
-                {% for player in home_lineup %}
-                <tr>
-                    <td class="player-name">{{ player.player.first_name }} {{player.player.last_name}}</td>
-                    <td>{{ player.player.position.abbr }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                </tr>
-                {% endfor %}  <!-- Затваряйте for цикъла тук -->
-            </table>
-        </div>
-
-        <div class="table table-right">
-            <table>
-                <tr>
-                    <td class="player-name">{{ player.player.first_name }} {{player.player.last_name}}</td>
-                    <th>Pos</th>
-                    <th>⚽</th>
-                    <th>🤝</th>
-                    <th>🦶</th>
-                    <th>💨</th>
-                    <th>🦶</th>
-                    <th>💨</th>
-                    <th>💥</th>
-                    <th>🟡</th>
-                    <th>🔴</th>
-                    <th>🤷‍♂️</th>
-                    <th>🧤</th>
-                    <th>🥅</th>
-                </tr>
-                {% for player in away_lineup %}
-                <tr>
-                    <td>{{ player.player.first_name }} {{player.player.last_name}}</td>
-                    <td>{{ player.player.position.abbr }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                    <td>{{ player.stats.goals }}</td>
-                    <td>{{ player.stats.assists }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div>
+</div>
 </div>
 
 {% load static %}
