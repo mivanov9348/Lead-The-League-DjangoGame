@@ -12,7 +12,6 @@ def get_selected_league_and_division(league_id, division_id):
     return league, division
 
 def get_standings_for_division(division):
-    print(f"League ID: {division.league_id}, Division ID: {division.id}")
     return TeamSeasonStats.objects.filter(
         league=division.league.id,
         division=division

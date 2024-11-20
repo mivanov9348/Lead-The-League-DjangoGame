@@ -1,7 +1,5 @@
-from django.core.validators import MinLengthValidator, MaxLengthValidator
+from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator, MaxValueValidator
 from django.db import models
-from numpy.f2py.capi_maps import modsign2map
-
 from accounts.models import CustomUser
 
 class DummyTeamNames(models.Model):
@@ -10,6 +8,7 @@ class DummyTeamNames(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
@@ -21,6 +20,51 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['user']),
+            models.Index(fields=['division']),
+        ]
+
+
+class TeamPlayer(models.Model):
+    player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='team_players')
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_players')
+    shirt_number = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(99)], null=True, blank=True)
+
+    class Meta:
+        unique_together = ('team', 'shirt_number')  # Гарантира, че номерът на фланелка е уникален за всеки отбор
+
+    def __str__(self):
+        return f"{self.player.name} - {self.team.name} (# {self.shirt_number})"
+
+
+class TeamStatistic(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class TeamMatchStatistic(models.Model):
+    team = models.ForeignKey(Team, related_name='match_stats', on_delete=models.CASCADE)
+    match = models.ForeignKey('match.Match', on_delete=models.CASCADE)
+    statistic = models.ForeignKey(TeamStatistic, on_delete=models.CASCADE)
+    player = models.ForeignKey('players.Player', related_name='goalscorers', on_delete=models.CASCADE, null=True,
+                               blank=True)
+    value = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ('team', 'match', 'statistic', 'player')
+        indexes = [
+            models.Index(fields=['team']),
+            models.Index(fields=['match']),
+            models.Index(fields=['statistic']),
+            models.Index(fields=['player']),
+        ]
+
 
 class TeamSeasonStats(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -38,9 +82,16 @@ class TeamSeasonStats(models.Model):
 
     class Meta:
         unique_together = ('season', 'team')
+        indexes = [
+            models.Index(fields=['team']),
+            models.Index(fields=['season']),
+            models.Index(fields=['league']),
+            models.Index(fields=['division']),
+        ]
+
 
 class Tactics(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
     num_goalkeepers = models.IntegerField(default=1)
     num_defenders = models.IntegerField()
     num_midfielders = models.IntegerField()
@@ -57,3 +108,9 @@ class TeamTactics(models.Model):
 
     def __str__(self):
         return f"{self.team.name} - {self.tactic.name}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['team']),
+            models.Index(fields=['tactic']),
+        ]

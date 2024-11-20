@@ -16,21 +16,21 @@
                 <tr>
                     <th>N</th>
                     <th>Name</th>
-                    <th>P</th>
+                    <th>Pos</th>
                     <th>🏴</th>
                 </tr>
             </thead>
             <tbody>
-                {% for entry in players_data %}
+                {% for entry in players_with_shirt_numbers %}
                 <tr>
-                    <td>1</td>
+                    <td>{{ entry.shirt_number }}</td>
                     <td>{{ entry.player.first_name }} {{ entry.player.last_name }}</td>
-                    <td>{{ entry.player.positionabbr }}</td>
-                    <td>{{ entry.player.nationalityabbr }}</td>
+                    <td>{{ entry.player.position }}</td>
+                    <td>{{ entry.player.nationality }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center">Няма налични играчи</td>
+                    <td colspan="5" class="text-center">Няма налични играчи</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -57,20 +57,24 @@
                 </tr>
             </thead>
             <tbody>
-                {% for entry in players_data %}
+                {% for entry in players_with_shirt_numbers %}
                 <tr>
-                    <td>{{ entry.season_stats.goals }}</td>
-                    <td>{{ entry.season_stats.assists }}</td>
-                    <td>{{ entry.season_stats.shoots }}</td>
-                    <td>{{ entry.season_stats.shootsOnTarget }}</td>
-                    <td>{{ entry.season_stats.passes }}</td>
-                    <td>{{ entry.season_stats.dribbles }}</td>
-                    <td>{{ entry.season_stats.tackles }}</td>
-                    <td>{{ entry.season_stats.yellowCards }}</td>
-                    <td>{{ entry.season_stats.redCards }}</td>
-                    <td>{{ entry.season_stats.fouls }}</td>
-                    <td>{{ entry.season_stats.saves }}</td>
-                    <td>{{ entry.season_stats.conceded }}</td>
+                    <td>{{ entry.season_stats.goals|default:"-" }}</td>
+                    <td>{{ entry.season_stats.assists|default:"-" }}</td>
+                    <td>{{ entry.season_stats.shoots|default:"-" }}</td>
+                    <td>{{ entry.season_stats.shootsOnTarget|default:"-" }}</td>
+                    <td>{{ entry.season_stats.passes|default:"-" }}</td>
+                    <td>{{ entry.season_stats.dribbles|default:"-" }}</td>
+                    <td>{{ entry.season_stats.tackles|default:"-" }}</td>
+                    <td>{{ entry.season_stats.yellowCards|default:"-" }}</td>
+                    <td>{{ entry.season_stats.redCards|default:"-" }}</td>
+                    <td>{{ entry.season_stats.fouls|default:"-" }}</td>
+                    <td>{{ entry.season_stats.saves|default:"-" }}</td>
+                    <td>{{ entry.season_stats.conceded|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="12" class="text-center">Няма статистики налични</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -101,24 +105,28 @@
                 </tr>
             </thead>
             <tbody>
-                {% for entry in players_data %}
+                {% for entry in players_with_shirt_numbers %}
                 <tr>
-                    <td>{{ entry.attributes.Reflexes }}</td>
-                    <td>{{ entry.attributes.Handling }}</td>
-                    <td>{{ entry.attributes.Reflexes }}</td>
-                    <td>{{ entry.attributes.Finishing }}</td>
-                    <td>{{ entry.attributes.Shooting }}</td>
-                    <td>{{ entry.attributes.Technique }}</td>
-                    <td>{{ entry.attributes.Passing }}</td>
-                    <td>{{ entry.attributes.Crossing }}</td>
-                    <td>{{ entry.attributes.Tackling }}</td>
-                    <td>{{ entry.attributes.Strength }}</td>
-                    <td>{{ entry.attributes.Determination }}</td>
-                    <td>{{ entry.attributes.BallControl }}</td>
-                    <td>{{ entry.attributes.Dribbling }}</td>
-                    <td>{{ entry.attributes.Speed }}</td>
-                    <td>{{ entry.attributes.Vision }}</td>
-                    <td>{{ entry.attributes.WorkRate }}</td>
+                    <td>{{ entry.attributes.Reflexes|default:"-" }}</td>
+                    <td>{{ entry.attributes.Handling|default:"-" }}</td>
+                    <td>{{ entry.attributes.Reflexes|default:"-" }}</td>
+                    <td>{{ entry.attributes.Finishing|default:"-" }}</td>
+                    <td>{{ entry.attributes.Shooting|default:"-" }}</td>
+                    <td>{{ entry.attributes.Technique|default:"-" }}</td>
+                    <td>{{ entry.attributes.Passing|default:"-" }}</td>
+                    <td>{{ entry.attributes.Crossing|default:"-" }}</td>
+                    <td>{{ entry.attributes.Tackling|default:"-" }}</td>
+                    <td>{{ entry.attributes.Strength|default:"-" }}</td>
+                    <td>{{ entry.attributes.Determination|default:"-" }}</td>
+                    <td>{{ entry.attributes.BallControl|default:"-" }}</td>
+                    <td>{{ entry.attributes.Dribbling|default:"-" }}</td>
+                    <td>{{ entry.attributes.Speed|default:"-" }}</td>
+                    <td>{{ entry.attributes.Vision|default:"-" }}</td>
+                    <td>{{ entry.attributes.WorkRate|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="16" class="text-center">Няма атрибути налични</td>
                 </tr>
                 {% endfor %}
             </tbody>

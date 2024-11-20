@@ -1,24 +1,40 @@
 import os
 import random
 import shutil
-from leadtheleague import settings
-from teams.models import TeamTactics, Tactics
 from .models import Player, FirstName, LastName, Nationality, Position, PositionAttribute, PlayerAttribute, \
     Attribute, PlayerSeasonStatistic, PlayerMatchStatistic
+from teams.models import TeamPlayer, TeamTactics, Tactics
+
 
 def calculate_player_price(player):
+    GOALKEEPER_BASE_PRICE = 100000
+    DEFENDER_BASE_PRICE = 120000
+    MIDFIELDER_BASE_PRICE = 130000
+    ATTACKER_BASE_PRICE = 150000
+    DEFAULT_BASE_PRICE = 100000  # Default in case position does not match
+
+    # Функцията за изчисляване на възрастовия фактор
+    def get_age_factor(age):
+        if age < 25:
+            return 1.2
+        elif age > 30:
+            return 0.8
+        return 1.0
+
+    # Създаване на речник с базови цени
     base_prices = {
-        'Goalkeeper': 20000,
-        'Defender': 30000,
-        'Midfielder': 40000,
-        'Attacker': 50000
+        'Goalkeeper': GOALKEEPER_BASE_PRICE,
+        'Defender': DEFENDER_BASE_PRICE,
+        'Midfielder': MIDFIELDER_BASE_PRICE,
+        'Attacker': ATTACKER_BASE_PRICE
     }
 
-    base_price = base_prices.get(player.position.name, 2500)
-    age_factor = 1.2 if player.age < 25 else 0.8 if player.age > 30 else 1.0
-
+    base_price = base_prices.get(player.position.name, DEFAULT_BASE_PRICE)
+    age_factor = get_age_factor(player.age)
     total_attributes = sum(PlayerAttribute.objects.filter(player=player).values_list('value', flat=True))
-    return int(base_price * age_factor + total_attributes * 100)
+
+    # Увеличаваме значението на атрибутите в крайната цена
+    return int(base_price * age_factor + total_attributes * 10000)
 
 
 def get_random_name(region):
@@ -36,59 +52,50 @@ def get_random_name(region):
     return first_name, last_name
 
 
-def get_random_player_image():
-    photo_folder = "E:/Data/playersImages"  # Път до папката със снимките
-    photos = [f for f in os.listdir(photo_folder) if os.path.isfile(os.path.join(photo_folder, f))]
-    if not photos:
-        print("Грешка: Папката със снимки е празна или не съществува.")
-        return None  # Ако папката е празна
-    selected_photo = os.path.join(photo_folder, random.choice(photos))
-    print(f"Избрана снимка: {selected_photo}")
-    return selected_photo
+def choose_random_photo(photo_folder):
+    random_photo = random.choice(os.listdir(photo_folder))
+    return os.path.join(photo_folder, random_photo)
 
 
-def clear_player_images_folder():
-    static_path = os.path.join(settings.STATICFILES_DIRS[0], "playersimages")
-    if os.path.exists(static_path):
-        shutil.rmtree(static_path)
-        print(f"Изтрита папка: {static_path}")
-    os.makedirs(static_path)
-    print(f"Създадена нова папка: {static_path}")
+def copy_player_image_to_static(photo_folder, player_id, static_path):
+    chosen_photo = choose_random_photo(photo_folder)
 
+    # Проверка дали избраната снимка съществува
+    if not os.path.exists(chosen_photo):
+        print(f"Файлът {chosen_photo} не съществува.")
+        return None
 
-def copy_player_image_to_static(photo_path, player_id):
-    static_path = os.path.join(settings.STATICFILES_DIRS[0], "playersimages")
-    new_photo_path = os.path.join(static_path, f"{player_id}.png")
-    shutil.copy(photo_path, new_photo_path)
-    print(f"Копирана снимка в: {new_photo_path}")
-    return f'{player_id}.png'  # Връща само "id.png"
+    # Коректен път към новото място
+    new_photo_path = os.path.join(static_path, 'playerimages', f"{player_id}.png")
+
+    # Създаване на директорите, ако не съществуват
+    os.makedirs(os.path.dirname(new_photo_path), exist_ok=True)
+
+    # Копиране на файла
+    shutil.copy(chosen_photo, new_photo_path)
+    print(f"Копирана снимка от {chosen_photo} до: {new_photo_path}")
+    return f'playerimages/{player_id}.png'
 
 
 def generate_random_player(team=None, position=None):
-    # Кешираме националностите и позициите
     nationalities = Nationality.objects.all()
     positions = Position.objects.all()
     attributes = {attr.name: random.randint(1, 20) for attr in Attribute.objects.all()}
-
     nationality = random.choice(nationalities)
     region = nationality.region
-    first_name, last_name = get_random_name(region)
+    team_player_numbers = set(TeamPlayer.objects.filter(team=team).values_list('shirt_number', flat=True))
 
-    # Ако позицията не е зададена, избираме случайна
+    first_name, last_name = get_random_name(region)
     if position is None:
         position = random.choice(positions)
 
-    # Извличаме атрибутите за позицията
     position_attributes = PositionAttribute.objects.filter(position=position)
-
-    # Настройваме стойностите на атрибутите според важността
     for pos_attr in position_attributes:
         if pos_attr.attribute.name in attributes:
             base_value = attributes[pos_attr.attribute.name]
             boosted_value = min(int(base_value * (1 + (pos_attr.importance - 1) * 0.3)), 20)
             attributes[pos_attr.attribute.name] = boosted_value
 
-    # Създаване на нов играч
     age = random.randint(18, 35)
     player = Player(
         first_name=first_name,
@@ -96,32 +103,29 @@ def generate_random_player(team=None, position=None):
         nationality=nationality,
         age=age,
         position=position,
-        team=team
     )
+    player.save()
 
-    print(f"Създаден играч: {player}")
+    for attr_name, value in attributes.items():
+        PlayerAttribute.objects.create(
+            player=player,
+            attribute=Attribute.objects.get(name=attr_name),
+            value=value
+        )
+
+    player.price = calculate_player_price(player)
+    static_path = os.path.join(os.path.dirname(__file__), 'static')
+    player.photo = copy_player_image_to_static("E:/Data/playersImages", player.id, static_path)
+
+    while True:
+        random_number = random.randint(1, 99)
+        if random_number not in team_player_numbers:
+            break
 
     player.save()
 
-    # Записване на атрибути
-    for attr_name, value in attributes.items():
-        attr = Attribute.objects.get(name=attr_name)
-        PlayerAttribute.objects.create(player=player, attribute=attr, value=value)
-
-    player.price = calculate_player_price(player)
-    print(f"Изчислена цена на играча: {player.price}")
-
-    # Изтриване на старата папка и създаване на нова
-    clear_player_images_folder()
-
-    photo_path = get_random_player_image()
-    if photo_path:
-        photo_file_name = copy_player_image_to_static(photo_path, player.id)
-        player.photo = photo_file_name
-        player.save()
-        print(f"Записана снимка на играча: {player.photo}")
-    else:
-        print("Няма налична снимка за копиране.")
+    if team:
+        TeamPlayer.objects.create(player=player, team=team, shirt_number=random_number)
 
     return player
 
@@ -174,7 +178,8 @@ def auto_select_starting_lineup(team):
         'ATT': [],
     }
 
-    players = Player.objects.filter(team=team)
+    # Вземаме подходящите играчи за отбора чрез `team_players` релацията
+    players = Player.objects.filter(team_players__team=team)
 
     for player in players:
         if player.position.abbreviation in required_positions:
@@ -257,14 +262,15 @@ def get_player_season_stats_by_team(team, season):
 
 # full player data
 def get_player_data(player):
-    player = Player.objects.select_related('position', 'team', 'nationality').prefetch_related(
-        'playerattribute_set__attribute', 'season_stats__statistic').get(id=player.id)
+    player = Player.objects.select_related('position', 'nationality').prefetch_related(
+        'playerattribute_set__attribute', 'season_stats__statistic', 'team_players__team').get(id=player.id)
     player_data = {
         'player': get_personal_player_data(player),
         'attributes': get_player_attributes(player),
         'season_stats': {stat.statistic.name: stat.value for stat in player.season_stats.all()},
     }
     return player_data
+
 
 
 def get_player_match_stats(player, match):
@@ -284,3 +290,44 @@ def update_tactics(dummy_team, new_team):
             }
         )
     pass
+
+
+def calculate_player_rating(player, match):
+    stats = PlayerMatchStatistic.objects.filter(player=player, match=match)
+
+    # Extract relevant statistics
+    stats_dict = {stat.statistic.name: stat.value for stat in stats}
+
+    # Default weights for each statistic
+    weights = {
+        'assists': 1.0,
+        'cleanSheets': 1.5,
+        'conceded': -1.0,
+        'dribbles': 0.5,
+        'fouls': -0.5,
+        'goals': 2.0,
+        'matches': 0.1,
+        'minutesPlayed': 0.01,
+        'passes': 0.2,
+        'redCards': -2.0,
+        'saves': 1.0,
+        'shoots': 0.3,
+        'shootsOnTarget': 0.5,
+        'tackles': 0.3,
+        'yellowCards': -0.5,
+    }
+
+    # Rating calculation
+    rating = 5.0  # Start with a neutral base rating
+
+    for stat, weight in weights.items():
+        rating += stats_dict.get(stat, 0) * weight
+
+    # Ensure the rating is between 1 and 10
+    rating = max(1.0, min(10.0, rating))
+
+    return rating
+
+# Example usage:
+# player_rating = calculate_player_rating(some_player, some_match)
+# print(player_rating)

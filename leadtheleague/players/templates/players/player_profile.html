@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Player Profile{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/player_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="player-profile">
+    <div class="profile-header">
+        <div class="player-photo">
+            <img src="{% static 'playersimages/' %}{{ personal_info.id }}.png" alt="Player Photo">
+        </div>
+        <div class="player-info">
+            <ul>
+                <li><strong>Nationality:</strong>
+                    {{ personal_info.nationality }}
+                </li>
+                <li><strong>Age:</strong> {{ personal_info.age }}</li>
+                <li><strong>Position:</strong> {{ personal_info.position }}</li>
+                <li><strong>Current Team:</strong> {{ team_info.team_name }}</li>
+                <li><strong>Current Team:</strong> {{ personal_info.price }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="player-stats">
+        <h2>Primary League</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Season</th>
+                <th>Team</th>
+                <th>Goals</th>
+                <th>Assists</th>
+                <th>Yellow Cards</th>
+                <th>Red Cards</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>2012</td>
+                <td>Budgies</td>
+                <td>50</td>
+                <td>15</td>
+                <td>6</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>2013</td>
+                <td>Geckos</td>
+                <td>46</td>
+                <td>12</td>
+                <td>1</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>2014</td>
+                <td>Geckos</td>
+                <td>28</td>
+                <td>11</td>
+                <td>2</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>2015</td>
+                <td>Eagles</td>
+                <td>43</td>
+                <td>18</td>
+                <td>4</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>2016</td>
+                <td>Eagles</td>
+                <td>26</td>
+                <td>16</td>
+                <td>3</td>
+                <td>0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="player-attributes">
+        <h2>Attributes</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Pace</td>
+                <td>85</td>
+            </tr>
+            <tr>
+                <td>Shooting</td>
+                <td>78</td>
+            </tr>
+            <tr>
+                <td>Passing</td>
+                <td>82</td>
+            </tr>
+            <tr>
+                <td>Dribbling</td>
+                <td>88</td>
+            </tr>
+            <tr>
+                <td>Defending</td>
+                <td>76</td>
+            </tr>
+            <tr>
+                <td>Physical</td>
+                <td>79</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

@@ -4,10 +4,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from .forms import TeamCreationForm
 from players.models import Player
-from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats
+from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
 from django.contrib.auth.decorators import login_required
 from .utils import replace_dummy_team, get_team_players_season_data, create_team_performance_chart, \
     create_position_template
+
 
 @login_required
 def create_team(request):
@@ -36,10 +37,21 @@ def create_team(request):
 def squad(request):
     team = get_object_or_404(Team, user=request.user)
     players_data = get_team_players_season_data(team)
-    print(players_data)
+
+    players_with_shirt_numbers = [
+        {
+            'player': player['player'],
+            'season_stats': player.get('season_stats', {}),
+            'attributes': player.get('attributes', {}),
+            'shirt_number': TeamPlayer.objects.filter(team=team, player__id=player['player']['id']).values_list(
+                'shirt_number', flat=True).first()
+        }
+        for player in players_data
+    ]
+
     context = {
         'team': team,
-        'players_data': players_data
+        'players_with_shirt_numbers': players_with_shirt_numbers
     }
 
     return render(request, 'team/squad.html', context)
@@ -100,6 +112,7 @@ def line_up(request):
     }
 
     return render(request, "team/line_up.html", context)
+
 
 def lineup_add_player(request):
     if request.method == "POST":

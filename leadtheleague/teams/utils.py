@@ -61,15 +61,15 @@ def replace_dummy_team(new_team):
         for division in divisions:
             dummy_team = Team.objects.filter(division=division, is_dummy=True).first()
             if dummy_team:
-                # Прехвърляне на играчите отDummy Team към новия отбор
-                dummy_team_players = Player.objects.filter(team=dummy_team)
+                # Прехвърляне на играчите от Dummy Team към новия отбор
+                dummy_team_players = Player.objects.filter(team_players__team=dummy_team)
 
                 for player in dummy_team_players:
                     # Извличане на сезона на играча
                     player_season_stats = PlayerSeasonStatistic.objects.filter(player=player,
                                                                                season__isnull=False).first()
                     if player_season_stats:
-                        player.team = new_team
+                        player.team_players.update(team=new_team)
                         player.save()
 
                         for statistic in Statistic.objects.all():
@@ -101,10 +101,9 @@ def replace_dummy_team(new_team):
 
                 return True
     return False
-
-
 def get_team_players_season_data(team):
-    players = Player.objects.filter(team=team)
+    # Филтриране на играчите чрез релацията team_players
+    players = Player.objects.filter(team_players__team=team)
     standings_data = []
 
     for player in players:
@@ -112,6 +111,7 @@ def get_team_players_season_data(team):
         standings_data.append(player_data)
 
     return standings_data
+
 
 def create_team_performance_chart(season_stats, team_name):
     stats_data = {

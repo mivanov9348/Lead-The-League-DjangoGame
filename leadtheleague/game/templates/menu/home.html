@@ -11,26 +11,26 @@
     <div class="row team-next-match">
         <!-- Информация за отбора -->
         <div class="col-md-6">
-    <div class="card team-info h-100">
-        <div class="card-header">Team Overview</div>
-        <div class="card-body">
-            <div class="team-details">
-                <div class="team-logo">
-                    <img src="{% static 'images/logo.png' %}" alt="{{ team.name }} Logo" class="team-logo-icon">
-                </div>
-                <div class="team-detail">
-                    <span class="detail-value">{{ user_team }}</span>
-                </div>
-                <div class="team-detail">
-                    <span class="detail-value">{{ user_team.division }}</span>
-                </div>
-                <div class="team-detail">
-                    <span class="detail-value">{{ user_team.points }}</span>
+            <div class="card team-info h-100">
+                <div class="card-header">Team Overview</div>
+                <div class="card-body">
+                    <div class="team-details">
+                        <div class="team-logo">
+                            <img src="{% static 'images/logo.png' %}" alt="{{ team.name }} Logo" class="team-logo-icon">
+                        </div>
+                        <div class="team-detail">
+                            <span class="detail-value">{{ user_team }}</span>
+                        </div>
+                        <div class="team-detail">
+                            <span class="detail-value">{{ user_team.division }}</span>
+                        </div>
+                        <div class="team-detail">
+                            <span class="detail-value">{{ user_team.points }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
         <!-- Следващ мач -->
         <div class="col-md-6">
@@ -119,7 +119,7 @@
                         <tbody>
                         {% for player in players %}
                         <tr>
-                            <td>{{ player.player.name }}</td>
+                            <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
                             <td>{{ player.season_stats.goals }}</td>
                             <td>{{ player.season_stats.assists }}</td>
                             <td>5.0</td>

@@ -101,7 +101,6 @@ def update_match_minute(match):
 
     return current_minute
 
-
 def generate_player_match_stats():
     current_season = Season.objects.filter(is_ended=False).first()
     if not current_season:
@@ -112,7 +111,9 @@ def generate_player_match_stats():
 
     for match in matches:
         for player in players:
-            if player.team in [match.home_team, match.away_team]:
+            # Използваме релацията `team_players`, за да намерим отборите на играча
+            teams = player.team_players.values_list('team', flat=True)
+            if match.home_team_id in teams or match.away_team_id in teams:
                 for statistic in Statistic.objects.all():
                     PlayerMatchStatistic.objects.create(
                         player=player,

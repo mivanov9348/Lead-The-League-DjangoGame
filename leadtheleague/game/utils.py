@@ -7,7 +7,6 @@ from match.utils import generate_matches_for_season
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from teams.models import Team, TeamSeasonStats
 
-
 def get_current_season(year=None):
     if year is not None:
         current_season = Season.objects.filter(year=year).order_by('-season_number').first()
@@ -15,7 +14,6 @@ def get_current_season(year=None):
         current_season = Season.objects.filter(is_ended=False).order_by('-season_number').first()
 
     return current_season
-
 
 def generate_season_number(year):
     seasons = get_current_season(year)
@@ -50,7 +48,6 @@ def create_team_season_stats(new_season):
         for team in teams:
             if not TeamSeasonStats.objects.filter(team=team, season=new_season).exists():
                 division = team.division
-
                 league = division.league
 
                 TeamSeasonStats.objects.create(
@@ -60,10 +57,9 @@ def create_team_season_stats(new_season):
                     division=division
                 )
 
-            # Get players for the team and create PlayerSeasonStats
-            players = Player.objects.filter(team=team)
+            # Взимаме играчите за отбора чрез релация `team_players`
+            players = Player.objects.filter(team_players__team=team)
             create_player_season_stats(players, new_season, team)
-
 
 def create_player_season_stats(players, new_season, team):
     for player in players:
