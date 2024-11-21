@@ -8,118 +8,83 @@
 {% endblock %}
 
 {% block content %}
-<div class="player-profile">
+<div class="profile-grid">
     <div class="profile-header">
         <div class="player-photo">
             <img src="{% static 'playersimages/' %}{{ personal_info.id }}.png" alt="Player Photo">
         </div>
         <div class="player-info">
             <ul>
-                <li><strong>Nationality:</strong>
-                    {{ personal_info.nationality }}
-                </li>
+                <li><strong>Name:</strong> {{ personal_info.name }}</li>
+                <li><strong>Pos:</strong> {{ personal_info.position }}</li>
+                <hr/>
+                <li><strong>Nat:</strong> {{ personal_info.nationality }}</li>
                 <li><strong>Age:</strong> {{ personal_info.age }}</li>
-                <li><strong>Position:</strong> {{ personal_info.position }}</li>
                 <li><strong>Current Team:</strong> {{ team_info.team_name }}</li>
-                <li><strong>Current Team:</strong> {{ personal_info.price }}</li>
+                {% load humanize %}
+                <hr/>
+                <li><strong>Price:</strong> {{ personal_info.price|intcomma }}</li>
             </ul>
         </div>
     </div>
 
-    <div class="player-stats">
-        <h2>Primary League</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Season</th>
-                <th>Team</th>
-                <th>Goals</th>
-                <th>Assists</th>
-                <th>Yellow Cards</th>
-                <th>Red Cards</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>2012</td>
-                <td>Budgies</td>
-                <td>50</td>
-                <td>15</td>
-                <td>6</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>2013</td>
-                <td>Geckos</td>
-                <td>46</td>
-                <td>12</td>
-                <td>1</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>2014</td>
-                <td>Geckos</td>
-                <td>28</td>
-                <td>11</td>
-                <td>2</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>2015</td>
-                <td>Eagles</td>
-                <td>43</td>
-                <td>18</td>
-                <td>4</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>2016</td>
-                <td>Eagles</td>
-                <td>26</td>
-                <td>16</td>
-                <td>3</td>
-                <td>0</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
     <div class="player-attributes">
         <h2>Attributes</h2>
+        <hr/>
+        <div class="attributes-grid">
+            {% for name, value in attributes.items %}
+            <div class="attribute
+                {% if value <= 10 %}attribute-low{% elif value <= 15 %}attribute-medium{% else %}attribute-high{% endif %}">
+                {{ name }}: {{ value }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="player-stats">
+        <h2>Season Statistics</h2>
+        <hr/>
         <table>
             <thead>
             <tr>
-                <th>Attribute</th>
-                <th>Value</th>
+                <th>Year</th>
+                <th>Season</th>
+                <th title="Goals">G</th>
+                <th title="Assists">A</th>
+                <th title="Yellow Cards">YC</th>
+                <th title="Red Cards">RC</th>
+                <th title="Clean Sheets">CS</th>
+                <th title="Conceded">C</th>
+                <th title="Dribbles">D</th>
+                <th title="Fouls">F</th>
+                <th title="Matches">M</th>
+                <th title="Minutes Played">MP</th>
             </tr>
             </thead>
             <tbody>
+            {% for season in stats.season_stats %}
             <tr>
-                <td>Pace</td>
-                <td>85</td>
+                <td>{{ season.year }}</td>
+                <td>{{ season.season_number }}</td>
+                <td>{{ team_info.team_name }}</td>
+                <td>{{ season.goals }}</td>
+                <td>{{ season.assists }}</td>
+                <td>{{ season.yellow_cards }}</td>
+                <td>{{ season.red_cards }}</td>
+                <td>{{ season.clean_sheets }}</td>
+                <td>{{ season.conceded }}</td>
+                <td>{{ season.dribbles }}</td>
+                <td>{{ season.fouls }}</td>
+                <td>{{ season.matches }}</td>
+                <td>{{ season.minutes_played }}</td>
             </tr>
+            {% empty %}
             <tr>
-                <td>Shooting</td>
-                <td>78</td>
+                <td colspan="13" class="text-center">Няма статистики налични</td>
             </tr>
-            <tr>
-                <td>Passing</td>
-                <td>82</td>
-            </tr>
-            <tr>
-                <td>Dribbling</td>
-                <td>88</td>
-            </tr>
-            <tr>
-                <td>Defending</td>
-                <td>76</td>
-            </tr>
-            <tr>
-                <td>Physical</td>
-                <td>79</td>
-            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
-
 </div>
 {% endblock %}

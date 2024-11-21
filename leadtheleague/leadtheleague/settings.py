@@ -7,7 +7,6 @@ from huey import RedisHuey
 
 BASE_DIR = Path(__file__).resolve().parent
 
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -32,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.humanize',
     'huey.contrib.djhuey',
     'channels',
     'teams',

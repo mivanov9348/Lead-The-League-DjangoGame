@@ -2,7 +2,6 @@ from django.db import transaction
 from fixtures.models import Fixture
 from game.models import Season
 from players.models import Player, PlayerMatchStatistic, Statistic, Position, PlayerSeasonStatistic
-from players.utils import get_player_match_stats
 from .models import Match, EventTemplate, Event, AttributeEventWeight, MatchEvent, EventResult
 import random
 from django.db.models import F, Q

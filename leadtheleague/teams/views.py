@@ -1,12 +1,12 @@
-from collections import defaultdict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from players.utils.get_player_stats_utils import get_player_data, get_player_season_stats
 from .forms import TeamCreationForm
 from players.models import Player
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
 from django.contrib.auth.decorators import login_required
-from .utils import replace_dummy_team, get_team_players_season_data, create_team_performance_chart, \
+from .utils import replace_dummy_team, create_team_performance_chart, \
     create_position_template
 
 
@@ -35,23 +35,42 @@ def create_team(request):
 
 
 def squad(request):
+    """
+    Връща страницата с информация за състава на отбора, включваща пълната статистика на играчите.
+    """
+    # Вземаме отбора на текущия потребител
     team = get_object_or_404(Team, user=request.user)
-    players_data = get_team_players_season_data(team)
 
-    players_with_shirt_numbers = [
-        {
-            'player': player['player'],
-            'season_stats': player.get('season_stats', {}),
-            'attributes': player.get('attributes', {}),
-            'shirt_number': TeamPlayer.objects.filter(team=team, player__id=player['player']['id']).values_list(
-                'shirt_number', flat=True).first()
+    # Вземаме всички играчи на отбора
+    team_players = TeamPlayer.objects.filter(team=team).select_related('player')
+
+    # Извличаме данни за всеки играч
+    players_data = []
+    for team_player in team_players:
+        player = team_player.player
+        player_data = get_player_data(player)  # Взима цялата информация за играча
+        player_data['team_info'] = {
+            'shirt_number': team_player.shirt_number  # Номер на фланелката
         }
-        for player in players_data
-    ]
 
+        # Вземаме статистиките на играча за конкретния сезон (например сезон 2024)
+        player_stats = get_player_season_stats(player)
+
+        # Преобразуваме статистиките в речник, който ще бъде добавен към player_data
+        player_stats_dict = {}
+        for stat in player_stats:
+            player_stats_dict[stat.statistic.name] = stat.value
+
+        # Добавяме статистиките в данните на играча
+        player_data['stats'] = player_stats_dict
+        players_data.append(player_data)
+
+    print(players_data)
+
+    # Подготвяме контекста за шаблона
     context = {
         'team': team,
-        'players_with_shirt_numbers': players_with_shirt_numbers
+        'players_data': players_data
     }
 
     return render(request, 'team/squad.html', context)

@@ -4,8 +4,13 @@
     flex-wrap: wrap;
     gap: 1px;
     justify-content: center;
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
+}
+
+.team-info{
+    text-align:center;
+    color:white;
 }
 
 /* Всяка секция в таблицата */
@@ -49,6 +54,8 @@
     text-align: center;
     padding: 8px;
     border: 1px solid #ddd; /* Бордъри около клетките */
+        color: white;
+
 }
 
 /* Hover ефект */
@@ -86,4 +93,13 @@
     .table-section {
         flex: 1 1 100%;
     }
+}
+
+a {
+    text-decoration: none;  /* Махане на подчертаването */
+    color: inherit;  /* Запазване на наследения цвят */
+}
+
+a:hover {
+    color: red;  /* Промяна на цвета на червен при hover */
 }

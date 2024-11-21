@@ -119,9 +119,9 @@
                         <tbody>
                         {% for player in players %}
                         <tr>
-                            <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
-                            <td>{{ player.season_stats.goals }}</td>
-                            <td>{{ player.season_stats.assists }}</td>
+                            <td>{{ player.personal_info.name }} </td>
+                            <td>{{ player.stats.season_stats.goals }}</td>
+                            <td>{{ player.personal_info.assists }}</td>
                             <td>5.0</td>
                         </tr>
                         {% endfor %}

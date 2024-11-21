@@ -1,14 +1,14 @@
 import random
 from collections import defaultdict
-
 from django.db import transaction
 from fixtures.utils import update_fixtures
 from game.utils import update_team_season_stats
 from leagues.models import League, Division
 from match.utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
-from players.utils import generate_team_players, get_player_data, auto_select_starting_lineup, update_tactics
-from teams.models import TeamSeasonStats, DummyTeamNames
+from players.utils.generate_player_utils import generate_team_players
+from players.utils.get_player_stats_utils import get_player_data
+from teams.models import TeamSeasonStats, DummyTeamNames, TeamTactics, Tactics
 from .models import Team
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -250,3 +250,53 @@ def create_position_template(selected_tactic, starting_players):
             slot_counts[slot['abbreviation']] += 1
 
     return position_template
+
+
+# lineup utils (team)
+def auto_select_starting_lineup(team):
+    """
+    Автоматично избира стартов състав за даден отбор на базата на наличните тактики.
+    """
+    team_tactics, created = TeamTactics.objects.get_or_create(team=team)
+    if team_tactics.starting_players.count() >= 11:
+        return
+
+    tactic = Tactics.objects.order_by('?').first()
+    if not tactic:
+        raise ValueError("Няма налични тактики в базата данни.")
+
+    required_positions = {
+        'GK': tactic.num_goalkeepers,
+        'DF': tactic.num_defenders,
+        'MF': tactic.num_midfielders,
+        'ATT': tactic.num_attackers,
+    }
+
+    selected_players = {key: [] for key in required_positions.keys()}
+    players = Player.objects.filter(team_players__team=team)
+
+    for player in players:
+        pos_abbr = player.position.abbreviation
+        if pos_abbr in required_positions and len(selected_players[pos_abbr]) < required_positions[pos_abbr]:
+            selected_players[pos_abbr].append(player)
+
+    team_tactics.starting_players.set(
+        [player for sublist in selected_players.values() for player in sublist]
+    )
+    team_tactics.tactic = tactic
+    team_tactics.save()
+
+    return selected_players
+
+
+# lineup utils (team)
+def update_tactics(dummy_team, new_team):
+    """
+    Актуализира тактиките на новият отбор на базата на dummy_team.
+    """
+    dummy_team_tactics = TeamTactics.objects.filter(team=dummy_team).first()
+    if dummy_team_tactics:
+        TeamTactics.objects.update_or_create(
+            team=new_team,
+            defaults={'tactic': dummy_team_tactics.tactic}
+        )
