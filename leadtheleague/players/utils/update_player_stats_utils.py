@@ -1,4 +1,6 @@
-# За price_utils
+from setuptools import logging
+
+from game.models import Settings
 from players.models import PlayerMatchStatistic
 
 
@@ -6,12 +8,15 @@ def update_player_price(player):
     """
     Изчислява цената на футболиста на базата на позицията му, възрастта и общите атрибути.
     """
-    POSITION_BASE_PRICES = {
-        'Goalkeeper': 100000,
-        'Defender': 120000,
-        'Midfielder': 130000,
-        'Attacker': 150000
-    }
+
+    def get_base_price(position_name):
+        setting_name = f'{position_name}_Base_Price'
+        try:
+            return Settings.objects.get(name=setting_name).value
+        except Settings.DoesNotExist:
+            logging.error(f"Настройката '{setting_name}' не съществува.")
+            return 100000  # Стойност по подразбиране
+
     DEFAULT_BASE_PRICE = 100000
 
     def get_age_factor(age):
@@ -21,12 +26,11 @@ def update_player_price(player):
             return 0.8
         return 1.0
 
-    base_price = POSITION_BASE_PRICES.get(player.position.name, DEFAULT_BASE_PRICE)
+    base_price = get_base_price(player.position.name) or DEFAULT_BASE_PRICE
     age_factor = get_age_factor(player.age)
     total_attributes = sum(player.playerattribute_set.values_list('value', flat=True))
 
     return int(base_price * age_factor + total_attributes * 10000)
-
 
 # updatestats
 def update_player_rating(player, match):

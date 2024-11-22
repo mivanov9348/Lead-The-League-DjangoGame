@@ -1,9 +1,14 @@
 import os
 import random
 import shutil
+
+from setuptools import logging
+
+from game.models import Settings
 from players.models import FirstName, LastName, Nationality, Position, Attribute, PlayerAttribute, Player
 from players.utils.update_player_stats_utils import update_player_price
 from teams.models import TeamPlayer
+
 
 def get_player_random_first_and_last_name(region):
     """
@@ -41,6 +46,7 @@ def copy_player_image_to_static(photo_folder, player_id, static_path):
     shutil.copy(chosen_photo, new_photo_path)
 
     return f'playerimages/{player_id}.png'
+
 
 # за createplayerutils
 def generate_random_player(team=None, position=None):
@@ -95,20 +101,54 @@ def generate_random_player(team=None, position=None):
 
     return player
 
-# за generateplayers_utils
 def generate_team_players(team):
     """
     Генерира набор от играчи за даден отбор, включващи различни позиции.
     """
+    try:
+        min_goalkeepers = Settings.objects.get(name='Minimum_Goalkeepers_By_Team').value
+    except Settings.DoesNotExist:
+        logging.error("Настройката 'Minimum_Goalkeepers_By_Team' не съществува.")
+        min_goalkeepers = 1  # Стойност по подразбиране
+
+    try:
+        min_defenders = Settings.objects.get(name='Minimum_Defenders_By_Team').value
+    except Settings.DoesNotExist:
+        logging.error("Настройката 'Minimum_Defenders_By_Team' не съществува.")
+        min_defenders = 4  # Стойност по подразбиране
+
+    try:
+        min_midfielders = Settings.objects.get(name='Minimum_Midfielders_By_Team').value
+    except Settings.DoesNotExist:
+        logging.error("Настройката 'Minimum_Midfielders_By_Team' не съществува.")
+        min_midfielders = 4  # Стойност по подразбиране
+
+    try:
+        min_attackers = Settings.objects.get(name='Minimum_Attackers_By_Team').value
+    except Settings.DoesNotExist:
+        logging.error("Настройката 'Minimum_Attackers_By_Team' не съществува.")
+        min_attackers = 2  # Стойност по подразбиране
+
+    try:
+        random_players = Settings.objects.get(name='Random_Players_Generate').value
+    except Settings.DoesNotExist:
+        logging.error("Настройката 'Random_Players_Generate' не съществува.")
+        random_players = 0  # Стойност по подразбиране
+
     positions = {
-        'Goalkeeper': 1,
-        'Defender': 4,
-        'Midfielder': 4,
-        'Attacker': 2,
-        'Random': 5,
+        'Goalkeeper': min_goalkeepers,
+        'Defender': min_defenders,
+        'Midfielder': min_midfielders,
+        'Attacker': min_attackers,
+        'Random': random_players,
     }
 
     for pos_name, count in positions.items():
-        position = Position.objects.get(name=pos_name.capitalize())
-        for _ in range(count):
+        try:
+            position = Position.objects.get(name=pos_name.capitalize())
+        except Position.DoesNotExist:
+            logging.error(f"Позицията '{pos_name}' не съществува в базата данни.")
+            continue
+
+        for _ in range(int(count)):
             generate_random_player(team, position if pos_name != 'Random' else None)

@@ -45,12 +45,13 @@
 
 .standings-table tbody tr:nth-child(odd),
 .top-players-table tbody tr:nth-child(odd) {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
 .standings-table tbody tr:nth-child(even),
 .top-players-table tbody tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(0, 0, 0, 0.9);
+
 }
 
 .team-name, .player-name {

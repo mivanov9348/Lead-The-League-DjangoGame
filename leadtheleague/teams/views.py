@@ -1,6 +1,11 @@
+import os
+
 from django.shortcuts import render, get_object_or_404, redirect
+from django.templatetags.static import static
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+
+from leadtheleague import settings
 from players.utils.get_player_stats_utils import get_player_data, get_player_season_stats
 from .forms import TeamCreationForm
 from players.models import Player
@@ -217,3 +222,22 @@ def lineup_remove_player(request):
             messages.success(request, f"{player.first_name} {player.last_name} removed from the starting lineup.")
 
         return redirect("teams:line_up")
+
+
+def logos(request):
+    # Изграждане на пътя до директорията 'static/logos'
+    logos_path = os.path.join(settings.BASE_DIR, 'static', 'logos')
+
+    # Проверка дали директорията съществува
+    if not os.path.exists(logos_path):
+        return render(request, 'teams/logos.html', {'error': 'Директорията с логота не съществува.'})
+
+    # Получаване на списък с файлове
+    logo_files = [
+        static(f'logos/{f}') for f in os.listdir(logos_path)
+        if os.path.isfile(os.path.join(logos_path, f))
+    ]
+
+    print(logo_files)
+    # Подаване на логотата към шаблона
+    return render(request, 'team/logos.html', {'logos': logo_files})

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_team, squad, team_stats, line_up, lineup_add_player, lineup_remove_player
+from .views import create_team, squad, team_stats, line_up, lineup_add_player, lineup_remove_player, logos
 
 app_name = 'teams'
 
@@ -10,4 +10,5 @@ urlpatterns = [
     path("lineup/add-player/", lineup_add_player, name="lineup_add_player"),
     path("lineup/remove-player/", lineup_remove_player, name="lineup_remove_player"),
     path('team-stats/', team_stats, name='team_stats'),
+    path('logos/', logos, name='logos')
 ]

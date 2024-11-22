@@ -3,7 +3,7 @@ from django.db import transaction, IntegrityError
 from fixtures.utils import generate_fixtures
 from game.models import Season
 from leagues.models import Division
-from match.utils import generate_matches_for_season
+from match.utils.generate_match_stats_utils import generate_matches_for_season
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from teams.models import Team, TeamSeasonStats
 

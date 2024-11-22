@@ -2,77 +2,83 @@
 
 {% block content %}
 
-{% load static %}
+{% load static custom_filters %}
 <link rel="stylesheet" href="{% static 'css/match_stats.css' %}">
 
 <div class="statistics-board">
     <div class="header">
         <div class="team">
             <img src="https://via.placeholder.com/80" alt="Лого на отбор 1" class="team-logo">
-            <div>{{ match.home_team }}</div>
+            <div>{{ match.home_team.name }}</div>
         </div>
         <div>
-            <div class="time">90:00</div>
-            <div class="score">{{ match.score }}</div>
+            <div class="time">{{ match.match_time }}</div>
+            <div class="score">{{ match.home_goals }} - {{ match.away_goals }}</div>
         </div>
         <div class="team">
             <img src="https://via.placeholder.com/80" alt="Лого на отбор 2" class="team-logo">
-            <div>{{ match.away_team }}</div>
+            <div>{{ match.away_team.name }}</div>
         </div>
     </div>
+
+    <h2>Статистики:</h2>
     <table class="stats-table">
-        <tr>
-            <th></th>
-            <th>Статистики</th>
-            <th></th>
-        </tr>
-        <tr>
-            <td>0</td>
-            <td>Голове</td>
-            <td>0</td>
-        </tr>
-        <tr>
-            <td>7</td>
-            <td>Удари в целта</td>
-            <td>2</td>
-        </tr>
-        <tr>
-            <td>6</td>
-            <td>Общо удари</td>
-            <td>10</td>
-        </tr>
-        <tr>
-            <td>12</td>
-            <td>Нарушения</td>
-            <td>9</td>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>Жълти картони</td>
-            <td>12</td>
-        </tr>
-        <tr>
-            <td>7</td>
-            <td>Влизания</td>
-            <td>1</td>
-        </tr>
-        <tr>
-            <td>5</td>
-            <td>Засади</td>
-            <td>5</td>
-        </tr>
-        <tr>
-            <td>12</td>
-            <td>Корнери</td>
-            <td>4</td>
-        </tr>
-        <tr>
-            <td>47</td>
-            <td>Владение на топката, %</td>
-            <td>53</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>{{ match.home_team.name }}</th>
+                <th>Статистика</th>
+                <th>{{ match.away_team.name }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat_name in all_stats %}
+            <tr>
+                <td>{{ home_team_aggregated_stats|get_key:stat_name }}</td>
+                <td>{{ stat_name }}</td>
+                <td>{{ away_team_aggregated_stats|get_key:stat_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+
+    <div class="players-section">
+        <div class="team-players">
+            <h2>Играчите на {{ match.home_team.name }}:</h2>
+            <ul class="player-list">
+                {% for player in home_team_players %}
+                <li>
+                    <div class="player-info">
+                        <span>{{ player.player.first_name }} {{ player.player.last_name }} (№{{ player.shirt_number }})</span>
+                    </div>
+                    <div class="player-stats">
+                        <span>Голове: {{ player.goals }}</span> |
+                        <span>Асистенции: {{ player.assists }}</span> |
+                        <span>ЖК: {{ player.yellow_cards }}</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="team-players">
+            <h2>Играчите на {{ match.away_team.name }}:</h2>
+            <ul class="player-list">
+                {% for player in away_team_players %}
+                <li>
+                    <div class="player-info">
+                        <span>{{ player.player.first_name }} {{ player.player.last_name }} (№{{ player.shirt_number }})</span>
+                    </div>
+                    <div class="player-stats">
+                        <span>Голове: {{ player.goals }}</span> |
+                        <span>Асистенции: {{ player.assists }}</span> |
+                        <span>ЖК: {{ player.yellow_cards }}</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
-{% load static %}
+
 
 {% endblock %}

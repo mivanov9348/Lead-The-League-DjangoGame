@@ -2,9 +2,10 @@ import random
 from collections import defaultdict
 from django.db import transaction
 from fixtures.utils import update_fixtures
+from game.models import Settings
 from game.utils import update_team_season_stats
 from leagues.models import League, Division
-from match.utils import update_matches
+from match.utils.generate_match_stats_utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils.generate_player_utils import generate_team_players
 from players.utils.get_player_stats_utils import get_player_data
@@ -22,7 +23,8 @@ def generate_random_team_name():
         # Генерираме случайно име и абревиатура
         team_name, team_abbr = random.choice(all_team_info)
         # Проверяваме дали отбор с това име и абревиатура вече съществува
-        if not Team.objects.filter(name=team_name).exists() and not Team.objects.filter(abbreviation=team_abbr).exists():
+        if not Team.objects.filter(name=team_name).exists() and not Team.objects.filter(
+                abbreviation=team_abbr).exists():
             return team_name, team_abbr
 
 
@@ -101,6 +103,8 @@ def replace_dummy_team(new_team):
 
                 return True
     return False
+
+
 def get_team_players_season_data(team):
     # Филтриране на играчите чрез релацията team_players
     players = Player.objects.filter(team_players__team=team)
@@ -181,25 +185,28 @@ def update_team_stats(match):
         division=match.division
     )
 
+    draw_points = Settings.objects.get(name='League_Draw_Points').value
+    win_points = Settings.objects.get(name='League_Win_Points').value
+
     with transaction.atomic():
         home_stats.matches += 1
         away_stats.matches += 1
 
     if home_goals > away_goals:
         home_stats.wins += 1
-        home_stats.points += 3
+        home_stats.points +=  win_points
         away_stats.losses += 1
 
     elif home_goals < away_goals:
         away_stats.wins += 1
-        away_stats.points += 3
+        away_stats.points +=  win_points
         home_stats.losses += 1
 
     else:
         home_stats.draws += 1
         away_stats.draws += 1
-        home_stats.points += 1
-        away_stats.points += 1
+        home_stats.points += draw_points
+        away_stats.points += draw_points
 
     home_stats.goalscored += home_goals
     home_stats.goalconceded += away_goals
@@ -211,7 +218,6 @@ def update_team_stats(match):
 
     home_stats.save()
     away_stats.save()
-
 
 def create_position_template(selected_tactic, starting_players):
     if not selected_tactic:
