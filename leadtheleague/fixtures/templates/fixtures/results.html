@@ -11,7 +11,7 @@
 <div class="filter-container">
     <form method="get">
         <input type="date" id="date" name="date" value="{{ selected_date }}">
-        <button type="submit">Select</button>
+        <button type="submit">Show</button>
     </form>
 </div>
 
@@ -32,7 +32,7 @@
             <div class="status">{{ fixture.status }}</div>
             <div class="home-team">{{ fixture.home_team.name }}</div>
             <div class="score">
-                <a href="">
+                <a class="score-link" href="">
                     {{ fixture.home_goals }} - {{ fixture.away_goals }}
                 </a>
             </div>

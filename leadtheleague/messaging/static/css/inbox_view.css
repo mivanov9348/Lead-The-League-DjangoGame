@@ -1,4 +1,5 @@
 h2 {
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
     margin-top: 0;
 }
 
@@ -6,25 +7,28 @@ h2 {
 .news-page {
     display: flex;
     height: 100vh;
+    border:2px solid darkgreen;
 }
 
 /* Sidebar styles */
 .news-sidebar {
+    background-color: var(--darkgreen-color);
     width: 30%;
-    border-right: 2px solid #ccc;
+    border-right: 2px solid black;
     padding: 20px;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .news-sidebar h2 {
-    font-family:'Mailboy - Font Demo'
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
     font-size: 1.5rem;
     margin-bottom: 15px;
     color: white;
 }
 
 .news-list {
+    background-color: var(--darkgreen-color);
     list-style: none;
     padding: 0;
     margin: 0;
@@ -82,7 +86,7 @@ font-weight: bold;
 .news-detail {
     flex: 1;
     padding: 20px;
-    border-left: 2px solid #ccc;
+    border: 2px solid darkgreen;
 }
 
 .news-detail h2 {
@@ -104,7 +108,6 @@ font-weight: bold;
 
 
 #searchbar
-/* Стилове за търсачката */
 form {
     margin-bottom: 0px;
 }
@@ -116,7 +119,7 @@ form input {
     margin-right: 5px;
     border: 1px solid #ccc;
     border-radius: 6px;
-background-color: rgba(0, 0, 0, 0.7);
+background-color: black;
 color:white;
 
 }

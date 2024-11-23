@@ -1,11 +1,38 @@
 .filter-container{
     text-align:center;
+
 }
+
+.filter-container input[type="date"] {
+    background: white;
+    border:2px solid black;
+    color: var(--green-color);
+    font-weight:500;
+    text-align:center;
+    height:30px;
+}
+
+.filter-container button{
+    background-color: white;
+    border:1px solid black;
+    color:green;
+    font-weight:600;
+    height:30px;
+}
+
+.filter-container button:hover {
+    background-color: black;
+    border:1px solid black;
+    color:green;
+    font-weight:600;
+}
+
+
 .livescore-container {
     width: 70%;
     margin: 10px auto;
     max-width: 1200px;
-    font-family:"Varsity Regular"
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
     color:white;
 }
 
@@ -20,13 +47,14 @@
 }
 
 .navigation-container a:hover {
-    color:red;
+    color: var(--blue-color);
 }
 
 .league {
     margin-bottom: 20px;
     border: 1px solid #333;
     border-radius: 8px;
+    background-color: var(--darkgreen-color);
 }
 
 .league-header {
@@ -34,18 +62,14 @@
     justify-content: center;
     align-items: center;
     padding: 10px;
-    background-color: #444;
+    background-color: var(--green-color);
     border-bottom: 1px solid #333;
-        font-family:"Varsity Regular";
-        color:white;
-
+    color:black;
 }
 
 .league-name {
     font-weight: bold;
     font-size: 16px;
-    font-family:"Varsity Regular"
-
 }
 
 .match {
@@ -71,9 +95,23 @@
     text-align: center;
 }
 
+.score-link{
+    text-decoration:none;
+    color: var(--green-color);
+}
+
+.score-link:hover{
+    color: var(--blue-color);
+}
+
 .toggle-button {
     cursor: pointer;
     text-align: center;
+    color: var(--blue-color);
+}
+
+.toggle-button:hover {
+    color: var(--white-color);
 }
 
 .goalscorers-panel {

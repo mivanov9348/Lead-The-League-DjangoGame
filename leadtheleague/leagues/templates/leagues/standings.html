@@ -33,7 +33,7 @@
         <tr>
             <td>{{ forloop.counter }}</td>
             <td class="team-name">{{ team.team.name }}</td>
-            <td style="font-size:12px; color:red">
+            <td style="font-size:12px; color:green; font-style:italic">
                 {% if team.team.user %}
                 {{ team.team.user.username }}
                 {% else %}
@@ -72,15 +72,17 @@
         {% for player in players %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td class="player-name">{{ player.player.first_name }} {{ player.player.last_name }}</td>
-            <td>{{ player.player.team }}</td>
+            <td class="player-name">{{ player.personal_info.name }}</td>
+            <td>{{ player.team_info.team_name }}</td>
             <td>{{ player.season_stats.matches }}</td>
             <td>{{ player.season_stats.goals }}</td>
-            <td>{{ player.season_stats.assists }}</td>
-            <td class="player-rating">{{ player.season_stats.rating }}</td>
+            <td>{{ player.season_stats.assists}}</td>
+            <td class="player-rating">{{ player.season_stats.rating|floatformat:1 }}</td>
         </tr>
         {% endfor %}
         </tbody>
+
     </table>
+
 </div>
 {% endblock %}

@@ -1,9 +1,9 @@
 <header>
     {% load static %}
     <nav class="navbar secondary-navbar">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'game:home' %}">
-                LeadTheLeague
+                Lead-The-League
             </a>
 
             <div class="d-flex align-items-center">
@@ -109,101 +109,106 @@
     </div>
 </nav>
 
-<style>
-    /* Navbar Styles */
-    .secondary-navbar {
-        background-color: rgba(105, 105, 105, 0.9); /* Черен фон с прозрачност */
-        color: #fff;
-        padding: 5px 0;
-        font-size: 14px;
-        font-family: 'POSTERABLE';
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5);
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1300;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+<style>/* Navbar Styles */
+.secondary-navbar {
+    background-color: rgba(4, 170, 109, 0.9);
+    color: #fff;
+    padding: 5px 0;
+    font-size: 14px;
+    color: black;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom:3px solid rgba(2,193,243,255);
+}
 
-    .custom-navbar {
-    background-color: rgba(0, 0, 0, 0.9); /* Черен фон с прозрачност */
-        padding: 5px;
-        top: 45px;
-        position: fixed;
-        width: 100%;
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+.custom-navbar {
+    background-color: rgba(0, 0, 0, 0.9); /* With rgba and opacity */
+    padding: 5px;
+    top: 50px;
+    position: fixed;
+     z-index: 1100;
 
-    .navbar-brand {
-        font-size: 20px;
-        font-weight: 700;
-        color: #f8f9fa;
-    }
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom:3px solid rgba(4, 170, 109, 1);
+}
 
-    .navbar-toggler {
-        color: #f8f9fa;
-    }
+.navbar-brand {
+    text-align: center;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+    font-size: 20px;
+    font-weight: 700;
+    color: black;
+}
 
-    .navbar-nav .nav-link {
-        color: #ddd;
-        margin: 0 8px;
-        padding: 15px 16px;
-        font-size: 16px;
+.navbar-toggler {
+    color: #f8f9fa;
+}
+
+.navbar-nav .nav-link {
+    color: var(--blue-color);
+    margin: 0 8px;
+    padding: 15px 16px;
+    font-size: 16px;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s, background-color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Dropdown Menu Styles */
+.dropdown-menu {
+    background-color: #333;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
         font-family: 'OLD SPORT 02 ATHLETIC NCV';
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        transition: color 0.3s, background-color 0.3s;
-    }
 
-    .navbar-nav .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #fff;
-    }
+}
 
-    /* Dropdown Menu Styles */
-    .dropdown-menu {
-        background-color: #333;
-        border-radius: 5px;
-        border: none;
-        padding: 10px;
-    }
+.dropdown-item {
+    color: white;
+    padding: 8px 20px;
+    transition: color 0.3s;
+}
 
-    .dropdown-item {
-        color: #fff;
-        padding: 8px 20px;
-        transition: color 0.3s;
-    }
+.dropdown-item:hover {
+    color: var(--blue-color);
+    background-color: #444;
+}
 
-    .dropdown-item:hover {
-        color: #007bff;
-        background-color: #444;
-    }
+/* Profile Icon */
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+}
 
-    /* Profile Icon */
-    .profile-icon {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        cursor: pointer;
-    }
+.chat-btn {
+    color: #fff;
+    background-color: #007bff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
 
-    .chat-btn {
-        color: #fff;
-        background-color: #007bff;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 600;
-        transition: background-color 0.3s;
-    }
-
-    .chat-btn:hover {
-        background-color: #0056b3;
-    }
+.chat-btn:hover {
+    background-color: #0056b3;
+}
 </style>

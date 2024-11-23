@@ -1,5 +1,15 @@
+:root {
+    --white-color: rgba(255, 255, 255, 1);
+    --white-transparent: rgba(255, 255, 255, 0.5);
+    --black-color: #333;
+    --light-grey: #d3d3d3;
+    --blue-color: #02c1f3;
+    --green-color: rgba(4, 170, 109, 1);
+    --darkgreen-color: rgba(0,47,47,255);
+}
+
 body {
-     background-image: url("../images/4.jpg"); /* Проверете дали пътят е правилен */
+     background-image: url("../images/background.jpg"); /* Проверете дали пътят е правилен */
     background-size: cover; /* Разтяга изображението така, че да покрива целия екран */
     background-repeat: no-repeat; /* Предотвратява повторението */
     background-attachment: fixed; /* Запазва фона фиксиран при скролиране */

@@ -1,5 +1,5 @@
 .schedule-container {
-    margin-top: 30px;
+    margin-top: 40px;
 }
 
 .calendar-grid {
@@ -12,9 +12,11 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 15px;
-    background-color: rgba(255, 255, 255, 0.1);
     color:white;
+        font-family: 'OLD SPORT 02 ATHLETIC NCV';
+
     box-shadow: 1px 1px 1px 1px grey;
+    background-color: var(--darkgreen-color)
 }
 
 .calendar-header {
@@ -23,6 +25,7 @@
     margin-bottom: 10px;
     font-weight: bold;
     font-style:ítalic;
+    color:var(--blue-color);
 }
 
 .calendar-matches {
@@ -73,7 +76,7 @@
     color: white;
     font-size:18px;
     font-weight:800;
-    font-family:"Posterable"
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
 }
 
 .match-result {

@@ -32,7 +32,7 @@
             {% if context.has_previous %}
             <a href="?page={{ context.previous_page_number }}">&laquo; Назад</a>
             {% endif %}
-            <span>Page {{ context.number }} от {{ context.paginator.num_pages }}</span>
+
             {% if context.has_next %}
             <a href="?page={{ context.next_page_number }}">Forward &raquo;</a>
             {% endif %}

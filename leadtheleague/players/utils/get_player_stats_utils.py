@@ -1,7 +1,10 @@
 from collections import defaultdict
 
+from django.db.models import Prefetch
+
 from game.utils import get_current_season
 from players.models import PlayerMatchStatistic, Player, PlayerSeasonStatistic
+from teams.models import TeamPlayer
 
 
 def get_personal_player_data(player):
@@ -47,6 +50,46 @@ def get_player_season_stats(player):
     ).select_related('statistic')  # Използваме select_related за по-ефективно извличане на свързаните статистики
 
     return player_stats
+
+
+def get_players_season_stats_by_team(team):
+    """
+    Извлича сезонната статистика за всички играчи от даден отбор за текущия сезон.
+    """
+    season = get_current_season()
+
+    # Вземаме играчи от отбора с предварително заредени статистики
+    team_players = TeamPlayer.objects.filter(team=team).select_related(
+        'player'
+    ).prefetch_related(
+        Prefetch(
+            'player__season_stats',
+            queryset=PlayerSeasonStatistic.objects.filter(season=season).select_related('statistic'),
+            to_attr='season_stats_for_team'
+        )
+    )
+
+    players_stats = []
+
+    for team_player in team_players:
+        player = team_player.player
+        season_stats = player.season_stats_for_team if hasattr(player, 'season_stats_for_team') else []
+
+        players_stats.append({
+            'personal_info': get_personal_player_data(player),
+            'season_stats': [
+                {
+                    'statistic': stat.statistic.name,
+                    'value': stat.value,
+                    'rating': stat.rating
+                } for stat in season_stats
+            ],
+            'team': team.name
+        })
+
+    return players_stats
+
+
 
 
 def get_player_team_info(player):

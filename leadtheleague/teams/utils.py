@@ -105,7 +105,7 @@ def replace_dummy_team(new_team):
     return False
 
 
-def get_team_players_season_data(team):
+def get_team_players_season_stats(team):
     # Филтриране на играчите чрез релацията team_players
     players = Player.objects.filter(team_players__team=team)
     standings_data = []
