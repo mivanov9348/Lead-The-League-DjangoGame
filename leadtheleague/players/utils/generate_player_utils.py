@@ -1,14 +1,11 @@
 import os
 import random
 import shutil
-
 from setuptools import logging
-
 from game.models import Settings
 from players.models import FirstName, LastName, Nationality, Position, Attribute, PlayerAttribute, Player
 from players.utils.update_player_stats_utils import update_player_price
 from teams.models import TeamPlayer
-
 
 def get_player_random_first_and_last_name(region):
     """
@@ -47,30 +44,58 @@ def copy_player_image_to_static(photo_folder, player_id, static_path):
 
     return f'playerimages/{player_id}.png'
 
+def calculate_player_attributes(player):
+    """
+    Изчислява атрибутите на играча въз основа на важността им за позицията, възрастта и случайност, след което ги запазва.
+    """
+    position = player.position
+    age = player.age
+    attributes = {}
 
-# за createplayerutils
+    for pos_attr in position.positionattribute_set.all():
+        # Базова стойност за всеки атрибут
+        base_value = 5
+
+        # Увеличаване според важността
+        importance_factor = pos_attr.importance * 3  # Важност 4 ще даде +12, важност 1 ще даде +3
+        adjusted_value = base_value + importance_factor
+
+        # Възрастов фактор: По-младите играчи имат по-ниски стойности
+        age_factor = max(0.8, min((age - 18) / 10, 1.2))  # Възраст между 18 и 30 има позитивен ефект
+        age_adjusted_value = adjusted_value * age_factor
+
+        # Добавяме случайност
+        random_factor = random.uniform(0.9, 1.1)  # Малка вариация
+        final_value = age_adjusted_value * random_factor
+
+        # Гарантираме, че стойността е в рамките на 1 до 20
+        final_value = min(max(round(final_value), 1), 20)
+
+        attributes[pos_attr.attribute] = final_value
+
+    # Запазване на атрибутите в базата данни
+    PlayerAttribute.objects.bulk_create([
+        PlayerAttribute(player=player, attribute=attr, value=value)
+        for attr, value in attributes.items()
+    ])
+
+    return player  # Връщаме играча
+
 def generate_random_player(team=None, position=None):
     """
-    Генерира произволен играч с произволни атрибути и го добавя в даден отбор (ако е зададен).
+    Генерира произволен играч и го добавя в даден отбор (ако е зададен).
     """
     nationalities = Nationality.objects.all()
     positions = Position.objects.all()
-    attributes = {attr.name: random.randint(1, 20) for attr in Attribute.objects.all()}
     nationality = random.choice(nationalities)
     region = nationality.region
     team_player_numbers = set(TeamPlayer.objects.filter(team=team).values_list('shirt_number', flat=True))
-
     first_name, last_name = get_player_random_first_and_last_name(region)
     if position is None:
         position = random.choice(positions)
 
-    for pos_attr in position.positionattribute_set.all():
-        base_value = attributes.get(pos_attr.attribute.name, 1)
-        boosted_value = min(int(base_value * (1 + (pos_attr.importance - 1) * 0.3)), 20)
-        attributes[pos_attr.attribute.name] = boosted_value
-
+    # Създаване на играча
     age = random.randint(18, 35)
-
     player = Player(
         first_name=first_name,
         last_name=last_name,
@@ -80,16 +105,16 @@ def generate_random_player(team=None, position=None):
     )
     player.save()
 
-    PlayerAttribute.objects.bulk_create([
-        PlayerAttribute(player=player, attribute=Attribute.objects.get(name=attr_name), value=value)
-        for attr_name, value in attributes.items()
-    ])
+    # Изчисляване и записване на атрибутите за играча
+    player = calculate_player_attributes(player)
 
+    # Актуализация на цената
     player.price = update_player_price(player)
     static_path = os.path.join(os.path.dirname(__file__), 'static')
     player.photo = copy_player_image_to_static(photo_folder="E:/Data/playersImages", player_id=player.id,
                                                static_path=static_path)
 
+    # Генериране на уникален номер
     while True:
         random_number = random.randint(1, 99)
         if random_number not in team_player_numbers:
@@ -100,6 +125,7 @@ def generate_random_player(team=None, position=None):
         TeamPlayer.objects.create(player=player, team=team, shirt_number=random_number)
 
     return player
+
 
 def generate_team_players(team):
     """

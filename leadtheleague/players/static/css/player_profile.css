@@ -15,7 +15,8 @@
     border: 3px solid rgba(255, 255, 255, 0.5);
     padding: 20px;
     border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: var(--darkgreen-color);
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
 }
 
 .player-photo img {
@@ -44,13 +45,14 @@
     border: 3px solid rgba(255, 255, 255, 0.5);
     overflow-x: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: rgba(0, 0, 0, 0.5);
-
+    background-color: var(--darkgreen-color);
 }
 
 .player-attributes h2 {
     text-align: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--green-color);
+        font-family: 'OLD SPORT 02 ATHLETIC NCV';
+
 }
 
 .player-stats {
@@ -60,11 +62,16 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 3px solid rgba(255, 255, 255, 0.5);
+     background-color: var(--darkgreen-color);
+    overflow-y: auto;
+
 }
 
 .player-stats h2 {
     text-align: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--green-color);
+            font-family: 'OLD SPORT 02 ATHLETIC NCV';
+
 }
 
 .player-stats table,
@@ -141,8 +148,8 @@ hr {
 }
 
 .attribute-high {
-    background-color: rgba(88, 24, 69, 1);
-    color: rgba(255, 223, 186, 1);
+    background-color: black;
+    color: white;
 }
 
 @media (max-width: 768px) {

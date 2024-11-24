@@ -9,25 +9,26 @@
 
 {% block content %}
 <div class="profile-grid">
+
     <div class="navigation">
         <button onclick="goBack()">Back</button>
-
     </div>
+
     <div class="profile-header">
         <div class="player-photo">
-            <img src="{% static 'playersimages/' %}{{ personal_info.id }}.png" alt="Player Photo">
+            <img src="{% static 'playersimages/' %}{{ player.id }}.png" alt="Player Photo">
         </div>
         <div class="player-info">
             <ul>
-                <li><strong>Name:</strong> {{ personal_info.name }}</li>
-                <li><strong>Pos:</strong> {{ personal_info.position }}</li>
+                <li> {{ player.name }}</li>
+                <li> {{ player.position }}</li>
                 <hr/>
-                <li><strong>Nat:</strong> {{ personal_info.nationality }}</li>
-                <li><strong>Age:</strong> {{ personal_info.age }}</li>
-                <li><strong>Current Team:</strong> {{ team_info.team_name }}</li>
+                <li> {{ player_team }}</li>
+                <li> {{ player.nationality }}</li>
                 {% load humanize %}
                 <hr/>
-                <li><strong>Price:</strong> {{ personal_info.price|intcomma }}</li>
+                <li><strong>Age:</strong> {{ player.age }}</li>
+                <li><strong>Price:</strong> {{ player.price|intcomma }}</li>
             </ul>
         </div>
     </div>
@@ -38,7 +39,7 @@
         <div class="attributes-grid">
             {% for name, value in attributes.items %}
             <div class="attribute
-                {% if value <= 10 %}attribute-low{% elif value <= 15 %}attribute-medium{% else %}attribute-high{% endif %}">
+            {% if value <= 10 %}attribute-low{% elif value <= 15 %}attribute-medium{% else %}attribute-high{% endif %}">
                 {{ name }}: {{ value }}
             </div>
             {% endfor %}
@@ -51,40 +52,25 @@
         <table>
             <thead>
             <tr>
-                <th>Year</th>
                 <th>Season</th>
-                <th title="Goals">G</th>
-                <th title="Assists">A</th>
-                <th title="Yellow Cards">YC</th>
-                <th title="Red Cards">RC</th>
-                <th title="Clean Sheets">CS</th>
-                <th title="Conceded">C</th>
-                <th title="Dribbles">D</th>
-                <th title="Fouls">F</th>
-                <th title="Matches">M</th>
-                <th title="Minutes Played">MP</th>
+                {% for stat_key, official_name in statistic_names.items %}
+                <th>{{ official_name }}</th>
+                {% endfor %}
             </tr>
             </thead>
             <tbody>
-            {% for season in stats.season_stats %}
+            {% for season, stats in season_stats.items %}
             <tr>
-                <td>{{ season.year }}</td>
-                <td>{{ season.season_number }}</td>
-                <td>{{ team_info.team_name }}</td>
-                <td>{{ season.goals }}</td>
-                <td>{{ season.assists }}</td>
-                <td>{{ season.yellow_cards }}</td>
-                <td>{{ season.red_cards }}</td>
-                <td>{{ season.clean_sheets }}</td>
-                <td>{{ season.conceded }}</td>
-                <td>{{ season.dribbles }}</td>
-                <td>{{ season.fouls }}</td>
-                <td>{{ season.matches }}</td>
-                <td>{{ season.minutes_played }}</td>
+                <td>{{ season }}</td>
+                {% for stat_key, official_name in statistic_names.items %}
+                <td>
+                    {{ stats.stat_key|default:'N/A' }}
+                </td>
+                {% endfor %}
             </tr>
             {% empty %}
             <tr>
-                <td colspan="13" class="text-center">Няма статистики налични</td>
+
             </tr>
             {% endfor %}
             </tbody>

@@ -1,8 +1,8 @@
+from django.db.models import Q
 from fixtures.models import Fixture
 from teams.models import Team
 from datetime import timedelta
 import random
-
 
 def generate_fixtures(start_date, division, season, match_time):
     last_fixture = Fixture.objects.order_by('-fixture_number').first()
@@ -87,9 +87,10 @@ def get_division_fixtures(division, round_number):
 
 def get_team_schedule(user_division, user_team):
     upcoming_matches = Fixture.objects.filter(
+        Q(home_team=user_team) | Q(away_team=user_team),
         division=user_division,
         is_finished=False
-    ).order_by('date', 'match_time')[:5]
+    ).order_by('date', 'match_time')
 
     matches = []
     for match in upcoming_matches:

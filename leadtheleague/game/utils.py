@@ -19,7 +19,6 @@ def generate_season_number(year):
     seasons = get_current_season(year)
     return seasons.count() + 1
 
-
 def create_new_season(year, season_number, start_date, match_time):
     try:
         season = Season.objects.get(year=year, season_number=season_number)

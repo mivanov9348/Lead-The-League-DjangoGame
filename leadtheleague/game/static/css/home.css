@@ -19,6 +19,7 @@
 .card {
     @extend .common-card;
     box-shadow: 0 8px 50px rgba(0, 0, 0, 0.9);
+
 }
 
 .card-header {
@@ -75,7 +76,8 @@
     gap: 20px;
 }
 .table-container {
-    height:300px;
+    max-height: 300px; /* Задава максимална височина */
+    overflow-y: auto; /* Добавя вертикален скролбар */
     display: flex;
     justify-content: center;
     background-color: rgba(0,47,47,255);
