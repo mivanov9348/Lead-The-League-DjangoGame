@@ -1,42 +1,41 @@
-@import url('https://fonts.googleapis.com/css?family=Numans');
+:root {
+    --white-color: rgba(255, 255, 255, 1);
+    --white-transparent: rgba(255, 255, 255, 0.5);
+    --black-color: #333;
+    --light-grey: #d3d3d3;
+    --blue-color: #02c1f3;
+    --green-color: rgba(4, 170, 109, 1);
+    --darkgreen-color: rgba(0,47,47,255);
+}
 
 html,body{
-     background-image: url("../images/soccerbackgr.jpg"); /* Проверете дали пътят е правилен */
-background-size: cover;
-background-repeat: no-repeat;
-height: 100%;
-font-family: 'Numans', sans-serif;
+    background-image: url("../images/welcomebackground.jpg"); /* Уверете се, че пътят е правилен */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center -120px; /* Преместване на фона надолу с 100px */
+    height: 100%;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
 }
 
 .mt-4 {
     color: white;
     font-weight:900;
     font-size:50px;
+    margin-top: 100px;
 }
 
 .container{
     height: 100%;
     align-content: center;
-    margin-top:10px;
+
 }
 
 .card{
-    height: 400px;
-    margin-top: 30px;
+    height: max;
     margin-bottom: auto;
-    width: 500px;
-    background-color: rgba(0,0,0,0.7) !important;
-}
-
-.social_icon span{
-font-size: 60px;
-margin-left: 10px;
-color: #FFC312;
-}
-
-.social_icon span:hover{
-color: white;
-cursor: pointer;
+    width: 400px;
+    background-color: var(--darkgreen-color);
+    border:3px solid lightblue;
 }
 
 .card-header h3{
@@ -44,22 +43,12 @@ cursor: pointer;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    color:white;
-}
-
-.social_icon span {
-    font-size: 30px;              /* Adjust icon size if needed */
-    margin-left: 10px;            /* Space between icons */
-    color: #FFC312;
-}
-
-.social_icon span:hover {
-    color: white;                 /* Icon color on hover */
+    color: var(--blue-color);
 }
 
 .input-group-prepend span{
 width: 50px;
-background-color: #FFC312;
+background-color: var(--blue-color);
 color: black;
 border:0 !important;
 }
@@ -84,7 +73,7 @@ margin-right: 5px;
 
 .login_btn{
 color: black;
-background-color: #FFC312;
+background-color: var(--blue-color);
 width: 100px;
 }
 
@@ -102,12 +91,20 @@ margin-left: 4px;
 }
 
 .card-footer {
-    background-color: rgba(0,0,0,0.5) !important;
-
+    background-color:var(--darkgreen-color);
     padding: 15px;
-    border-top: 1px solid #dee2e6;
+    border-top: 3px solid #dee2e6;
 }
 
 .card-title{
-justify-content:    center;
+    justify-content: center;
 }
+
+hr{
+    width:500px;
+    text-align:center;
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 3px solid lightblue;
+  }

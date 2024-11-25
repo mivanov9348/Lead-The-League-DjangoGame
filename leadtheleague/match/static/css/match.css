@@ -1,194 +1,106 @@
-input,
-button,
-select,
-textarea {
-  font: inherit;
+.match-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    color: var(--white-color);
 }
 
-img {
-  display: block;
+/* Картата на мача */
+.match-header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--darkgreen-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: var(--white-color);
 }
 
-strong {
-  font-weight: 600;
-}
-
-.match {
-  background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-  display: flex;
-  flex-direction: column;
-  min-width: 600px;
-  border-radius: 10px;
-  box-shadow: 2px 2px 2px 2px gray;
-}
-
-.match-header {
-  justify-content: center;
-  border-bottom: 2px solid rgba(48, 48, 48, 0.1);
-  padding: 5px;
-}
-
-.match-tournament {
-  display: flex;
-  align-items: center;
-  font-weight: 600;
-  justify-content: center;
-}
-
-.match-actions {
-  display: flex;
-  margin-left: auto;
-}
-
-.match-content {
-  display: flex;
-  position: relative;
-  height:100px;
-  margin-top:20px;
-}
-
-.column {
-  padding: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(100% / 3);
-}
-
-.team {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+.team-info {
+    text-align: center;
+    flex: 1;
 }
 
 .team-logo {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: #fff;
-  box-shadow: 0 4px 4px 0 rgba(48, 48, 48, 0.15), 0 0 0 15px #f3f5f9;
-}
-.team-logo img {
-  width: 50px;
-}
-
-.team-name {
-  text-align: center;
-  margin-top: 24px;
-  font-size: 20px;
-  font-weight: 600;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
 }
 
 .match-details {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.match-date {
-  font-size: 12px;
-  color: #8a8f98;
-}
-
-.match-date strong {
-  color: #1c2a38;
+    flex: 1;
+    text-align: center;
 }
 
 .match-score {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
 }
 
-.match-score-number {
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 1;
-}
-.match-score-number--leading {
-  color: #623ce6;
+.match-minute {
+    font-size: 1rem;
+    color: lightgray;
 }
 
-.match-score-divider {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1;
-  color: #dbdade;
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.match-time-lapsed {
-  color: #df9443;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 5px;
-}
-
-.lineup {
-  display: flex;
-  padding: 10px;
-  margin-top: 10px;
-  background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-  border-radius: 10px;
-  box-shadow: 2px 2px 2px 2px gray;
-  gap:10px;
-}
-
-.table-left {
-  width: 50%;
-  background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-  border-radius: 8px;
-  box-shadow: 2px 2px 2px 2px grey;
-  margin-top:2px;
-}
-
-.table-right {
-  width: 50%;
-  background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-  border-radius: 8px;
-  box-shadow: 2px 2px 2px 2px grey;
-  margin-top:1px;
-}
-
-.table-center {
+/* Основно тяло */
+.match-body {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.team-box {
+    flex: 1;
+    background-color: var(--darkgreen-color);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.team-box h3 {
     text-align: center;
-    margin-top:10px;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
 }
 
-.event-text {
-  width: 50%;
-  height:400px;
-  background: linear-gradient(to right, #f2f2f2, #d9d9d9);
-  border-radius: 8px;
-  padding: 18px;
-  box-shadow: 2px 2px 2px 2px grey;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-    overflow-y: auto; /* Добавя вертикален скролбар, ако е необходимо */
+.team-box table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-.table table {
-  width: 100%;
-  border-collapse: collapse;
+.team-box th, .team-box td {
+    padding: 10px;
+    border: 1px solid var(--white-color);
+    text-align: left;
+    color: var(--white-color);
 }
 
-.table table th, .table table td {
-  border: 1px solid #ccc;
-  text-align: center;
+.team-box th {
+    background-color: var(--darkgreen-color);
+    font-weight: bold;
 }
 
-.table table th.player-name,
-.table table td.player-name {
-    width: 200px; /* Увеличете стойността според нуждата */
+/* Събития на живо */
+.live-event {
+    flex: 1.5;
+    background-color: #1a4314; /* малко по-тъмно зелено */
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: var(--white-color);
+}
+
+.live-event h3 {
     text-align: center;
-    padding-left: 8px; /* За по-добро подравняване */
+    margin-bottom: 15px;
+    font-size: 1.5rem;
 }
 
+.live-event p {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}

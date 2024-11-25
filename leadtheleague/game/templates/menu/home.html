@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
@@ -10,49 +9,44 @@
     <!-- Първи ред: Следващ мач -->
     <div class="row team-next-match">
         <!-- Информация за отбора -->
-        <div class="col-md-6">
-            <div class="card team-info h-100">
-                <div class="card-header">Team Overview</div>
-                <div class="card-body">
-                    <div class="team-details">
+        <div class="col-12">
+            <div class="card next-match-card">
+                <!-- Заглавие -->
+                <div class="card-header text-center text-uppercase fw-bold">
+                    Next Match
+                </div>
+                <!-- Основно съдържание -->
+                <div class="card-body match-details">
+                    <!-- Моят отбор -->
+                    <div class="team-info text-center">
                         <div class="team-logo">
-                            <img src="{% static 'logos/Bat.jpg' %}" alt="{{ team.name }} Logo"
-                                 class="team-logo-icon rounded-border">
+                            <img src="{% static 'logos/Cowboy.jpg' %}" alt="My Team Logo">
                         </div>
-                        <div class="team-detail">
-                            <span class="detail-value highlight">{{ user_team }}</span>
-                        </div>
-                        <div class="team-detail">
-                            <span class="detail-value highlight">{{ user_team.division }}</span>
-                        </div>
-                        <div class="team-detail">
-                            <span class="detail-value highlight">{{ user_team.points }}</span>
-                        </div>
+                        <p class="highlight">{{ next_match.home_team }}</p>
                     </div>
+                    <!-- VS и детайли за мача -->
+                    <div class="match-info text-center">
+                        <p> {{ next_match.division }}</p>
+                        <p> {{ next_match.match_date }} {{ next_match.match_time }} </p>
+                    </div>
+                    <!-- Опонент -->
+                    <div class="opponent-info text-center">
+                        <div class="team-logo">
+                            <img src="{% static 'logos/Bull.jpg' %}" alt="Opponent Logo">
+                        </div>
+                        <p class="highlight">{{ next_match.away_team }}</p>
+                    </div>
+                </div>
+                <!-- Бутон за To Match -->
+                <div class="match-button text-center">
+                    <a href="{% url 'match:user_match' %}" class="btn btn-primary">
+                        To Match
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Следващ мач -->
-        <div class="col-md-6">
-            <div class="card highlighted-card poster-card h-100">
-                <a href="{% url 'match:user_match' %}" class="card-header" style="text-decoration: none;">Next Match</a>
-                <div class="card-body poster-body">
-                    <div class="match-details">
-                        <div class="match-info">
-                            <p><strong>Opponent:</strong> <span class="highlight">{{ next_match.opponent }}</span></p>
-                            <p class="highlight">{{ next_match.division }}</p>
-                            <p><strong>Date:</strong> <span class="highlight">{{ next_match.match_date }}</span></p>
-                            <p><strong>Time:</strong> <span class="highlight">{{ next_match.match_time }}</span></p>
-                        </div>
-                        <div class="opponent-info">
-                            <img src="{% static 'logos/Bull.jpg' %}" alt="Opponent Icon"
-                                 class="opponent-icon rounded-border">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         <!-- Втори ред: Статистики и класации -->
         <div class="row mt-4">
             <div class="col-md-4">
@@ -89,35 +83,27 @@
                     <div class="card-header">Top Players</div>
                     <div class="card-body table-container">
                         <table class="table table-sm">
-                            <tbody>
-                            {% for player in players %}
+                            <thead>
                             <tr>
-                                <td>{{ player.personal_info.name }}</td>
-                                <td>
-                                    {% for stat in player.season_stats %}
-                                    {% if stat.statistic == 'goals' %}
-                                    {{ stat.value }}
-                                    {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for stat in player.season_stats %}
-                                    {% if stat.statistic == 'assists' %}
-                                    {{ stat.value }}
-                                    {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for stat in player.season_stats %}
-                                    {% if stat.statistic == 'rating' %}
-                                    {{ stat.value }}
-                                    {% endif %}
-                                    {% endfor %}
-                                </td>
+                                <th>Player Name</th>
+                                <th>Goals</th>
+                                <th>Assists</th>
+                                <th>Rating</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for player_id, player_data in players.items %}
+                            <tr>
+                                <td>{{ player_data.personal_info.name }}</td>
+                                <td>{{ player_data.season_stats.goals.value}}</td>
+                                <td>{{ player_data.season_stats.assists.value}}</td>
+                                <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>
                         </table>
+
+
                     </div>
                 </div>
             </div>

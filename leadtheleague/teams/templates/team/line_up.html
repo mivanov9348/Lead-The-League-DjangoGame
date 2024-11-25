@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}Select Your Line-Up{% endblock %}
 
 {% block extra_css %}
@@ -9,17 +8,21 @@
 
 {% block content %}
 
-<div>
-    {% if messages %}
+<div class="messages-container">
     <ul>
+        {% if messages %}
         {% for message in messages %}
         <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
         {% endfor %}
+        {% else %}
+        <li>You Need To Have 11 Starting Players! </li>
+        {% endif %}
     </ul>
-    {% endif %}
+
 </div>
 
 <div class="parent-container" style="display: flex;">
+
     <div class="lineup-section">
         <h3>Starting 11</h3>
         <div class="lineup-positions">
@@ -40,7 +43,7 @@
         </div>
     </div>
 
-    <div class="players-section" >
+    <div class="players-section">
         <h3>Available Players</h3>
         <table class="players-table">
             <thead>

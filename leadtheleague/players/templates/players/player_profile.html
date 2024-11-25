@@ -16,14 +16,14 @@
 
     <div class="profile-header">
         <div class="player-photo">
-            <img src="{% static 'playersimages/' %}{{ player.id }}.png" alt="Player Photo">
+            <img src="{% static 'playerimages/' %}{{ player.id }}.png" alt="Player Photo">
         </div>
         <div class="player-info">
             <ul>
                 <li> {{ player.name }}</li>
                 <li> {{ player.position }}</li>
                 <hr/>
-                <li> {{ player_team }}</li>
+                <li> {{ player_team.team_name }}</li>
                 <li> {{ player.nationality }}</li>
                 {% load humanize %}
                 <hr/>
@@ -53,29 +53,54 @@
             <thead>
             <tr>
                 <th>Season</th>
-                {% for stat_key, official_name in statistic_names.items %}
-                <th>{{ official_name }}</th>
-                {% endfor %}
+                <th>Matches</th>
+                <th>Goals</th>
+                <th>Assists</th>
+                <th>Shoots</th>
+                <th>Shoots on Target</th>
+                <th>Passes</th>
+                <th>Dribbles</th>
+                <th>Tackles</th>
+                <th>Fouls</th>
+                <th>Yellow Cards</th>
+                <th>Red Cards</th>
+                <th>Clean Sheets</th>
+                <th>Conceded</th>
+                <th>Saves</th>
+                <th>Minutes Played</th>
             </tr>
             </thead>
             <tbody>
-            {% for season, stats in season_stats.items %}
+            {% for stat in season_stats %}
             <tr>
-                <td>{{ season }}</td>
-                {% for stat_key, official_name in statistic_names.items %}
-                <td>
-                    {{ stats.stat_key|default:'N/A' }}
-                </td>
-                {% endfor %}
-            </tr>
-            {% empty %}
-            <tr>
-
+                <td>{{ stat.season }}</td>
+                <td>{{ stat.matches }}</td>
+                <td>{{ stat.goals }}</td>
+                <td>{{ stat.assists }}</td>
+                <td>{{ stat.shoots }}</td>
+                <td>{{ stat.shootsOnTarget }}</td>
+                <td>{{ stat.passes }}</td>
+                <td>{{ stat.dribbles }}</td>
+                <td>{{ stat.tackles }}</td>
+                <td>{{ stat.fouls }}</td>
+                <td>{{ stat.yellowCards }}</td>
+                <td>{{ stat.redCards }}</td>
+                <td>{{ stat.cleanSheets }}</td>
+                <td>{{ stat.conceded }}</td>
+                <td>{{ stat.saves }}</td>
+                <td>{{ stat.minutesPlayed }}</td>
             </tr>
             {% endfor %}
+            {% if not season_stats %}
+            <tr>
+                <td colspan="16">No statistics available.</td>
+            </tr>
+            {% endif %}
             </tbody>
         </table>
     </div>
+
+
 </div>
 <script>
     function goBack() {

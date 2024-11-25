@@ -1,14 +1,16 @@
 import os
 
+from django.db.models import Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 from django.templatetags.static import static
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 
 from leadtheleague import settings
-from players.utils.get_player_stats_utils import get_player_data, get_player_season_stats
+from players.utils.get_player_stats_utils import get_player_data, get_player_season_stats, get_personal_player_data, \
+    get_player_attributes
 from .forms import TeamCreationForm
-from players.models import Player
+from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
 from django.contrib.auth.decorators import login_required
 from .utils import replace_dummy_team, create_team_performance_chart, \
@@ -46,28 +48,35 @@ def squad(request):
     # Вземаме отбора на текущия потребител
     team = get_object_or_404(Team, user=request.user)
 
-    # Вземаме всички играчи на отбора
-    team_players = TeamPlayer.objects.filter(team=team).select_related('player')
+    # Вземаме всички играчи на отбора с техните статистики и други свързани обекти наведнъж
+    team_players = TeamPlayer.objects.filter(team=team).select_related('player').prefetch_related(
+        Prefetch('player__season_stats', queryset=PlayerSeasonStatistic.objects.select_related('statistic')),
+        Prefetch('player__playerattribute_set', queryset=PlayerAttribute.objects.select_related('attribute'))
+    )
 
     # Извличаме данни за всеки играч
     players_data = []
     for team_player in team_players:
         player = team_player.player
-        player_data = get_player_data(player)  # Взима цялата информация за играча
-        player_data['team_info'] = {
-            'shirt_number': team_player.shirt_number  # Номер на фланелката
-        }
+        # Вземаме персоналната информация за играча
+        personal_info = get_personal_player_data(player)
+        personal_info['shirt_number'] = team_player.shirt_number  # Добавяме номера на фланелката
 
-        # Вземаме статистиките на играча за конкретния сезон (например сезон 2024)
+        # Вземаме атрибутите на играча
+        attributes = get_player_attributes(player)
+
+        # Вземаме сезонните статистики за играча
         player_stats = get_player_season_stats(player)
 
-        # Преобразуваме статистиките в речник, който ще бъде добавен към player_data
-        player_stats_dict = {}
-        for stat in player_stats:
-            player_stats_dict[stat.statistic.name] = stat.value
+        # Преобразуваме статистиките в подходящ формат за предоставяне на front-end
+        player_stats_dict = {stat_name: details['value'] for stat_name, details in player_stats.items()}
 
-        # Добавяме статистиките в данните на играча
-        player_data['stats'] = player_stats_dict
+        # Събираме всички данни за играча
+        player_data = {
+            'personal_info': personal_info,
+            'attributes': attributes,
+            'stats': player_stats_dict
+        }
         players_data.append(player_data)
 
     print(players_data)
@@ -77,8 +86,10 @@ def squad(request):
         'team': team,
         'players_data': players_data
     }
-
     return render(request, 'team/squad.html', context)
+
+
+
 
 
 def team_stats(request):
@@ -96,11 +107,17 @@ def team_stats(request):
     return render(request, 'team/team_stats.html', context)
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
+
 @login_required
 @csrf_exempt
 def line_up(request):
     try:
-        team = request.user.team
+        team = get_object_or_404(Team, user=request.user)
     except AttributeError:
         return redirect("error_page")
 
@@ -111,19 +128,19 @@ def line_up(request):
     if request.method == "GET" and "tactic_id" in request.GET:
         tactic_id = request.GET.get("tactic_id")
         selected_tactic = Tactics.objects.filter(id=tactic_id).first()
-
         if selected_tactic:
             if team_tactics:
                 team_tactics.starting_players.clear()
             team_tactics.tactic = selected_tactic
             team_tactics.save()
 
-    if not selected_tactic:
+    if selected_tactic is None:
         selected_tactic = team_tactics.tactic
 
     starting_players = team_tactics.starting_players.all() if team_tactics else []
-    reserve_players = Player.objects.filter(team=team).exclude(id__in=[player.id for player in starting_players])
-
+    reserve_players = Player.objects.filter(
+        id__in=TeamPlayer.objects.filter(team=team).values_list('player', flat=True)).exclude(
+        id__in=[player.id for player in starting_players])
     position_template = create_position_template(selected_tactic, starting_players)
 
     context = {
@@ -136,6 +153,8 @@ def line_up(request):
     }
 
     return render(request, "team/line_up.html", context)
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
 
 
 def lineup_add_player(request):
@@ -148,9 +167,9 @@ def lineup_add_player(request):
         # Намери играча
         player = get_object_or_404(Player, id=player_id)
 
-        # Намери отбора на логнатия потребител
         try:
-            team = request.user.team
+            # Намери отбора на логнатия потребител
+            team = get_object_or_404(Team, user=request.user)
         except AttributeError:
             messages.error(request, "You do not have a team.")
             return redirect("teams:line_up")
@@ -175,22 +194,18 @@ def lineup_add_player(request):
         }
 
         # Проверява дали добавянето на играча ще надвиши лимита
-        if player.position.name == "Goalkeeper" and position_counts[
-            "goalkeeper"] >= tactic.num_goalkeepers:
+        if player.position.name == "Goalkeeper" and position_counts["goalkeeper"] >= tactic.num_goalkeepers:
             messages.error(request, "You cannot add more goalkeepers to the starting lineup.")
         elif player.position.name == "Defender" and position_counts["defender"] >= tactic.num_defenders:
             messages.error(request, "You cannot add more defenders to the starting lineup.")
-        elif player.position.name == "Midfielder" and position_counts[
-            "midfielder"] >= tactic.num_midfielders:
+        elif player.position.name == "Midfielder" and position_counts["midfielder"] >= tactic.num_midfielders:
             messages.error(request, "You cannot add more midfielders to the starting lineup.")
         elif player.position.name == "Attacker" and position_counts["attacker"] >= tactic.num_attackers:
             messages.error(request, "You cannot add more forwards to the starting lineup.")
         else:
             # Добави играча в стартовия състав
             team_tactics.starting_players.add(player)
-            player.save()
             messages.success(request, f"{player.first_name} {player.last_name} added to the starting lineup.")
-
         return redirect("teams:line_up")
 
 
@@ -206,7 +221,7 @@ def lineup_remove_player(request):
 
         # Намери отбора на логнатия потребител
         try:
-            team = request.user.team
+            team = get_object_or_404(Team, user=request.user)
         except AttributeError:
             messages.error(request, "You do not have a team.")
             return redirect("teams:line_up")

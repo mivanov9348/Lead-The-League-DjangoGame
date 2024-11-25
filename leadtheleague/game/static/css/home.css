@@ -1,89 +1,169 @@
-
+/* Общи стилове */
+.border-common {
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+.rounded-common {
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+.box-shadow-common {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+.padding-common {
+    padding: 10px;
+}
 .transparent-border {
     border: 2px solid var(--white-transparent);
 }
-
 .common-card {
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     padding: 15px;
     color: var(--white-color);
+    @extend .box-shadow-common;
 }
-
 .main-content {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
+/* Основни стилове за картата */
 .card {
     @extend .common-card;
+    @extend .padding-common;
     box-shadow: 0 8px 50px rgba(0, 0, 0, 0.9);
-
 }
-
 .card-header {
     background-color: var(--green-color);
     color: black;
-    font-size: 18px;
+    font-size: 1.5rem;
     text-align: center;
-    padding: 10px;
-    border-bottom: 3px solid rgba(2,193,243,255);
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+    padding: 15px;
+    border-bottom: 3px solid #02c1f3;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
 }
-
 .card-body {
-    background-color:var(--darkgreen-color);
-}
-}
-.team-info-card,
-.next-match-card {
-     border: 2px solid rgba(255, 255, 255, 0.8);
-     background-color: var(--darkgreen-color);
+    background-color: var(--darkgreen-color);
 }
 
-.team-logo img,
-.opponent-icon {
-    width: 60px;
-    height: 60px;
+/* Стилове за картата на следващия мач */
+.next-match-card {
+    color: var(--blue-color);
+    border-radius: 10px;
+    padding: 10px;
+    background-color: var(--darkgreen-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
+
+}
+
+/* Детайли за мача */
+.match-details {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px 0;
+    gap: 30px;
+}
+
+.team-info,
+.opponent-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 30%;
+}
+
+.team-logo img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.match-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Центрира съдържанието вертикално */
+    gap: 10px;
+    text-align: center;
+    width: 40%;
+    height: 150px; /* Фиксирана височина за по-добър външен вид */
+    margin: 0 auto; /* Центрира блокът хоризонтално */
+    background-color: var(--green-color); /* Примерен цвят за фонове */
+    border: 3px solid var(--black-color); /* Граница на постера */
+    border-radius: 15px; /* Заоблени ъгли на постера */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Лек сенчест ефект */
 }
 
 .match-info p {
-    font-size: 1.1em;
-    font-weight: 500;
-    margin: 5px 0;
+    font-size: 1.3rem;
     color: var(--white-color);
+    margin: 5px 0;
 }
 
-.match-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
+.btn-primary {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    background-color: #007bff;
+    border: none;
+    color: #ffffff;
+    border-radius: 5px;
 }
 
-.poster-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
 }
 
-.stats-row,
-.news-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
+/* Хайлайтване на текст */
+.highlight {
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
 }
+
+/* Стилове за иконата на противника */
+.opponent-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+    padding: 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Общи стилове за всички карти */
+.match-button {
+    padding: 5px;
+}
+
+a.card-header {
+    background-color: var(--green-color)
+    transition: all 0.3s ease;
+}
+
+a.card-header:hover {
+    background-color: var(--green-color)
+    color: #fff;
+}
+
 .table-container {
-    max-height: 300px; /* Задава максимална височина */
-    overflow-y: auto; /* Добавя вертикален скролбар */
+    max-height: 300px;
+    overflow-y: auto;
     display: flex;
     justify-content: center;
     background-color: rgba(0,47,47,255);
-    overflow-x: auto; /* Добавен слайдер при надвишаване на дължината */
+    overflow-x: auto;
 }
-
 
 .table {
     width: 100%;
@@ -92,12 +172,14 @@
     border-collapse: collapse;
 }
 
+/* Стилове за таблици и подробности за отбора */
 .team-info .card {
     @extend .common-card;
     background-color: rgba(0,47,47,255);
     color: black;
-    border: 2px solid rgba(255, 255, 255, 0.8);
+    @extend .border-common;
 }
+
 
 .team-details {
     display: flex;
@@ -114,7 +196,6 @@
 }
 
 .detail-label {
-    font-weight: bold;
     flex: 1;
     text-align: right;
     padding-right: 10px;
@@ -134,58 +215,20 @@
 }
 
 .team-logo img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.8);
+    width: 120px;
+    height: 120px;
+    @extend .rounded-common;
 }
 
-.team-logo img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-}
-.detail-value {
-.detail-value {
-    flex: 2;
-    text-align: left;
-    padding-left: 10px;
-    font-style: italic;
+.btn-primary {
+    border:2px solid black;
+    background-color: var(--green-color);
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
 }
 
-/* Нови класове */
-.rounded-border {
-    border-radius: 50%; /* Овални ръбове */
-}
-
-.highlight {
-    text-align:center;
-    color: white; /* Цветът за изпъкване (highlight) */
-    font-size: 1.2em; /* По-голям шрифт */
-}
-
-/* Съществуващи класове - промяна */
-.opponent-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%; /* Овални (rounded) ръбове */
-    border: 2px solid rgba(255, 255, 255, 0.8);
-}
-
-.match-info p {
-    font-size: 1.1em;
-    font-weight: 500;
-    margin: 5px 0;
-    color: var(--white-color);
-}
-
-/* Нови класове */
-.rounded-border {
-    border-radius: 50%; /* Овални ръбове */
-}
-
-.highlight {
-    color: white; /* Цветът за изпъкване (highlight) */
-    font-size: 1.2em; /* По-голям шрифт */
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
 }

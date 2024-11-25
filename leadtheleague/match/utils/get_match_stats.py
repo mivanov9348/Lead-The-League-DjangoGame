@@ -1,8 +1,7 @@
-import datetime
+from datetime import datetime, time, timedelta
+from django.utils import timezone
 from random import random
 from django.db.models import Q
-from django.utils import timezone
-
 from match.models import Match, Event, AttributeEventWeight, EventResult, EventTemplate
 from match.utils.processing_match_utils import choose_event_random_player
 from teams.models import Team

@@ -2,9 +2,6 @@ import os
 from pathlib import Path
 from huey import RedisHuey
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 BASE_DIR = Path(__file__).resolve().parent
 
 STATIC_URL = '/static/'

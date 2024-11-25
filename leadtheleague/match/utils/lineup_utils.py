@@ -2,7 +2,6 @@ from players.models import Player
 from players.utils.get_player_stats_utils import get_player_match_stats
 from teams.models import TeamTactics
 
-
 def get_starting_lineup(team):
     try:
         team_tactics = TeamTactics.objects.select_related('team').get(team=team)
@@ -13,10 +12,16 @@ def get_starting_lineup(team):
 
 
 def get_lineup_data(players, match):
-    return [
-        {
-            'player': player,
-            'stats': get_player_match_stats(player, match)
-        }
-        for player in players
-    ]
+    lineup_data = []
+    for player in players:
+        stats = get_player_match_stats(player, match)  # Получава речник с всички статистики
+        lineup_data.append({
+            'id': player.id,
+            'name': player.name,
+            'goals': stats.get('goals', 0),
+            'assists': stats.get('assists', 0),
+            'minutesPlayed': stats.get('minutesPlayed', 0),
+            # Добавете каквито други статистики ви трябват
+        })
+    return lineup_data
+

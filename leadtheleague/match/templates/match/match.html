@@ -6,24 +6,78 @@
 <link rel="stylesheet" href="{% static 'css/match.css' %}">
 
 <div class="match-container">
-    <div class="match-header">
-        <h1>{{ match.home_team }} {{ match.score }} {{ match.away_team }}</h1>
-        <a href="{% url 'match_stats' id=match.id %}" class="match-link">Виж статистика на мача</a>
-    </div>
-
-    <div class="match-stats">
-        <div class="stat">
-            <h2>Голмайстори</h2>
-            {% for scorer in match.stats.Голмайстори %}
-            <p>{{ scorer.player }} ({{ scorer.team }}) - {{ scorer.goals }} гол</p>
-            {% endfor %}
+    <!-- Header карта за мача -->
+    <div class="match-header-card">
+        <div class="team-info">
+            <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team }} logo" class="team-logo">
+            <div class="team-name">{{ match.home_team }}</div>
         </div>
-        <!-- Добавете допълнителни статистики тук -->
+        <div class="match-details">
+            <div class="match-score">{{ match.score }} 0:0</div>
+            <div class="match-minute">{{ match.minute }} 3'</div>
+        </div>
+        <div class="team-info">
+            <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team }} logo" class="team-logo">
+            <div class="team-name">{{ match.away_team }}</div>
+        </div>
+    </div>
+
+    <!-- Основно тяло на страницата -->
+    <div class="match-body">
+        <!-- Домакин отбор -->
+        <div class="team-box home-team">
+            <h3>Играчите на {{ match.home_team }}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Играч</th>
+                        <th>Статистика</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in home_lineup %}
+                    <tr>
+                        <td>{{ player.name }}</td>
+                        <td>{{ player.stats }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Събития на живо -->
+        <div class="live-event">
+            <h3>Събития на живо</h3>
+            {% if events %}
+                {% for event in events %}
+                <p><strong>{{ event.minute }}':</strong> {{ event.description }}</p>
+                {% endfor %}
+            {% else %}
+                <p>Няма събития към момента.</p>
+            {% endif %}
+        </div>
+
+        <!-- Гостуващ отбор -->
+        <div class="team-box away-team">
+            <h3>Играчите на {{ match.away_team }}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Играч</th>
+                        <th>Статистика</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in away_lineup %}
+                    <tr>
+                        <td>{{ player.name }}</td>
+                        <td>{{ player.stats }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-</div>
-
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/match.css' %}">
 
 {% endblock %}

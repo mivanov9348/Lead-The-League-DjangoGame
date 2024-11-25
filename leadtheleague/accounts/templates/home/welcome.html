@@ -14,11 +14,11 @@
 <body>
 <div class="container">
     <h1 class="text-center mt-4">Lead The League</h1> <!-- Header title added here -->
-    <hr />
+    <hr/>
     <div class="d-flex justify-content-center h-100">
         <div class="card">
             <div class="card-header">
-                <h3 id="card-title">Sign in</h3>
+                <h3 class="card-title">Sign in</h3>
                 <div class="d-flex justify-content-end social_icon">
                     <span><i class="fab fa-facebook-square"></i></span>
                     <span><i class="fab fa-google-plus-square"></i></span>
@@ -87,7 +87,8 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-key"></i></span>
                         </div>
-                        <input type="password" name="password2" class="form-control" placeholder="Confirm Password" required>
+                        <input type="password" name="password2" class="form-control" placeholder="Confirm Password"
+                               required>
                     </div>
                     <div class="form-group">
                         <input type="submit" value="Sign Up" class="btn float-right login_btn">
@@ -116,25 +117,25 @@
 </div>
 
 <script>
-function showSignup() {
-    document.getElementById("login-form").classList.add("d-none");
-    document.getElementById("signup-form").classList.remove("d-none");
-    document.getElementById("toggle-login").classList.add("d-none");
-    document.getElementById("toggle-signup").classList.remove("d-none");
+    function showSignup() {
+        document.getElementById("login-form").classList.add("d-none");
+        document.getElementById("signup-form").classList.remove("d-none");
+        document.getElementById("toggle-login").classList.add("d-none");
+        document.getElementById("toggle-signup").classList.remove("d-none");
 
-    // Change the title to "Sign Up"
-    document.getElementById("card-title").textContent = "Sign Up";
-}
+        // Change the title to "Sign Up"
+        document.getElementById("card-title").textContent = "Sign Up";
+    }
 
-function showLogin() {
-    document.getElementById("signup-form").classList.add("d-none");
-    document.getElementById("login-form").classList.remove("d-none");
-    document.getElementById("toggle-signup").classList.add("d-none");
-    document.getElementById("toggle-login").classList.remove("d-none");
+    function showLogin() {
+        document.getElementById("signup-form").classList.add("d-none");
+        document.getElementById("login-form").classList.remove("d-none");
+        document.getElementById("toggle-signup").classList.add("d-none");
+        document.getElementById("toggle-login").classList.remove("d-none");
 
-    // Change the title back to "Lead The League"
-    document.getElementById("card-title").textContent = "Sign In";
-}
+        // Change the title back to "Lead The League"
+        document.getElementById("card-title").textContent = "Sign In";
+    }
 </script>
 
 </body>
