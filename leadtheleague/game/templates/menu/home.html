@@ -20,9 +20,13 @@
                     <!-- Моят отбор -->
                     <div class="team-info text-center">
                         <div class="team-logo">
-                            <img src="{% static 'logos/Cowboy.jpg' %}" alt="My Team Logo">
+                            {% if next_match.home_team.logo %}
+                            <img src="{{ next_match.home_team.logo.url }}" alt="{{ next_match.home_team.name }} Logo">
+                            {% else %}
+                            <p>No logo available</p>
+                            {% endif %}
                         </div>
-                        <p class="highlight">{{ next_match.home_team }}</p>
+                        <p class="highlight">{{ next_match.home_team.name }}</p>
                     </div>
                     <!-- VS и детайли за мача -->
                     <div class="match-info text-center">
@@ -32,9 +36,13 @@
                     <!-- Опонент -->
                     <div class="opponent-info text-center">
                         <div class="team-logo">
-                            <img src="{% static 'logos/Bull.jpg' %}" alt="Opponent Logo">
+                            {% if next_match.away_team.logo %}
+                            <img src="{{ next_match.away_team.logo.url }}" alt="{{ next_match.away_team.name }} Logo">
+                            {% else %}
+                            <p>No logo available</p>
+                            {% endif %}
                         </div>
-                        <p class="highlight">{{ next_match.away_team }}</p>
+                        <p class="highlight">{{ next_match.away_team.name }}</p>
                     </div>
                 </div>
                 <!-- Бутон за To Match -->
@@ -67,7 +75,7 @@
                             {% for team in standings %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td><img src="{% static 'logos/Bull.jpg' %}" style="width:40px; border-radius: 50%;"/>
+                                <td><img src="{{ team.team.logo }}" style="width:40px; border-radius: 50%;"/>
                                 </td>
                                 <td>{{ team.team.name }}</td>
                                 <td>{{ team.points }}</td>
@@ -149,3 +157,4 @@
         </div>
     </div>
     {% endblock %}
+</div>

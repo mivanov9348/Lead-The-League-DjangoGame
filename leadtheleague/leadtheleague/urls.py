@@ -1,6 +1,8 @@
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import welcome_page
+from leadtheleague import settings
 
 urlpatterns = [
 
@@ -14,4 +16,8 @@ urlpatterns = [
     path('fixtures/', include('fixtures.urls', namespace='fixtures')),
     path('messaging/', include('messaging.urls', namespace='messaging')),
     path('match/', include('match.urls', namespace='match')),
+    path('transfers/', include('transfers.urls', namespace='transfers')),
 ]
+
+if settings.DEBUG:  # Само за разработка
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

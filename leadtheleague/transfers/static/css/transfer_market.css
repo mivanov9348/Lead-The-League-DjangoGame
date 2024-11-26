@@ -1,0 +1,120 @@
+.transfer-market {
+    width:100%;
+    margin: auto;
+    padding: 20px;
+    text-align:center;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+    color: black;
+}
+
+.filter-container {
+    width: 100%;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: var(--darkgreen-color);
+    color: var(--white-color);
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
+
+.filter-container input, .filter-container select {
+    margin: 5px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#search {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.table-container {
+    overflow-x: auto;
+    background-color: var(--darkgreen-color);
+    color: var(--white-color);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+}
+
+table th {
+    background-color: var(--green-color);
+    color:black;
+}
+
+.offer-btn {
+    padding: 8px 12px;
+    background-color: var(--green-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.offer-btn:hover {
+    background-color: black;
+    color:white;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.pagination a {
+    background-color: var(--green-color);
+    color:black;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.pagination a:hover {
+    background-color: var(--white-color);
+}
+
+/* Attribute Coloring */
+.attribute {
+    padding: 5px;
+    text-align: center;
+}
+
+.attribute-0, .attribute-1, .attribute-2, .attribute-3, .attribute-4, .attribute-5,
+.attribute-6, .attribute-7, .attribute-8, .attribute-9 {
+    color:lightblue;
+}
+
+.attribute-10, .attribute-11, .attribute-12, .attribute-13, .attribute-14, .attribute-15 {
+    color:blue;
+
+}
+
+.attribute-16, .attribute-17, .attribute-18, .attribute-19, .attribute-20 {
+    color:black;
+}
+
+.sort-btn {
+    font-size: 12px;
+    text-decoration: none;
+    color: inherit;
+    margin-left: 5px;
+}
+
+.sort-btn:hover {
+    color: #007BFF;  /* Можете да използвате всякакъв цвят по ваш избор */
+}

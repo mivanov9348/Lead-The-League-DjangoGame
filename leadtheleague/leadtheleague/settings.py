@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from huey import RedisHuey
 
+
+
 BASE_DIR = Path(__file__).resolve().parent
 
 STATIC_URL = '/static/'
@@ -20,8 +22,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Application definition
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+MEDIA_URL = '/media/'
+
+# Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -40,6 +45,7 @@ INSTALLED_APPS = [
     'fixtures',
     'messaging',
     'match',
+    'transfers'
 ]
 
 MIDDLEWARE = [

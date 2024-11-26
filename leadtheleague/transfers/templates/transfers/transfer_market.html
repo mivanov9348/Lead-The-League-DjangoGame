@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Transfer Market{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/transfer_market.css' %}">
+{% endblock %}
+
+{% block content %}
+{% load humanize %}
+
+<div class="transfer-market">
+    <h1>Transfer Market</h1>
+
+    <div class="filter-container">
+        <form method="get">
+
+            <label for="age">Age:</label>
+            <input type="number" name="age" id="age" placeholder="Enter age" value="{{ request.GET.age }}">
+
+            <label for="nationality">Nationality:</label>
+            <select name="nationality" id="nationality">
+                <option value="">All Nationalities</option>
+                {% for nationality in nationalities %}
+                <option value="{{ nationality.name }}" {% if nationality.name == request.GET.nationality %}selected{% endif %}>
+                    {{ nationality.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <label for="position">Position:</label>
+            <select name="position" id="position">
+                <option value="">All Positions</option>
+                {% for position in positions %}
+                <option value="{{ position.abbreviation }}" {% if position.abbreviation == request.GET.position %}selected{% endif %}>
+                    {{ position.abbreviation }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Apply Filters</button>
+        </form>
+    </div>
+    <!-- Pagination and Player Counter -->
+    <div class="pagination">
+        {% if players.has_previous %}
+        <a href="?page={{ players.previous_page_number }}">&laquo; Previous</a>
+        {% endif %}
+        <span>Page {{ players.number }} of {{ players.paginator.num_pages }}</span>
+        {% if players.has_next %}
+        <a href="?page={{ players.next_page_number }}">Next &raquo;</a>
+        {% endif %}
+    </div>
+
+    <!-- Player Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>Nationality</th>
+                <th>Age</th>
+                <th title="Handling">
+                    HND
+                    <a href="{% url 'transfers:sort_players' %}?sort=Handling&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Handling&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Reflexes">
+                    RFX
+                    <a href="{% url 'transfers:sort_players' %}?sort=Reflexes&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Reflexes&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Finishing">
+                    FIN
+                    <a href="{% url 'transfers:sort_players' %}?sort=Finishing&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Finishing&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Shooting">
+                    SHT
+                    <a href="{% url 'transfers:sort_players' %}?sort=Shooting&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Shooting&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Technique">
+                    TEC
+                    <a href="{% url 'transfers:sort_players' %}?sort=Technique&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Technique&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Passing">
+                    PAS
+                    <a href="{% url 'transfers:sort_players' %}?sort=Passing&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Passing&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Crossing">
+                    CRS
+                    <a href="{% url 'transfers:sort_players' %}?sort=Crossing&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Crossing&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Tackling">
+                    TCK
+                    <a href="{% url 'transfers:sort_players' %}?sort=Tackling&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Tackling&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Strength">
+                    STR
+                    <a href="{% url 'transfers:sort_players' %}?sort=Strength&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Strength&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Determination">
+                    DET
+                    <a href="{% url 'transfers:sort_players' %}?sort=Determination&order=asc"
+                       class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Determination&order=desc"
+                       class="sort-btn">&#9660;</a>
+                </th>
+                <th title="BallControl">
+                    BCT
+                    <a href="{% url 'transfers:sort_players' %}?sort=BallControl&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=BallControl&order=desc"
+                       class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Dribbling">
+                    DRB
+                    <a href="{% url 'transfers:sort_players' %}?sort=Dribbling&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Dribbling&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Speed">
+                    SPD
+                    <a href="{% url 'transfers:sort_players' %}?sort=Speed&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Speed&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Vision">
+                    VIS
+                    <a href="{% url 'transfers:sort_players' %}?sort=Vision&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=Vision&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="WorkRate">
+                    WRK
+                    <a href="{% url 'transfers:sort_players' %}?sort=WorkRate&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=WorkRate&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th title="Price">
+                    💲
+                    <a href="{% url 'transfers:sort_players' %}?sort=price&order=asc" class="sort-btn">&#9650;</a>
+                    <a href="{% url 'transfers:sort_players' %}?sort=price&order=desc" class="sort-btn">&#9660;</a>
+                </th>
+                <th>✅</th>
+            </tr>
+            </thead>
+            <tbody id="player-list">
+            {% for player in players %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{% url 'players:player_profile' player.id %}">{{ player.name }} </a></td>
+                <td>{{ player.positionabbr }}</td>
+                <td>{{ player.nationality }}</td>
+                <td>{{ player.age }}</td>
+                <td class="attribute attribute-{{ player.attributes.Handling }}">{{ player.attributes.Handling }}</td>
+                <td class="attribute attribute-{{ player.attributes.Reflexes }}">{{ player.attributes.Reflexes }}</td>
+                <td class="attribute attribute-{{ player.attributes.Finishing }}">{{ player.attributes.Finishing }}</td>
+                <td class="attribute attribute-{{ player.attributes.Shooting }}">{{ player.attributes.Shooting }}</td>
+                <td class="attribute attribute-{{ player.attributes.Technique }}">{{ player.attributes.Technique }}</td>
+                <td class="attribute attribute-{{ player.attributes.Passing }}">{{ player.attributes.Passing }}</td>
+                <td class="attribute attribute-{{ player.attributes.Crossing }}">{{ player.attributes.Crossing }}</td>
+                <td class="attribute attribute-{{ player.attributes.Tackling }}">{{ player.attributes.Tackling }}</td>
+                <td class="attribute attribute-{{ player.attributes.Strength }}">{{ player.attributes.Strength }}</td>
+                <td class="attribute attribute-{{ player.attributes.Determination }}">{{ player.attributes.Determination }}
+                </td>
+                <td class="attribute attribute-{{ player.attributes.BallControl }}">{{ player.attributes.BallControl }}
+                </td>
+                <td class="attribute attribute-{{ player.attributes.Dribbling }}">{{ player.attributes.Dribbling }}</td>
+                <td class="attribute attribute-{{ player.attributes.Speed }}">{{ player.attributes.Speed }}</td>
+                <td class="attribute attribute-{{ player.attributes.Vision }}">{{ player.attributes.Vision }}</td>
+                <td class="attribute attribute-{{ player.attributes.WorkRate }}">{{ player.attributes.WorkRate }}</td>
+                <td>{{ player.price|intcomma }}</td>
+
+                <td>
+                    <button class="offer-btn" data-player-name="{{ player.name }}" data-player-logo="{{ player.logo }}"
+                            data-player-id="{{ player.id }}">
+                        Offer
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('offer-modal');
+        const closeBtn = document.querySelector('.close-btn');
+        const cancelBtn = document.querySelector('.cancel-btn');
+        const confirmForm = document.getElementById('confirm-offer-form');
+
+        document.querySelectorAll('.offer-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const playerName = button.dataset.playerName;
+                const playerLogo = button.dataset.playerLogo;
+                const playerId = button.dataset.playerId;
+
+                document.getElementById('player-name').textContent = playerName;
+                document.getElementById('player-logo').src = playerLogo;
+                document.getElementById('player-id').value = playerId;
+
+                modal.style.display = 'flex';
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+{% endblock %}

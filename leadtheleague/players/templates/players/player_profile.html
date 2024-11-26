@@ -16,7 +16,11 @@
 
     <div class="profile-header">
         <div class="player-photo">
-            <img src="{% static 'playerimages/' %}{{ player.id }}.png" alt="Player Photo">
+            {% if player.image %}
+            <img src="{{ player.image.url }}" alt="Player Image">
+            {% else %}
+            <img src="{% static 'images/default_player.png' %}" alt="Default Player Photo">
+            {% endif %}
         </div>
         <div class="player-info">
             <ul>

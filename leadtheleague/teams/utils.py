@@ -30,7 +30,6 @@ def generate_random_team_name():
 
 def fill_dummy_teams():
     Team.objects.filter(is_dummy=True).delete()
-    colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White']
     leagues = League.objects.all().order_by('level')
 
     for league in leagues:
@@ -42,11 +41,9 @@ def fill_dummy_teams():
 
             for _ in range(teams_needed):
                 team_name, team_abbr = generate_random_team_name()
-                color = random.choice(colors)
                 team = Team.objects.create(
                     name=team_name,
                     abbreviation=team_abbr,
-                    color=color,
                     user=None,
                     is_dummy=True,
                     division=division
@@ -103,6 +100,9 @@ def replace_dummy_team(new_team):
 
                 return True
     return False
+
+def get_all_teams():
+    return Team.objects.all()
 
 
 def get_team_players_season_stats(team):

@@ -1,7 +1,7 @@
 from setuptools import logging
 
 from game.models import Settings
-from players.models import PlayerMatchStatistic
+from players.models import PlayerMatchStatistic, PlayerMatchRating
 
 
 def update_player_price(player):
@@ -34,12 +34,9 @@ def update_player_price(player):
 
 # updatestats
 def update_player_rating(player, match):
-    """
-    Изчислява рейтингът на играч за даден мач на базата на статистически показатели и техните тежести.
-    """
-    stats = PlayerMatchStatistic.objects.filter(player=player, match=match)
-    stats_dict = {stat.statistic.name: stat.value for stat in stats}
+    stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
 
+    # Тежести за статистиките
     weights = {
         'assists': 1.0,
         'cleanSheets': 1.5,
@@ -58,8 +55,30 @@ def update_player_rating(player, match):
         'yellowCards': -0.5,
     }
 
-    rating = 5.0
-    for stat, weight in weights.items():
-        rating += stats_dict.get(stat, 0) * weight
+    base_rating = 5.0
+    total_weighted_score = 0
+    stats_count = 0
 
-    return max(1.0, min(10.0, rating))
+    # Изчисляване на общия принос от статистиките
+    for stat in stats:
+        weight = weights.get(stat.statistic.name, 0)
+        total_weighted_score += stat.value * weight
+        stats_count += 1
+
+    # Изчисляване на финалния рейтинг
+    if stats_count > 0:
+        rating = base_rating + (total_weighted_score / (1 + stats_count))
+    else:
+        rating = base_rating
+
+    # Ограничаваме рейтинга между 1.0 и 10.0
+    rating = max(1.0, min(10.0, rating))
+
+    # Създаваме или обновяваме записа в PlayerMatchRating
+    match_rating, created = PlayerMatchRating.objects.update_or_create(
+        player=player,
+        match=match,
+        defaults={'rating': rating}
+    )
+
+    return rating

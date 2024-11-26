@@ -41,3 +41,13 @@ body {
     margin: 0;
     font-size: 14px;
 }
+
+
+a {
+    text-decoration: none;  /* Махане на подчертаването */
+    color: inherit;  /* Запазване на наследения цвят */
+}
+
+a:hover {
+    color: var(--blue-color);  /* Промяна на цвета на червен при hover */
+}

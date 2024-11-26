@@ -2,6 +2,7 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator, MinVa
 from django.db import models
 from accounts.models import CustomUser
 
+
 class DummyTeamNames(models.Model):
     name = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(2), MaxLengthValidator(3)])
@@ -13,13 +14,13 @@ class DummyTeamNames(models.Model):
 class Team(models.Model):
     name = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(3), MaxLengthValidator(3)])
-    color = models.CharField(max_length=20)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
     division = models.ForeignKey('leagues.Division', on_delete=models.CASCADE, related_name='team', null=True)
     is_dummy = models.BooleanField(default=False)
+    logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.name} ({self.abbreviation}). Owner({self.division})'
 
     class Meta:
         indexes = [
@@ -27,6 +28,16 @@ class Team(models.Model):
             models.Index(fields=['user']),
             models.Index(fields=['division']),
         ]
+
+
+class TeamFinance(models.Model):
+    team = models.OneToOneField(Team, on_delete=models.CASCADE, related_name='finance')
+    balance = models.FloatField(default=0.0)
+    total_income = models.FloatField(default=0.0)
+    total_expenses = models.FloatField(default=0.0)
+
+    def __str__(self):
+        return f'{self.team.name} Balance: {self.balance}'
 
 
 class TeamPlayer(models.Model):

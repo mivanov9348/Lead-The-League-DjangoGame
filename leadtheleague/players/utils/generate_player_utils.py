@@ -70,20 +70,16 @@ def calculate_player_attributes(player):
 
     return player  # Връщаме играча
 
-import os
-import random
-import shutil
-
 def choose_random_photo(photo_folder):
-    """Избира случайна снимка от дадена папка."""
     random_photo = random.choice(os.listdir(photo_folder))
     return os.path.join(photo_folder, random_photo)
-def copy_player_image_to_static(photo_folder, player_id):
+
+def copy_player_image_to_media(photo_folder, player_id):
     """
-    Копира случайна снимка от photo_folder в static/playerimages и я преименува спрямо player_id.
+    Копира случайна снимка от photo_folder в media/playerimages и я преименува спрямо player_id.
     """
-    # Път към статичните файлове
-    static_path = os.path.join(settings.BASE_DIR, 'static')
+    # Път към папката media/playerimages
+    player_images_folder = os.path.join(settings.MEDIA_ROOT, 'playerimages')
 
     # Избор на случайна снимка
     chosen_photo = choose_random_photo(photo_folder)
@@ -91,21 +87,17 @@ def copy_player_image_to_static(photo_folder, player_id):
         print(f"The chosen photo {chosen_photo} doesn't exist.")
         return None
 
-    # Път към целевата папка и файла
-    player_images_folder = os.path.join(static_path, 'playerimages')
-    new_photo_path = os.path.join(player_images_folder, f"{player_id}.png")
-
     # Проверка и създаване на папката, ако я няма
     if not os.path.exists(player_images_folder):
-        print(f"Creating folder: {player_images_folder}")
         os.makedirs(player_images_folder, exist_ok=True)
-    else:
-        print(f"Folder already exists: {player_images_folder}")
+
+    # Ново име за снимката
+    new_photo_path = os.path.join(player_images_folder, f"{player_id}.png")
 
     # Копиране на файла
-    print(f"Copying photo to: {new_photo_path}")
     shutil.copy(chosen_photo, new_photo_path)
 
+    # Връщане на относителния път за ImageField
     return f'playerimages/{player_id}.png'
 
 def generate_random_player(team=None, position=None):
@@ -132,17 +124,18 @@ def generate_random_player(team=None, position=None):
     )
     player.save()
 
+    photo_path = copy_player_image_to_media(
+        photo_folder="E:/Data/playersImages",
+        player_id=player.id
+    )
+    player.image = photo_path  # Задаваме снимката
+    player.save()  # Запазваме промяната за снимката
+
     # Изчисляване и записване на атрибутите за играча
     player = calculate_player_attributes(player)
 
     # Актуализация на цената
     player.price = update_player_price(player)
-
-    # Копиране на снимката
-    player.photo = copy_player_image_to_static(
-        photo_folder="E:/Data/playersImages",
-        player_id=player.id
-    )
 
     # Избиране на уникален номер
     while True:

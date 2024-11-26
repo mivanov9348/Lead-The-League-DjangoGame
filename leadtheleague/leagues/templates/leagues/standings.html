@@ -72,12 +72,12 @@
         {% for player in players %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td class="player-name">{{ player.personal_info.name }}</td>
+            <td>{{ player.personal_info.name }}</td>
             <td>{{ player.team_info.team_name }}</td>
             <td>{{ player.season_stats.matches }}</td>
             <td>{{ player.season_stats.goals }}</td>
             <td>{{ player.season_stats.assists}}</td>
-            <td class="player-rating">{{ player.season_stats.rating|floatformat:1 }}</td>
+            <td class="player-rating">1</td>
         </tr>
         {% endfor %}
         </tbody>

@@ -4,7 +4,7 @@ from .utils import fill_dummy_teams
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbreviation', 'color')  # Fields to display in the admin list view
+    list_display = ('name', 'abbreviation')  # Fields to display in the admin list view
     search_fields = ('name', 'abbreviation')  # Fields to enable search
     actions = ['fill_with_dummy_teams']  # Register the action to fill divisions with dummy teams
 
