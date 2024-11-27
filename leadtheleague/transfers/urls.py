@@ -6,5 +6,5 @@ app_name = 'transfers'
 
 urlpatterns = [
     path('transfer_market/', views.transfer_market, name='transfer_market'),
-    path('sort_players/', views.sort_players, name='sort_players'),
+    path('make_offer-purchase/', views.make_offer, name='make_offer'),
 ]

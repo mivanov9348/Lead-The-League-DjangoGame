@@ -71,23 +71,23 @@
             <tbody>
             {% for player in reservePlayers %}
             <tr>
-                <td>{{ player.personal_info.first_name }} {{ player.last_name }}</td>
+                <td>{{ player.first_name }} {{ player.last_name }}</td>
                 <td>{{ player.position.abbreviation }}</td>
                 <td>{{ player.nationality.abbreviation }}</td>
-                <td>{{ player.stats.matches }}</td>
-                <td>{{ player.goals }}</td>
-                <td>{{ player.assists }}</td>
-                <td>{{ player.cleanSheets }}</td>
-                <td>{{ player.conceded }}</td>
-                <td>{{ player.dribbles }}</td>
-                <td>{{ player.fouls }}</td>
-                <td>{{ player.passes }}</td>
-                <td>{{ player.redCards }}</td>
-                <td>{{ player.saves }}</td>
-                <td>{{ player.shoots }}</td>
-                <td>{{ player.shootsOnTarget }}</td>
-                <td>{{ player.tackles }}</td>
-                <td>{{ player.yellowCards }}</td>
+                <td>{{ player.season_stats.Matches| default:0 }}</td>
+                <td>{{ player.season_stats.Goals|default:0 }}</td>
+                <td>{{ player.season_stats.Assists|default:0 }}</td>
+                <td>{{ player.season_stats.Saves|default:0 }}</td>
+                <td>{{ player.season_stats.ShootsOnTarget|default:0 }}</td>
+                <td>{{ player.season_stats.Passes|default:0 }}</td>
+                <td>{{ player.season_stats.Dribbles|default:0 }}</td>
+                <td>{{ player.season_stats.Tackles|default:0 }}</td>
+                <td>{{ player.season_stats.YellowCards|default:0 }}</td>
+                <td>{{ player.season_stats.RedCards|default:0 }}</td>
+                <td>{{ player.season_stats.Fouls|default:0 }}</td>
+                <td>{{ player.season_stats.Shoots|default:0 }}</td>
+                <td>{{ player.season_stats.CleanSheets|default:0 }}</td>
+                <td>{{ player.season_stats.Conceded|default:0 }}</td>
                 <td>
                     <form method="post" action="{% url 'teams:lineup_add_player' %}">
                         {% csrf_token %}
@@ -99,6 +99,7 @@
             {% endfor %}
             </tbody>
         </table>
+
     </div>
 </div>
 {% endblock %}

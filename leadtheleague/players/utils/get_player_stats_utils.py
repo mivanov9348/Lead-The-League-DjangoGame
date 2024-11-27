@@ -14,8 +14,7 @@ def get_all_positions() -> QuerySet[Position]:
 
 
 def get_player_team(player):
-    player = Player.objects.prefetch_related('team_players__team').get(id=player.id)
-    team_player = player.team_players.first()
+    team_player = player.team_players.select_related('team').first()
     return {
         'team_name': team_player.team.name if team_player else 'No team',
         'shirt_number': team_player.shirt_number if team_player else None,
@@ -53,17 +52,16 @@ def get_player_season_stats(player, season=None):
 
 
 def get_player_season_stats_all_seasons(player):
-    seasons = Season.objects.prefetch_related(
-        Prefetch(
-            'playerseasonstatistic_set',
-            queryset=PlayerSeasonStatistic.objects.filter(player=player).select_related('statistic')
-        )
-    ).order_by('-season_number')
+    season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic')
 
+    # Групираме статистиките по сезони
     all_stats = {}
-    for season in seasons:
-        stats = {stat.statistic.name: stat.value for stat in season.playerseasonstatistic_set.all()}
-        all_stats[season.season_number] = stats
+    for stat in season_stats:
+        season_number = stat.season.season_number
+        if season_number not in all_stats:
+            all_stats[season_number] = {}
+        all_stats[season_number][stat.statistic.name] = stat.value
+
     return all_stats
 
 
@@ -82,6 +80,7 @@ def get_players_season_stats_by_team(team):
         }
         player_data[player.id] = {
             'personal_info': {
+                'id': player.id,
                 'name': player.name,
                 'position': player.position.name,
             },

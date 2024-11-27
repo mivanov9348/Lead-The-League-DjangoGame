@@ -4,11 +4,10 @@ from django.templatetags.static import static
 from leadtheleague import settings
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
-from .forms import TeamCreationForm
+from .forms import TeamCreationForm, TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
-from django.contrib.auth.decorators import login_required
-from .utils import replace_dummy_team, create_team_performance_chart, \
+from .utils import replace_dummy_team, \
     create_position_template
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -23,21 +22,19 @@ def create_team(request):
         if form.is_valid():
             team = form.save(commit=False)
             team.user = request.user
-            team.is_dummy = False  # Ensure the team is not a dummy
+            team.is_dummy = False
             team.save()
 
-            # Replace a dummy team with the newly created team
             if replace_dummy_team(team):
                 return redirect('game:home')
             else:
-                form.add_error(None, "No dummy team found to replace.")
+                form.add_error(None, "Not Found Dummy Team")
+
+            return redirect('teams:team_list')
     else:
         form = TeamCreationForm()
 
-    context = {
-        'form': form,
-    }
-    return render(request, 'team/create_team.html', context)
+    return render(request, 'team/create_team.html', {'form': form})
 
 
 def squad(request):
@@ -77,13 +74,9 @@ def squad(request):
 def team_stats(request):
     team = Team.objects.get(id=request.user.team.id)  # Assuming the user is linked to a team
     season_stats = TeamSeasonStats.objects.filter(team=team)
-
-    img = create_team_performance_chart(season_stats, team.name)
-
     context = {
         'team': team,
         'season_stats': season_stats,
-        'img': img
     }
 
     return render(request, 'team/team_stats.html', context)
@@ -115,8 +108,16 @@ def line_up(request):
 
     starting_players = team_tactics.starting_players.all() if team_tactics else []
     reserve_players = Player.objects.filter(
-        id__in=TeamPlayer.objects.filter(team=team).values_list('player', flat=True)).exclude(
-        id__in=[player.id for player in starting_players])
+        id__in=TeamPlayer.objects.filter(team=team).values_list('player', flat=True)
+    ).exclude(
+        id__in=[player.id for player in starting_players]
+    ).prefetch_related(
+        Prefetch(
+            'season_stats',
+            queryset=PlayerSeasonStatistic.objects.select_related('season', 'statistic')
+        )
+    )
+
     position_template = create_position_template(selected_tactic, starting_players)
 
     context = {
@@ -213,20 +214,22 @@ def lineup_remove_player(request):
         return redirect("teams:line_up")
 
 
-def logos(request):
-    # Изграждане на пътя до директорията 'static/logos'
-    logos_path = os.path.join(settings.BASE_DIR, 'static', 'logos')
+@login_required
+def my_team(request):
+    team = get_object_or_404(Team, user=request.user)
 
-    # Проверка дали директорията съществува
-    if not os.path.exists(logos_path):
-        return render(request, 'teams/logos.html', {'error': 'Директорията с логота не съществува.'})
+    if request.method == 'POST':
+        form = TeamLogoForm(request.POST, request.FILES, instance=team)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Team logo has been updated!')
+            return redirect('my_team')
+    else:
+        form = TeamLogoForm(instance=team)
 
-    # Получаване на списък с файлове
-    logo_files = [
-        static(f'logos/{f}') for f in os.listdir(logos_path)
-        if os.path.isfile(os.path.join(logos_path, f))
-    ]
+    context = {
+        'team': team,
+        'form': form
+    }
 
-    print(logo_files)
-    # Подаване на логотата към шаблона
-    return render(request, 'team/logos.html', {'logos': logo_files})
+    return render(request, 'team/my_team.html', context)

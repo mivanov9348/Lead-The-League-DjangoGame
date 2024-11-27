@@ -7,23 +7,6 @@
     color: black;
 }
 
-.filter-container {
-    width: 100%;
-    margin: 20px auto;
-    padding: 10px;
-    background-color: var(--darkgreen-color);
-    color: var(--white-color);
-    border: 2px solid #ddd;
-    border-radius: 5px;
-}
-
-.filter-container input, .filter-container select {
-    margin: 5px;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
 
 #search {
     width: 100%;
@@ -117,4 +100,104 @@ table th {
 
 .sort-btn:hover {
     color: #007BFF;  /* Можете да използвате всякакъв цвят по ваш избор */
+}
+
+/* modal */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.player-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin: 10px auto;
+}
+
+.confirm-btn, .cancel-btn {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirm-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+
+.filter-container {
+    width: 100%;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: var(--darkgreen-color);
+    color: var(--white-color);
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
+
+.filter-container input, .filter-container select {
+    margin: 5px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.filter-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.filter-row label,
+.filter-row select,
+.filter-row input,
+.filter-row button,
+.filter-row a {
+    margin-right: 10px;
+    flex: 1; /* Това ще направи елементите равномерно разпределени */
+}
+
+.filter-row button,
+.filter-row a {
+    flex: none;
+}
+
+.reset-btn{
+    font-size:10px;
 }

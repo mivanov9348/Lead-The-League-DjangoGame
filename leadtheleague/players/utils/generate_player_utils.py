@@ -9,6 +9,7 @@ from players.models import FirstName, LastName, Nationality, Position, Attribute
 from players.utils.update_player_stats_utils import update_player_price
 from teams.models import TeamPlayer
 
+
 def get_player_random_first_and_last_name(region):
     first_names = list(FirstName.objects.filter(region=region)) or list(FirstName.objects.all())
     last_names = list(LastName.objects.filter(region=region)) or list(LastName.objects.all())
@@ -29,7 +30,7 @@ def calculate_player_attributes(player):
     # Вземаме важността на атрибутите за позицията на играча
     position_importances = {
         pos_attr.attribute.id: pos_attr.importance
-        for pos_attr in     PositionAttribute.objects.filter(position=position)
+        for pos_attr in PositionAttribute.objects.filter(position=position)
     }
 
     for attribute in all_attributes:
@@ -70,9 +71,11 @@ def calculate_player_attributes(player):
 
     return player  # Връщаме играча
 
+
 def choose_random_photo(photo_folder):
     random_photo = random.choice(os.listdir(photo_folder))
     return os.path.join(photo_folder, random_photo)
+
 
 def copy_player_image_to_media(photo_folder, player_id):
     """
@@ -99,6 +102,7 @@ def copy_player_image_to_media(photo_folder, player_id):
 
     # Връщане на относителния път за ImageField
     return f'playerimages/{player_id}.png'
+
 
 def generate_random_player(team=None, position=None):
     """
@@ -179,16 +183,16 @@ def generate_team_players(team):
         random_players = int(Settings.objects.get(name='Random_Players_Generate').value)
     except Settings.DoesNotExist:
         logging.error("Настройката 'Random_Players_Generate' не съществува.")
-        random_players = 0  # Стойност по подразбиране
+        random_players = 5
 
     positions = {
         'Goalkeeper': min_goalkeepers,
         'Defender': min_defenders,
         'Midfielder': min_midfielders,
         'Attacker': min_attackers,
-        'Random': random_players,
     }
 
+    # Генериране на нужните играчи на всяка позиция
     for pos_name, count in positions.items():
         try:
             position = Position.objects.get(name=pos_name.capitalize())
@@ -197,7 +201,19 @@ def generate_team_players(team):
             continue
 
         for _ in range(int(count)):
-            generate_random_player(team, position if pos_name != 'Random' else None)
+            generate_random_player(team, position)
+
+    # Генериране на допълнителни 5 случайни играча на случайни позиции
+    all_positions = list(positions.keys())  # Списък с всички позиции
+    for _ in range(random_players):
+        random_position_name = random.choice(all_positions)
+        try:
+            random_position = Position.objects.get(name=random_position_name.capitalize())
+        except Position.DoesNotExist:
+            logging.error(f"Случайна позиция '{random_position_name}' не съществува в базата данни.")
+            continue
+
+        generate_random_player(team, random_position)
 
 def generate_free_agents():
     try:

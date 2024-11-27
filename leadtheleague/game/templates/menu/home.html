@@ -75,7 +75,7 @@
                             {% for team in standings %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td><img src="{{ team.team.logo }}" style="width:40px; border-radius: 50%;"/>
+                                <td><img src="/media/{{ team.team.logo }}" class="icon"/>
                                 </td>
                                 <td>{{ team.team.name }}</td>
                                 <td>{{ team.points }}</td>
@@ -102,7 +102,7 @@
                             <tbody>
                             {% for player_id, player_data in players.items %}
                             <tr>
-                                <td>{{ player_data.personal_info.name }}</td>
+                                <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{ player_data.personal_info.name|default:"-" }}</a></td>
                                 <td>{{ player_data.season_stats.goals.value}}</td>
                                 <td>{{ player_data.season_stats.assists.value}}</td>
                                 <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>

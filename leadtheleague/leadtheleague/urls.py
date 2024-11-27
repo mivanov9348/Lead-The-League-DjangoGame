@@ -6,18 +6,18 @@ from leadtheleague import settings
 
 urlpatterns = [
 
-    path("admin/", admin.site.urls),
-    path('', welcome_page, name='welcome_page'),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('teams/', include('teams.urls', namespace='teams')),
-    path('game/', include('game.urls', namespace='game')),
-    path('players/', include('players.urls', namespace='players')),
-    path('leagues/', include('leagues.urls', namespace='leagues')),
-    path('fixtures/', include('fixtures.urls', namespace='fixtures')),
-    path('messaging/', include('messaging.urls', namespace='messaging')),
-    path('match/', include('match.urls', namespace='match')),
-    path('transfers/', include('transfers.urls', namespace='transfers')),
-]
+                  path("admin/", admin.site.urls),
+                  path('', welcome_page, name='welcome_page'),
+                  path('accounts/', include('accounts.urls', namespace='accounts')),
+                  path('teams/', include('teams.urls', namespace='teams')),
+                  path('game/', include('game.urls', namespace='game')),
+                  path('players/', include('players.urls', namespace='players')),
+                  path('leagues/', include('leagues.urls', namespace='leagues')),
+                  path('fixtures/', include('fixtures.urls', namespace='fixtures')),
+                  path('messaging/', include('messaging.urls', namespace='messaging')),
+                  path('match/', include('match.urls', namespace='match')),
+                  path('transfers/', include('transfers.urls', namespace='transfers')),
+              ]
 
-if settings.DEBUG:  # Само за разработка
+if settings.DEBUG:  # Не забравяйте да добавите този блок за сервиране на медийни файлове по време на разработка
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

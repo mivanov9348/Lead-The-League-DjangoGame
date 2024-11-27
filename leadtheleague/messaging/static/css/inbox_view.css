@@ -56,7 +56,7 @@ font-weight: bold;
     background-color: grey;
     color:black;
     transform: scale(1.00);
-    box-shadow: 5px 5px 5px 5px black;
+    box-shadow: 2px 2px 2px 2px black;
 }
 
 .news-item h3 {
@@ -86,7 +86,8 @@ font-weight: bold;
 .news-detail {
     flex: 1;
     padding: 20px;
-    border: 2px solid darkgreen;
+    border: 1px solid darkgreen;
+    background-color: var(--darkgreen-color);
 }
 
 .news-detail h2 {

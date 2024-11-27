@@ -1,20 +1,23 @@
+import os
 import random
 from collections import defaultdict
 from django.db import transaction
 from fixtures.utils import update_fixtures
 from game.models import Settings
 from game.utils import update_team_season_stats
+from leadtheleague import settings
 from leagues.models import League, Division
 from match.utils.generate_match_stats_utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils.generate_player_utils import generate_team_players
 from players.utils.get_player_stats_utils import get_player_data
-from teams.models import TeamSeasonStats, DummyTeamNames, TeamTactics, Tactics
+from teams.models import TeamSeasonStats, DummyTeamNames, TeamTactics, Tactics, TeamFinance
 from .models import Team
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
+
 
 def generate_random_team_name():
     all_team_info = list(DummyTeamNames.objects.values_list('name', 'abbreviation'))
@@ -32,6 +35,9 @@ def fill_dummy_teams():
     Team.objects.filter(is_dummy=True).delete()
     leagues = League.objects.all().order_by('level')
 
+    logos_path = os.path.join(settings.MEDIA_ROOT, 'team_logos')
+    logo_files = [f for f in os.listdir(logos_path) if os.path.isfile(os.path.join(logos_path, f))]
+
     for league in leagues:
         divisions = Division.objects.filter(league=league).order_by('div_number')
 
@@ -41,15 +47,19 @@ def fill_dummy_teams():
 
             for _ in range(teams_needed):
                 team_name, team_abbr = generate_random_team_name()
+                random_logo = random.choice(logo_files)
+                logo_path = os.path.join('team_logos', random_logo)
                 team = Team.objects.create(
                     name=team_name,
                     abbreviation=team_abbr,
                     user=None,
                     is_dummy=True,
-                    division=division
+                    division=division,
+                    logo=logo_path
                 )
                 generate_team_players(team)
                 auto_select_starting_lineup(team)
+                create_team_finance(team)
 
 
 def replace_dummy_team(new_team):
@@ -60,6 +70,8 @@ def replace_dummy_team(new_team):
         for division in divisions:
             dummy_team = Team.objects.filter(division=division, is_dummy=True).first()
             if dummy_team:
+                new_team.logo = dummy_team.logo  # Прехвърляне на логото на Dummy Team към новия отбор
+                new_team.save()  # Запазваме новия отбор с новото лого
                 # Прехвърляне на играчите от Dummy Team към новия отбор
                 dummy_team_players = Player.objects.filter(team_players__team=dummy_team)
 
@@ -89,17 +101,28 @@ def replace_dummy_team(new_team):
                                 )
 
                 update_team_season_stats(dummy_team, new_team)  # Актуализиране на статистиките за новия отбор
+                # Префиксиране на логото и статуса на новия отбор
+                new_team.logo = dummy_team.logo
+                new_team.save()
                 update_fixtures(dummy_team, new_team)  # Актуализиране на фикстурите за новия отбор
                 update_matches(dummy_team, new_team)
                 update_tactics(dummy_team, new_team)
 
-                dummy_team.delete()
+                if hasattr(dummy_team, 'finance'):
+                    dummy_team.finance.delete()
 
+                dummy_team.delete()
+                create_team_finance(new_team)
+
+                new_team.division = division  # Задаване на дивизията за новия отбор
+                new_team.logo = dummy_team.logo  # Прехвърляне на логото на Dummy Team към новия отбор
+                new_team.save()  # Запазваме новия отбор с новото лого
                 new_team.division = division  # Задаване на дивизията за новия отбор
                 new_team.save()
 
                 return True
     return False
+
 
 def get_all_teams():
     return Team.objects.all()
@@ -115,53 +138,6 @@ def get_team_players_season_stats(team):
         standings_data.append(player_data)
 
     return standings_data
-
-
-def create_team_performance_chart(season_stats, team_name):
-    stats_data = {
-        "Year": [],
-        "Season": [],
-        "Matches": [],
-        "Wins": [],
-        "Draws": [],
-        "Losses": [],
-        "Goals Scored": [],
-        "Goals Against": [],
-        "Goal Difference": [],
-        "Points": []
-    }
-
-    for stat in season_stats:
-        stats_data["Year"].append(stat.season.year)
-        stats_data["Season"].append(stat.season.season_number)
-        stats_data["Matches"].append(stat.matches)
-        stats_data["Wins"].append(stat.wins)
-        stats_data["Draws"].append(stat.draws)
-        stats_data["Losses"].append(stat.losses)
-        stats_data["Goals Scored"].append(stat.goalscored)
-        stats_data["Goals Against"].append(stat.goalconceded)
-        stats_data["Goal Difference"].append(stat.goaldifference)
-        stats_data["Points"].append(stat.points)
-
-    df = pd.DataFrame(stats_data)
-
-    plt.figure(figsize=(10, 5))
-    plt.plot(df["Season"], df["Wins"], label="Wins", marker='o')
-    plt.plot(df["Season"], df["Draws"], label="Draws", marker='o')
-    plt.plot(df["Season"], df["Losses"], label="Losses", marker='o')
-    plt.title(f"{team_name} Performance Over Seasons")
-    plt.xlabel("Season")
-    plt.xticks(rotation=45)
-    plt.ylabel("Number of Matches")
-    plt.legend()
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    plt.close()
-    buf.seek(0)
-    img = base64.b64encode(buf.read()).decode('utf-8')
-
-    return img
 
 
 def update_team_stats(match):
@@ -194,12 +170,12 @@ def update_team_stats(match):
 
     if home_goals > away_goals:
         home_stats.wins += 1
-        home_stats.points +=  win_points
+        home_stats.points += win_points
         away_stats.losses += 1
 
     elif home_goals < away_goals:
         away_stats.wins += 1
-        away_stats.points +=  win_points
+        away_stats.points += win_points
         home_stats.losses += 1
 
     else:
@@ -218,6 +194,7 @@ def update_team_stats(match):
 
     home_stats.save()
     away_stats.save()
+
 
 def create_position_template(selected_tactic, starting_players):
     if not selected_tactic:
@@ -306,3 +283,22 @@ def update_tactics(dummy_team, new_team):
             team=new_team,
             defaults={'tactic': dummy_team_tactics.tactic}
         )
+
+
+@transaction.atomic
+def create_team_finance(team):
+    initial_balance = 1000000.0  # Начален баланс
+
+    # Проверка дали отборът вече има финансов профил
+    if hasattr(team, 'finance'):
+        raise ValueError(f'The team {team.name} already has finance profile!')
+
+    # Създаване на финансова инстанция
+    team_finance = TeamFinance.objects.create(
+        team=team,
+        balance=initial_balance,
+        total_income=0.0,
+        total_expenses=0.0
+    )
+
+    return team_finance

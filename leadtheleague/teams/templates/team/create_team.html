@@ -4,70 +4,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+
     <title>Create Your Team</title>
     <style>
         body {
-            background-image: url("../images/welcomebackground.jpg"); /* Уверете се, че пътят е правилен */
-
             font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            background-image: url('{% static "images/background.jpg" %}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0 10px; /* Add some padding to avoid edges on small screens */
+            min-height: 100vh;
         }
-        form {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;  /* Make the width responsive */
-            max-width: 400px; /* Set a maximum width for larger screens */
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            margin-top:30px;
         }
+
         h1 {
             text-align: center;
-            margin-bottom: 10px; /* Add margin below the heading */
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #ffcc00;
         }
-        hr {
-            margin: 10px 0; /* Space above and below the hr */
-        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        button {
-            width: 100%; /* Make the button full width */
-            padding: 10px; /* Add some padding for better appearance */
-            border: none;
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffcc00;
+        }
+
+        input[type="text"], input[type="submit"], button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #555;
             border-radius: 5px;
-            background-color: #007BFF; /* Button color */
-            color: white;
             font-size: 16px;
-            cursor: pointer;
+            justify-content:center;
         }
+
+        input[type="text"]:focus {
+            border-color: #ffcc00;
+            outline: none;
+            box-shadow: 0px 0px 5px #ffcc00;
+        }
+
+        button {
+            background: #ffcc00;
+            border: none;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
         button:hover {
-            background-color: #0056b3; /* Darker shade on hover */
+            background: #e6b800;
         }
     </style>
 </head>
 <body>
-
-    <form method="POST">
+<div class="form-errors">
+    {% for error in form.non_field_errors %}
+    <p style="color: red;">{{ error }}</p>
+    {% endfor %}
+</div>
+<div class="container">
+    <h1>Create Team</h1>
+    <form action="{% url 'teams:create_team' %}" method="POST">
         {% csrf_token %}
+        {{ form.non_field_errors }}
         <div class="form-group">
-            {{ form.name.label }}
+            {{ form.name.label_tag }}
             {{ form.name }}
+            {{ form.name.errors }}
         </div>
         <div class="form-group">
-            {{ form.abbreviation.label }}
+            {{ form.abbreviation.label_tag }}
             {{ form.abbreviation }}
+            {{ form.abbreviation.errors }}
         </div>
-        <div class="form-group">
-            {{ form.color.label }}
-            {{ form.color }}
-        </div>
+
+
         <button type="submit">Create Team</button>
     </form>
+
+</div>
+
 </body>
 </html>

@@ -2,7 +2,7 @@
 .standings-container {
     display: flex;
     justify-content: space-between;
-    margin-top: 130px;
+    margin-top: 150px;
     gap: 10px;
 }
 
@@ -68,7 +68,7 @@
 /* Стилизиране на заглавията на таблиците */
 .table-title {
     background-color: var(--green-color); /* Променяме бекграунда */
-    color: var(--blue-color);
+    color: var(--white-color);
     border-radius: 5px;
     font-size:18px;
     font-family: 'OLD SPORT 02 ATHLETIC NCV'; /* Уверете се, че този шрифт е правилно импортиран */

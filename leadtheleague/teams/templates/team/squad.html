@@ -32,9 +32,9 @@
             {% for player in players_data %}
             <tr>
                 <td>{{ player.team_info.shirt_number|default:"-" }}</td>
-                <td>{{ player.personal_info.name|default:"-" }}</td>
+                <td><a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name|default:"-" }}</a></td>
                 <td>{{ player.personal_info.position|default:"-" }}</td>
-                <td>{{ player.personal_info.nationality|default:"-" }}</td>
+                <td title="{{player.personal_info.nationality}}">{{ player.personal_info.nationalityabbr|default:"-" }}</td>
             </tr>
             {% empty %}
             <tr>

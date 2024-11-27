@@ -2,7 +2,6 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator, MinVa
 from django.db import models
 from accounts.models import CustomUser
 
-
 class DummyTeamNames(models.Model):
     name = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(2), MaxLengthValidator(3)])
