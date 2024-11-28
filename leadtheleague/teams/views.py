@@ -1,18 +1,16 @@
-import os
 from django.db.models import Prefetch
-from django.templatetags.static import static
-from leadtheleague import settings
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
 from .forms import TeamCreationForm, TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
-from .utils import replace_dummy_team, \
-    create_position_template
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+
+from .utils.generate_team_utils import replace_dummy_team
+from .utils.lineup_utils import create_position_template
 
 
 @login_required

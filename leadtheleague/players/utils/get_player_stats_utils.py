@@ -1,7 +1,6 @@
-from django.db.models import Prefetch, Avg, QuerySet
-from game.models import Season
-from players.models import Player, PlayerSeasonStatistic, Position, Nationality
-
+from django.core.cache import cache
+from django.db.models import Prefetch, QuerySet
+from players.models import Player, PlayerSeasonStatistic, Position, Nationality, Attribute
 
 def get_all_nationalities() -> QuerySet[Nationality]:
     """Retrieve all nationalities from the database."""
@@ -12,6 +11,12 @@ def get_all_positions() -> QuerySet[Position]:
     """Retrieve all positions from the database."""
     return Position.objects.all()
 
+def get_attributes():
+    attributes = cache.get('attributes')
+    if not attributes:
+        attributes = list(Attribute.objects.values_list('name', flat=True))
+        cache.set('attributes', attributes, 3600)  # Кеширане за 1 час
+    return attributes
 
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
@@ -131,6 +136,7 @@ def get_all_free_agents():
             'age': player.age,
             'price': player.price,
             'attributes': attributes,
+            'image': player.image
         })
 
     return free_agents_data

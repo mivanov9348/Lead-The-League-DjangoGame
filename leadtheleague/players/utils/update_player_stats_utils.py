@@ -3,11 +3,8 @@ from setuptools import logging
 from game.models import Settings
 from players.models import PlayerMatchStatistic, PlayerMatchRating
 
-
+"""Calculate player price"""
 def update_player_price(player):
-    """
-    Изчислява цената на футболиста на базата на позицията му, възрастта и общите атрибути.
-    """
 
     def get_base_price(position_name):
         setting_name = f'{position_name}_Base_Price'

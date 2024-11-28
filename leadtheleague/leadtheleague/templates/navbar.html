@@ -47,7 +47,7 @@
                         class="fas fa-newspaper"></i> News</a></li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="teamsDropdown" role="button"
+                    <a class="nav-link dropdown-toggle" href="{% url 'teams:squad' %}" id="teamsDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i>Team</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'teams:squad' %}"><i class="fas fa-list-ol"></i>
@@ -64,7 +64,7 @@
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="leaguesDropdown" role="button"
+                    <a class="nav-link dropdown-toggle" href="{% url 'leagues:standings' %}" id="leaguesDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i> League</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i class="fas fa-list-ol"></i>

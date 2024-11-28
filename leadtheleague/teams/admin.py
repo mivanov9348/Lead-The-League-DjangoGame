@@ -1,11 +1,11 @@
 from django.contrib import admin, messages
 from .models import Team, DummyTeamNames
-from .utils import fill_dummy_teams
+from .utils.generate_team_utils import fill_dummy_teams
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbreviation')  # Fields to display in the admin list view
-    search_fields = ('name', 'abbreviation')  # Fields to enable search
+    list_display = ('name', 'abbreviation', 'user', 'division', 'is_dummy')
+    search_fields = ('name', 'abbreviation', 'user__username')
     actions = ['fill_with_dummy_teams']  # Register the action to fill divisions with dummy teams
 
     def fill_with_dummy_teams(self, request, queryset):

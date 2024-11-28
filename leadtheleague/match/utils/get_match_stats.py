@@ -1,10 +1,19 @@
 from datetime import datetime, time, timedelta
+
+from django.db import models
 from django.utils import timezone
 from random import random
 from django.db.models import Q
 from match.models import Match, Event, AttributeEventWeight, EventResult, EventTemplate
 from match.utils.processing_match_utils import choose_event_random_player
 from teams.models import Team
+
+
+def get_all_matches():
+    return Match.objects.all()
+
+def get_team_all_matches(team):
+    return Match.objects.filter(models.Q(home_team=team) | models.Q(away_team=team))
 
 def get_user_today_match(user):
     today = timezone.now().date()
@@ -29,9 +38,11 @@ def get_match_status(match):
         match_status = 'LIVE'
     return match_status
 
+
 def get_random_match_event():
     event = Event.objects.exclude(type='Team')
     return random.choice(event)
+
 
 def get_match_event_attributes_weight(event, player_attributes):
     weights = AttributeEventWeight.objects.filter(event=event)
@@ -43,6 +54,7 @@ def get_match_event_attributes_weight(event, player_attributes):
             attributes_and_weights.append((attribute_value, weight.weight))
     return attributes_and_weights
 
+
 def get_event_success_rate(event, attributes_and_weights):
     base_success = event.success_rate
 
@@ -50,6 +62,7 @@ def get_event_success_rate(event, attributes_and_weights):
         base_success += (attribute_value * weight)
 
     return round(base_success, 2)
+
 
 def get_match_event_template(event_type, success):
     event_results = EventResult.objects.filter(event_type__type=event_type).order_by('event_threshold')
@@ -62,6 +75,7 @@ def get_match_event_template(event_type, success):
             break
 
     return chosen_template
+
 
 def get_event_players(template, main_player, team):
     num_players = template.num_players
@@ -76,6 +90,3 @@ def get_event_players(template, main_player, team):
                 break
 
     return players
-
-def get_team_players(team):
-    return team.players.all()

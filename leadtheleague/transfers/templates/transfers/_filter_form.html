@@ -1,0 +1,46 @@
+<form method="get" class="filter-container">
+    <!-- Row 1: Nationality, Age, Position -->
+    <div class="filter-row">
+        <select name="nationality" id="nationality">
+            <option value="">All Nationalities</option>
+            {% for nationality in nationalities %}
+            <option value="{{ nationality.name }}" {% if nationality.name == request.GET.nationality %}selected{% endif %}>
+                {{ nationality.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input type="number" name="age" id="age" placeholder="Enter age" value="{{ request.GET.age }}">
+
+        <select name="position" id="position">
+            <option value="">All Positions</option>
+            {% for position in positions %}
+            <option value="{{ position.name }}" {% if position.name == request.GET.position %}selected{% endif %}>
+                {{ position.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Row 2: Sorting -->
+    <div class="filter-row">
+        <select name="sort" id="sort">
+            <option value="">Sort By</option>
+            {% for attr in attributes %}
+            <option value="{{ attr }}" {% if request.GET.sort == attr %}selected{% endif %}>{{ attr }}</option>
+            {% endfor %}
+            <option value="Price" {% if request.GET.sort == "Price" %}selected{% endif %}>Price</option>
+        </select>
+
+        <select name="order" id="order">
+            <option value="asc" {% if request.GET.order == "asc" %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if request.GET.order == "desc" %}selected{% endif %}>Descending</option>
+        </select>
+    </div>
+
+    <!-- Row 3: Buttons -->
+    <div class="filter-row">
+        <button type="submit">Apply Filters</button>
+        <a href="{% url 'transfers:transfer_market' %}" class="reset-btn">Reset</a>
+    </div>
+</form>

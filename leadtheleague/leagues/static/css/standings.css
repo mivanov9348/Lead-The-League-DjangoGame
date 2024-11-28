@@ -1,77 +1,73 @@
-/* Стилизиране на контейнера за класацията */
-.standings-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 150px;
-    gap: 10px;
+.table-container {
+  width: 100%;
+  max-width:1200px;
+  margin: 20px auto;
+  text-align: center;
+
 }
 
-/* Стилизиране на таблиците за класацията и топ играчите */
-.standings-table, .top-players-table {
-    width: 100%;
-    background-color: black;
-    border-collapse: collapse;
-    text-align: center;
-    color: white;
-    font-size: 18px;
-    box-shadow: 0 10px 15px rgba(192, 192, 192, 0.6), 0 4px 6px rgba(0, 0, 0, 0.2); /* Металически стил */
-    transform: translateY(-5px); /* Повдигане на таблиците */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 2px solid lightblue;
-    border-radius: 25px;
+.table-header h1 {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin: 0;
+  color: var(--white-color);
+        font-family: 'OLD SPORT 02 ATHLETIC NCV';
+
 }
 
-/* Специални на стройки за размер */
+.table-header h2 {
+  font-size: 1.5em;
+  color: #ffc700;
+  margin: 5px 0 20px 0;
+}
+
 .standings-table {
-    width: 70%; /* Конфликт с горното width: 100% */
-}
-.top-players-table {
-    width: 30%; /* Конфликт с горното width: 100% */
-}
-
-/* Стилизиране на клетките и заглавните редове */
-.standings-table th, .standings-table td,
-.top-players-table th, .top-players-table td {
-    text-align: center;
-    padding:10px;
+  border: 2px solid black;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-.standings-table td, .top-players-table td {
-    background-color: var(--darkgreen-color); /* Тъмен зелен фон за клетките */
-    color: white; /* Цветът на текста остава бял */
-    padding: 10px; /* Отстояние за удобство при четене */
-    text-align: center; /* Центриране на текста */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Лек контур за разделяне на клетките */
+.standings-table thead th {
+  background-color: var(--darkgreen-color);
+  color: var(--white-color);
+  padding: 10px;
+  border: 1px solid #004d26;
+  font-size: 0.9em;
 }
 
-/* Стилизиране на заглавията в таблиците */
-.standings-table thead, .top-players-table thead {
-    color: white; /* Уверете се, че тази променлива е дефинирана */
-    font-weight: bold;
-    font-size: 15px;
-    text-transform: uppercase;
-    border-radius:1px solid white;
+.standings-table tbody td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #004d26;
+  font-size: 1em;
 }
 
-/* Стилизиране на имената на отбори и играчи */
-.team-name, .player-name {
-    font-weight: bold;
-    text-align: left;
+.standings-table tbody tr {
+  background-color: var(--white-color);
+  color: var(--darkgreen-color);
 }
 
-/* Стилизиране на показателите за точки и рейтинг */
-.points, .player-rating {
-    font-weight: bold;
-    color: #FFD700; /* Златисто за подчертаване */
+.icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
 
-/* Стилизиране на заглавията на таблиците */
-.table-title {
-    background-color: var(--green-color); /* Променяме бекграунда */
-    color: var(--white-color);
-    border-radius: 5px;
-    font-size:18px;
-    font-family: 'OLD SPORT 02 ATHLETIC NCV'; /* Уверете се, че този шрифт е правилно импортиран */
-    padding: 10px; /* Леко увеличаване на отстоянията */
-    text-transform: uppercase;
+.icon.orange {
+  background-color: orange;
+}
+
+.icon.blue {
+  background-color: blue;
+}
+
+.icon.red {
+  background-color: red;
+}
+
+.icon.gray {
+  background-color: gray;
 }

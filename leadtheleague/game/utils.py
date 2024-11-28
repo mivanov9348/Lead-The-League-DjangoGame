@@ -3,9 +3,10 @@ from django.db import transaction, IntegrityError
 from fixtures.utils import generate_fixtures
 from game.models import Season
 from leagues.models import Division
-from match.utils.generate_match_stats_utils import generate_matches_for_season
-from players.models import Player, PlayerSeasonStatistic, Statistic
+from match.utils.generate_match_stats_utils import generate_matches_for_season, generate_player_season_stats
+from players.models import Player
 from teams.models import Team, TeamSeasonStats
+
 
 def get_current_season(year=None):
     if year is not None:
@@ -15,9 +16,11 @@ def get_current_season(year=None):
 
     return current_season
 
+
 def generate_season_number(year):
     seasons = get_current_season(year)
     return seasons.count() + 1
+
 
 def create_new_season(year, season_number, start_date, match_time):
     try:
@@ -41,6 +44,7 @@ def create_new_season(year, season_number, start_date, match_time):
             raise
         return season
 
+
 def create_team_season_stats(new_season):
     with transaction.atomic():
         teams = Team.objects.all()
@@ -58,18 +62,9 @@ def create_team_season_stats(new_season):
 
             # Взимаме играчите за отбора чрез релация `team_players`
             players = Player.objects.filter(team_players__team=team)
-            create_player_season_stats(players, new_season, team)
+            for player in players:
+                generate_player_season_stats(player, new_season, team)
 
-def create_player_season_stats(players, new_season, team):
-    for player in players:
-        for statistic in Statistic.objects.all():
-            if not PlayerSeasonStatistic.objects.filter(player=player, season=new_season, statistic=statistic).exists():
-                PlayerSeasonStatistic.objects.create(
-                    player=player,
-                    season=new_season,
-                    statistic=statistic,
-                    value=0,
-                )
 
 def update_team_season_stats(dummy_team, new_team):
     team_season_stats = TeamSeasonStats.objects.filter(team=dummy_team)

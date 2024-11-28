@@ -8,16 +8,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="standings-container">
+<div class="table-container">
+    <div class="table-header">
+        <h1>STANDINGS</h1>
+    </div>
     <table class="standings-table">
         <thead>
         <tr>
-            <th class="table-title" colspan="11">Standings</th>
-        </tr>
-        <tr>
-            <th>#</th>
+            <th>N</th>
+            <th></th>
             <th>Team</th>
-            <th>User</th>
             <th>M</th>
             <th>W</th>
             <th>D</th>
@@ -25,21 +25,15 @@
             <th>GS</th>
             <th>GC</th>
             <th>GD</th>
-            <th>P</th>
+            <th>PTS</th>
         </tr>
         </thead>
         <tbody>
         {% for team in standings %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td class="team-name">{{ team.team.name }}</td>
-            <td style="font-size:12px; color:green; font-style:italic">
-                {% if team.team.user %}
-                {{ team.team.user.username }}
-                {% else %}
-                COM
-                {% endif %}
-            </td>
+            <td><img src="/media/{{ team.team.logo }}" class="icon"/></td>
+            <td>{{ team.team.name }}</td>
             <td>{{ team.matches }}</td>
             <td>{{ team.wins }}</td>
             <td>{{ team.draws }}</td>
@@ -47,42 +41,10 @@
             <td>{{ team.goalscored }}</td>
             <td>{{ team.goalconceded }}</td>
             <td>{{ team.goaldifference }}</td>
-            <td class="points">{{ team.points }}</td>
+            <td>{{ team.points }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
-
-    <table class="top-players-table">
-        <thead>
-        <tr>
-            <th class="table-title" colspan="7">Top Players</th>
-        </tr>
-        <tr>
-            <th>#</th>
-            <th>Player</th>
-            <th>Team</th>
-            <th>M</th>
-            <th>G</th>
-            <th>A</th>
-            <th>Rating</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for player in players %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ player.personal_info.name }}</td>
-            <td>{{ player.team_info.team_name }}</td>
-            <td>{{ player.season_stats.matches }}</td>
-            <td>{{ player.season_stats.goals }}</td>
-            <td>{{ player.season_stats.assists}}</td>
-            <td class="player-rating">1</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-
-    </table>
-
 </div>
 {% endblock %}

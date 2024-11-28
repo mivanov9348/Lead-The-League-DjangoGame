@@ -5,6 +5,8 @@
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/transfer_market.css' %}">
+<link rel="stylesheet" href="{% static 'css/player_offer_modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/filter.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -13,117 +15,74 @@
 <div class="transfer-market">
     <h1>Transfer Market</h1>
 
+    <div class="user-budget">
+        <p> Balance({{ user.team.name }}): {{ team_balance|intcomma }}</p>
+    </div>
+
     <!-- Filter and Sort Section -->
     <div class="filter-container">
-        <form method="get">
-            <!-- Row 1: Nationality, Age, Position -->
-            <div class="filter-row">
-                <select name="nationality" id="nationality">
-                    <option value="">All Nationalities</option>
-                    {% for nationality in nationalities %}
-                    <option value="{{ nationality.name }}" {% if nationality.name == request.GET.nationality %}selected{% endif %}>
-                        {{ nationality.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-
-                <input type="number" name="age" id="age" placeholder="Enter age" value="{{ request.GET.age }}">
-
-                <select name="position" id="position">
-                    <option value="">All Positions</option>
-                    {% for position in positions %}
-                    <option value="{{ position.name }}" {% if position.name == request.GET.position %}selected{% endif %}>
-                        {{ position.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Row 2: Sorting -->
-            <div class="filter-row">
-                <select name="sort" id="sort">
-                    <option value="">Sort By</option>
-                    {% for attr in attributes %}
-                    <option value="{{ attr }}" {% if request.GET.sort == attr %}selected{% endif %}>
-                        {{ attr }}
-                    </option>
-                    {% endfor %}
-                    <option value="Price" {% if request.GET.sort == "Price" %}selected{% endif %}>Price</option>
-                </select>
-
-                <select name="order" id="order">
-                    <option value="asc" {% if request.GET.order == "asc" %}selected{% endif %}>Ascending</option>
-                    <option value="desc" {% if request.GET.order == "desc" %}selected{% endif %}>Descending</option>
-                </select>
-            </div>
-
-            <!-- Row 3: Buttons -->
-            <div class="filter-row">
-                <button type="submit">Apply Filters</button>
-
-                <a href="{% url 'transfers:transfer_market' %}" class="reset-btn">Reset</a>
-            </div>
-        </form>
+        {% include 'transfers/_filter_form.html' %}
     </div>
 
     <!-- Players Table -->
     <div class="table-container">
         <table>
             <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Pos</th>
-                    <th>Nationality</th>
-                    <th>Age</th>
-                    <th title="Handling">HND</th>
-                    <th title="Reflexes">RFX</th>
-                    <th title="Finishing">FIN</th>
-                    <th title="Shooting">SHT</th>
-                    <th title="Technique">TEC</th>
-                    <th title="Passing">PAS</th>
-                    <th title="Crossing">CRS</th>
-                    <th title="Tackling">TCK</th>
-                    <th title="Strength">STR</th>
-                    <th title="Determination">DET</th>
-                    <th title="Speed">SPD</th>
-                    <th title="Vision">VIS</th>
-                    <th title="WorkRate">WRK</th>
-                    <th>Price</th>
-                    <th>Offer</th>
-                </tr>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>Nationality</th>
+                <th>Age</th>
+                <th title="Handling">HND</th>
+                <th title="Reflexes">RFX</th>
+                <th title="Finishing">FIN</th>
+                <th title="Shooting">SHT</th>
+                <th title="Technique">TEC</th>
+                <th title="Passing">PAS</th>
+                <th title="Crossing">CRS</th>
+                <th title="Tackling">TCK</th>
+                <th title="Strength">STR</th>
+                <th title="Determination">DET</th>
+                <th title="Speed">SPD</th>
+                <th title="Vision">VIS</th>
+                <th title="WorkRate">WRK</th>
+                <th>Price</th>
+                <th>Offer</th>
+            </tr>
             </thead>
             <tbody>
-                {% for player in players %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td><a href="{% url 'players:player_profile' player.id %}">{{ player.name }}</a></td>
-                    <td>{{ player.positionabbr }}</td>
-                    <td>{{ player.nationality }}</td>
-                    <td>{{ player.age }}</td>
-                    <td>{{ player.attributes.Handling }}</td>
-                    <td>{{ player.attributes.Reflexes }}</td>
-                    <td>{{ player.attributes.Finishing }}</td>
-                    <td>{{ player.attributes.Shooting }}</td>
-                    <td>{{ player.attributes.Technique }}</td>
-                    <td>{{ player.attributes.Passing }}</td>
-                    <td>{{ player.attributes.Crossing }}</td>
-                    <td>{{ player.attributes.Tackling }}</td>
-                    <td>{{ player.attributes.Strength }}</td>
-                    <td>{{ player.attributes.Determination }}</td>
-                    <td>{{ player.attributes.Speed }}</td>
-                    <td>{{ player.attributes.Vision }}</td>
-                    <td>{{ player.attributes.WorkRate }}</td>
-                    <td>{{ player.price|intcomma }}</td>
-                    <td>
-                        <button class="offer-btn" data-player-id="{{ player.id }}"
-                                data-player-name="{{ player.name }}"
-                                data-player-position="{{ player.positionabbr }}"
-                                data-player-price="{{ player.price }}"
-                                data-player-image="{{ player.image_url }}">Offer</button>
-                    </td>
-                </tr>
-                {% endfor %}
+            {% for player in players %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{% url 'players:player_profile' player.id %}">{{ player.name }}</a></td>
+                <td>{{ player.positionabbr }}</td>
+                <td>{{ player.nationality }}</td>
+                <td>{{ player.age }}</td>
+                <td>{{ player.attributes.Handling }}</td>
+                <td>{{ player.attributes.Reflexes }}</td>
+                <td>{{ player.attributes.Finishing }}</td>
+                <td>{{ player.attributes.Shooting }}</td>
+                <td>{{ player.attributes.Technique }}</td>
+                <td>{{ player.attributes.Passing }}</td>
+                <td>{{ player.attributes.Crossing }}</td>
+                <td>{{ player.attributes.Tackling }}</td>
+                <td>{{ player.attributes.Strength }}</td>
+                <td>{{ player.attributes.Determination }}</td>
+                <td>{{ player.attributes.Speed }}</td>
+                <td>{{ player.attributes.Vision }}</td>
+                <td>{{ player.attributes.WorkRate }}</td>
+                <td>{{ player.price|intcomma }}</td>
+                <td>
+                    <button class="offer-btn" data-player-id="{{ player.id }}"
+                            data-player-name="{{ player.name }}"
+                            data-player-position="{{ player.positionabbr }}"
+                            data-player-price="{{ player.price }}"
+                            data-player-image="{{ player.image.url }}">Offer
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -141,50 +100,12 @@
 </div>
 
 <!-- Modal -->
-<div id="offer-modal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <img id="player-image" src="" alt="Player Image" class="player-image">
-        <h2 id="player-name"></h2>
-        <p>Position: <span id="player-position"></span></p>
-        <p>Price: <span id="player-price"></span></p>
-        <p>Are you sure you want to make an offer?</p>
-        <form method="post" action="{% url 'transfers:make_offer' %}">
-            {% csrf_token %}
-            <input type="hidden" id="player-id" name="player_id">
-            <button type="submit" class="confirm-btn">Confirm</button>
-            <button type="button" class="cancel-btn">Cancel</button>
-        </form>
-    </div>
-</div>
+{% include 'transfers/_player_offer_modal.html' %}
+
+<script src="{% static 'js/transfer_offer.js' %}"></script>
 
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById("offer-modal");
-    const playerImage = document.getElementById("player-image");
-    const playerName = document.getElementById("player-name");
-    const playerPosition = document.getElementById("player-position");
-    const playerPrice = document.getElementById("player-price");
-    const playerIdInput = document.getElementById("player-id");
-    const closeBtn = document.querySelector(".close-btn");
-    const cancelBtn = document.querySelector(".cancel-btn");
 
-    document.querySelectorAll(".offer-btn").forEach(button => {
-        button.addEventListener("click", () => {
-            playerImage.src = button.dataset.playerImage;
-            playerName.textContent = button.dataset.playerName;
-            playerPosition.textContent = button.dataset.playerPosition;
-            playerPrice.textContent = button.dataset.playerPrice;
-            playerIdInput.value = button.dataset.playerId;
-            modal.classList.remove("hidden");
-        });
-    });
-
-    closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
-    cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
-});
-</script>
 {% endblock %}

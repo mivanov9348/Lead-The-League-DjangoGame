@@ -1,0 +1,39 @@
+from django.db import transaction
+from teams.models import TeamPlayer
+from teams.utils.team_finance_utils import team_expense
+from transfers.models import Transfer
+
+def get_all_transfers():
+    return Transfer.objects.all()
+
+def transfer_free_agent(team, player):
+    with transaction.atomic():
+        player.is_free_agent = False
+        player.save()
+        TeamPlayer.objects.create(player=player, team=team)
+        Transfer.objects.create(player=player, buying_team=team, selling_team=None, amount=player.price,
+                                is_free_agent=True)
+        team_expense(team, player.price)
+
+def filter_free_agents(free_agents, nationality='', position='', age=None):
+    if nationality:
+        free_agents = [player for player in free_agents if player['nationality'] == nationality]
+    if position:
+        free_agents = [player for player in free_agents if player['position'] == position]
+    if age:
+        try:
+            age = int(age)
+            free_agents = [player for player in free_agents if player['age'] == age]
+        except ValueError:
+            pass
+    return free_agents
+
+def sort_free_agents(free_agents, sort_field='', order='asc'):
+    reverse = order == 'desc'
+    if sort_field:
+        if sort_field == "Price":  # Сортировка по цена
+            free_agents.sort(key=lambda x: x.get('price', 0), reverse=reverse)
+        else:  # Сортировка по атрибути
+            free_agents.sort(key=lambda x: x.get('attributes', {}).get(sort_field, 0), reverse=reverse)
+    return free_agents
+

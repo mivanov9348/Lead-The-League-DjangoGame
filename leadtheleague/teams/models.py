@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 from accounts.models import CustomUser
@@ -8,7 +10,6 @@ class DummyTeamNames(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
@@ -28,12 +29,11 @@ class Team(models.Model):
             models.Index(fields=['division']),
         ]
 
-
 class TeamFinance(models.Model):
-    team = models.OneToOneField(Team, on_delete=models.CASCADE, related_name='finance')
-    balance = models.FloatField(default=0.0)
-    total_income = models.FloatField(default=0.0)
-    total_expenses = models.FloatField(default=0.0)
+    team = models.OneToOneField(Team, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total_income = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total_expenses = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return f'{self.team.name} Balance: {self.balance}'

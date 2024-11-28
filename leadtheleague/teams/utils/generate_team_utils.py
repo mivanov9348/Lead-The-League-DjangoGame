@@ -1,7 +1,8 @@
 import os
 import random
-from collections import defaultdict
+
 from django.db import transaction
+
 from fixtures.utils import update_fixtures
 from game.models import Settings
 from game.utils import update_team_season_stats
@@ -10,13 +11,9 @@ from leagues.models import League, Division
 from match.utils.generate_match_stats_utils import update_matches
 from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils.generate_player_utils import generate_team_players
-from players.utils.get_player_stats_utils import get_player_data
-from teams.models import TeamSeasonStats, DummyTeamNames, TeamTactics, Tactics, TeamFinance
-from .models import Team
-import pandas as pd
-import matplotlib.pyplot as plt
-import io
-import base64
+from teams.models import DummyTeamNames, Team, TeamSeasonStats
+from teams.utils.lineup_utils import auto_select_starting_lineup, update_tactics
+from teams.utils.team_finance_utils import create_team_finance
 
 
 def generate_random_team_name():
@@ -31,6 +28,7 @@ def generate_random_team_name():
             return team_name, team_abbr
 
 
+# generate_team_utils.py
 def fill_dummy_teams():
     Team.objects.filter(is_dummy=True).delete()
     leagues = League.objects.all().order_by('level')
@@ -62,6 +60,7 @@ def fill_dummy_teams():
                 create_team_finance(team)
 
 
+# generate_team_utils.py
 def replace_dummy_team(new_team):
     leagues = League.objects.all().order_by('level')
 
@@ -124,22 +123,6 @@ def replace_dummy_team(new_team):
     return False
 
 
-def get_all_teams():
-    return Team.objects.all()
-
-
-def get_team_players_season_stats(team):
-    # Филтриране на играчите чрез релацията team_players
-    players = Player.objects.filter(team_players__team=team)
-    standings_data = []
-
-    for player in players:
-        player_data = get_player_data(player)
-        standings_data.append(player_data)
-
-    return standings_data
-
-
 def update_team_stats(match):
     if not match.is_played:
         print('Match is still unplayed!')
@@ -194,111 +177,3 @@ def update_team_stats(match):
 
     home_stats.save()
     away_stats.save()
-
-
-def create_position_template(selected_tactic, starting_players):
-    if not selected_tactic:
-        return []
-
-    position_template = []
-
-    tactic_positions = {
-        'GK': selected_tactic.num_goalkeepers,
-        'DF': selected_tactic.num_defenders,
-        'MF': selected_tactic.num_midfielders,
-        'ATT': selected_tactic.num_attackers
-    }
-
-    for abbreviation, count in tactic_positions.items():
-        for _ in range(count):
-            position_template.append({"abbreviation": abbreviation, "player": None})
-
-    position_map = defaultdict(list)
-    for player in starting_players:
-        position_map[player.position.abbreviation].append(player)
-
-    used_players = set()
-    slot_counts = defaultdict(int)
-
-    for slot in position_template:
-        available_players = [
-            player for player in position_map[slot['abbreviation']]
-            if player not in used_players and slot_counts[slot['abbreviation']] < tactic_positions[slot['abbreviation']]
-        ]
-
-        if available_players:
-            selected_player = available_players[0]
-            slot["player"] = selected_player
-            used_players.add(selected_player)
-            slot_counts[slot['abbreviation']] += 1
-
-    return position_template
-
-
-# lineup utils (team)
-def auto_select_starting_lineup(team):
-    """
-    Автоматично избира стартов състав за даден отбор на базата на наличните тактики.
-    """
-    team_tactics, created = TeamTactics.objects.get_or_create(team=team)
-    if team_tactics.starting_players.count() >= 11:
-        return
-
-    tactic = Tactics.objects.order_by('?').first()
-    if not tactic:
-        raise ValueError("Няма налични тактики в базата данни.")
-
-    required_positions = {
-        'GK': tactic.num_goalkeepers,
-        'DF': tactic.num_defenders,
-        'MF': tactic.num_midfielders,
-        'ATT': tactic.num_attackers,
-    }
-
-    selected_players = {key: [] for key in required_positions.keys()}
-    players = Player.objects.filter(team_players__team=team)
-
-    for player in players:
-        pos_abbr = player.position.abbreviation
-        if pos_abbr in required_positions and len(selected_players[pos_abbr]) < required_positions[pos_abbr]:
-            selected_players[pos_abbr].append(player)
-
-    team_tactics.starting_players.set(
-        [player for sublist in selected_players.values() for player in sublist]
-    )
-    team_tactics.tactic = tactic
-    team_tactics.save()
-
-    return selected_players
-
-
-# lineup utils (team)
-def update_tactics(dummy_team, new_team):
-    """
-    Актуализира тактиките на новият отбор на базата на dummy_team.
-    """
-    dummy_team_tactics = TeamTactics.objects.filter(team=dummy_team).first()
-    if dummy_team_tactics:
-        TeamTactics.objects.update_or_create(
-            team=new_team,
-            defaults={'tactic': dummy_team_tactics.tactic}
-        )
-
-
-@transaction.atomic
-def create_team_finance(team):
-    initial_balance = 1000000.0  # Начален баланс
-
-    # Проверка дали отборът вече има финансов профил
-    if hasattr(team, 'finance'):
-        raise ValueError(f'The team {team.name} already has finance profile!')
-
-    # Създаване на финансова инстанция
-    team_finance = TeamFinance.objects.create(
-        team=team,
-        balance=initial_balance,
-        total_income=0.0,
-        total_expenses=0.0
-    )
-
-    return team_finance

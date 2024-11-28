@@ -13,7 +13,7 @@
             <div class="card next-match-card">
                 <!-- Заглавие -->
                 <div class="card-header text-center text-uppercase fw-bold">
-                    Next Match
+                    <a href="#">Next Match</a>
                 </div>
                 <!-- Основно съдържание -->
                 <div class="card-body match-details">
@@ -54,12 +54,13 @@
             </div>
         </div>
 
-
         <!-- Втори ред: Статистики и класации -->
         <div class="row mt-4">
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">Latest News</div>
+                    <div class="card-header">
+                        <a href="#">Latest News</a>
+                    </div>
                     <div class="card-body">
                         <!-- Latest News -->
                     </div>
@@ -67,10 +68,11 @@
             </div>
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">Standings</div>
+                    <div class="card-header">
+                        <a href="{% url 'leagues:standings' %}">Standings</a>
+                    </div>
                     <div class="card-body table-container">
                         <table class="table table-sm">
-
                             <tbody>
                             {% for team in standings %}
                             <tr>
@@ -88,7 +90,9 @@
             </div>
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">Top Players</div>
+                    <div class="card-header">
+                        <a href="#">Top Players</a>
+                    </div>
                     <div class="card-body table-container">
                         <table class="table table-sm">
                             <thead>
@@ -110,8 +114,6 @@
                             {% endfor %}
                             </tbody>
                         </table>
-
-
                     </div>
                 </div>
             </div>
@@ -121,10 +123,11 @@
         <div class="row mt-4">
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">Schedule</div>
+                    <div class="card-header">
+                        <a href="{% url 'leagues:schedule' %}">Schedule</a>
+                    </div>
                     <div class="card-body table-container">
                         <table class="table table-sm">
-
                             <tbody>
                             {% for match in schedule %}
                             <tr>
@@ -138,17 +141,41 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">Latest Transfers</div>
-                    <div class="card-body">
-                        <!-- Latest Transfers -->
+                    <div class="card-header">
+                        <a href="{% url 'transfers:transfer_history' %}">Latest Transfers</a>
+                    </div>
+                    <div class="card-body table-container">
+                        <table class="table table-sm">
+                            <tbody>
+                            {% for transfer in transfers %}
+                            <tr>
+                                <td>{{ transfer.transfer_date }}</td>
+                                <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{ transfer.player.name|default:"-" }}</a></td>
+                                <td>
+                                    {% if transfer.selling_team %}
+                                    {{ transfer.selling_team.name }}
+                                    {% else %}
+                                    Free Agent
+                                    {% endif %}
+                                </td>
+                                <td>{{ transfer.buying_team.name }}</td>
+                                <td>{{ transfer.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">Finance Overview</div>
+                    <div class="card-header">
+                        <a href="#">Finance Overview</a>
+                    </div>
                     <div class="card-body">
                         <!-- Финанси -->
                     </div>
@@ -156,5 +183,5 @@
             </div>
         </div>
     </div>
-    {% endblock %}
 </div>
+{% endblock %}
