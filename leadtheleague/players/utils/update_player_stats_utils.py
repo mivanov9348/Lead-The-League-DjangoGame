@@ -1,33 +1,102 @@
 from setuptools import logging
 
 from game.models import Settings
+from game.utils import get_current_season
 from players.models import PlayerMatchStatistic, PlayerMatchRating
 
 """Calculate player price"""
-def update_player_price(player):
 
-    def get_base_price(position_name):
-        setting_name = f'{position_name}_Base_Price'
-        try:
-            return Settings.objects.get(name=setting_name).value
-        except Settings.DoesNotExist:
-            logging.error(f"Настройката '{setting_name}' не съществува.")
-            return 100000  # Стойност по подразбиране
 
-    DEFAULT_BASE_PRICE = 100000
+# def update_player_price(player):
+#
+#     def get_base_price(position_name):
+#         setting_name = f'{position_name}_Base_Price'
+#         try:
+#             return Settings.objects.get(name=setting_name).value
+#         except Settings.DoesNotExist:
+#             logging.error(f"Настройката '{setting_name}' не съществува.")
+#             return 100000  # Стойност по подразбиране
+#
+#     DEFAULT_BASE_PRICE = 100000
+#
+#     def get_age_factor(age):
+#         if age < 25:
+#             return 1.2
+#         elif age > 30:
+#             return 0.8
+#         return 1.0
+#
+#     base_price = get_base_price(player.position.name) or DEFAULT_BASE_PRICE
+#     age_factor = get_age_factor(player.age)
+#     total_attributes = sum(player.playerattribute_set.values_list('value', flat=True))
+#
+#     return int(base_price * age_factor + total_attributes * 10000)
 
-    def get_age_factor(age):
-        if age < 25:
-            return 1.2
-        elif age > 30:
-            return 0.8
-        return 1.0
+def get_base_price(position_name):
+    setting_name = f'{position_name}_Base_Price'
+    try:
+        return Settings.objects.get(name=setting_name).value
+    except Settings.DoesNotExist:
+        logging.error(f"Настройката '{setting_name}' не съществува.")
+        return 100000
 
-    base_price = get_base_price(player.position.name) or DEFAULT_BASE_PRICE
-    age_factor = get_age_factor(player.age)
+
+# Фактор за възраст
+def get_age_factor(age):
+    if 14 <= age <= 18:
+        return 1.00
+    elif 19 <= age <= 21:
+        return 1.50
+    elif 22 <= age <= 28:
+        return 1.20
+    elif 29 <= age <= 33:
+        return 1.00
+    else:
+        return 0.70
+
+
+# Фактор за позиция
+def get_position_factor(position_name):
+    position_factors = {
+        "Goalkeeper": 1.00,
+        "Defender": 1.50,
+        "Midfielder": 2.00,
+        "Attacker": 3.00,
+    }
+    return position_factors.get(position_name, 1.00)  # Стойност по подразбиране
+
+
+# Фактор за атрибути
+def get_attribute_factor(player):
     total_attributes = sum(player.playerattribute_set.values_list('value', flat=True))
+    if total_attributes == 0:
+        return 1.0
+    return 1 + total_attributes / 300
 
-    return int(base_price * age_factor + total_attributes * 10000)
+
+def get_statistics_factor(player, season):
+    # Взема всички оценки на играча за сезона
+    match_ratings = PlayerMatchRating.objects.filter(player=player, match__season=season).values_list('rating',
+                                                                                                      flat=True)
+    if not match_ratings:  # Ако няма оценки, връщаме базова стойност
+        return 5.0
+    average_rating = sum(match_ratings) / len(match_ratings)
+    return 1 + average_rating / 10
+
+
+# Финална функция за изчисление на цената
+def update_player_price(player):
+    season = get_current_season()
+    base_price = get_base_price(player.position.name)
+    age_factor = get_age_factor(player.age)
+    position_factor = get_position_factor(player.position.name)
+    attribute_factor = get_attribute_factor(player)
+    statistics_factor = get_statistics_factor(player, season)
+
+    # Финална формула за цената
+    final_price = base_price * age_factor * position_factor * attribute_factor * statistics_factor
+    return int(final_price)  # Закръгляме до цяло число
+
 
 # updatestats
 def update_player_rating(player, match):

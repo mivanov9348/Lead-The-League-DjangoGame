@@ -64,7 +64,8 @@
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'leagues:standings' %}" id="leaguesDropdown" role="button"
+                    <a class="nav-link dropdown-toggle" href="{% url 'leagues:standings' %}" id="leaguesDropdown"
+                       role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i> League</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i class="fas fa-list-ol"></i>
@@ -73,6 +74,8 @@
                             Schedule</a></li>
                         <li><a class="dropdown-item" href="{% url 'fixtures:results' %}"><i class="fas fa-clock"></i>
                             Results</a></li>
+                        <li><a class="dropdown-item" href="{% url 'players:all_players' %}"><i class="fas fa-clock"></i>
+                            All Players</a></li>
                     </ul>
                 </li>
 
@@ -86,7 +89,8 @@
                         <li><a class="dropdown-item" href="#negotiations"><i
                                 class="fas fa-handshake"></i>Negotiations</a>
                         </li>
-                        <li><a class="dropdown-item" href="#history"><i class="fas fa-history"></i>Transfer History</a>
+                        <li><a class="dropdown-item" href="{% url 'transfers:transfer_history' %}"><i
+                                class="fas fa-history"></i>Transfer History</a>
                         </li>
                     </ul>
                 </li>
@@ -110,7 +114,7 @@
 
 <style>/* Navbar Styles */
 .secondary-navbar {
-    background-color: rgba(4, 170, 109, 0.9);
+    background-color: var(--darkgreen-color);
     color: #fff;
     padding: 5px 0;
     font-size: 14px;

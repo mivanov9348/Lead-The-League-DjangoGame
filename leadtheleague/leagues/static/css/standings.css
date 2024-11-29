@@ -1,24 +1,17 @@
 .table-container {
-  width: 100%;
-  max-width:1200px;
+  width: 90%;
   margin: 20px auto;
   text-align: center;
-
+  font-family: 'OLD SPORT 02 ATHLETIC NCV';
 }
 
 .table-header h1 {
-  font-size: 2.5em;
+  font-size: 2.2em;
   font-weight: bold;
-  margin: 0;
+  background-color: var(--darkgreen-color);
+  box-shadow: 2px 2px 5px 5px black;
   color: var(--white-color);
-        font-family: 'OLD SPORT 02 ATHLETIC NCV';
-
-}
-
-.table-header h2 {
-  font-size: 1.5em;
-  color: #ffc700;
-  margin: 5px 0 20px 0;
+  margin-top: 120px;
 }
 
 .standings-table {
@@ -26,6 +19,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  box-shadow: 2px 2px 5px 5px black;
 }
 
 .standings-table thead th {
@@ -43,9 +37,9 @@
   font-size: 1em;
 }
 
-.standings-table tbody tr {
-  background-color: var(--white-color);
-  color: var(--darkgreen-color);
+.standings-table tbody tr:not(.first-place):not(.last-places) {
+  background-color: var(--darkgreen-color);
+  color: var(--white-color);
 }
 
 .icon {
@@ -70,4 +64,16 @@
 
 .icon.gray {
   background-color: gray;
+}
+
+/* Зелен фон за първото място */
+.first-place {
+  background-color: #4CAF50; /* Зелен цвят */
+  color: white; /* Бял текст за контраст */
+}
+
+/* Червен фон за последните две места */
+.last-places {
+  background-color: #F44336; /* Червен цвят */
+  color: white; /* Бял текст за контраст */
 }

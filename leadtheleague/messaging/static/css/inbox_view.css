@@ -1,127 +1,163 @@
-h2 {
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    margin-top: 0;
-}
-
-/* Page layout */
-.news-page {
+/* General layout */
+.inbox-page {
     display: flex;
     height: 100vh;
-    border:2px solid darkgreen;
+    color: #ffffff;
+    box-shadow: 2px 2px 6px 6px lightblue;
+    margin-top:130px;
+    		font-family: 'OLD SPORT 02 ATHLETIC NCV';
 }
 
 /* Sidebar styles */
-.news-sidebar {
-    background-color: var(--darkgreen-color);
+.inbox-sidebar {
     width: 30%;
-    border-right: 2px solid black;
-    padding: 20px;
-    overflow-y: auto;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.news-sidebar h2 {
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    color: white;
-}
-
-.news-list {
     background-color: var(--darkgreen-color);
+    padding: 20px;
+    border-right: 2px solid #444;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.inbox-sidebar form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #666;
+    border-radius: 5px;
+    background-color: #111;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* List styles */
+.inbox-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.news-item,
- .news-item.read{
-    color:white;
+.inbox-item {
     padding: 15px;
-    margin-bottom: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 3px solid #444;
+    background-color: var(--darkgreen-color);
+    transition: all 0.3s ease;
 }
 
-/* Стил за непрочетени съобщения */
-.news-item.unread {
-background: radial-gradient(circle at 24.1% 68.8%, rgb(50, 50, 50) 0%, rgb(0, 0, 0) 99.4%);
-font-weight: bold;
-
+.inbox-item.unread {
+    background-color: var(--darkergreen-color);
+    font-weight: bold;
 }
 
-.news-item:hover {
-    background-color: grey;
-    color:black;
-    transform: scale(1.00);
-    box-shadow: 2px 2px 2px 2px black;
+.inbox-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
-.news-item h3 {
-    margin: 0 0 5px;
-    font-size: 1.2rem;
-    color:white;
-    font-weight:bolder;
+.inbox-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
-.news-item p {
+.inbox-title {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.inbox-date {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.inbox-preview {
+    font-size: 14px;
+    color: #ccc;
     margin: 0;
-    font-size: 0.8rem;
-    color: white;
 }
 
-.news-item a {
-    text-decoration: none;
-}
-
-.date-text{
-    font-style:italic;
-    font-size: 0.7rem;
-    text-decoration: none;
+.inbox-item:hover {
+    background: #444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Detail view styles */
-.news-detail {
+.inbox-detail {
     flex: 1;
     padding: 20px;
-    border: 1px solid darkgreen;
     background-color: var(--darkgreen-color);
+    border-left: 2px solid #444;
+    overflow-y: auto; /* Позволява скролиране, ако съдържанието надвиши височината */
+    max-height: 100%; /* Гарантира, че няма да се разширява над екрана */
 }
 
-.news-detail h2 {
-    font-size: 1.8rem;
-    color: #444;
-    padding-bottom: 10px;
-    margin-bottom: 2px;
-    color: white;
+.detail-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
 }
 
-.news-detail p {
-    font-size: 1rem;
+.detail-date {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 20px;
+}
+
+
+.detail-message {
+    font-size: 16px;
     line-height: 1.6;
-    color: white;
+    color: #ddd;
     word-wrap: break-word; /* Разбива дългите думи на нов ред */
-    word-break: break-word; /* Разбива текста, когато е твърде дълъг */
-    text-align: justify; /* Подравняване на текста по ширина */
+    word-break: break-word; /* Прекъсва думите, ако са твърде дълги */
+    overflow-wrap: break-word; /* Допълнителна защита срещу дълги низове */
+    max-width: 100%; /* Не позволява преливане извън контейнера */
+    overflow: hidden; /* Скрива съдържание, което излиза извън границите */
+    text-align: justify; /* Подравнява текста по ширина */
 }
 
-
-#searchbar
-form {
-    margin-bottom: 0px;
+.no-message {
+    font-size: 18px;
+    color: #aaa;
+    text-align: center;
+    margin-top: 50px;
 }
 
-form input {
-    padding: 5px;
-    font-size: 1rem;
-    width: 100%;
-    margin-right: 5px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-background-color: black;
-color:white;
-
+/* Pagination */
+.pagination {
+    text-align: center;
+    margin-top: 20px;
 }
 
+.pagination a {
+    text-decoration: none;
+    color: #ddd;
+    font-size: 14px;
+    margin: 0 10px;
+}
+
+.pagination a:hover {
+    color: #fff;
+}
+
+.delete-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    float: right;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #e60000;
+}

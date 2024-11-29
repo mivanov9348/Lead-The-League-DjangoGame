@@ -1,0 +1,56 @@
+/* Стил за филтъра */
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: var(--darkgreen-color); /* Бял фон */
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 90%;
+}
+
+.filter-container input,
+.filter-container select,
+.filter-container button,
+.filter-container a {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.filter-container select {
+    text-transform: capitalize;
+}
+
+.filter-container button {
+    background-color: var(--green-color);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-container button:hover {
+    background-color: #0056b3;
+}
+
+.filter-container a {
+    text-align: center;
+    background-color: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+}
+
+.filter-container a:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+.reset-btn{
+    margin-top:610px;
+}

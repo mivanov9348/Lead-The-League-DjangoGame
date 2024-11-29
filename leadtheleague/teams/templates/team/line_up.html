@@ -14,92 +14,115 @@
         {% for message in messages %}
         <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
         {% endfor %}
-        {% else %}
-        <li>You Need To Have 11 Starting Players!</li>
         {% endif %}
     </ul>
-
 </div>
 
-<div class="parent-container" style="display: flex;">
+<div class="lineup-form-container">
+    <form method="post" action="{% url 'teams:save_lineup' %}">
+        {% csrf_token %}
 
-    <div class="lineup-section">
-        <h3>Starting 11</h3>
-        <div class="lineup-positions">
-            {% for slot in position_template %}
-            <div class="lineup-slot">
-                {% if slot.player %}
-                <span>{{ slot.player.first_name }} {{ slot.player.last_name }} - {{ slot.abbreviation }}</span>
-                <form method="post" action="{% url 'teams:lineup_remove_player' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="player_id" value="{{ slot.player.id }}">
-                    <button type="submit" class="remove-player">-</button>
-                </form>
-                {% else %}
-                <span>{{ slot.abbreviation }} - Empty</span>
-                {% endif %}
-            </div>
-            {% endfor %}
+        <!-- Избор на тактика -->
+        <div class="tactics-section">
+            <select id="tactic-select" name="tactic_id" required>
+                <option value="">Choose Tactics:</option>
+                {% for tactic in tactics %}
+                <option value="{{ tactic.id }}" {% if tactic == selected_tactic %}selected{% endif %}>
+                    {{ tactic.name }}
+                </option>
+                {% endfor %}
+            </select>
         </div>
-    </div>
 
-    <div class="players-section">
-        <h3>Available Players</h3>
+        <!-- Таблица с играчи -->
         <table class="players-table">
             <thead>
+            <tr class="save-btn-tr">
+                <th colspan="19">
+                    <button type="submit" class="save-button">Save Line-Up</button>
+                </th>
+            </tr>
             <tr>
-                <th title="Name">Name</th>
-                <th title="Position">Pos</th>
-                <th title="Nationality">Nat</th>
-                <th title="Matches">M</th>
-                <th title="Goals">G</th>
-                <th title="Assists">A</th>
-                <th title="Saves">S</th>
-                <th title="Shots on Target">SoT</th>
-                <th title="Passes">P</th>
-                <th title="Dribbles">D</th>
-                <th title="Tackles">T</th>
-                <th title="Yellow Cards">YC</th>
-                <th title="Red Cards">RC</th>
-                <th title="Fouls">F</th>
-                <th title="Shoots">S</th>
-                <th title="Clean Sheets">CS</th>
-                <th title="Conceded">C</th>
-                <th title="Add">+</th>
+                <th>N</th>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Nationality</th>
+                <th>Matches</th>
+                <th>Goals</th>
+                <th>Assists</th>
+                <th>Shoots (On Target)</th>
+                <th>Passes</th>
+                <th>Dribbles</th>
+                <th>Tackles</th>
+                <th>Fouls</th>
+                <th>Yellow Cards</th>
+                <th>Red Cards</th>
+                <th>Saves</th>
+                <th>Clean Sheets</th>
+                <th>Conceded</th>
+                <th>Starting 11</th>
             </tr>
             </thead>
             <tbody>
-            {% for player in reservePlayers %}
+            {% for player in players %}
             <tr>
-                <td>{{ player.first_name }} {{ player.last_name }}</td>
-                <td>{{ player.position.abbreviation }}</td>
-                <td>{{ player.nationality.abbreviation }}</td>
-                <td>{{ player.season_stats.Matches| default:0 }}</td>
-                <td>{{ player.season_stats.Goals|default:0 }}</td>
-                <td>{{ player.season_stats.Assists|default:0 }}</td>
-                <td>{{ player.season_stats.Saves|default:0 }}</td>
-                <td>{{ player.season_stats.ShootsOnTarget|default:0 }}</td>
-                <td>{{ player.season_stats.Passes|default:0 }}</td>
-                <td>{{ player.season_stats.Dribbles|default:0 }}</td>
-                <td>{{ player.season_stats.Tackles|default:0 }}</td>
-                <td>{{ player.season_stats.YellowCards|default:0 }}</td>
-                <td>{{ player.season_stats.RedCards|default:0 }}</td>
-                <td>{{ player.season_stats.Fouls|default:0 }}</td>
-                <td>{{ player.season_stats.Shoots|default:0 }}</td>
-                <td>{{ player.season_stats.CleanSheets|default:0 }}</td>
-                <td>{{ player.season_stats.Conceded|default:0 }}</td>
+                <td>{{ forloop.counter }}</td>
+                <td><img src="{{ player.image_url }}" class="icon" alt="Team Icon"></td>
+                <td style="width:200px"><a href="{% url 'players:player_profile' player.id %}">{{ player.name|default:"-" }}</a></td>
+                <td>{{ player.position_abbr }}</td>
+                <td>{{ player.nationality_abbr }}</td>
+                <td>{{ player.season_stats.matches }}</td>
+                <td>{{ player.season_stats.goals}}</td>
+                <td>{{ player.season_stats.assists }}</td>
+                <td>{{ player.season_stats.shoots }} ({{ player.season_stats.shootsOnTarget }})</td>
+                <td>{{ player.season_stats.passes }}</td>
+                <td>{{ player.season_stats.dribbles}}</td>
+                <td>{{ player.season_stats.tackles }}</td>
+                <td>{{ player.season_stats.fouls}}</td>
+                <td>{{ player.season_stats.yellowCards }}</td>
+                <td>{{ player.season_stats.redCards }}</td>
+                <td>{{ player.season_stats.saves }}</td>
+                <td>{{ player.season_stats.cleanSheets }}</td>
+                <td>{{ player.season_stats.conceded }}</td>
                 <td>
-                    <form method="post" action="{% url 'teams:lineup_add_player' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="player_id" value="{{ player.id }}">
-                        <button type="submit" class="add-player">+</button>
-                    </form>
+                    <select name="player_assignment_{{ player.id }}">
+                        <option value="reserve" {% if not player.is_starting %}selected{% endif %}>Reserve</option>
+                        <option value="starting" {% if player.is_starting %}selected{% endif %}>Starting</option>
+                    </select>
                 </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+    </form>
 
-    </div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const playerSelects = document.querySelectorAll('select[name^="player_assignment_"]');
+
+    playerSelects.forEach(select => {
+        const row = select.closest("tr"); // Вземи родителския ред на селекта
+
+        // Функция за промяна на цвета
+        const updateRowClass = () => {
+            row.classList.remove("starting", "reserve"); // Премахни предишните класове
+            if (select.value === "starting") {
+                row.classList.add("starting"); // Добави клас за стартов играч
+            } else if (select.value === "reserve") {
+                row.classList.add("reserve"); // Добави клас за резервен играч
+            }
+        };
+
+        // Приложи цвета първоначално
+        updateRowClass();
+
+        // Промяна на класа при избор
+        select.addEventListener("change", updateRowClass);
+    });
+});
+
+</script>
 </div>
+
 {% endblock %}

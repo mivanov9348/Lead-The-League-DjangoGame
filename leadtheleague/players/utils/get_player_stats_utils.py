@@ -87,7 +87,11 @@ def get_players_season_stats_by_team(team):
             'personal_info': {
                 'id': player.id,
                 'name': player.name,
-                'position': player.position.name,
+                'position': player.position.name if player.position else 'Unknown',
+                'position_abbr': player.position.abbreviation if player.position else 'N/A',
+                'nationality': player.nationality.name if player.nationality else 'Unknown',
+                'nationality_abbr': player.nationality.abbreviation if player.nationality else 'N/A',
+                'image_url': player.image.url if player.image else None,
             },
             'season_stats': season_stats,
         }

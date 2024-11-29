@@ -1,14 +1,55 @@
 {% extends 'base.html' %}
 
-{% block title %}Transfer History{% endblock %}
+{% block title %}История на трансферите{% endblock %}
 
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/transfer_history.css' %}">
-
 {% endblock %}
 
 {% block content %}
 {% load humanize %}
-
+<header class="header">
+    <h1>Transfer History</h1>
+    <div class="dropdown">
+        <select id="team-select">
+            <option value="all">All</option>
+            <option value="team1"></option>
+            <option value="team2"></option>
+            <!-- Добавете повече отбори тук -->
+        </select>
+    </div>
+</header>
+<main class="transfer-history">
+    <section class="transfer-card">
+        <h2>In ⬇</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Player</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Попълнете с данни -->
+            </tbody>
+        </table>
+    </section>
+    <section class="transfer-card">
+        <h2>Out ⬆</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Player</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Попълнете с данни -->
+            </tbody>
+        </table>
+    </section>
+</main>
 {% endblock %}

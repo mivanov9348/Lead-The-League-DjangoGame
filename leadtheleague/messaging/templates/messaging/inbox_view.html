@@ -8,47 +8,94 @@
 {% endblock %}
 
 {% block content %}
-<div class="news-page">
+<div class="inbox-page">
     <!-- Sidebar with news list -->
-    <div class="news-sidebar">
+    <div class="inbox-sidebar">
         <form method="get" action="">
+            {% csrf_token %}
             <input type="text" name="search" placeholder="Search messages..." value="{{ request.GET.search }}">
         </form>
         <hr/>
-        <ul class="news-list">
+        <ul class="inbox-list">
             {% for notification in context %}
-            <li class="news-item {% if notification.is_read %}read{% else %}unread{% endif %}">
+            <li class="inbox-item {% if notification.is_read %}read{% else %}unread{% endif %}">
                 <a href="?notification_id={{ notification.id }}">
-                    <p class="notification-title">{{ notification.title }}</p>
-                    <p>{{ notification.preview|default:"No preview" }}</p>
-                    <p class="date-text">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
+                    <div class="inbox-item-header">
+                        <span class="inbox-title">{{ notification.title }}</span>
+                        <span class="inbox-date">{{ notification.date_sent|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    <p class="inbox-preview">{{ notification.preview|default:"No preview" }}</p>
                 </a>
+                <!-- Delete button -->
+                <button class="delete-btn" data-id="{{ notification.id }}">Delete</button>
             </li>
+
             {% endfor %}
         </ul>
-
         <!-- Pagination controls -->
         <div class="pagination">
             {% if context.has_previous %}
-            <a href="?page={{ context.previous_page_number }}">&laquo; Назад</a>
+            <a href="?page={{ context.previous_page_number }}">&laquo; Back</a>
             {% endif %}
-
             {% if context.has_next %}
-            <a href="?page={{ context.next_page_number }}">Forward &raquo;</a>
+            <a href="?page={{ context.next_page_number }}">Next &raquo;</a>
             {% endif %}
         </div>
     </div>
-
     <!-- News detail view -->
-    <div class="news-detail">
+    <div class="inbox-detail">
         {% if notification %}
-        <h2>{{ notification.title }}</h2>
-        <p class="date-text">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
+        <h2 class="detail-title">{{ notification.title }}</h2>
+        <p class="detail-date">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
         <hr/>
-        <p>{{ notification.message }}</p>
+        <p class="detail-message">{{ notification.message }}</p>
         {% else %}
-        <h2>Select a message to view details</h2>
+        <h2 class="no-message">Select a message to view details</h2>
         {% endif %}
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const notificationId = this.getAttribute("data-id");
+            const itemElement = this.closest(".inbox-item");
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            if (confirm("Are you sure you want to delete this notification?")) {
+                fetch(`/messaging/inbox_view/delete/${notificationId}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        itemElement.remove();
+                    } else {
+                        alert(data.message || "Error deleting notification.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Network error. Please try again later.");
+                });
+            }
+        });
+    });
+});
+
+    </script>
+
 </div>
 {% endblock %}

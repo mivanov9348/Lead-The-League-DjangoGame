@@ -30,7 +30,7 @@
         </thead>
         <tbody>
         {% for team in standings %}
-        <tr>
+        <tr class="{% if forloop.first %}first-place{% elif forloop.revcounter <= 2 %}last-places{% endif %}">
             <td>{{ forloop.counter }}</td>
             <td><img src="/media/{{ team.team.logo }}" class="icon"/></td>
             <td>{{ team.team.name }}</td>

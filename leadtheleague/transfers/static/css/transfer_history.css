@@ -1,0 +1,68 @@
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+
+}
+
+.dropdown label {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.dropdown select {
+    padding: 5px;
+    font-size: 16px;
+}
+
+.transfer-history {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.transfer-card {
+    background-color: var(--darkgreen-color);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transfer-card h2 {
+    color: var(--white-color);
+    margin-bottom: 15px;
+    font-size: 20px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table thead {
+    background: #f8f8f8;
+    text-align: left;
+}
+
+table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    font-weight: bold;
+}
+
+table tbody tr:nth-child(even) {
+    background: #f9f9f9;
+}

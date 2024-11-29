@@ -1,121 +1,95 @@
 {% extends 'base.html' %}
 
-{% block title %}All Players{% endblock %}
+{% block title %}Transfer Market{% endblock %}
 
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/all_players.css' %}">
+<link rel="stylesheet" href="{% static 'css/players_filter.css' %}">
 {% endblock %}
 
 {% block content %}
-<h1>All Players</h1>
+{% load humanize %}
 
-<!-- Филтриращ контейнер с полета -->
-<div class="filter-container">
-    <form method="get">
-        <label for="team">Team:</label>
-        <select name="team" id="team">
-            <option value="">All Teams</option>
-            {% for team in teams %}
-            <option value="{{ team.name }}" {% if team.name == request.GET.team %}selected{% endif %}>{{ team.name }}
-            </option>
+<div class="transfer-market">
+    <h1>All Players</h1>
+
+    <!-- Filter and Sort Section -->
+    <div class="filter-container">
+        {% include 'players/_players_filter_form.html' %}
+    </div>
+
+    <!-- Players Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Team</th>
+                <th>Pos</th>
+                <th>Nat</th>
+                <th>Age</th>
+                <th title="Handling">HND</th>
+                <th title="Reflexes">RFX</th>
+                <th title="Finishing">FIN</th>
+                <th title="Shooting">SHT</th>
+                <th title="Technique">TEC</th>
+                <th title="Passing">PAS</th>
+                <th title="Crossing">CRS</th>
+                <th title="Tackling">TCK</th>
+                <th title="Strength">STR</th>
+                <th title="Determination">DET</th>
+                <th title="Speed">SPD</th>
+                <th title="Vision">VIS</th>
+                <th title="WorkRate">WRK</th>
+                <th>💰</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for player in player_data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name }}</a></td>
+                <td>{{ player.team_info.team_name }}</td>
+                <td>{{ player.personal_info.positionabbr }}</td>
+                <td>{{ player.personal_info.nationalityabbr }}</td>
+                <td>{{ player.personal_info.age }}</td>
+                <td>{{ player.attributes.Handling }}</td>
+                <td>{{ player.attributes.Reflexes }}</td>
+                <td>{{ player.attributes.Finishing }}</td>
+                <td>{{ player.attributes.Shooting }}</td>
+                <td>{{ player.attributes.Technique }}</td>
+                <td>{{ player.attributes.Passing }}</td>
+                <td>{{ player.attributes.Crossing }}</td>
+                <td>{{ player.attributes.Tackling }}</td>
+                <td>{{ player.attributes.Strength }}</td>
+                <td>{{ player.attributes.Determination }}</td>
+                <td>{{ player.attributes.Speed }}</td>
+                <td>{{ player.attributes.Vision }}</td>
+                <td>{{ player.attributes.WorkRate }}</td>
+                <td>{{ player.personal_info.price|intcomma }}</td>
+
+            </tr>
             {% endfor %}
-        </select>
+            </tbody>
+        </table>
+    </div>
 
-        <label for="age">Age:</label>
-        <input type="number" name="age" id="age" placeholder="Enter age" value="{{ request.GET.age }}">
-
-        <label for="nationality">Nationality:</label>
-        <select name="nationality" id="nationality">
-            <option value="">All Nationalities</option>
-            {% for nationality in nationalities %}
-            <option value="{{ nationality.abbreviation }}" {% if nationality.abbreviation == request.GET.nationality %}selected{% endif %}>
-                {{ nationality.abbreviation }}
-            </option>
-            {% endfor %}
-        </select>
-
-        <label for="position">Position:</label>
-        <select name="position" id="position">
-            <option value="">All Positions</option>
-            {% for position in positions %}
-            <option value="{{ position.abbreviation }}" {% if position.name == request.GET.position %}selected{% endif %}>{{ position.abbreviation }}
-            </option>
-            {% endfor %}
-        </select>
-
-        <button type="submit">Apply Filters</button>
-    </form>
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if players.has_previous %}
+        <a href="?page={{ players.previous_page_number }}&{{ current_filters }}">&#171; Previous</a>
+        {% endif %}
+        <span>Page {{ players.number }} of {{ players.paginator.num_pages }}</span>
+        {% if players.has_next %}
+        <a href="?page={{ players.next_page_number }}&{{ current_filters }}">Next &#187;</a>
+        {% endif %}
+    </div>
 </div>
 
-<div class="table-container">
-    <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Age</th>
-            <th>Pos</th>
-            <th>Team</th>
-            <th>Nat</th>
-            <th title="Matches"><img src="{% static 'images/matches.png' %}" alt="icon"
-                     style="width:30px; height:16px; vertical-align:middle;"></th>
+{% endblock %}
 
-            <th>G</th>
-            <th>A</th>
-            <th>S</th>
-            <th>St</th>
-            <th>P</th>
-            <th>D</th>
-            <th>T</th>
-            <th>YC</th>
-            <th>RC</th>
-            <th>F</th>
-            <th>S</th>
-            <th>CS</th>
-            <th>C</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for player in player_data %}
-        <tr>
-            <td>{{ player.player.first_name }} {{ player.player.last_name }}</td>
-            <td>{{ player.player.age }}</td>
-            <td>{{ player.player.position.abbreviation }}</td>
-            <td>{{ player.player.team.name }}</td>
-            <td>{{ player.player.nationality.abbreviation }}</td>
-            <td>{{ player.season_stats.matches }}</td>
-            <td>{{ player.season_stats.goals }}</td>
-            <td>{{ player.season_stats.assists }}</td>
-            <td>{{ player.season_stats.shoots }}</td>
-            <td>{{ player.season_stats.shootsOnTarget }}</td>
-            <td>{{ player.season_stats.passes }}</td>
-            <td>{{ player.season_stats.dribbles }}</td>
-            <td>{{ player.season_stats.tackles }}</td>
-            <td>{{ player.season_stats.yellowCards }}</td>
-            <td>{{ player.season_stats.redCards }}</td>
-            <td>{{ player.season_stats.fouls }}</td>
-            <td>{{ player.season_stats.saves }}</td>
-            <td>{{ player.season_stats.cleanSheets }}</td>
-            <td>{{ player.season_stats.conceded }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
+{% block extra_js %}
 
-<div class="pagination">
-    {% if current_page > 1 %}
-    <a href="?page=1">First</a>
-    <a href="?page={{ current_page|add:-1 }}">Previous</a>
-    {% endif %}
-
-    {% for page_num in pages %}
-    <a href="?page={{ page_num }}" class="{% if page_num == current_page %}active{% endif %}">{{ page_num }}</a>
-    {% endfor %}
-
-    {% if current_page < pages|last %}
-    <a href="?page={{ current_page|add:1 }}">Next</a>
-    <a href="?page={{ pages|last }}">Last</a>
-    {% endif %}
-</div>
 {% endblock %}

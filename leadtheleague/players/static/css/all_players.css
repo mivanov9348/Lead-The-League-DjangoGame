@@ -1,86 +1,112 @@
 h1 {
     text-align: center;
-    color: #333;
+    color: #222; /* Тъмен цвят за текста */
+    font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-transform: uppercase;
 }
 
-.filter-container {
-    width: 100%;
-    margin: 20px auto;
-    padding: 10px;
-    background-color: #f8f8f8;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-}
-
-.filter-container input, .filter-container select {
-    margin: 5px;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.filter-container label {
-    font-weight: bold;
-}
-
+/* Стил за контейнера на таблицата */
 .table-container {
-    justify-content:center;
-    width:100%;
     margin: 20px auto;
-    border-collapse: collapse;
-    border: 1px solid white; /* Бордър на цялата таблица */
+    padding: 20px;
+    background-color: var(--darkgreen-color); /* Светъл фон за контраста */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Мек сенчест ефект */
+    overflow-x: auto; /* Скрол при тесни екрани */
+    max-width: 95%;
+}
+
+/* Стил за самата таблица */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Без разстояние между клетките */
     text-align: center;
-    background-color: #333; /* Тъмен фон на таблицата */
+    font-family: 'Arial', sans-serif;
+    font-size: 0.95em;
+    background-color: var(--darkgreen-color); /* Бял фон за таблицата */
+    border: 1px solid #ddd; /* Бордюр около таблицата */
+}
+
+/* Стил за хедъра */
+th {
+    background-color: var(--green-color); /* Бял фон за таблицата */
+    color: white; /* Бял текст */
+    padding: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: 1px solid #ccc;
+    position: sticky; /* Фиксиран хедър */
+    top: 0;
+    z-index: 2;
+}
+
+/* Клетки на таблицата */
+td {
+    padding: 12px;
+    border: 1px solid #ddd; /* Лек бордюр между клетките */
     color: white; /* Бял текст */
 }
 
+/* Алтернативен фон за редовете */
+tbody tr:nth-child {
+    background-color: var(--darkgreen-color); /* Бял фон за таблицата */
+        color: white; /* Бял текст */
 
-th, td {
-    padding: 12px;
-    border: 1px solid white; /* Бял бордюр на клетките */
 }
 
-th {
-    background-color: #444; /* По-светъл фон за хедъра */
-    color: white;
+/* Hover ефект върху редовете */
+tbody tr:hover {
+    background-color: #e9ecef; /* Светлосин фон при задържане */
+    transition: background-color 0.3s ease; /* Плавен преход */
 }
 
-tr:hover {
-    background-color: #555; /* По-тъмен фон при задържане на ред */
+/* Цени и важни числа да изпъкват */
+td:last-child {
+    font-weight: bold;
+    color: white; /* Бял текст */
 }
 
+/* Стил за линковете в таблицата */
+a {
+    color: white; /* Бял текст */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #0056b3; /* По-тъмен син цвят */
+    text-decoration: underline;
+}
+
+/* Стил за пагинацията */
 .pagination {
     display: flex;
     justify-content: center;
     margin-top: 20px;
     padding: 10px 0;
+    font-family: 'Arial', sans-serif;
 }
 
 .pagination a {
     margin: 0 5px;
     padding: 8px 12px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
     text-decoration: none;
-    color: #333;
+    color: #007bff;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
 }
 
 .pagination a.active {
     background-color: #007bff;
     color: white;
+    border-color: #007bff;
 }
 
 .pagination a:hover:not(.active) {
-    background-color: #f1f1f1;
+    background-color: #e9ecef;
 }
 
-.pagination a.disabled {
-    background-color: #ddd;
-    pointer-events: none;
-}
-
-.table-container {
-    max-width: 100%;
-    overflow-x: auto;
-}
