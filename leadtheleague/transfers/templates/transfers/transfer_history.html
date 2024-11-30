@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}История на трансферите{% endblock %}
+{% block title %}Transfer History{% endblock %}
 
 {% block extra_css %}
 {% load static %}
@@ -10,46 +10,96 @@
 {% block content %}
 {% load humanize %}
 <header class="header">
-    <h1>Transfer History</h1>
+
     <div class="dropdown">
         <select id="team-select">
             <option value="all">All</option>
-            <option value="team1"></option>
-            <option value="team2"></option>
-            <!-- Добавете повече отбори тук -->
+            {% for team in all_teams %}
+            <option value="{{ team.id }}" {% if team.id|stringformat:"s" == team_id|stringformat:"s" %}selected{% endif %}>
+            {{ team.name }}
+            </option>
+            {% endfor %}
         </select>
     </div>
 </header>
 <main class="transfer-history">
-    <section class="transfer-card">
+    <section class="transfer-card transfers-in">
         <h2>In ⬇</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Player</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Попълнете с данни -->
-            </tbody>
-        </table>
+        <!-- Добавен е ред за заглавие -->
+        <div class="transfer-header">
+            <span class="transfer-date">Date</span>
+            <span class="transfer-player">Player</span>
+            <span class="transfer-from">From</span>
+            <span class="transfer-amount">Amount</span>
+        </div>
+        <ul class="transfer-list">
+            {% for transfer in transfers_in %}
+            <li class="transfer-item">
+                <span class="transfer-date">{{ transfer.transfer_date }}</span>
+                <span class="transfer-player">
+                    <a href="{% url 'players:player_profile' transfer.player.id %}">
+                        {{ transfer.player.name }}
+                    </a>
+                </span>
+                <span class="transfer-from">{{ transfer.selling_team.name }}</span>
+                <span class="transfer-amount">{% if transfer.is_free_agent %}Free{% else %}{{ transfer.amount|floatformat:2 }}{% endif %}</span>
+            </li>
+            {% empty %}
+            <li class="transfer-item no-transfers">No transfers in.</li>
+            {% endfor %}
+        </ul>
     </section>
-    <section class="transfer-card">
+
+    <section class="transfer-card transfers-out">
         <h2>Out ⬆</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Player</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Попълнете с данни -->
-            </tbody>
-        </table>
+        <!-- Добавен е ред за заглавие -->
+        <div class="transfer-header">
+            <span class="transfer-date">Date</span>
+            <span class="transfer-player">Player</span>
+            <span class="transfer-to">To</span>
+            <span class="transfer-amount">Amount</span>
+        </div>
+        <ul class="transfer-list">
+            {% for transfer in transfers_out %}
+            <li class="transfer-item">
+                <span class="transfer-date">{{ transfer.transfer_date }}</span>
+                <span class="transfer-player">
+                    <a href="{% url 'players:player_profile' transfer.player.id %}">
+                        {{ transfer.player.name }}
+                    </a>
+                </span>
+                <span class="transfer-to">{{ transfer.buying_team.name }}</span>
+                <span class="transfer-amount">{% if transfer.is_free_agent %}Free{% else %}{{ transfer.amount|floatformat:2 }}{% endif %}</span>
+            </li>
+            {% empty %}
+            <li class="transfer-item no-transfers">No transfers out.</li>
+            {% endfor %}
+        </ul>
     </section>
 </main>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Вземане на dropdown менюто и текста за избрания отбор
+        const teamSelect = document.getElementById('team-select');
+        const selectedTeamText = document.getElementById('selected-team');
+
+        // Добавяне на event listener за промяна на селекцията
+        teamSelect.addEventListener('change', function () {
+            // Вземане на текста и стойността на избрания отбор
+            const selectedTeamName = teamSelect.options[teamSelect.selectedIndex].text;
+            const selectedTeam = teamSelect.value;
+
+            // Актуализация на текста на избрания отбор (по желание)
+            if (selectedTeamText) {
+                selectedTeamText.textContent = selectedTeamName;
+            }
+
+            // Пренасочване към новия URL с параметър
+            window.location.href = "{% url 'transfers:transfer_history' %}?team=" + selectedTeam;
+        });
+    });
+</script>
+
 {% endblock %}

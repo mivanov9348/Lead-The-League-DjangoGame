@@ -3,8 +3,21 @@ from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import team_expense
 from transfers.models import Transfer
 
+
 def get_all_transfers():
     return Transfer.objects.all()
+
+def transfer_history_by_team(team_id):
+    transfers_in = Transfer.objects.filter(buying_team_id=team_id).order_by('-transfer_date')
+    transfers_out = Transfer.objects.filter(selling_team_id=team_id).order_by('-transfer_date')
+
+
+
+    transfers = {
+        'transfers_in': transfers_in,
+        'transfers_out': transfers_out,
+    }
+    return transfers
 
 def transfer_free_agent(team, player):
     with transaction.atomic():
@@ -14,6 +27,7 @@ def transfer_free_agent(team, player):
         Transfer.objects.create(player=player, buying_team=team, selling_team=None, amount=player.price,
                                 is_free_agent=True)
         team_expense(team, player.price)
+
 
 def filter_free_agents(free_agents, nationality='', position='', age=None):
     if nationality:
@@ -28,6 +42,7 @@ def filter_free_agents(free_agents, nationality='', position='', age=None):
             pass
     return free_agents
 
+
 def sort_free_agents(free_agents, sort_field='', order='asc'):
     reverse = order == 'desc'
     if sort_field:
@@ -36,4 +51,3 @@ def sort_free_agents(free_agents, sort_field='', order='asc'):
         else:  # Сортировка по атрибути
             free_agents.sort(key=lambda x: x.get('attributes', {}).get(sort_field, 0), reverse=reverse)
     return free_agents
-

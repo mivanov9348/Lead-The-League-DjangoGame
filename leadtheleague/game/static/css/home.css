@@ -34,8 +34,8 @@
     box-shadow: 0 8px 50px rgba(0, 0, 0, 0.9);
 }
 .card-header {
-    background-color: var(--green-color);
-    color: black;
+    background-color: var(--darkergreen-color);
+    color: white;
     font-size: 1.5rem;
     text-align: center;
     padding: 15px;
@@ -96,7 +96,7 @@
     width: 40%;
     height: 150px; /* Фиксирана височина за по-добър външен вид */
     margin: 0 auto; /* Центрира блокът хоризонтално */
-    background-color: var(--green-color); /* Примерен цвят за фонове */
+    background-color: var(--darkergreen-color); /* Примерен цвят за фонове */
     border: 3px solid var(--black-color); /* Граница на постера */
     border-radius: 15px; /* Заоблени ъгли на постера */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Лек сенчест ефект */

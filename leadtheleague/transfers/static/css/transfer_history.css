@@ -1,68 +1,141 @@
-
-.header {
+.transfer-history {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    gap: 10px; /* Разстояние между секциите */
 
-.header h1 {
-    font-size: 24px;
-    font-weight: bold;
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-
-}
-
-.dropdown label {
-    margin-right: 10px;
-    font-size: 16px;
-}
-
-.dropdown select {
-    padding: 5px;
-    font-size: 16px;
-}
-
-.transfer-history {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
 }
 
 .transfer-card {
+    flex: 1;
     background-color: var(--darkgreen-color);
-    border: 1px solid #ddd;
+    border: 1px solid #333;
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    height:700px;
+}
+
+.transfers-in {
+    margin-right: 10px;
+}
+
+.transfers-out {
+    margin-left: 10px;
 }
 
 .transfer-card h2 {
-    color: var(--white-color);
-    margin-bottom: 15px;
-    font-size: 20px;
     text-align: center;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table thead {
-    background: #f8f8f8;
-    text-align: left;
-}
-
-table th, table td {
-    padding: 10px;
-    border: 1px solid #ddd;
-}
-
-table th {
+    color: var(--blue-color);
+    margin-bottom: 15px;
+    font-size: 18px;
     font-weight: bold;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
 }
 
-table tbody tr:nth-child(even) {
-    background: #f9f9f9;
+.transfer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.transfer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background-color: var(--darkgreen-color);
+    border: 1px solid #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.transfer-item:nth-child(even) {
+    background-color: #005500; /* По-наситено зелено за редуване */
+}
+
+.transfer-item span {
+    font-size: 16px;
+    color: var(--blue-color);
+}
+
+.transfer-item .transfer-player a {
+    color: var(--white-color);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.transfer-item .transfer-player a:hover {
+    color: var(--lightblue-color);
+    text-decoration: underline;
+}
+
+.transfer-item.no-transfers {
+    text-align: center;
+    font-style: italic;
+    color: var(--white-color);
+    background-color: rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+/* Адаптивност за малки екрани */
+@media (max-width: 768px) {
+    .transfer-history {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .transfer-card {
+        margin: 0;
+    }
+
+    .transfer-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .transfer-item span {
+        font-size: 14px;
+        text-align: left;
+        padding: 5px 0;
+    }
+}
+
+.transfer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    background-color: var(--blue-color);
+    border: 1px solid #333;
+    border-radius: 8px;
+    font-weight: bold;
+    color: black;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.transfer-header span {
+    flex: 1;
+    text-align: center;
+    padding: 0 8px;
+}
+
+.transfer-header .transfer-date {
+    max-width: 100px;
+}
+
+.transfer-header .transfer-amount {
+    font-weight: bold;
+    color: var(--lightgreen-color);
+}
+
+.dropdown #team-select{
+    background-color: var(--darkgreen-color);
+    color: var(--white-color);
+    border-radius: 5px;
 }

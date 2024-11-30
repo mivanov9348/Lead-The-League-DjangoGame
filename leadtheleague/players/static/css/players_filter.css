@@ -1,33 +1,34 @@
-/* Стил за филтъра */
 .filter-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     margin: 20px auto;
     padding: 15px;
-    background-color: var(--darkgreen-color); /* Бял фон */
-    border: 1px solid #ddd;
+    background-color: var(--darkgreen-color);
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 90%;
+    max-width: 1200px;
 }
 
-.filter-container input,
-.filter-container select,
-.filter-container button,
-.filter-container a {
+.filter-row {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.filter-row select,
+.filter-row input,
+.filter-row button,
+.filter-row a {
+    flex: 1;
+    max-width: 200px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 14px;
-    width: 100%;
 }
 
-.filter-container select {
-    text-transform: capitalize;
-}
-
-.filter-container button {
+button {
     background-color: var(--green-color);
     color: white;
     font-weight: bold;
@@ -35,22 +36,32 @@
     transition: background-color 0.3s ease;
 }
 
-.filter-container button:hover {
+button:hover {
     background-color: #0056b3;
 }
 
-.filter-container a {
+a.reset-btn {
     text-align: center;
     background-color: #f8f9fa;
     color: #333;
     text-decoration: none;
+    padding: 10px;
+    font-weight: bold;
 }
 
-.filter-container a:hover {
+a.reset-btn:hover {
     background-color: #e9ecef;
     color: #007bff;
 }
 
-.reset-btn{
-    margin-top:610px;
+/* Филтър за отбор и сортиране */
+.filter-row select {
+    max-width: 250px;
+}
+
+/* Дълги текстове в дропдауните */
+.filter-row select option {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }

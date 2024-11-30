@@ -11,35 +11,31 @@ h1 {
 .table-container {
     margin: 20px auto;
     padding: 20px;
-    background-color: var(--darkgreen-color); /* Светъл фон за контраста */
+    background-color: var(--darkgreen-color);
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Мек сенчест ефект */
-    overflow-x: auto; /* Скрол при тесни екрани */
-    max-width: 95%;
+    overflow-x: auto;
 }
-
 /* Стил за самата таблица */
 table {
     width: 100%;
-    border-collapse: collapse; /* Без разстояние между клетките */
+    border-collapse: collapse;
     text-align: center;
-    font-family: 'Arial', sans-serif;
-    font-size: 0.95em;
-    background-color: var(--darkgreen-color); /* Бял фон за таблицата */
-    border: 1px solid #ddd; /* Бордюр около таблицата */
+    font-size: 0.85em;
+    table-layout: fixed; /* Уверява, че колоните ще имат фиксирана ширина */
 }
 
-/* Стил за хедъра */
-th {
-    background-color: var(--green-color); /* Бял фон за таблицата */
-    color: white; /* Бял текст */
-    padding: 15px;
-    font-weight: bold;
-    text-transform: uppercase;
-    border: 1px solid #ccc;
-    position: sticky; /* Фиксиран хедър */
-    top: 0;
-    z-index: 2;
+/* Стил за хедъра и клетките */
+th, td {
+    width: 30px; /* Примерна тесна ширина за колоните със статистика */
+}
+
+/* Разширяване на колоните за име и държава */
+th:nth-child(2), td:nth-child(2) { /* Втората колона (Име) */
+    width: 90px; /* Пример за по-широко */
+}
+
+th:nth-child(3), td:nth-child(3) { /* Петата колона (Националност) */
+    width: 90px; /* Пример за по-широко */
 }
 
 /* Клетки на таблицата */
@@ -48,6 +44,8 @@ td {
     border: 1px solid #ddd; /* Лек бордюр между клетките */
     color: white; /* Бял текст */
 }
+
+
 
 /* Алтернативен фон за редовете */
 tbody tr:nth-child {

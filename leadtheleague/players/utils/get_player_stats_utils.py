@@ -1,6 +1,9 @@
 from django.core.cache import cache
-from django.db.models import Prefetch, QuerySet
-from players.models import Player, PlayerSeasonStatistic, Position, Nationality, Attribute
+from django.db.models import Prefetch, QuerySet, Avg
+
+from game.utils import get_current_season
+from players.models import Player, PlayerSeasonStatistic, Position, Nationality, Attribute, PlayerMatchRating
+
 
 def get_all_nationalities() -> QuerySet[Nationality]:
     """Retrieve all nationalities from the database."""
@@ -11,12 +14,27 @@ def get_all_positions() -> QuerySet[Position]:
     """Retrieve all positions from the database."""
     return Position.objects.all()
 
+
+def get_average_player_rating_for_current_season(player: Player) -> float:
+    # Получаваме текущия сезон
+    current_season = get_current_season()
+
+    # Изчисляваме средния рейтинг за играча за текущия сезон
+    average_rating = PlayerMatchRating.objects.filter(
+        player=player,
+        match__season=current_season  # Предполага се, че атрибутът 'season' е наличен
+    ).aggregate(Avg('rating'))['rating__avg']
+
+    return average_rating if average_rating is not None else 0.0
+
+
 def get_attributes():
     attributes = cache.get('attributes')
     if not attributes:
         attributes = list(Attribute.objects.values_list('name', flat=True))
         cache.set('attributes', attributes, 3600)  # Кеширане за 1 час
     return attributes
+
 
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
