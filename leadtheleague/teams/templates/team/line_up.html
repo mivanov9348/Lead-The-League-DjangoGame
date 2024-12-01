@@ -72,19 +72,19 @@
                 <td style="width:200px"><a href="{% url 'players:player_profile' player.id %}">{{ player.name|default:"-" }}</a></td>
                 <td>{{ player.position_abbr }}</td>
                 <td>{{ player.nationality_abbr }}</td>
-                <td>{{ player.season_stats.matches }}</td>
-                <td>{{ player.season_stats.goals}}</td>
-                <td>{{ player.season_stats.assists }}</td>
-                <td>{{ player.season_stats.shoots }} ({{ player.season_stats.shootsOnTarget }})</td>
-                <td>{{ player.season_stats.passes }}</td>
-                <td>{{ player.season_stats.dribbles}}</td>
-                <td>{{ player.season_stats.tackles }}</td>
-                <td>{{ player.season_stats.fouls}}</td>
-                <td>{{ player.season_stats.yellowCards }}</td>
-                <td>{{ player.season_stats.redCards }}</td>
-                <td>{{ player.season_stats.saves }}</td>
-                <td>{{ player.season_stats.cleanSheets }}</td>
-                <td>{{ player.season_stats.conceded }}</td>
+                <td>{{ player.season_stats.Matches }}</td>
+                <td>{{ player.season_stats.Goals}}</td>
+                <td>{{ player.season_stats.Assists }}</td>
+                <td>{{ player.season_stats.Shoots }} ({{ player.season_stats.ShootsOnTarget }})</td>
+                <td>{{ player.season_stats.Passes }}</td>
+                <td>{{ player.season_stats.Dribbles}}</td>
+                <td>{{ player.season_stats.Tackles }}</td>
+                <td>{{ player.season_stats.Fouls}}</td>
+                <td>{{ player.season_stats.YellowCards }}</td>
+                <td>{{ player.season_stats.RedCards }}</td>
+                <td>{{ player.season_stats.Saves }}</td>
+                <td>{{ player.season_stats.CleanSheets }}</td>
+                <td>{{ player.season_stats.Conceded }}</td>
                 <td>
                     <select name="player_assignment_{{ player.id }}">
                         <option value="reserve" {% if not player.is_starting %}selected{% endif %}>Reserve</option>

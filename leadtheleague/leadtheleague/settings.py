@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 from huey import RedisHuey
 
-
-
 BASE_DIR = Path(__file__).resolve().parent
 
 STATIC_URL = '/static/'
@@ -35,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'django.contrib.humanize',
     'huey.contrib.djhuey',
+    'django_extensions',
     'channels',
     'teams',
     'accounts',
@@ -44,7 +43,8 @@ INSTALLED_APPS = [
     'fixtures',
     'messaging',
     'match',
-    'transfers'
+    'transfers',
+    'finance'
 ]
 
 MIDDLEWARE = [

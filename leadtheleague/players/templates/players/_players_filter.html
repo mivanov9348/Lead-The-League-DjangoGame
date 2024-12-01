@@ -1,0 +1,104 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/players_filter.css' %}">
+<form method="get" class="filter-container">
+    <!-- Row 1: Nationality, Age Range, Position -->
+    <div class="filter-row">
+        <div class="filter-group">
+            <label for="nationality">Nationality</label>
+            <select name="nationality" id="nationality">
+                <option value="">All Nationalities</option>
+                {% for nationality in nationalities %}
+                <option value="{{ nationality.abbreviation }}" {% if nationality.abbreviation == request.GET.nationality %}selected{% endif %}>
+                    {{ nationality.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="age_min">Min Age</label>
+            <input type="number" name="age_min" id="age_min" placeholder="Min Age" value="{{ request.GET.age_min }}">
+        </div>
+        <div class="filter-group">
+            <label for="age_max">Max Age</label>
+            <input type="number" name="age_max" id="age_max" placeholder="Max Age" value="{{ request.GET.age_max }}">
+        </div>
+        <div class="filter-group">
+            <label for="position">Position</label>
+            <select name="position" id="position">
+                <option value="">All Positions</option>
+                {% for position in positions %}
+                <option value="{{ position.abbreviation }}" {% if position.abbreviation == request.GET.position %}selected{% endif %}>
+                    {{ position.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Row 2: Sorting -->
+    <div class="filter-row">
+        <div class="filter-group">
+            <label for="sort_by">Sort By</label>
+            <select name="sort_by" id="sort_by">
+                <option value="">Sort By</option>
+                <option value="matches" {% if request.GET.sort_by == "matches" %}selected{% endif %}>Matches</option>
+                <option value="goals" {% if request.GET.sort_by == "goals" %}selected{% endif %}>Goals</option>
+                <option value="assists" {% if request.GET.sort_by == "assists" %}selected{% endif %}>Assists</option>
+                <option value="shoots" {% if request.GET.sort_by == "shoots" %}selected{% endif %}>Shoots</option>
+                <option value="shootsOnTarget" {% if request.GET.sort_by == "shootsOnTarget" %}selected{% endif %}>Shoots On Target</option>
+                <option value="passes" {% if request.GET.sort_by == "passes" %}selected{% endif %}>Passes</option>
+                <option value="dribbles" {% if request.GET.sort_by == "dribbles" %}selected{% endif %}>Dribbles</option>
+                <option value="tackles" {% if request.GET.sort_by == "tackles" %}selected{% endif %}>Tackles</option>
+                <option value="yellowCards" {% if request.GET.sort_by == "yellowCards" %}selected{% endif %}>Yellow Cards</option>
+                <option value="redCards" {% if request.GET.sort_by == "redCards" %}selected{% endif %}>Red Cards</option>
+                <option value="minutesPlayed" {% if request.GET.sort_by == "minutesPlayed" %}selected{% endif %}>Minutes Played</option>
+                <option value="fouls" {% if request.GET.sort_by == "fouls" %}selected{% endif %}>Fouls</option>
+                <option value="saves" {% if request.GET.sort_by == "saves" %}selected{% endif %}>Saves</option>
+                <option value="cleanSheets" {% if request.GET.sort_by == "cleanSheets" %}selected{% endif %}>Clean Sheets</option>
+                <option value="conceded" {% if request.GET.sort_by == "conceded" %}selected{% endif %}>Conceded</option>
+                <option value="price" {% if request.GET.sort_by == "price" %}selected{% endif %}>Price</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="order">Order</label>
+            <select name="order" id="order">
+                <option value="asc" {% if request.GET.order == "asc" %}selected{% endif %}>Ascending</option>
+                <option value="desc" {% if request.GET.order == "desc" %}selected{% endif %}>Descending</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Row 3: Attributes Sorting -->
+    <div class="filter-row">
+        <div class="filter-group">
+            <label for="attribute_sort_by">Sort By Attribute</label>
+            <select name="attribute_sort_by" id="attribute_sort_by">
+                <option value="">Sort By Attribute</option>
+                <option value="handling" {% if request.GET.attribute_sort_by == "handling" %}selected{% endif %}>Handling</option>
+                <!-- Add other options as needed -->
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="attribute_order">Attribute Order</label>
+            <select name="attribute_order" id="attribute_order">
+                <option value="asc" {% if request.GET.attribute_order == "asc" %}selected{% endif %}>Ascending</option>
+                <option value="desc" {% if request.GET.attribute_order == "desc" %}selected{% endif %}>Descending</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Row 4: Free Agents -->
+    <div class="filter-row">
+        <label>
+            <input type="checkbox" name="free_agents" value="1" {% if request.GET.free_agents == "1" %}checked{% endif %}>
+            Show Free Agents Only
+        </label>
+    </div>
+
+    <!-- Row 5: Buttons -->
+    <div class="filter-row">
+        <button type="submit">Apply Filters</button>
+        <a href="{% url 'players:all_players' %}" class="reset-btn">Reset</a>
+    </div>
+</form>

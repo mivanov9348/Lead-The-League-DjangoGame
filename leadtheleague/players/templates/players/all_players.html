@@ -4,9 +4,7 @@
 {% block extra_css %}
 {% load static %}
 {% load humanize %}
-
 <link rel="stylesheet" href="{% static 'css/all_players.css' %}">
-<link rel="stylesheet" href="{% static 'css/players_filter.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,56 +12,7 @@
 <div class="transfer-market">
     <h1>All Players</h1>
 
-    <!-- Filter Section -->
-    <form method="get" class="filter-container">
-    <div class="filter-row">
-        <select name="team" id="team">
-            <option value="">All Teams</option>
-            {% for team in teams %}
-            <option value="{{ team }}">{{ team }}</option>
-            {% endfor %}
-        </select>
-        <select name="nationality" id="nationality">
-            <option value="">All Nationalities</option>
-            {% for nationality in nationalities %}
-            <option value="{{ nationality.abbreviation }}">{{ nationality.name }}</option>
-            {% endfor %}
-        </select>
-        <select name="position" id="position">
-            <option value="">All Positions</option>
-            {% for position in positions %}
-            <option value="{{ position.abbreviation }}">{{ position.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="number" name="age_min" placeholder="Min Age">
-        <input type="number" name="age_max" placeholder="Max Age">
-        <button type="submit">Apply</button>
-    </div>
-    <div class="filter-row">
-        <select name="sort_by" id="sort_by">
-            <option value="">Sort By</option>
-            <option value="assists">Assists</option>
-            <option value="cleanSheets">Clean Sheets</option>
-            <option value="conceded">Conceded</option>
-            <option value="dribbles">Dribbles</option>
-            <option value="fouls">Fouls</option>
-            <option value="goals">Goals</option>
-            <option value="matches">Matches</option>
-            <option value="minutesPlayed">Minutes Played</option>
-            <option value="passes">Passes</option>
-            <option value="redCards">Red Cards</option>
-            <option value="saves">Saves</option>
-            <option value="shoots">Shoots</option>
-            <option value="shootsOnTarget">Shoots On Target</option>
-            <option value="tackles">Tackles</option>
-            <option value="yellowCards">Yellow Cards</option>
-            <option value="price">Price</option>
-        </select>
-        <button type="submit">Filter</button>
-        <a href="{% url 'players:all_players' %}" class="reset-btn">Reset</a> <!-- Фиксирано -->
-    </div>
-</form>
-
+   {% include 'players/_players_filter.html' %}
 
     <!-- Players Table -->
     <div class="table-container">
@@ -113,21 +62,21 @@
                 <td>{{ player.personal_info.positionabbr }}</td>
                 <td>{{ player.personal_info.nationalityabbr }}</td>
                 <td>{{ player.personal_info.age }}</td>
-                <td>{{ player.season_stats.goals }}</td>
-                <td>{{ player.season_stats.assists }}</td>
-                <td>{{ player.season_stats.matches }}</td>
-                <td>{{ player.season_stats.minutesPlayed }}</td>
-                <td>{{ player.season_stats.passes }}</td>
-                <td>{{ player.season_stats.dribbles }}</td>
-                <td>{{ player.season_stats.shoots }} ({{ player.season_stats.shootsOnTarget }})</td>
-                <td>{{ player.season_stats.tackles }}</td>
-                <td>{{ player.season_stats.cleanSheets }}</td>
-                <td>{{ player.season_stats.conceded }}</td>
-                <td>{{ player.season_stats.saves }}</td>
-                <td>{{ player.season_stats.fouls }}</td>
-                <td>{{ player.season_stats.yellowCards }}</td>
-                <td>{{ player.season_stats.redCards }}</td>
-                <td>{{ player.personal_info.rating }}</td>
+                <td>{{ player.season_stats.Goals }}</td>
+                <td>{{ player.season_stats.Assists }}</td>
+                <td>{{ player.season_stats.Matches }}</td>
+                <td>{{ player.season_stats.MinutesPlayed }}</td>
+                <td>{{ player.season_stats.Passes }}</td>
+                <td>{{ player.season_stats.Dribbles }}</td>
+                <td>{{ player.season_stats.Shoots }} ({{ player.season_stats.ShootsOnTarget }})</td>
+                <td>{{ player.season_stats.Tackles }}</td>
+                <td>{{ player.season_stats.CleanSheets }}</td>
+                <td>{{ player.season_stats.Conceded }}</td>
+                <td>{{ player.season_stats.Saves }}</td>
+                <td>{{ player.season_stats.Fouls }}</td>
+                <td>{{ player.season_stats.YellowCards }}</td>
+                <td>{{ player.season_stats.RedCards }}</td>
+                <td>{{ player.personal_info.Rating }}</td>
                 <td>{{ player.personal_info.price|intcomma }}</td>
             </tr>
             {% endfor %}

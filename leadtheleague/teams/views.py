@@ -1,8 +1,6 @@
 from django.db.models import Prefetch
-from django.urls import reverse
-
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
-    get_player_attributes, get_players_season_stats_by_team
+    get_player_attributes
 from .forms import TeamCreationForm, TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
@@ -10,7 +8,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
 from .utils.generate_team_utils import replace_dummy_team
 
 
@@ -36,10 +33,43 @@ def create_team(request):
     return render(request, 'team/create_team.html', {'form': form})
 
 
+def get_sort_field(sort_by):
+    valid_sort_fields = {
+        'shirt_number': 'shirt_number',
+        'name': 'player__first_name',
+        'positionabbr': 'player__position__id',
+        'nationalityabbr': 'player__nationality__abbreviation',
+        'handling': 'player__playerattribute__handling',
+        'reflexes': 'player__playerattribute__reflexes',
+        'Finishing': 'player__playerattribute__Finishing',
+        'shooting': 'player__playerattribute__shooting',
+        'technique': 'player__playerattribute__technique',
+        'passing': 'player__playerattribute__passing',
+        'crossing': 'player__playerattribute__crossing',
+        'tackling': 'player__playerattribute__tackling',
+        'strength': 'player__playerattribute__strength',
+        'determination': 'player__playerattribute__determination',
+        'ball_control': 'player__playerattribute__ball_control',
+        'dribbling': 'player__playerattribute__dribbling',
+        'speed': 'player__playerattribute__speed',
+        'vision': 'player__playerattribute__vision',
+        'work_rate': 'player__playerattribute__work_rate',
+    }
+
+    return valid_sort_fields.get(sort_by, 'player__first_name')  # Default е по име
+
+
 def squad(request):
     team = get_object_or_404(Team, user=request.user)
 
-    # Вземаме всички играчи на отбора с техните статистики и други свързани обекти наведнъж
+    sort_by = request.GET.get('sort_by', 'name')
+    order = request.GET.get('order', 'asc')
+
+    sort_field = get_sort_field(sort_by)
+
+    if order == 'desc':
+        sort_field = f'-{sort_field}'
+
     team_players = TeamPlayer.objects.filter(team=team).select_related('player').prefetch_related(
         Prefetch(
             'player__season_stats',
@@ -49,9 +79,8 @@ def squad(request):
             'player__playerattribute_set',
             queryset=PlayerAttribute.objects.select_related('attribute')
         )
-    )
+    ).order_by(sort_field)
 
-    # Извличаме данни за всеки играч
     players_data = []
     for team_player in team_players:
         player = team_player.player
@@ -62,10 +91,12 @@ def squad(request):
             'stats': get_player_season_stats(player)
         })
 
-    # Подготвяме контекста за шаблона
+    # Подгответе контекста за шаблона
     context = {
         'team': team,
-        'players_data': players_data
+        'players_data': players_data,
+        'current_sort': sort_by,
+        'current_order': order
     }
     return render(request, 'team/squad.html', context)
 
@@ -79,6 +110,7 @@ def team_stats(request):
     }
 
     return render(request, 'team/team_stats.html', context)
+
 
 @login_required
 @csrf_exempt
@@ -153,6 +185,7 @@ def line_up(request):
     }
 
     return render(request, "team/line_up.html", context)
+
 
 @login_required
 @csrf_exempt

@@ -33,9 +33,9 @@ from players.models import PlayerMatchStatistic, PlayerMatchRating
 #     return int(base_price * age_factor + total_attributes * 10000)
 
 def get_base_price(position_name):
-    setting_name = f'{position_name}_Base_Price'
+    setting_name = f'{position_name}_base_price'
     try:
-        return Settings.objects.get(name=setting_name).value
+        return Settings.objects.get(key=setting_name).value
     except Settings.DoesNotExist:
         logging.error(f"Настройката '{setting_name}' не съществува.")
         return 100000

@@ -6,7 +6,6 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/transfer_market.css' %}">
 <link rel="stylesheet" href="{% static 'css/player_offer_modal.css' %}">
-<link rel="stylesheet" href="{% static 'css/filter.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -21,7 +20,7 @@
 
     <!-- Filter and Sort Section -->
     <div class="filter-container">
-        {% include 'transfers/_filter_form.html' %}
+        {% include 'players/_players_filter.html' %}
     </div>
 
     <!-- Players Table -->

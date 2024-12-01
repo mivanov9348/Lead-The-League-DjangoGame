@@ -3,65 +3,71 @@
     flex-direction: column;
     gap: 15px;
     margin: 20px auto;
-    padding: 15px;
+    padding: 20px;
     background-color: var(--darkgreen-color);
     border-radius: 10px;
     width: 90%;
     max-width: 1200px;
+    color: var(--white-color);
+    border: 1px solid #ddd;
 }
 
 .filter-row {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
     justify-content: space-between;
 }
 
-.filter-row select,
-.filter-row input,
-.filter-row button,
-.filter-row a {
+.filter-group {
     flex: 1;
-    max-width: 200px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: var(--white-color);
+    font-weight: bold;
+}
+
+.filter-group select,
+.filter-group input {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    background-color: #fff;
     font-size: 14px;
+    color: #333;
 }
 
 button {
+    padding: 10px 20px;
     background-color: var(--green-color);
     color: white;
+    border: none;
+    border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 button:hover {
     background-color: #0056b3;
 }
 
-a.reset-btn {
-    text-align: center;
-    background-color: #f8f9fa;
-    color: #333;
-    text-decoration: none;
+.reset-btn {
     padding: 10px;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     font-weight: bold;
+    text-decoration: none;
+    background-color: #f8f9fa;
+    text-align: center;
 }
 
-a.reset-btn:hover {
+.reset-btn:hover {
     background-color: #e9ecef;
-    color: #007bff;
-}
-
-/* Филтър за отбор и сортиране */
-.filter-row select {
-    max-width: 250px;
-}
-
-/* Дълги текстове в дропдауните */
-.filter-row select option {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
 }

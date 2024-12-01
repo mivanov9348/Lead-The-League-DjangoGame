@@ -13,7 +13,7 @@ from players.models import Player, PlayerSeasonStatistic, Statistic
 from players.utils.generate_player_utils import generate_team_players
 from teams.models import DummyTeamNames, Team, TeamSeasonStats
 from teams.utils.lineup_utils import auto_select_starting_lineup, update_tactics
-from teams.utils.team_finance_utils import create_team_finance
+from teams.utils.team_finance_utils import create_team_finance, terminate_team_finance
 
 
 def generate_random_team_name():
@@ -58,7 +58,6 @@ def fill_dummy_teams():
                 generate_team_players(team)
                 auto_select_starting_lineup(team)
                 create_team_finance(team)
-
 
 # generate_team_utils.py
 def replace_dummy_team(new_team):
@@ -107,8 +106,7 @@ def replace_dummy_team(new_team):
                 update_matches(dummy_team, new_team)
                 update_tactics(dummy_team, new_team)
 
-                if hasattr(dummy_team, 'finance'):
-                    dummy_team.finance.delete()
+                terminate_team_finance(dummy_team)
 
                 dummy_team.delete()
                 create_team_finance(new_team)
