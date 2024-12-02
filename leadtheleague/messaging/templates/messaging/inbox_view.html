@@ -9,8 +9,11 @@
 
 {% block content %}
 <div class="inbox-page">
-    <!-- Sidebar with news list -->
+    <!-- Sidebar -->
     <div class="inbox-sidebar">
+        <div class="sidebar-header">
+            <h2>Notifications</h2>
+        </div>
         <form method="get" action="">
             {% csrf_token %}
             <input type="text" name="search" placeholder="Search messages..." value="{{ request.GET.search }}">
@@ -26,13 +29,10 @@
                     </div>
                     <p class="inbox-preview">{{ notification.preview|default:"No preview" }}</p>
                 </a>
-                <!-- Delete button -->
                 <button class="delete-btn" data-id="{{ notification.id }}">Delete</button>
             </li>
-
             {% endfor %}
         </ul>
-        <!-- Pagination controls -->
         <div class="pagination">
             {% if context.has_previous %}
             <a href="?page={{ context.previous_page_number }}">&laquo; Back</a>
@@ -42,19 +42,24 @@
             {% endif %}
         </div>
     </div>
-    <!-- News detail view -->
+    <!-- Detail View -->
     <div class="inbox-detail">
         {% if notification %}
-        <h2 class="detail-title">{{ notification.title }}</h2>
-        <p class="detail-date">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
+        <div class="detail-header">
+            <h2 class="detail-title">{{ notification.title }}</h2>
+            <p class="detail-date">{{ notification.date_sent|date:"d.m.Y H:i" }}</p>
+        </div>
         <hr/>
         <p class="detail-message">{{ notification.message }}</p>
         {% else %}
-        <h2 class="no-message">Select a message to view details</h2>
+        <div class="no-message-container">
+            <h2 class="no-message">Select a message to view details</h2>
+        </div>
         {% endif %}
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
     const deleteButtons = document.querySelectorAll(".delete-btn");
 
     deleteButtons.forEach(button => {
@@ -94,8 +99,5 @@
         });
     });
 });
-
-    </script>
-
-</div>
+</script>
 {% endblock %}

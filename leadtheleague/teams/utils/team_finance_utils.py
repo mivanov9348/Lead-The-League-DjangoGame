@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.db import transaction
-from finance.utils import get_bank, create_transaction
+from finance.utils.bank_utils import get_bank
+from finance.utils.transaction_utils import create_transaction
 from teams.models import TeamFinance
 
 @transaction.atomic
@@ -23,7 +24,6 @@ def terminate_team_finance(team):
 
     team_finance.delete()
     print(f"Финансовите данни за отбор {team.name} бяха успешно изтрити.")
-
 
 @transaction.atomic
 def create_team_finance(team):
@@ -48,7 +48,6 @@ def create_team_finance(team):
 
     return team_finance
 
-
 def team_income(team, amount):
     try:
         with transaction.atomic():
@@ -59,8 +58,6 @@ def team_income(team, amount):
             team_finance.save()
     except TeamFinance.DoesNotExist:
         raise ValueError(f"The team {team.name} does not have a finance wallet!")
-
-
 
 def team_expense(team, price):
     try:

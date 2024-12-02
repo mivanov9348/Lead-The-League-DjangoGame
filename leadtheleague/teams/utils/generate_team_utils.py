@@ -1,8 +1,6 @@
 import os
 import random
-
 from django.db import transaction
-
 from fixtures.utils import update_fixtures
 from game.models import Settings
 from game.utils import update_team_season_stats
@@ -14,7 +12,6 @@ from players.utils.generate_player_utils import generate_team_players
 from teams.models import DummyTeamNames, Team, TeamSeasonStats
 from teams.utils.lineup_utils import auto_select_starting_lineup, update_tactics
 from teams.utils.team_finance_utils import create_team_finance, terminate_team_finance
-
 
 def generate_random_team_name():
     all_team_info = list(DummyTeamNames.objects.values_list('name', 'abbreviation'))

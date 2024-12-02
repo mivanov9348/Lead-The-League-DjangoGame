@@ -1,26 +1,23 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from fixtures.utils import generate_fixtures
-from game.models import Season
+from game.models import Season, Settings
 from leagues.models import Division
 from match.utils.generate_match_stats_utils import generate_matches_for_season, generate_player_season_stats
 from players.models import Player
 from teams.models import Team, TeamSeasonStats
-
 
 def get_current_season(year=None):
     if year is not None:
         current_season = Season.objects.filter(year=year).order_by('-season_number').first()
     else:
         current_season = Season.objects.filter(is_ended=False).order_by('-season_number').first()
-
     return current_season
 
 
 def generate_season_number(year):
     seasons = get_current_season(year)
     return seasons.count() + 1
-
 
 def create_new_season(year, season_number, start_date, match_time):
     try:
@@ -44,7 +41,6 @@ def create_new_season(year, season_number, start_date, match_time):
             raise
         return season
 
-
 def create_team_season_stats(new_season):
     with transaction.atomic():
         teams = Team.objects.all()
@@ -65,9 +61,15 @@ def create_team_season_stats(new_season):
             for player in players:
                 generate_player_season_stats(player, new_season, team)
 
-
 def update_team_season_stats(dummy_team, new_team):
     team_season_stats = TeamSeasonStats.objects.filter(team=dummy_team)
     for stats in team_season_stats:
         stats.team = new_team
         stats.save()
+
+# settings
+def get_setting_value(key):
+    try:
+        return Settings.objects.get(key=key).value
+    except Settings.DoesNotExist:
+        raise ValueError(f"Setting with key '{key}' does not exist!")

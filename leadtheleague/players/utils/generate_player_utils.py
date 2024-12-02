@@ -215,46 +215,36 @@ def generate_team_players(team):
 
         generate_random_player(team, random_position)
 
-def generate_free_agents():
-    try:
-        num_goalkeepers = int(Settings.objects.get(name='Free_Agents_Goalkeepers').value)
-    except Settings.DoesNotExist:
-        logging.error("Настройката 'Free_Agents_Goalkeepers' не съществува.")
-        num_goalkeepers = 100  # Стойност по подразбиране
 
-    try:
-        num_defenders = int(Settings.objects.get(name='Free_Agents_Defenders').value)
-    except Settings.DoesNotExist:
-        logging.error("Настройката 'Free_Agents_Defenders' не съществува.")
-        num_defenders = 100  # Стойност по подразбиране
-
-    try:
-        num_midfielders = int(Settings.objects.get(name='Free_Agents_Midfielders').value)
-    except Settings.DoesNotExist:
-        logging.error("Настройката 'Free_Agents_Midfielders' не съществува.")
-        num_midfielders = 100  # Стойност по подразбиране
-
-    try:
-        num_attackers = int(Settings.objects.get(name='Free_Agents_Attackers').value)
-    except Settings.DoesNotExist:
-        logging.error("Настройката 'Free_Agents_Attackers' не съществува.")
-        num_attackers = 100  # Стойност по подразбиране
-
-    positions = {
-        'Goalkeeper': num_goalkeepers,
-        'Defender': num_defenders,
-        'Midfielder': num_midfielders,
-        'Attacker': num_attackers,
+def generate_free_agents(agent):
+    # Генериране на случайни бройки за всяка позиция, така че сумата да е 50
+    position_distribution = {
+        'Goalkeeper': random.randint(5, 10),
+        'Defender': random.randint(10, 20),
+        'Midfielder': random.randint(10, 20),
+        'Attacker': random.randint(5, 10)
     }
 
-    for pos_name, count in positions.items():
+    total_players = sum(position_distribution.values())
+    if total_players != 50:
+        scale_factor = 50 / total_players
+        position_distribution = {
+            pos: max(1, int(count * scale_factor)) for pos, count in position_distribution.items()
+        }
+
+    free_agents = []
+    for pos_name, count in position_distribution.items():
         try:
             position = Position.objects.get(name=pos_name.capitalize())
         except Position.DoesNotExist:
-            logging.error(f"Позицията '{pos_name}' не съществува в базата данни.")
+            logging.error(f"The position '{pos_name}' doesnt exist!")
             continue
 
         for _ in range(count):
             player = generate_random_player(team=None, position=position)
             player.is_free_agent = True
+            player.agent = agent
             player.save()
+            free_agents.append(player)
+
+    return free_agents

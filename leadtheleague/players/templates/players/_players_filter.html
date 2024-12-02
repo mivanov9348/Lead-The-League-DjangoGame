@@ -73,10 +73,25 @@
     <div class="filter-row">
         <div class="filter-group">
             <label for="attribute_sort_by">Sort By Attribute</label>
-            <select name="attribute_sort_by" id="attribute_sort_by">
+<select name="attribute_sort_by" id="attribute_sort_by">
                 <option value="">Sort By Attribute</option>
-                <option value="handling" {% if request.GET.attribute_sort_by == "handling" %}selected{% endif %}>Handling</option>
-                <!-- Add other options as needed -->
+                <option value="handling" {% if request.GET.sort_by == "handling" %}selected{% endif %}>Handling</option>
+                <option value="reflexes" {% if request.GET.sort_by == "reflexes" %}selected{% endif %}>Reflexes</option>
+                <option value="finishing" {% if request.GET.sort_by == "finishing" %}selected{% endif %}>Finishing</option>
+                <option value="shooting" {% if request.GET.sort_by == "shooting" %}selected{% endif %}>Shooting</option>
+                <option value="technique" {% if request.GET.sort_by == "technique" %}selected{% endif %}>Technique</option>
+                <option value="passing" {% if request.GET.sort_by == "passing" %}selected{% endif %}>Passing</option>
+                <option value="crossing" {% if request.GET.sort_by == "crossing" %}selected{% endif %}>Crossing</option>
+                <option value="tackling" {% if request.GET.sort_by == "tackling" %}selected{% endif %}>Tackling</option>
+                <option value="strength" {% if request.GET.sort_by == "strength" %}selected{% endif %}>Strength</option>
+                <option value="determination" {% if request.GET.sort_by == "determination" %}selected{% endif %}>Determination</option>
+                <option value="ballcontrol" {% if request.GET.sort_by == "ballcontrol" %}selected{% endif %}>Ball Control</option>
+                <option value="dribbling" {% if request.GET.sort_by == "dribbling" %}selected{% endif %}>Dribbling</option>
+                <option value="speed" {% if request.GET.sort_by == "speed" %}selected{% endif %}>Speed</option>
+                <option value="vision" {% if request.GET.sort_by == "vision" %}selected{% endif %}>Vision</option>
+                <option value="workrate" {% if request.GET.sort_by == "workrate" %}selected{% endif %}>Work Rate</option>
+                <option value="stamina" {% if request.GET.sort_by == "stamina" %}selected{% endif %}>Stamina</option>
+
             </select>
         </div>
         <div class="filter-group">

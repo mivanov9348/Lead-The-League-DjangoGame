@@ -1,3 +1,4 @@
+from django.utils import timezone
 from fixtures.models import Fixture
 from game.models import Season
 from match.models import Match
@@ -30,12 +31,13 @@ def update_matches(dummy_team, new_team):
     Match.objects.filter(away_team=dummy_team).update(away_team=new_team)
 
 
-def generate_all_players_match_stats():
+def generate_players_match_stats_for_today():
     current_season = Season.objects.filter(is_ended=False).first()
     if not current_season:
         return
 
-    matches = Match.objects.filter(season=current_season)
+    today = timezone.now().date()
+    matches = Match.objects.filter(season=current_season, match_date=today)
     players = Player.objects.prefetch_related('team_players').all()
 
     for match in matches:
@@ -43,6 +45,7 @@ def generate_all_players_match_stats():
             teams = player.team_players.values_list('team', flat=True)
             if match.home_team_id in teams or match.away_team_id in teams:
                 generate_player_match_stats(player, match)
+
 
 def generate_player_match_stats(player, match):
     player_match_statistics = [

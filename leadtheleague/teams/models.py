@@ -1,5 +1,4 @@
 from decimal import Decimal
-
 from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 from accounts.models import CustomUser
@@ -20,7 +19,7 @@ class Team(models.Model):
     logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
 
     def __str__(self):
-        return f'{self.name} ({self.abbreviation}). Owner({self.division})'
+        return f'{self.name}'
 
     class Meta:
         indexes = [
