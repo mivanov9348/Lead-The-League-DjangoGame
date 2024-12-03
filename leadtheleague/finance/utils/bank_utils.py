@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import transaction
 
 from finance.models import Bank
@@ -56,12 +58,16 @@ def distribute_income(bank, amount):
     if amount <= 0:
         raise ValueError("Amount must be positive!")
 
-    bank_share_percentage = get_setting_value("bank_share")
-    funds_share_percentage = get_setting_value("fund_share")
+    # Преобразуваме процентите към Decimal
+    bank_share_percentage = Decimal(str(get_setting_value("bank_share"))).quantize(Decimal("0.0001"))
+    funds_share_percentage = Decimal(str(get_setting_value("fund_share"))).quantize(Decimal("0.0001"))
 
-    if bank_share_percentage + funds_share_percentage != 1:
-        raise ValueError("Bank and fund share percentages must sum to 1.")
+    # Проверяваме дали сумата от процентите е равна на 1 с малка допустима грешка
+    total_percentage = bank_share_percentage + funds_share_percentage
+    if total_percentage != Decimal("1"):
+        raise ValueError(f"Bank and fund share percentages must sum to 1 (got {total_percentage}).")
 
+    # Изчисляваме дяловете
     bank_share = amount * bank_share_percentage
     funds_share = amount * funds_share_percentage
 

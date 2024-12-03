@@ -33,6 +33,7 @@
                 <th>Pos</th>
                 <th>Nationality</th>
                 <th>Age</th>
+                <th>Agent</th> <!-- Добавена колона за агент -->
                 <th title="Handling">HND</th>
                 <th title="Reflexes">RFX</th>
                 <th title="Finishing">FIN</th>
@@ -58,6 +59,7 @@
                 <td>{{ player.positionabbr }}</td>
                 <td>{{ player.nationality }}</td>
                 <td>{{ player.age }}</td>
+                <td>{{ player.agent.first_name }} {{ player.agent.last_name }}{% if not player.agent %}No Agent{% endif %}</td>
                 <td>{{ player.attributes.Handling }}</td>
                 <td>{{ player.attributes.Reflexes }}</td>
                 <td>{{ player.attributes.Finishing }}</td>

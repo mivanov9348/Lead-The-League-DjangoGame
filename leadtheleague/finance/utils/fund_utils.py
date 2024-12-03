@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import transaction
 from finance.models import Fund
 from game.utils import get_setting_value
@@ -36,10 +38,17 @@ def distribute_to_funds(bank, funds_share):
         "Global Fund": "global_fund",
     }
 
+    if funds_share <= 0:
+        raise ValueError("Funds share must be positive!")
+
     with transaction.atomic():
         for fund_name, key in fund_keys.items():
-            percentage = get_setting_value(key)
+            # Преобразуване на процента към Decimal
+            percentage = Decimal(str(get_setting_value(key)))
+
+            # Изчисляване на дела за фонда
             amount = funds_share * percentage
+
             if amount > 0:
                 try:
                     fund = Fund.objects.get(bank=bank, name=fund_name)

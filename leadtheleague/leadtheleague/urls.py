@@ -18,6 +18,7 @@ urlpatterns = [
     path('match/', include('match.urls', namespace='match')),
     path('transfers/', include('transfers.urls', namespace='transfers')),
     path('finance/', include('finance.urls', namespace='finance')),
+    path('staff/', include('staff.urls', namespace='staff')),
 ]
 
 if settings.DEBUG:  # Не забравяйте да добавите този блок за сервиране на медийни файлове по време на разработка

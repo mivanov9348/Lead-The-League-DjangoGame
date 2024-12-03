@@ -3,6 +3,7 @@ import random
 import shutil
 import logging
 from game.models import Settings
+from game.utils import get_setting_value
 from leadtheleague import settings
 from players.models import FirstName, LastName, Nationality, Position, Attribute, PlayerAttribute, Player, \
     PositionAttribute
@@ -215,32 +216,51 @@ def generate_team_players(team):
 
         generate_random_player(team, random_position)
 
-
 def generate_free_agents(agent):
-    # Генериране на случайни бройки за всяка позиция, така че сумата да е 50
+    """
+    Генерира свободни играчи за даден агент, като броят и позициите се определят на база на настройки.
+    """
+
+    # Вземане на стойности от настройките
+    try:
+        min_free_agents = int(get_setting_value('minimum_free_agents'))
+        max_free_agents = int(get_setting_value('maximum_free_agents'))
+    except ValueError as e:
+        logging.error(f"Error fetching settings: {e}")
+        return []
+
+    # Генериране на случайна бройка играчи за агента в зададения диапазон
+    total_free_agents = random.randint(min_free_agents, max_free_agents)
+
+    # Разпределяне на играчите между позициите
     position_distribution = {
-        'Goalkeeper': random.randint(5, 10),
-        'Defender': random.randint(10, 20),
-        'Midfielder': random.randint(10, 20),
-        'Attacker': random.randint(5, 10)
+        'Goalkeeper': 0,
+        'Defender': 0,
+        'Midfielder': 0,
+        'Attacker': 0,
     }
 
-    total_players = sum(position_distribution.values())
-    if total_players != 50:
-        scale_factor = 50 / total_players
-        position_distribution = {
-            pos: max(1, int(count * scale_factor)) for pos, count in position_distribution.items()
-        }
+    remaining_players = total_free_agents
+    positions = list(position_distribution.keys())
+
+    for pos in positions[:-1]:
+        count = random.randint(0, remaining_players)
+        position_distribution[pos] = count
+        remaining_players -= count
+
+    # Останалите играчи отиват в последната позиция
+    position_distribution[positions[-1]] = remaining_players
 
     free_agents = []
     for pos_name, count in position_distribution.items():
         try:
             position = Position.objects.get(name=pos_name.capitalize())
         except Position.DoesNotExist:
-            logging.error(f"The position '{pos_name}' doesnt exist!")
+            logging.error(f"The position '{pos_name}' doesn't exist!")
             continue
 
         for _ in range(count):
+            # Генериране на произволен играч
             player = generate_random_player(team=None, position=position)
             player.is_free_agent = True
             player.agent = agent

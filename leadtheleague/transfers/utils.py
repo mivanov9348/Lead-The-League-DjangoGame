@@ -1,4 +1,6 @@
 from django.db import transaction
+
+from staff.utils.agent_utils import agent_sell_player
 from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import team_expense
 from transfers.models import Transfer
@@ -7,11 +9,10 @@ from transfers.models import Transfer
 def get_all_transfers():
     return Transfer.objects.all()
 
+
 def transfer_history_by_team(team_id):
     transfers_in = Transfer.objects.filter(buying_team_id=team_id).order_by('-transfer_date')
     transfers_out = Transfer.objects.filter(selling_team_id=team_id).order_by('-transfer_date')
-
-
 
     transfers = {
         'transfers_in': transfers_in,
@@ -19,15 +20,20 @@ def transfer_history_by_team(team_id):
     }
     return transfers
 
-def transfer_free_agent(team, player):
-    with transaction.atomic():
-        player.is_free_agent = False
-        player.save()
-        TeamPlayer.objects.create(player=player, team=team)
-        Transfer.objects.create(player=player, buying_team=team, selling_team=None, amount=player.price,
-                                is_free_agent=True)
-        team_expense(team, player.price)
 
+def create_transfer(team, player, is_free_agent):
+    Transfer.objects.create(
+        player=player,
+        buying_team=team,
+        selling_team=None if is_free_agent else player.team,
+        amount=player.price,
+        is_free_agent=is_free_agent
+    )
+
+
+def transfer_free_agent(team, player):
+    agent_sell_player(team, player)
+    create_transfer(team, player, True)
 
 def filter_free_agents(free_agents, nationality='', position='', age=None):
     if nationality:

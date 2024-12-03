@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Staff Market{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/staff_market.css' %}">
+{% endblock %}
+
+{% block content %}
+{% load humanize %}
+
+<div class="sort-container">
+    <label for="sort-dropdown">Sort by:</label>
+    <select id="sort-dropdown" class="sort-dropdown" onchange="sortCoaches()">
+        <option value="rating-desc">Rating: High to Low</option>
+        <option value="rating-asc">Rating: Low to High</option>
+    </select>
+</div>
+
+<div class="coach-grid" id="coach-grid">
+    {% for coach in coaches %}
+    <div class="coach-card" data-rating="{{ coach.rating|default:0 }}">
+        <h2>{{ coach.first_name }} {{ coach.last_name }}</h2>
+        <p>Age: {{ coach.age }}</p>
+        <p>Rating: {{ coach.rating }}</p>
+        <p>Price: ${{ coach.price|intcomma }}</p>
+        <form method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="hire-button">Hire</button>
+        </form>
+    </div>
+    {% empty %}
+    <p>No Coaches available at the moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function sortCoaches() {
+        const grid = document.getElementById('coach-grid');
+        const cards = Array.from(grid.getElementsByClassName('coach-card'));
+        const sortValue = document.getElementById('sort-dropdown').value;
+
+        cards.sort((a, b) => {
+    const ratingA = parseFloat(a.getAttribute('data-rating')) || 0; // Default to 0 if NaN
+    const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
+
+    if (sortValue === 'rating-desc') {
+        return ratingB - ratingA; // Highest to Lowest
+    } else {
+        return ratingA - ratingB; // Lowest to Highest
+    }
+});
+
+        // Clear and re-add sorted cards
+        grid.innerHTML = '';
+        cards.forEach(card => grid.appendChild(card));
+    }
+</script>
+{% endblock %}

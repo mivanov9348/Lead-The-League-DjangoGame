@@ -14,7 +14,6 @@ def get_current_season(year=None):
         current_season = Season.objects.filter(is_ended=False).order_by('-season_number').first()
     return current_season
 
-
 def generate_season_number(year):
     seasons = get_current_season(year)
     return seasons.count() + 1

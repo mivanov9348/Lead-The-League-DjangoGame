@@ -249,7 +249,8 @@ def get_all_free_agents():
             'age': player.age,
             'price': player.price,
             'attributes': attributes,
-            'image': player.image
+            'image': player.image,
+            'agent':player.agent
         })
 
     return free_agents_data
