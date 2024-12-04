@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
+                'leadtheleague.context_processors.team_info'
             ],
         },
     }, ]
@@ -108,12 +109,11 @@ CACHES = {
     }
 }
 
-
 AUTH_USER_MODEL = 'accounts.CustomUser'
 AUTH_PASSWORD_VALIDATORS = []
 
 LOGIN_REDIRECT_URL = 'game:home'
-LOGOUT_REDIRECT_URL = 'accounts:welcome_page'
+LOGOUT_REDIRECT_URL = 'accounts:welcome'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -140,6 +140,14 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'leadtheleaguedj@gmail.com'
+EMAIL_HOST_PASSWORD = 'CSKA1948aaa!'
+DEFAULT_FROM_EMAIL = 'leadtheleaguedj@gmail.com'
 
 ASGI_APPLICATION = 'leadtheleague.asgi.application'
 

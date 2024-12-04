@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="{% static 'css/match.css' %}">
 
 <div class="match-container">
-    <!-- Header карта за мача -->
     <div class="match-header-card">
         <div class="team-info">
             <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team }} logo" class="team-logo">
@@ -22,60 +21,113 @@
         </div>
     </div>
 
-    <!-- Основно тяло на страницата -->
     <div class="match-body">
-        <!-- Домакин отбор -->
         <div class="team-box home-team">
-            <h3>Играчите на {{ match.home_team }}</h3>
-            <table>
-                <thead>
+            <h3>{{ match.home_team }} Players</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
                     <tr>
-                        <th>Играч</th>
-                        <th>Статистика</th>
+                        <th title="Player"><i class="fa fa-user"></i></th>
+                        <th title="Assists"><i class="fa fa-hands-helping"></i></th>
+                        <th title="Clean Sheets"><i class="fa fa-shield-alt"></i></th>
+                        <th title="Goals"><i class="fa fa-futbol"></i></th>
+                        <th title="Minutes Played"><i class="fa fa-clock"></i></th>
+                        <th title="Passes"><i class="fa fa-redo"></i></th>
+                        <th title="Shoots on Target"><i class="fa fa-crosshairs"></i></th>
+                        <th title="Fouls"><i class="fa fa-times"></i></th>
+                        <th title="Yellow Cards"><i class="fa fa-square"></i></th>
+                        <th title="Red Cards"><i class="fa fa-square-full"></i></th>
+                        <th title="Saves"><i class="fa fa-save"></i></th>
+                        <th title="Dribbles"><i class="fa fa-running"></i></th>
+                        <th title="Tackles"><i class="fa fa-tasks"></i></th>
+                        <th title="Shoots"><i class="fa fa-bullseye"></i></th>
+                        <th title="Matches"><i class="fa fa-stopwatch"></i></th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for player in home_lineup %}
                     <tr>
                         <td>{{ player.name }}</td>
-                        <td>{{ player.stats }}</td>
+                        <td>{{ player.stats.assists }}</td>
+                        <td>{{ player.stats.clean_sheets }}</td>
+                        <td>{{ player.stats.goals }}</td>
+                        <td>{{ player.stats.minutes_played }}</td>
+                        <td>{{ player.stats.passes }}</td>
+                        <td>{{ player.stats.shoots_on_target }}</td>
+                        <td>{{ player.stats.fouls }}</td>
+                        <td>{{ player.stats.yellow_cards }}</td>
+                        <td>{{ player.stats.red_cards }}</td>
+                        <td>{{ player.stats.saves }}</td>
+                        <td>{{ player.stats.dribbles }}</td>
+                        <td>{{ player.stats.tackles }}</td>
+                        <td>{{ player.stats.shoots }}</td>
+                        <td>{{ player.stats.matches }}</td>
                     </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Събития на живо -->
+        <!-- Live Events -->
         <div class="live-event">
-            <h3>Събития на живо</h3>
+            <h3>Live Events</h3>
             {% if events %}
-                {% for event in events %}
-                <p><strong>{{ event.minute }}':</strong> {{ event.description }}</p>
-                {% endfor %}
+            {% for event in events %}
+            <p><strong>{{ event.minute }}':</strong> {{ event.description }}</p>
+            {% endfor %}
             {% else %}
-                <p>Няма събития към момента.</p>
+            <p>No Live Events</p>
             {% endif %}
         </div>
 
-        <!-- Гостуващ отбор -->
         <div class="team-box away-team">
-            <h3>Играчите на {{ match.away_team }}</h3>
-            <table>
-                <thead>
+            <h3>{{ match.away_team }} Players</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
                     <tr>
-                        <th>Играч</th>
-                        <th>Статистика</th>
+                        <th title="Player"><i class="fa fa-user"></i></th>
+                        <th title="Assists"><i class="fa fa-hands-helping"></i></th>
+                        <th title="Clean Sheets"><i class="fa fa-shield-alt"></i></th>
+                        <th title="Goals"><i class="fa fa-futbol"></i></th>
+                        <th title="Minutes Played"><i class="fa fa-clock"></i></th>
+                        <th title="Passes"><i class="fa fa-redo"></i></th>
+                        <th title="Shoots on Target"><i class="fa fa-crosshairs"></i></th>
+                        <th title="Fouls"><i class="fa fa-times"></i></th>
+                        <th title="Yellow Cards"><i class="fa fa-square"></i></th>
+                        <th title="Red Cards"><i class="fa fa-square-full"></i></th>
+                        <th title="Saves"><i class="fa fa-save"></i></th>
+                        <th title="Dribbles"><i class="fa fa-running"></i></th>
+                        <th title="Tackles"><i class="fa fa-tasks"></i></th>
+                        <th title="Shoots"><i class="fa fa-bullseye"></i></th>
+                        <th title="Matches"><i class="fa fa-stopwatch"></i></th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for player in away_lineup %}
                     <tr>
                         <td>{{ player.name }}</td>
-                        <td>{{ player.stats }}</td>
+                        <td>{{ player.stats.assists }}</td>
+                        <td>{{ player.stats.clean_sheets }}</td>
+                        <td>{{ player.stats.goals }}</td>
+                        <td>{{ player.stats.minutes_played }}</td>
+                        <td>{{ player.stats.passes }}</td>
+                        <td>{{ player.stats.shoots_on_target }}</td>
+                        <td>{{ player.stats.fouls }}</td>
+                        <td>{{ player.stats.yellow_cards }}</td>
+                        <td>{{ player.stats.red_cards }}</td>
+                        <td>{{ player.stats.saves }}</td>
+                        <td>{{ player.stats.dribbles }}</td>
+                        <td>{{ player.stats.tackles }}</td>
+                        <td>{{ player.stats.shoots }}</td>
+                        <td>{{ player.stats.matches }}</td>
                     </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

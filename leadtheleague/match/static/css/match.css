@@ -1,20 +1,19 @@
 .match-container {
-    width: 90%;
-    max-width: 1200px;
+    width: 100%;
     margin: 20px auto;
     font-family: Arial, sans-serif;
     color: var(--white-color);
+    overflow-x: auto;
 }
 
-/* Картата на мача */
 .match-header-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: var(--darkgreen-color);
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 30px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: var(--white-color);
 }
@@ -25,8 +24,8 @@
 }
 
 .team-logo {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     margin-bottom: 10px;
 }
 
@@ -36,47 +35,49 @@
 }
 
 .match-score {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: bold;
 }
 
 .match-minute {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: lightgray;
 }
 
-/* Основно тяло */
 .match-body {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
 .team-box {
     flex: 1;
     background-color: var(--darkgreen-color);
     border-radius: 10px;
-    padding: 15px;
+    padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
 }
 
 .team-box h3 {
     text-align: center;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-size: 14px;
 }
 
 .team-box table {
-    width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 15px;
+    table-layout: fixed;
 }
 
 .team-box th, .team-box td {
-    padding: 10px;
+    padding: 15px;
     border: 1px solid var(--white-color);
-    text-align: left;
+    text-align: center;
     color: var(--white-color);
+    font-size: 12px;
 }
 
 .team-box th {
@@ -84,23 +85,46 @@
     font-weight: bold;
 }
 
-/* Събития на живо */
+.team-box th i {
+    font-size: 12px;
+    color: var(--white-color);
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
 .live-event {
-    flex: 1.5;
-    background-color: #1a4314; /* малко по-тъмно зелено */
+    flex: 1.2;
+    background-color: var(--darkgreen-color);
+    border:3px solid black;
     border-radius: 10px;
-    padding: 15px;
+    padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: var(--white-color);
+    margin: 20px 0;
 }
 
 .live-event h3 {
     text-align: center;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
 }
 
 .live-event p {
-    font-size: 1rem;
-    margin-bottom: 5px;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: var(--white-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .match-body {
+        flex-direction: column;
+    }
+
+    .team-box, .live-event {
+        margin-bottom: 20px;
+    }
 }

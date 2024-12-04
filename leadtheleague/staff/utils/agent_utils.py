@@ -47,7 +47,6 @@ def agent_sell_player(team, player):
     team_expense(team, player.price)
     process_agent_payment(agent, player.price)
 
-
 def process_agent_payment(agent, price):
     with transaction.atomic():
         tax_rate_percentage = get_setting_value("free_agent_tax")
@@ -61,6 +60,6 @@ def process_agent_payment(agent, price):
 
         try:
             bank = Bank.objects.get(is_main=True)
-            distribute_income(bank, tax_amount)
+            distribute_income(bank, tax_amount, f'Get Free Agent {agent.first_name} {agent.last_name}')
         except Bank.DoesNotExist:
             pass

@@ -1,13 +1,13 @@
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import welcome_page
+from accounts.views import welcome
 from leadtheleague import settings
 
 urlpatterns = [
 
     path("admin/", admin.site.urls),
-    path('', welcome_page, name='welcome_page'),
+    path('', welcome, name='welcome'),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('teams/', include('teams.urls', namespace='teams')),
     path('game/', include('game.urls', namespace='game')),

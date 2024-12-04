@@ -1,11 +1,16 @@
 <header>
     {% load static %}
+    {% load humanize %}
+
     <nav class="navbar secondary-navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'game:home' %}">
                 Lead-The-League
             </a>
-
+            <div class="team-info">
+                <h3 id="team-name">{{ team_name }}</h3>
+                <p id="team-finances">Balance: ${{ team_finance.balance|intcomma }}</p>
+            </div>
             <div class="d-flex align-items-center">
                 <a class="nav-link chat-btn" href="{% url 'messaging:chat_view' %}">
                     <i class="fas fa-comments"></i> Chat
@@ -54,7 +59,7 @@
                             Squad</a></li>
                         <li><a class="dropdown-item" href="{% url 'teams:line_up' %}"><i class="fas fa-calendar"></i>
                             Line-up</a></li>
-                        <li><a class="dropdown-item" href="{% url 'teams:line_up' %}"><i class="fas fa-clock"></i>
+                        <li><a class="dropdown-item" href="{% url 'teams:training' %}"><i class="fas fa-clock"></i>
                             Training</a></li>
                         <li><a class="dropdown-item" href=""><i class="fas fa-clock"></i>
                             Facilities</a></li>
@@ -106,7 +111,8 @@
                         </li>
                         <li><a class="dropdown-item" href="#statistics"><i class="fas fa-chart-line"></i>Stadium</a>
                         </li>
-                        <li><a class="dropdown-item" href="{% url 'finance:team_finance' %}"><i class="fas fa-chart-line"></i>Finance</a>
+                        <li><a class="dropdown-item" href="{% url 'finance:team_finance' %}"><i
+                                class="fas fa-chart-line"></i>Finance</a>
                         </li>
                     </ul>
                 </li>
@@ -216,5 +222,24 @@
 
 .chat-btn:hover {
     background-color: #0056b3;
+}
+
+    .team-info {
+    text-align: center;
+    color: white;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+    font-weight: 600;
+}
+
+.team-info h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.team-info p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: #ddd;
 }
 </style>

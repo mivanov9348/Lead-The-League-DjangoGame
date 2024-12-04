@@ -156,6 +156,8 @@ def get_personal_player_data(player):
         'is_active': player.is_active,
         'is_youth': player.is_youth,
         'is_free_agent': player.is_free_agent,
+        'image_url': player.image.url if player.image else None,
+
     }
 
 def get_player_attributes(player):

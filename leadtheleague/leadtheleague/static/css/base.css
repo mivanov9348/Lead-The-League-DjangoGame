@@ -42,9 +42,6 @@ body {
     margin: 0;
     font-size: 14px;
 }
-.messages{
-    background-color: var(--green-color);
-}
 
 .message{
     color: red;

@@ -1,5 +1,3 @@
-import os
-
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.contrib.auth import login
@@ -9,12 +7,12 @@ from accounts.forms import CustomUserCreationForm
 from teams.models import Team
 from django.shortcuts import render
 
-def welcome_page(request):
-    return render(request, 'home/welcome.html')
+def welcome(request):
+    return render(request, 'accounts/welcome.html')
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('accounts')
     template_name = 'accounts/signup.html'
 
     def form_valid(self, form):
@@ -30,7 +28,7 @@ class SignUpView(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 class CustomLoginView(LoginView):
-    template_name = 'accounts/login.html'
+    template_name = 'accounts/welcome.html'
     redirect_authenticated_user = False
 
 def get_success_url(self):

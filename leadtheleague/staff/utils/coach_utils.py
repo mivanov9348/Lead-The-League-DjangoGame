@@ -4,7 +4,7 @@ from players.models import Nationality, FirstName, LastName
 from staff.models import Coach
 
 def get_coaches_without_team():
-    coaches = Coach.objects.all()
+    coaches = Coach.objects.filter(team__isnull=True)
     return coaches
 
 def calculate_coach_price(rating):

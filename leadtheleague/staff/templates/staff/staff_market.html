@@ -9,6 +9,14 @@
 {% block content %}
 {% load humanize %}
 
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}"></div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="sort-container">
     <label for="sort-dropdown">Sort by:</label>
     <select id="sort-dropdown" class="sort-dropdown" onchange="sortCoaches()">
@@ -24,10 +32,17 @@
         <p>Age: {{ coach.age }}</p>
         <p>Rating: {{ coach.rating }}</p>
         <p>Price: ${{ coach.price|intcomma }}</p>
-        <form method="post" action="">
+        <form method="post" action="{% url 'staff:hire_coach' %}">
             {% csrf_token %}
+            {% if coach.team %}
+            <p class="hired-message">Hired by {{ coach.team.name }}</p>
+            {% else %}
+            <input type="hidden" name="coach_id" value="{{ coach.id }}">
+            <hr/>
             <button type="submit" class="hire-button">Hire</button>
+            {% endif %}
         </form>
+
     </div>
     {% empty %}
     <p>No Coaches available at the moment.</p>

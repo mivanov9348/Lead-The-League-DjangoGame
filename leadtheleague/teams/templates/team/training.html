@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}My Team - Squad{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/training.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="training-container">
+    <!-- Coaches Section -->
+    <section class="panel-section">
+        <h2>Coaches</h2>
+        <hr/>
+        <div class="grid">
+            {% for coach in coaches %}
+            <div class="card">
+                <h3>{{ coach.first_name }} {{ coach.last_name }}</h3>
+                <p>Rating: {{ coach.rating }}</p>
+                <button class="train-button" onclick="trainCoach('{{ coach.id }}')">Train</button>
+            </div>
+            {% if forloop.counter|divisibleby:5 %}
+        </div>
+        <div class="grid">
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Players Section -->
+    <section class="panel-section">
+        <h2>Players</h2>
+        <hr/>
+        <div class="grid">
+            {% for player in players %}
+            <div class="card">
+                <img src="{{ player.image_url }}" alt="Player Image">
+                <h3>{{ player.first_name }}</h3>
+                <h3>{{ player.last_name }}</h3>
+
+                <hr/>
+                <p>{{ player.positionabbr }}</p>
+                <p>Age: {{ player.age }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<script>
+    function trainCoach(coachId) {
+     fetch(`/teams/train_coach/${coachId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        console.log('HTTP Status:', response.status); // Добавено
+        console.log('HTTP Response:', response);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response Data:', data);
+        if (data.success) {
+            alert(`Training impact: ${data.impact}`);
+        } else {
+            alert(`Failed to train coach: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred: ' + error.message); // Добавено
+    });
+
+}
+</script>
+{% endblock %}

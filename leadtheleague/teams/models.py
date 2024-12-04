@@ -129,3 +129,10 @@ class TeamTactics(models.Model):
             models.Index(fields=['team']),
             models.Index(fields=['tactic']),
         ]
+
+class TrainingEfficiency(models.Model):
+    player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='trainings')
+    coach = models.ForeignKey('staff.Coach', on_delete=models.CASCADE, related_name='trainings')
+    date = models.DateTimeField(auto_now_add=True)
+    training_impact = models.DecimalField(max_digits=4, decimal_places=2)
+    notes = models.TextField(null=True, blank=True)

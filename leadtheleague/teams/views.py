@@ -1,6 +1,9 @@
 from django.db.models import Prefetch
+from django.http import JsonResponse
+
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
+from staff.models import Coach
 from .forms import TeamCreationForm, TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
@@ -9,6 +12,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .utils.generate_team_utils import replace_dummy_team
+from .utils.training_utils import player_training
 
 
 @login_required
@@ -245,6 +249,31 @@ def save_lineup(request):
         messages.success(request, "Lineup successfully saved!")
 
     return redirect("teams:line_up")
+
+
+def training(request):
+    team = get_object_or_404(Team, user=request.user)
+
+    coaches = Coach.objects.filter(team=team)
+    players_qs = TeamPlayer.objects.filter(team=team, player__is_active=True).select_related('player')
+
+    players_data = [get_personal_player_data(player.player) for player in players_qs]
+
+    return render(request, 'team/training.html', {'coaches': coaches, 'players': players_data})
+
+@csrf_exempt
+def train_coach(request, coach_id):
+    try:
+        if request.method == 'POST':
+            coach = get_object_or_404(Coach, id=coach_id)
+            result = player_training(coach, None)
+            print(result["details"])  # Отпечатва детайлите в конзолата
+            return JsonResponse({"success": True, "impact": result["training_impact"]})
+        else:
+            return JsonResponse({"success": False, "error": "Invalid request method"}, status=400)
+    except Exception as e:
+        print(f"Error in train_coach: {str(e)}")  # Отпечатва грешката
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
