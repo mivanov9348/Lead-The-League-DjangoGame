@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="profile-grid">
-
     <div class="navigation">
         <button onclick="goBack()">Back</button>
     </div>
@@ -34,6 +34,9 @@
                 <li><strong>Age:</strong> {{ player.age }}</li>
                 <li><strong>Price:</strong> {{ player.price|intcomma }}</li>
             </ul>
+            {% if user_team.name != player_team.team_name %}
+            <button class="offer-button" onclick="openModal()">Send Offer</button>
+            {% endif %}
         </div>
     </div>
 
@@ -104,6 +107,16 @@
         </table>
     </div>
 
+    <!-- HTML за модалния прозорец -->
+    <div id="offerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Make an Offer</h2>
+            <input type="number" id="offerAmount" value="{{ player.price }}" min="0">
+            <button onclick="sendOffer()">Submit Offer</button>
+        </div>
+    </div>
+
 
 </div>
 <script>
@@ -114,5 +127,38 @@
     function goForward() {
         window.history.forward();
     }
+
+    function openModal() {
+    document.getElementById('offerModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('offerModal').style.display = 'none';
+}
+
+function sendOffer() {
+    const offerAmount = document.getElementById('offerAmount').value;
+    console.log("Offer Amount:", offerAmount);
+
+    fetch("{% url 'players:send_offer' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'  //
+        },
+        body: JSON.stringify({
+            player_id: {{ player.id }},
+            offer_amount: parseFloat(offerAmount)
+        })
+    }).then(response => response.json())
+      .then(data => {
+          if(data.status === 'success') {
+              alert('Offer sent successfully!');
+          } else {
+              alert('Failed to send offer: ' + data.message);
+          }
+          closeModal();
+      }).catch(error => console.error('Error:', error));
+}
 </script>
 {% endblock %}

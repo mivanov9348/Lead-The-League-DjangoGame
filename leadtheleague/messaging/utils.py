@@ -1,5 +1,5 @@
 from django.db.models import Q
-from messaging.models import ChatMessage, SystemNotification
+from messaging.models import ChatMessage
 
 
 def get_message_preview(message):

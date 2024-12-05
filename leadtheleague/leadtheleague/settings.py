@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from huey import RedisHuey
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -32,9 +31,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django.contrib.humanize',
-    'huey.contrib.djhuey',
-    'django_extensions',
-    'channels',
     'teams',
     'accounts',
     'game',
@@ -152,20 +148,6 @@ DEFAULT_FROM_EMAIL = 'leadtheleaguedj@gmail.com'
 ASGI_APPLICATION = 'leadtheleague.asgi.application'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# В settings.py или в друга конфигурация за Huey
-HUEY = RedisHuey(
-    'leadtheleague',  # Името на проекта
-    immediate=False,  # Изключваме immediate режима
-    host='localhost',  # Адрес на Redis сървъра
-    port=6379,  # Порт на Redis сървъра
-)
-
-# Допълнителни настройки за Huey
-HUEY.consumer = {
-    'workers': 10,  # Задаваме 10 работника
-    'worker_type': 'process',  # Работниците ще бъдат процеси (може да е 'thread' или 'greenlet')
-}
 
 LOGGING = {
     'version': 1,

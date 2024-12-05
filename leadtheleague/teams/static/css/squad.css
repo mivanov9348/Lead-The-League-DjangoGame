@@ -8,16 +8,6 @@
     border-radius: 10px;
 }
 
-.team-info{
-    width: 100%;
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    color: white;
-    text-align:center;
-    background-color: var(--darkergreen-color);
-    border: 2px solid var(--blue-color);
-    border-radius:10px;
-}
-
 /* Всяка секция в таблицата */
 .table-section {
     flex: 1 1 calc(33% - 20px);

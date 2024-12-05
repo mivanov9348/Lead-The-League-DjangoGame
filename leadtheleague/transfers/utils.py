@@ -1,9 +1,10 @@
 from django.db import transaction
+from django.db.models import Prefetch
 
 from staff.utils.agent_utils import agent_sell_player
 from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import team_expense
-from transfers.models import Transfer
+from transfers.models import Transfer, TransferOffer
 
 
 def get_all_transfers():
@@ -35,6 +36,7 @@ def transfer_free_agent(team, player):
     agent_sell_player(team, player)
     create_transfer(team, player, True)
 
+
 def filter_free_agents(free_agents, nationality='', position='', age=None):
     if nationality:
         free_agents = [player for player in free_agents if player['nationality'] == nationality]
@@ -57,3 +59,20 @@ def sort_free_agents(free_agents, sort_field='', order='asc'):
         else:  # Сортировка по атрибути
             free_agents.sort(key=lambda x: x.get('attributes', {}).get(sort_field, 0), reverse=reverse)
     return free_agents
+
+
+def find_transfer_offer_by_id(offer_id):
+    try:
+        return TransferOffer.objects.select_related('offering_team').prefetch_related(
+            Prefetch('player__team_players', queryset=TeamPlayer.objects.select_related('team'))
+        ).get(id=offer_id)
+    except TransferOffer.DoesNotExist:
+        return None
+
+def create_transfer_record(player_team, offering_team, player, amount):
+    return Transfer.objects.create(
+        selling_team=player_team,
+        buying_team=offering_team,
+        player=player,
+        amount=amount
+    )

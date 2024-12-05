@@ -10,7 +10,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--darkgreen-color);
+    background-color: var(--darkergreen-color);
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 30px;
@@ -53,7 +53,7 @@
 
 .team-box {
     flex: 1;
-    background-color: var(--darkgreen-color);
+    background-color: var(--darkergreen-color);
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -68,20 +68,20 @@
 
 .team-box table {
     border-collapse: collapse;
-    margin-top: 15px;
+    margin-top: 5px;
     table-layout: fixed;
 }
 
 .team-box th, .team-box td {
-    padding: 15px;
+    padding: 10px;
     border: 1px solid var(--white-color);
     text-align: center;
     color: var(--white-color);
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .team-box th {
-    background-color: var(--darkgreen-color);
+    background-color: var(--darkergreen-color);
     font-weight: bold;
 }
 
@@ -97,7 +97,7 @@
 
 .live-event {
     flex: 1.2;
-    background-color: var(--darkgreen-color);
+    background-color: var(--darkergreen-color);
     border:3px solid black;
     border-radius: 10px;
     padding: 10px;

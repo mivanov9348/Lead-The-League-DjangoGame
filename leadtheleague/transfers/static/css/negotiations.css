@@ -1,0 +1,98 @@
+.negotiations-container {
+    width:100%
+    margin: 20px auto;
+    padding: 10px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--darkgreen-color);
+    margin-bottom: 20px;
+}
+
+.negotiations-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    height:800px;
+    overflow:hidden;
+}
+
+.offers-section {
+    flex: 1;
+    min-width: 45%;
+    background-color: var(--darkergreen-color);
+    color: var(--white-color);
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.offers-section h2 {
+    text-align: center;
+    color: var(--white-color);
+    margin-bottom: 10px;
+}
+
+.offers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.offer-card {
+    background-color:var(--white-color);
+    color:black;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.offer-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.offer-card h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #222;
+}
+
+.offer-card p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.offer-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.offer-actions button {
+    background: #007bff;
+    border: none;
+    padding: 8px 12px;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 0.9em;
+    transition: background 0.3s;
+}
+
+.offer-actions button:hover {
+    background: #0056b3;
+}
+
+.offer-actions button:nth-child(2) {
+    background: #dc3545;
+}
+
+.offer-actions button:nth-child(2):hover {
+    background: #a71d2a;
+}

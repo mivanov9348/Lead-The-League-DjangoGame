@@ -4,6 +4,7 @@ from finance.utils.bank_utils import get_bank
 from finance.utils.transaction_utils import create_transaction
 from teams.models import TeamFinance
 
+
 @transaction.atomic
 def terminate_team_finance(team):
     print(f"Започваме процеса на прекратяване на финанси за отбор {team.name}")
@@ -24,6 +25,7 @@ def terminate_team_finance(team):
 
     team_finance.delete()
     print(f"Финансовите данни за отбор {team.name} бяха успешно изтрити.")
+
 
 @transaction.atomic
 def create_team_finance(team):
@@ -58,6 +60,7 @@ def team_income(team, amount):
             team_finance.save()
     except TeamFinance.DoesNotExist:
         raise ValueError(f"The team {team.name} does not have a finance wallet!")
+
 
 def team_expense(team, price):
     try:

@@ -1,5 +1,6 @@
 from datetime import datetime, time, timedelta
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from random import random
@@ -8,6 +9,11 @@ from match.models import Match, Event, AttributeEventWeight, EventResult, EventT
 from match.utils.processing_match_utils import choose_event_random_player
 from teams.models import Team
 
+def get_match_by_id(match_id):
+    try:
+        return Match.objects.get(id=match_id)
+    except ObjectDoesNotExist:
+        return None
 
 def get_all_matches():
     return Match.objects.all()

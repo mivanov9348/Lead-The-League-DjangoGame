@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Negotiations{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/negotiations.css' %}">
+{% endblock %}
+{% load humanize %}
+{% block content %}
+<div class="negotiations-container">
+    <h1>Negotiations</h1>
+
+    <div class="negotiations-grid">
+        <!-- Sent Offers Section -->
+        <div class="offers-section">
+            <h2>Sent Offers</h2>
+            <hr>
+            <div class="offers-list">
+                {% for offer in sended_offers %}
+                <div class="offer-card">
+                    <h3>{{ offer.player.name }}</h3>
+                    <hr>
+                    <p><strong>Team:</strong> {{ offer.player.team_players.first.team.name }}</p>
+                    <p><strong>Amount:</strong> ${{ offer.offer_amount|intcomma }}</p>
+                    <p style="color:red"><strong>Status:</strong> {{ offer.status }}</p>
+                    <p><strong>Date:</strong> {{ offer.offer_date }}</p>
+                </div>
+                {% empty %}
+                <p>No offers sent yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Received Offers Section -->
+        <div class="offers-section">
+            <h2>Received Offers</h2>
+            <hr>
+            <div class="offers-list">
+                {% for offer in received_offers %}
+                <div class="offer-card">
+                    <h3>{{ offer.player.name }}</h3>
+                    <p><strong>Team:</strong> {{ offer.offering_team.name }}</p>
+                    <p><strong>Amount:</strong> ${{ offer.offer_amount|intcomma }}</p>
+                    <p><strong>Status:</strong> {{ offer.status }}</p>
+                    <p><strong>Date:</strong> {{ offer.offer_date }}</p>
+                    {% if offer.status == 'Pending' %}
+                    <div class="offer-actions">
+                        <button onclick="submitOffer({{ offer.id }}, 'Accepted')">Accept</button>
+                        <button onclick="submitOffer({{ offer.id }}, 'Rejected')">Reject</button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p>No offers received yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitOffer(offerId, status) {
+        let url = "";
+        if (status === 'Accepted') {
+            url = "{% url 'transfers:accept_transfer' %}";
+        } else if (status === 'Rejected') {
+            url = "{% url 'transfers:reject_transfer' %}";
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ offer_id: offerId })
+        }).then(response => response.json())
+          .then(data => {
+              if (data.status === 'success') {
+                  alert('Offer ' + status + ' successfully!');
+                  location.reload();
+              } else {
+                  alert('Failed to update offer: ' + data.message);
+              }
+          }).catch(error => console.error('Error:', error));
+    }
+</script>
+
+{% endblock %}

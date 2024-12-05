@@ -4,7 +4,6 @@ from game.models import Season
 from match.models import Match
 from players.models import Player, Statistic, PlayerMatchStatistic, PlayerSeasonStatistic
 
-
 def generate_matches_for_season(season):
     fixtures = Fixture.objects.filter(season=season)
     matches_to_create = []
@@ -24,12 +23,10 @@ def generate_matches_for_season(season):
 
     Match.objects.bulk_create(matches_to_create)
 
-
 def update_matches(dummy_team, new_team):
     # Ограничаваме се до две заявки за обновяване вместо обхождане
     Match.objects.filter(home_team=dummy_team).update(home_team=new_team)
     Match.objects.filter(away_team=dummy_team).update(away_team=new_team)
-
 
 def generate_players_match_stats_for_today():
     current_season = Season.objects.filter(is_ended=False).first()
@@ -46,7 +43,6 @@ def generate_players_match_stats_for_today():
             if match.home_team_id in teams or match.away_team_id in teams:
                 generate_player_match_stats(player, match)
 
-
 def generate_player_match_stats(player, match):
     player_match_statistics = [
         PlayerMatchStatistic(
@@ -57,7 +53,6 @@ def generate_player_match_stats(player, match):
         ) for statistic in Statistic.objects.all()
     ]
     PlayerMatchStatistic.objects.bulk_create(player_match_statistics)
-
 
 def generate_player_season_stats(player, season, team):
     for statistic in Statistic.objects.all():

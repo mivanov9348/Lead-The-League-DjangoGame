@@ -60,14 +60,15 @@ def calculate_player_attributes(player):
         # Ограничаваме стойността между 1 и 20
         final_value = min(max(round(final_value), 1), 20)
 
-        # Запазваме резултата за този атрибут
-        attributes[attribute] = final_value
+        progress_value = random.uniform(0.0, 10.0)
 
-    # Изчистваме старите атрибути на играча и създаваме нови
+        # Запазваме резултата за този атрибут
+        attributes[attribute] = (final_value, progress_value)
+
     PlayerAttribute.objects.filter(player=player).delete()
     PlayerAttribute.objects.bulk_create([
-        PlayerAttribute(player=player, attribute=attr, value=value)
-        for attr, value in attributes.items()
+        PlayerAttribute(player=player, attribute=attr, value=value, progress=progress)
+        for attr, (value, progress) in attributes.items()
     ])
 
     return player  # Връщаме играча
@@ -80,28 +81,28 @@ def choose_random_photo(photo_folder):
 
 def copy_player_image_to_media(photo_folder, player_id):
     """
-    Копира случайна снимка от photo_folder в media/playerimages и я преименува спрямо player_id.
+    Copies a random photo from the photo_folder to media/playerimages and renames it according to the player_id.
     """
-    # Път към папката media/playerimages
+    # Path to the media/playerimages folder
     player_images_folder = os.path.join(settings.MEDIA_ROOT, 'playerimages')
 
-    # Избор на случайна снимка
+    # Choose a random photo
     chosen_photo = choose_random_photo(photo_folder)
     if not os.path.exists(chosen_photo):
         print(f"The chosen photo {chosen_photo} doesn't exist.")
         return None
 
-    # Проверка и създаване на папката, ако я няма
+    # Check and create the folder if it doesn't exist
     if not os.path.exists(player_images_folder):
         os.makedirs(player_images_folder, exist_ok=True)
 
-    # Ново име за снимката
+    # New name for the photo
     new_photo_path = os.path.join(player_images_folder, f"{player_id}.png")
 
-    # Копиране на файла
+    # Copy the file
     shutil.copy(chosen_photo, new_photo_path)
 
-    # Връщане на относителния път за ImageField
+    # Return the relative path for ImageField
     return f'playerimages/{player_id}.png'
 
 
@@ -216,6 +217,7 @@ def generate_team_players(team):
 
         generate_random_player(team, random_position)
 
+
 def generate_free_agents(agent):
     """
     Генерира свободни играчи за даден агент, като броят и позициите се определят на база на настройки.
@@ -268,3 +270,10 @@ def generate_free_agents(agent):
             free_agents.append(player)
 
     return free_agents
+
+'''Retirement of player at the end of the Season'''
+def retirement_player(player):
+    if player.age >=35:
+        player.is_active=False
+        player.save()
+        TeamPlayer.objects.filter(player = player).delete()

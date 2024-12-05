@@ -11,7 +11,6 @@ def get_starting_lineup(team):
     except TeamTactics.DoesNotExist:
         return Player.objects.none()
 
-
 def get_lineup_data(players, match):
     lineup_data = []
     for player in players:

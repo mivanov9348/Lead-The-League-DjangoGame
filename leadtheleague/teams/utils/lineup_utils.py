@@ -42,7 +42,7 @@ def create_position_template(selected_tactic, starting_players):
 
 def auto_select_starting_lineup(team):
     """
-    Автоматично избира стартов състав за даден отбор на базата на наличните тактики.
+    Automatic lineup for dummy teams
     """
     team_tactics, created = TeamTactics.objects.get_or_create(team=team)
     if team_tactics.starting_players.count() >= 11:
