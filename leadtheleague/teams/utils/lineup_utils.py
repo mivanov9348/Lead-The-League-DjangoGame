@@ -2,6 +2,7 @@ from collections import defaultdict
 from players.models import Player
 from teams.models import TeamTactics, Tactics
 
+
 def create_position_template(selected_tactic, starting_players):
     if not selected_tactic:
         return []
@@ -40,10 +41,8 @@ def create_position_template(selected_tactic, starting_players):
 
     return position_template
 
+
 def auto_select_starting_lineup(team):
-    """
-    Automatic lineup for dummy teams
-    """
     team_tactics, created = TeamTactics.objects.get_or_create(team=team)
     if team_tactics.starting_players.count() >= 11:
         return
@@ -75,13 +74,11 @@ def auto_select_starting_lineup(team):
 
     return selected_players
 
-def update_tactics(dummy_team, new_team):
-    """
-    Актуализира тактиките на новият отбор на базата на dummy_team.
-    """
-    dummy_team_tactics = TeamTactics.objects.filter(team=dummy_team).first()
-    if dummy_team_tactics:
+
+def update_tactics(new_team):
+    COM_teams_tactics = TeamTactics.objects.filter(is_COM=True).first()
+    if COM_teams_tactics:
         TeamTactics.objects.update_or_create(
             team=new_team,
-            defaults={'tactic': dummy_team_tactics.tactic}
+            defaults={'tactic': COM_teams_tactics.tactic}
         )

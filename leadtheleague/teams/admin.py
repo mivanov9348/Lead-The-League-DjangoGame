@@ -1,29 +1,40 @@
 from django.contrib import admin, messages
-from .models import Team, DummyTeamNames, TeamFinance
-from .utils.generate_team_utils import fill_dummy_teams
+
+from players.utils.generate_player_utils import generate_team_players
+from .models import Team, TeamFinance
+
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbreviation', 'user', 'division', 'is_dummy')
+    list_display = ('name', 'abbreviation', 'user',)
     search_fields = ('name', 'abbreviation', 'user__username')
-    actions = ['fill_with_dummy_teams']  # Register the action to fill divisions with dummy teams
 
-    def fill_with_dummy_teams(self, request, queryset):
-        fill_dummy_teams()  # Call the utility function to create dummy teams
-        self.message_user(request, "Dummy teams created and divisions filled.", level=messages.SUCCESS)
+    def fill_selected_teams_with_players(self, request, queryset):
+        successful_teams = 0
+        for team in queryset:
+            try:
+                generate_team_players(team)
+                successful_teams += 1
+            except Exception as e:
+                self.message_user(
+                    request,
+                    f"Error generating players for team {team.name}: {e}",
+                    level=messages.ERROR
+                )
+        self.message_user(
+            request,
+            f"Players successfully generated for {successful_teams} team(s).",
+            level=messages.SUCCESS
+        )
 
-    fill_with_dummy_teams.short_description = "Create Dummy Teams to Fill Divisions"  # Set a descriptive label
+    actions = ['fill_selected_teams_with_players']
+    fill_selected_teams_with_players.short_description = "Fill Selected Teams with Players"
 
-@admin.register(DummyTeamNames)
-class AdjectiveTeamNamesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbreviation')  # Adjust this if your model has other fields
-    search_fields = ('name', 'abbreviation')  # Enable searching by the adjective word
 
 # Финансовият админ за отбори
 @admin.register(TeamFinance)
 class TeamFinanceAdmin(admin.ModelAdmin):
     list_display = ('team', 'balance', 'total_income', 'total_expenses')  # Основни полета
-    list_filter = ('team__division',)  # Филтриране по дивизия на отбора
     search_fields = ('team__name',)  # Търсене по име на отбор
     readonly_fields = ('total_income', 'total_expenses')  # Полетата за приходи и разходи са само за четене
 

@@ -1,6 +1,5 @@
 from django.db.models import Prefetch
 from django.http import JsonResponse
-
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
 from staff.models import Coach
@@ -11,31 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from .utils.generate_team_utils import replace_dummy_team
 from .utils.training_utils import player_training
-
-
-@login_required
-def create_team(request):
-    if request.method == 'POST':
-        form = TeamCreationForm(request.POST)
-        if form.is_valid():
-            team = form.save(commit=False)
-            team.user = request.user
-            team.is_dummy = False
-            team.save()
-
-            if replace_dummy_team(team):
-                return redirect('game:home')
-            else:
-                form.add_error(None, "Not Found Dummy Team")
-
-            return redirect('teams:team_list')
-    else:
-        form = TeamCreationForm()
-
-    return render(request, 'team/create_team.html', {'form': form})
-
 
 def get_sort_field(sort_by):
     valid_sort_fields = {

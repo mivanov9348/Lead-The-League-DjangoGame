@@ -1,12 +1,11 @@
 from django.conf.urls.static import static
 from django.urls import path
 from leadtheleague import settings
-from .views import create_team, squad, team_stats, line_up, my_team, save_lineup, training, train_coach
+from .views import squad, team_stats, line_up, my_team, save_lineup, training, train_coach
 
 app_name = 'teams'
 
 urlpatterns = [
-    path('create_team/', create_team, name='create_team'),
     path('squad/', squad, name='squad'),
     path("line_up/", line_up, name="line_up"),
     path('save_lineup/', save_lineup, name='save_lineup'),

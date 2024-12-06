@@ -1,18 +1,17 @@
-from teams.models import TeamSeasonStats
+from teams.models import TeamSeasonStats, Team
 from .models import League
 
-def get_leagues_and_divisions():
-    return League.objects.prefetch_related('division_set').all()
+def get_all_leagues():
+    return League.objects.all()
 
-def get_selected_league_and_division(league_id, division_id):
+def get_selected_league(league_id):
     league = League.objects.filter(id=league_id).first()
-    division = None
-    if league:
-        division = league.division_set.filter(id=division_id).first()
-    return league, division
+    return league
 
-def get_standings_for_division(division):
+def get_standings_for_league(league):
     return TeamSeasonStats.objects.filter(
-        league=division.league.id,
-        division=division
+        league=league
     ).select_related('team').order_by('-points', '-goalscored', 'goalconceded')
+
+def get_teams_by_league(league_id):
+    return Team.objects.filter(league_id=league_id)

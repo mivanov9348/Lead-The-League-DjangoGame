@@ -2,40 +2,31 @@ import os
 import random
 import shutil
 import logging
+from core.utils.names_utils import get_random_first_name, get_random_last_name
+from core.utils.nationality_utils import get_all_nationalities
 from game.models import Settings
 from game.utils import get_setting_value
 from leadtheleague import settings
-from players.models import FirstName, LastName, Nationality, Position, Attribute, PlayerAttribute, Player, \
-    PositionAttribute
+from players.models import Position, Attribute, PlayerAttribute, Player, PositionAttribute
 from players.utils.update_player_stats_utils import update_player_price
 from teams.models import TeamPlayer
-
-
-def get_player_random_first_and_last_name(region):
-    first_names = list(FirstName.objects.filter(region=region)) or list(FirstName.objects.all())
-    last_names = list(LastName.objects.filter(region=region)) or list(LastName.objects.all())
-
-    first_name = random.choice(first_names).name
-    last_name = random.choice(last_names).name
-    return first_name, last_name
-
 
 def calculate_player_attributes(player):
     position = player.position
     age = player.age
     attributes = {}
 
-    # Вземаме всички атрибути
+    # Getting All Attributes
     all_attributes = Attribute.objects.all()
 
-    # Вземаме важността на атрибутите за позицията на играча
+    # Getting Attributes Weights
     position_importances = {
         pos_attr.attribute.id: pos_attr.importance
         for pos_attr in PositionAttribute.objects.filter(position=position)
     }
 
     for attribute in all_attributes:
-        # Базова стойност
+        # Based Value
         base_value = 1
 
         # Важност на атрибута за позицията (ако няма зададена важност, приемаме 1)
@@ -107,19 +98,17 @@ def copy_player_image_to_media(photo_folder, player_id):
 
 
 def generate_random_player(team=None, position=None):
-    """
-    Генерира случаен играч, записва го в базата и създава негова снимка.
-    """
-    nationalities = Nationality.objects.all()
+    nationalities = get_all_nationalities()
     positions = Position.objects.all()
     nationality = random.choice(nationalities)
     region = nationality.region
     team_player_numbers = set(TeamPlayer.objects.filter(team=team).values_list('shirt_number', flat=True))
-    first_name, last_name = get_player_random_first_and_last_name(region)
+    first_name = get_random_first_name(region)
+    last_name = get_random_last_name(region)
     if position is None:
         position = random.choice(positions)
 
-    # Създаване на играча
+    # Creating the player
     age = random.randint(18, 35)
     player = Player(
         first_name=first_name,
@@ -134,16 +123,13 @@ def generate_random_player(team=None, position=None):
         photo_folder="E:/Data/playersImages",
         player_id=player.id
     )
-    player.image = photo_path  # Задаваме снимката
-    player.save()  # Запазваме промяната за снимката
+    player.image = photo_path
+    player.save()
 
-    # Изчисляване и записване на атрибутите за играча
     player = calculate_player_attributes(player)
 
-    # Актуализация на цената
     player.price = update_player_price(player)
 
-    # Избиране на уникален номер
     while True:
         random_number = random.randint(1, 99)
         if random_number not in team_player_numbers:
@@ -194,7 +180,6 @@ def generate_team_players(team):
         'Attacker': min_attackers,
     }
 
-    # Генериране на нужните играчи на всяка позиция
     for pos_name, count in positions.items():
         try:
             position = Position.objects.get(name=pos_name.capitalize())
@@ -205,8 +190,7 @@ def generate_team_players(team):
         for _ in range(int(count)):
             generate_random_player(team, position)
 
-    # Генериране на допълнителни 5 случайни играча на случайни позиции
-    all_positions = list(positions.keys())  # Списък с всички позиции
+    all_positions = list(positions.keys())
     for _ in range(random_players):
         random_position_name = random.choice(all_positions)
         try:
@@ -219,11 +203,7 @@ def generate_team_players(team):
 
 
 def generate_free_agents(agent):
-    """
-    Генерира свободни играчи за даден агент, като броят и позициите се определят на база на настройки.
-    """
 
-    # Вземане на стойности от настройките
     try:
         min_free_agents = int(get_setting_value('minimum_free_agents'))
         max_free_agents = int(get_setting_value('maximum_free_agents'))
@@ -271,9 +251,12 @@ def generate_free_agents(agent):
 
     return free_agents
 
+
 '''Retirement of player at the end of the Season'''
+
+
 def retirement_player(player):
-    if player.age >=35:
-        player.is_active=False
+    if player.age >= 35:
+        player.is_active = False
         player.save()
-        TeamPlayer.objects.filter(player = player).delete()
+        TeamPlayer.objects.filter(player=player).delete()

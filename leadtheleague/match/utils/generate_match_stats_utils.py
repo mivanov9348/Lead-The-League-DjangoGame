@@ -12,7 +12,7 @@ def generate_matches_for_season(season):
         matches_to_create.append(Match(
             home_team=fixture.home_team,
             away_team=fixture.away_team,
-            division=fixture.division,
+            league =fixture.league,
             match_date=fixture.date,
             match_time=fixture.match_time,
             home_goals=fixture.home_goals,
@@ -22,11 +22,6 @@ def generate_matches_for_season(season):
         ))
 
     Match.objects.bulk_create(matches_to_create)
-
-def update_matches(dummy_team, new_team):
-    # Ограничаваме се до две заявки за обновяване вместо обхождане
-    Match.objects.filter(home_team=dummy_team).update(home_team=new_team)
-    Match.objects.filter(away_team=dummy_team).update(away_team=new_team)
 
 def generate_players_match_stats_for_today():
     current_season = Season.objects.filter(is_ended=False).first()

@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from fixtures.utils import generate_fixtures
 from game.models import Season, Settings
-from leagues.models import Division
+from leagues.models import League
 from match.utils.generate_match_stats_utils import generate_matches_for_season, generate_player_season_stats
 from players.models import Player
 from teams.models import Team, TeamSeasonStats
@@ -24,16 +24,13 @@ def create_new_season(year, season_number, start_date, match_time):
         return season
     except ObjectDoesNotExist:
         try:
-            # Create and save the Season instance first
             season = Season(year=year, season_number=season_number, start_date=start_date, match_time=match_time)
             season.save()
 
-            # Only after the season is fully saved, generate fixtures and matches
-            divisions = Division.objects.all()
-            for division in divisions:
-                generate_fixtures(start_date, division, season, match_time)  # Pass the saved instance
+            leagues = League.objects.all()
+            for league in leagues:
+                generate_fixtures(start_date, league, season, match_time)
 
-            # Generate matches and player stats only after the season exists
             generate_matches_for_season(season)
         except IntegrityError as e:
             print("Foreign key error in Match creation:", e)
@@ -45,26 +42,18 @@ def create_team_season_stats(new_season):
         teams = Team.objects.all()
         for team in teams:
             if not TeamSeasonStats.objects.filter(team=team, season=new_season).exists():
-                division = team.division
-                league = division.league
+                league = team.league
 
                 TeamSeasonStats.objects.create(
                     team=team,
                     season=new_season,
-                    league=league,
-                    division=division
+                    league=league
                 )
 
-            # Взимаме играчите за отбора чрез релация `team_players`
             players = Player.objects.filter(team_players__team=team)
             for player in players:
                 generate_player_season_stats(player, new_season, team)
 
-def update_team_season_stats(dummy_team, new_team):
-    team_season_stats = TeamSeasonStats.objects.filter(team=dummy_team)
-    for stats in team_season_stats:
-        stats.team = new_team
-        stats.save()
 
 # settings
 def get_setting_value(key):

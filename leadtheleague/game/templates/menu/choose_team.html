@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Team</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/choose_team.css' %}">
+    <script>
+        function loadTeams() {
+            const leagueId = document.getElementById('league-select').value;
+            const teamContainer = document.getElementById('team-container');
+            teamContainer.innerHTML = '';
+
+            if (leagueId) {
+                fetch(`/api/teams/${leagueId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.teams.forEach(team => {
+                            const teamCard = document.createElement('div');
+                            teamCard.className = 'team-card';
+
+                            const logo = document.createElement('img');
+                            logo.src = team.logo || '/static/images/default_logo.png';
+                            logo.alt = team.name;
+
+                            const name = document.createElement('p');
+                            name.textContent = team.name;
+
+                            const button = document.createElement('button');
+                            button.textContent = team.user === 'Available' ? 'Choose' : `Selected by ${team.user}`;
+                            button.disabled = team.user !== 'Available';
+                            if (team.user === 'Available') {
+                                button.onclick = () => chooseTeam(team.id);
+                            }
+
+                            teamCard.appendChild(logo);
+                            teamCard.appendChild(name);
+                            teamCard.appendChild(button);
+
+                            teamContainer.appendChild(teamCard);
+                        });
+                    });
+            }
+        }
+
+        function chooseTeam(teamId) {
+            const form = document.getElementById('team-form');
+            form.team_id.value = teamId;
+            form.submit();
+        }
+    </script>
+</head>
+<body>
+    <div class="choose-team-container">
+        <h1>Choose Your Team</h1>
+        <form id="team-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="team_id">
+        </form>
+        <label for="league-select">Choose a League:</label>
+        <select id="league-select" onchange="loadTeams()">
+            <option value="">-- Select a League --</option>
+            {% for league in leagues %}
+                <option value="{{ league.id }}">{{ league.name }}</option>
+            {% endfor %}
+        </select>
+        <div id="team-container" class="team-container">
+            <!-- Teams will be dynamically loaded here -->
+        </div>
+    </div>
+</body>
+</html>

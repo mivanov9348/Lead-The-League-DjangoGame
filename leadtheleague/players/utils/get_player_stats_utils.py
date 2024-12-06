@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, QuerySet, Avg, Subquery, OuterRef, Case, When, Value, FloatField
 from game.utils import get_current_season
-from players.models import Player, PlayerSeasonStatistic, Position, Nationality, Attribute, PlayerMatchRating, \
+from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating, \
     PlayerAttribute
 
 STATISTICS_MAPPING = {
@@ -99,16 +99,10 @@ def sort_players(queryset, sort_by, order):
     return queryset.order_by('-sort_value_cleaned' if order == 'desc' else 'sort_value_cleaned')
 
 
-
 def paginate_queryset(queryset, page_number, items_per_page=20):
     paginator = Paginator(queryset, items_per_page)
     page = paginator.get_page(page_number)
     return page, paginator
-
-
-def get_all_nationalities() -> QuerySet[Nationality]:
-    """Retrieve all nationalities from the database."""
-    return Nationality.objects.all()
 
 
 def get_all_positions() -> QuerySet[Position]:

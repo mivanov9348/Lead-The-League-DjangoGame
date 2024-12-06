@@ -3,30 +3,23 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator, MinVa
 from django.db import models
 from accounts.models import CustomUser
 
-class DummyTeamNames(models.Model):
-    name = models.CharField(max_length=100)
-    abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(2), MaxLengthValidator(3)])
+class Team(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    abbreviation = models.CharField(
+        max_length=3,
+        validators=[MinValueValidator(2), MaxValueValidator(3)],
+    )
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
+    league = models.ForeignKey("leagues.League", on_delete=models.CASCADE, related_name='league_teams', null=True)
+    reputation = models.IntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
+    is_COM = models.BooleanField(default=True)
+    logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
+    nationality = models.ForeignKey('core.Nationality', on_delete=models.SET_NULL, related_name='nation_teams',
+                                    null=True,
+                                    blank=True)
 
     def __str__(self):
         return self.name
-
-class Team(models.Model):
-    name = models.CharField(max_length=100)
-    abbreviation = models.CharField(max_length=3, validators=[MinLengthValidator(3), MaxLengthValidator(3)])
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
-    division = models.ForeignKey('leagues.Division', on_delete=models.CASCADE, related_name='team', null=True)
-    is_dummy = models.BooleanField(default=False)
-    logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
-
-    def __str__(self):
-        return f'{self.name}'
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['name']),
-            models.Index(fields=['user']),
-            models.Index(fields=['division']),
-        ]
 
 class TeamFinance(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
@@ -36,7 +29,6 @@ class TeamFinance(models.Model):
 
     def __str__(self):
         return f'{self.team.name} Balance: {self.balance}'
-
 
 class TeamPlayer(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='team_players')
@@ -49,13 +41,11 @@ class TeamPlayer(models.Model):
     def __str__(self):
         return f"{self.player.name} - {self.team.name} (# {self.shirt_number})"
 
-
 class TeamStatistic(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
-
 
 class TeamMatchStatistic(models.Model):
     team = models.ForeignKey(Team, related_name='match_stats', on_delete=models.CASCADE)
@@ -79,7 +69,6 @@ class TeamSeasonStats(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     season = models.ForeignKey('game.Season', on_delete=models.CASCADE)
     league = models.ForeignKey('leagues.League', on_delete=models.CASCADE, null=True)
-    division = models.ForeignKey('leagues.Division', on_delete=models.CASCADE, null=True)
     matches = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
     draws = models.IntegerField(default=0)
@@ -95,7 +84,6 @@ class TeamSeasonStats(models.Model):
             models.Index(fields=['team']),
             models.Index(fields=['season']),
             models.Index(fields=['league']),
-            models.Index(fields=['division']),
         ]
 
 
@@ -121,6 +109,7 @@ class TeamTactics(models.Model):
         'players.Player',
         related_name='reserve_team_tactics'
     )
+
     def __str__(self):
         return f"{self.team.name} - {self.tactic.name}"
 
@@ -129,6 +118,7 @@ class TeamTactics(models.Model):
             models.Index(fields=['team']),
             models.Index(fields=['tactic']),
         ]
+
 
 class TrainingEfficiency(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='trainings')

@@ -1,6 +1,8 @@
 import random
+
+from core.utils.names_utils import get_random_first_name, get_random_last_name
+from core.utils.nationality_utils import get_random_nationality, get_nationality_region
 from game.utils import get_setting_value
-from players.models import Nationality, FirstName, LastName
 from staff.models import Coach
 
 def get_coaches_without_team():
@@ -13,15 +15,12 @@ def calculate_coach_price(rating):
     return base_price * (1 + rating * price_coefficient)
 
 def generate_coach():
-    nationalities = Nationality.objects.all()
-    nationality = random.choice(nationalities)
-    region = nationality.region
+    random_nationality = get_random_nationality()
+    region = get_nationality_region(random_nationality)
 
-    first_names = list(FirstName.objects.filter(region=region)) or list(FirstName.objects.all())
-    last_names = list(LastName.objects.filter(region=region)) or list(LastName.objects.all())
+    first_name = get_random_first_name(region)
+    last_name = get_random_last_name(region)
 
-    first_name = random.choice(first_names)
-    last_name = random.choice(last_names)
     age = random.randint(30, 60)
     rating = round(random.uniform(1.0, 10.0), 1)
     price = calculate_coach_price(rating)

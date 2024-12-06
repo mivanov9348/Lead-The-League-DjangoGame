@@ -1,13 +1,12 @@
 import random
 from decimal import Decimal
-
 from django.db import transaction
-
+from core.models import Nationality
+from core.utils.names_utils import get_random_first_name, get_random_last_name
 from finance.models import Bank
 from finance.utils.bank_utils import distribute_income
 from game.utils import get_setting_value
-from players.models import Nationality
-from players.utils.generate_player_utils import get_player_random_first_and_last_name, generate_free_agents
+from players.utils.generate_player_utils import generate_free_agents
 from staff.models import Agent
 from teams.utils.team_finance_utils import team_expense
 
@@ -22,7 +21,9 @@ def generate_agents(free_agents_count):
         nationality = random.choice(nationalities)
         region = nationality.region
 
-        first_name, last_name = get_player_random_first_and_last_name(region)
+        first_name = get_random_first_name(region)
+        last_name = get_random_last_name(region)
+
         age = random.randint(25, 60)
         starting_balance = get_setting_value("free_agents_starting_balance")
 
@@ -37,6 +38,7 @@ def generate_agents(free_agents_count):
 
     return agents
 
+
 def agent_sell_player(team, player):
     with transaction.atomic():
         agent = player.agent
@@ -46,6 +48,7 @@ def agent_sell_player(team, player):
 
     team_expense(team, player.price)
     process_agent_payment(agent, player.price)
+
 
 def process_agent_payment(agent, price):
     with transaction.atomic():

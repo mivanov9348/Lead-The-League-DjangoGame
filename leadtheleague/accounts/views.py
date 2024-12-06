@@ -20,7 +20,7 @@ class SignUpView(CreateView):
         login(self.request, user)
 
         if not Team.objects.filter(user=user).exists():
-            return redirect('teams:create_team')
+            return redirect('game:choose_team')
 
         return redirect(self.success_url)
 
