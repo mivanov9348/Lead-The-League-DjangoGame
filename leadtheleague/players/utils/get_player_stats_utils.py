@@ -1,9 +1,7 @@
 from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.db.models import Prefetch, QuerySet, Avg, Subquery, OuterRef, Case, When, Value, FloatField
+from django.db.models import Prefetch, QuerySet, Avg
 from game.utils import get_current_season
-from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating, \
-    PlayerAttribute
+from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating
 
 STATISTICS_MAPPING = {
     'assists': 'assists',
@@ -44,70 +42,10 @@ ATTRIBUTES_MAPPING = {
 }
 
 
-def filter_players(queryset, filters):
-    team_filter = filters.get('team')
-    age_min = filters.get('age_min')
-    age_max = filters.get('age_max')
-    nationality_filter = filters.get('nationality')
-    position_filter = filters.get('position')
-
-    if team_filter:
-        queryset = queryset.filter(team_players__team__name=team_filter)
-    if age_min:
-        queryset = queryset.filter(age__gte=age_min)
-    if age_max:
-        queryset = queryset.filter(age__lte=age_max)
-    if nationality_filter:
-        queryset = queryset.filter(nationality__abbreviation=nationality_filter)
-    if position_filter:
-        queryset = queryset.filter(position__abbreviation=position_filter)
-
-    return queryset
-
-def sort_players(queryset, sort_by, order):
-    if sort_by in STATISTICS_MAPPING:
-        # Сортиране по статистики
-        queryset = queryset.annotate(
-            sort_value=Subquery(
-                PlayerSeasonStatistic.objects.filter(
-                    player=OuterRef('pk'),
-                    statistic__name=STATISTICS_MAPPING[sort_by]
-                ).values('value')[:1]
-            )
-        )
-    elif sort_by in ATTRIBUTES_MAPPING:
-        # Сортиране по атрибути
-        queryset = queryset.annotate(
-            sort_value=Subquery(
-                PlayerAttribute.objects.filter(
-                    player=OuterRef('pk'),
-                    attribute_name=ATTRIBUTES_MAPPING[sort_by]
-                ).values('value')[:1]
-            )
-        )
-    else:
-        return queryset  # Без промени, ако няма съвпадение
-
-    # Обработка на празни стойности и прилагане на сортиране
-    queryset = queryset.annotate(
-        sort_value_cleaned=Case(
-            When(sort_value__isnull=True, then=Value(0)),  # Заместване на null със стойност 0
-            default='sort_value',
-            output_field=FloatField()
-        )
-    )
-    return queryset.order_by('-sort_value_cleaned' if order == 'desc' else 'sort_value_cleaned')
-
-
-def paginate_queryset(queryset, page_number, items_per_page=20):
-    paginator = Paginator(queryset, items_per_page)
-    page = paginator.get_page(page_number)
-    return page, paginator
-
-
 def get_all_positions() -> QuerySet[Position]:
     """Retrieve all positions from the database."""
     return Position.objects.all()
+
 
 def get_average_player_rating_for_current_season(player: Player) -> float:
     # Получаваме текущия сезон
@@ -121,6 +59,7 @@ def get_average_player_rating_for_current_season(player: Player) -> float:
 
     return average_rating if average_rating is not None else 0.0
 
+
 def get_attributes():
     attributes = cache.get('attributes')
     if not attributes:
@@ -128,12 +67,14 @@ def get_attributes():
         cache.set('attributes', attributes, 3600)  # Кеширане за 1 час
     return attributes
 
+
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
     return {
         'team_name': team_player.team.name if team_player else 'No team',
         'shirt_number': team_player.shirt_number if team_player else None,
     }
+
 
 def get_personal_player_data(player):
     return {
@@ -154,6 +95,7 @@ def get_personal_player_data(player):
 
     }
 
+
 def get_player_attributes(player):
     player = Player.objects.prefetch_related('playerattribute_set__attribute').get(id=player.id)
     return {attr.attribute.name: attr.value for attr in player.playerattribute_set.all()}
@@ -164,6 +106,7 @@ def get_player_season_stats(player, season=None):
     if season:
         query = query.filter(season=season)
     return {stat.statistic.name: stat.value for stat in query}
+
 
 def get_player_season_stats_all_seasons(player):
     season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic')
@@ -177,6 +120,7 @@ def get_player_season_stats_all_seasons(player):
         all_stats[season_number][stat.statistic.name] = stat.value
 
     return all_stats
+
 
 def get_players_season_stats_by_team(team):
     players = team.team_players.select_related('player').prefetch_related(
@@ -205,6 +149,7 @@ def get_players_season_stats_by_team(team):
         }
     return player_data
 
+
 def get_player_data(player):
     return {
         'personal_info': get_personal_player_data(player),
@@ -215,6 +160,7 @@ def get_player_data(player):
             'match_stats': get_player_match_stats(player),
         },
     }
+
 
 def get_player_match_stats(player, match=None):
     query = player.match_stats.select_related('match', 'statistic')
@@ -227,6 +173,7 @@ def get_player_match_stats(player, match=None):
             match_stats[match_id] = {}
         match_stats[match_id][stat.statistic.name] = stat.value
     return match_stats
+
 
 def get_all_free_agents():
     free_agents = Player.objects.filter(is_free_agent=True).prefetch_related('playerattribute_set__attribute')
@@ -246,7 +193,7 @@ def get_all_free_agents():
             'price': player.price,
             'attributes': attributes,
             'image': player.image,
-            'agent':player.agent
+            'agent': player.agent
         })
 
     return free_agents_data

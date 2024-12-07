@@ -64,11 +64,9 @@ def calculate_player_attributes(player):
 
     return player  # Връщаме играча
 
-
 def choose_random_photo(photo_folder):
     random_photo = random.choice(os.listdir(photo_folder))
     return os.path.join(photo_folder, random_photo)
-
 
 def copy_player_image_to_media(photo_folder, player_id):
     """
@@ -95,7 +93,6 @@ def copy_player_image_to_media(photo_folder, player_id):
 
     # Return the relative path for ImageField
     return f'playerimages/{player_id}.png'
-
 
 def generate_random_player(team=None, position=None):
     nationalities = get_all_nationalities()
@@ -140,7 +137,6 @@ def generate_random_player(team=None, position=None):
         TeamPlayer.objects.create(player=player, team=team, shirt_number=random_number)
 
     return player
-
 
 def generate_team_players(team):
     try:
@@ -201,7 +197,6 @@ def generate_team_players(team):
 
         generate_random_player(team, random_position)
 
-
 def generate_free_agents(agent):
 
     try:
@@ -250,9 +245,6 @@ def generate_free_agents(agent):
             free_agents.append(player)
 
     return free_agents
-
-
-'''Retirement of player at the end of the Season'''
 
 
 def retirement_player(player):

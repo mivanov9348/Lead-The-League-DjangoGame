@@ -49,7 +49,7 @@ def auto_select_starting_lineup(team):
 
     tactic = Tactics.objects.order_by('?').first()
     if not tactic:
-        raise ValueError("Няма налични тактики в базата данни.")
+        raise ValueError("No tactics in database.")
 
     required_positions = {
         'GK': tactic.num_goalkeepers,

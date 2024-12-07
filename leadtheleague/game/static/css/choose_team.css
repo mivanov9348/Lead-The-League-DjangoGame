@@ -1,30 +1,76 @@
+:root {
+    --white-color: rgba(255, 255, 255, 1);
+    --white-transparent: rgba(255, 255, 255, 0.5);
+    --black-color: #333;
+    --light-grey: #d3d3d3;
+    --blue-color: #02c1f3;
+    --green-color: rgba(4, 170, 109, 1);
+    --darkgreen-color: rgba(0,47,47,255);
+    --darkergreen-color:  #001a1a;
+}
+
+body {
+    background-image: url("../images/background.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: var(--white-color);
+}
+
 .choose-team-container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
     text-align: center;
+    background-color: var(--darkergreen-color);
+    border: 2px solid white;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 #league-select {
     margin: 20px 0;
-    padding: 10px;
+    padding: 5px;
     font-size: 16px;
 }
 
 .team-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
     margin-top: 20px;
+    border-radius: 15px;
+    padding: 15px;
+    background-color: var(--darkgreen-transparent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .team-card {
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;
-    width: 150px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: var(--white-color);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    margin: 10px;
+}
+
+.team-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+}
+
+input[name="team_id"]:checked + label + .team-card {
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+    border: 2px solid var(--blue-color);
+    color:red;
 }
 
 .team-card img {
@@ -45,6 +91,22 @@
 }
 
 .team-card button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#confirm-btn {
+    margin-top: 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#confirm-btn:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }

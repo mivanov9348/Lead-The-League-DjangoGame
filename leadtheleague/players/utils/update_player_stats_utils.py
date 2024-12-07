@@ -65,7 +65,6 @@ def update_player_price(player):
     attribute_factor = get_attribute_factor(player)
     statistics_factor = get_statistics_factor(player, season)
 
-    # Финална формула за цената
     final_price = base_price * age_factor * position_factor * attribute_factor * statistics_factor
     return int(final_price)  # Закръгляме до цяло число
 

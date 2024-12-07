@@ -3,6 +3,7 @@
   margin: 20px auto;
   text-align: center;
   font-family: 'OLD SPORT 02 ATHLETIC NCV';
+  background-color: var(--darkgreen-color);
 }
 
 .table-header h1 {
@@ -76,4 +77,9 @@
 .last-places {
   background-color: #F44336; /* Червен цвят */
   color: white; /* Бял текст за контраст */
+}
+
+#league-select-form{
+    border-radius: 50%;
+    margin-top:15px;
 }

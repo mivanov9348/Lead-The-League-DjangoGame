@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Your Team</title>
+    <title>Choose Team</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/choose_team.css' %}">
     <script>
@@ -49,25 +49,56 @@
             form.team_id.value = teamId;
             form.submit();
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmButton = document.getElementById('confirm-btn');
+            const radios = document.querySelectorAll('input[name="team_id"]');
+
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    confirmButton.disabled = !document.querySelector('input[name="team_id"]:checked');
+                });
+            });
+        });
     </script>
 </head>
 <body>
-    <div class="choose-team-container">
-        <h1>Choose Your Team</h1>
-        <form id="team-form" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="team_id">
-        </form>
-        <label for="league-select">Choose a League:</label>
-        <select id="league-select" onchange="loadTeams()">
+<div class="choose-team-container">
+    <h1>Choose Your Team</h1>
+    <hr/>
+    <form id="team-form" method="post">
+        {% csrf_token %}
+        <select id="league-select" onchange="location.href='?league_id=' + this.value;">
             <option value="">-- Select a League --</option>
             {% for league in leagues %}
-                <option value="{{ league.id }}">{{ league.name }}</option>
+            <option value="{{ league.id }}" {% if league.id|stringformat:"s" == selected_league_id %}selected{% endif %}>
+                {{ league.name }}
+            </option>
             {% endfor %}
         </select>
+
+        {% if teams %}
         <div id="team-container" class="team-container">
-            <!-- Teams will be dynamically loaded here -->
+            {% for team in teams %}
+            <div class="team-card">
+                <img src="">
+                <p>{{ team.name }}</p>
+                <p>
+                    {% if team.user %}
+                        {{ team.user.username }}
+                    {% else %}
+                        COM
+                    {% endif %}
+                </p>
+                <input type="radio" name="team_id" value="{{ team.id }}" id="team-{{ team.id }}"
+                       {% if team.user %}disabled{% endif %}>
+                <label for="team-{{ team.id }}">Select</label>
+            </div>
+            {% endfor %}
         </div>
-    </div>
+        <button type="submit" id="confirm-btn" disabled>Confirm</button>
+        {% endif %}
+    </form>
+</div>
 </body>
 </html>

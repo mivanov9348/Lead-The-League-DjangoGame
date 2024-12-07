@@ -26,7 +26,7 @@
             <span class="league-name">{{ league }}</span>
         </div>
         {% for fixture in fixtures %}
-        {% if fixture.division == league %}
+        {% if fixture.league == league %}
         <div class="match">
             <div class="time">{{ fixture.time }}</div>
             <div class="status">{{ fixture.status }}</div>

@@ -6,18 +6,13 @@
 
 {% block content %}
 <div class="container main-content mt-4">
-    <!-- Първи ред: Следващ мач -->
     <div class="row team-next-match">
-        <!-- Информация за отбора -->
         <div class="col-12">
             <div class="card next-match-card">
-                <!-- Заглавие -->
                 <div class="card-header text-center text-uppercase fw-bold">
                     <a href="#">Next Match</a>
                 </div>
-                <!-- Основно съдържание -->
                 <div class="card-body match-details">
-                    <!-- Моят отбор -->
                     <div class="team-info text-center">
                         <div class="team-logo">
                             {% if next_match.home_team.logo %}
@@ -28,12 +23,10 @@
                         </div>
                         <p class="highlight">{{ next_match.home_team.name }}</p>
                     </div>
-                    <!-- VS и детайли за мача -->
                     <div class="match-info text-center">
                         <p> {{ next_match.division }}</p>
                         <p> {{ next_match.match_date }} {{ next_match.match_time }} </p>
                     </div>
-                    <!-- Опонент -->
                     <div class="opponent-info text-center">
                         <div class="team-logo">
                             {% if next_match.away_team.logo %}
@@ -45,7 +38,6 @@
                         <p class="highlight">{{ next_match.away_team.name }}</p>
                     </div>
                 </div>
-                <!-- Бутон за To Match -->
                 <div class="match-button text-center">
                     <a href="{% url 'match:user_match' %}" class="btn btn-primary">
                         To Match
@@ -54,7 +46,6 @@
             </div>
         </div>
 
-        <!-- Втори ред: Статистики и класации -->
         <div class="row mt-4">
             <div class="col-md-4">
                 <div class="card">
@@ -62,7 +53,6 @@
                         <a href="#">Latest News</a>
                     </div>
                     <div class="card-body">
-                        <!-- Latest News -->
                     </div>
                 </div>
             </div>

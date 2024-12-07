@@ -36,72 +36,30 @@
         </div>
     </div>
 
-    <!-- Row 2: Sorting -->
     <div class="filter-row">
-        <div class="filter-group">
-            <label for="sort_by">Sort By</label>
-            <select name="sort_by" id="sort_by">
-                <option value="">Sort By</option>
-                <option value="matches" {% if request.GET.sort_by == "matches" %}selected{% endif %}>Matches</option>
-                <option value="goals" {% if request.GET.sort_by == "goals" %}selected{% endif %}>Goals</option>
-                <option value="assists" {% if request.GET.sort_by == "assists" %}selected{% endif %}>Assists</option>
-                <option value="shoots" {% if request.GET.sort_by == "shoots" %}selected{% endif %}>Shoots</option>
-                <option value="shootsOnTarget" {% if request.GET.sort_by == "shootsOnTarget" %}selected{% endif %}>Shoots On Target</option>
-                <option value="passes" {% if request.GET.sort_by == "passes" %}selected{% endif %}>Passes</option>
-                <option value="dribbles" {% if request.GET.sort_by == "dribbles" %}selected{% endif %}>Dribbles</option>
-                <option value="tackles" {% if request.GET.sort_by == "tackles" %}selected{% endif %}>Tackles</option>
-                <option value="yellowCards" {% if request.GET.sort_by == "yellowCards" %}selected{% endif %}>Yellow Cards</option>
-                <option value="redCards" {% if request.GET.sort_by == "redCards" %}selected{% endif %}>Red Cards</option>
-                <option value="minutesPlayed" {% if request.GET.sort_by == "minutesPlayed" %}selected{% endif %}>Minutes Played</option>
-                <option value="fouls" {% if request.GET.sort_by == "fouls" %}selected{% endif %}>Fouls</option>
-                <option value="saves" {% if request.GET.sort_by == "saves" %}selected{% endif %}>Saves</option>
-                <option value="cleanSheets" {% if request.GET.sort_by == "cleanSheets" %}selected{% endif %}>Clean Sheets</option>
-                <option value="conceded" {% if request.GET.sort_by == "conceded" %}selected{% endif %}>Conceded</option>
-                <option value="price" {% if request.GET.sort_by == "price" %}selected{% endif %}>Price</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="order">Order</label>
-            <select name="order" id="order">
-                <option value="asc" {% if request.GET.order == "asc" %}selected{% endif %}>Ascending</option>
-                <option value="desc" {% if request.GET.order == "desc" %}selected{% endif %}>Descending</option>
-            </select>
-        </div>
+    <div class="filter-group">
+        <label for="league">League</label>
+        <select name="league" id="league" onchange="updateTeams()">
+            <option value="">All Leagues</option>
+            {% for league in leagues %}
+            <option value="{{ league.id }}" {% if league.id|stringformat:"s" == request.GET.league %}selected{% endif %}>
+                {{ league.name }}
+            </option>
+            {% endfor %}
+        </select>
     </div>
-
-    <!-- Row 3: Attributes Sorting -->
-    <div class="filter-row">
-        <div class="filter-group">
-            <label for="attribute_sort_by">Sort By Attribute</label>
-<select name="attribute_sort_by" id="attribute_sort_by">
-                <option value="">Sort By Attribute</option>
-                <option value="handling" {% if request.GET.sort_by == "handling" %}selected{% endif %}>Handling</option>
-                <option value="reflexes" {% if request.GET.sort_by == "reflexes" %}selected{% endif %}>Reflexes</option>
-                <option value="finishing" {% if request.GET.sort_by == "finishing" %}selected{% endif %}>Finishing</option>
-                <option value="shooting" {% if request.GET.sort_by == "shooting" %}selected{% endif %}>Shooting</option>
-                <option value="technique" {% if request.GET.sort_by == "technique" %}selected{% endif %}>Technique</option>
-                <option value="passing" {% if request.GET.sort_by == "passing" %}selected{% endif %}>Passing</option>
-                <option value="crossing" {% if request.GET.sort_by == "crossing" %}selected{% endif %}>Crossing</option>
-                <option value="tackling" {% if request.GET.sort_by == "tackling" %}selected{% endif %}>Tackling</option>
-                <option value="strength" {% if request.GET.sort_by == "strength" %}selected{% endif %}>Strength</option>
-                <option value="determination" {% if request.GET.sort_by == "determination" %}selected{% endif %}>Determination</option>
-                <option value="ballcontrol" {% if request.GET.sort_by == "ballcontrol" %}selected{% endif %}>Ball Control</option>
-                <option value="dribbling" {% if request.GET.sort_by == "dribbling" %}selected{% endif %}>Dribbling</option>
-                <option value="speed" {% if request.GET.sort_by == "speed" %}selected{% endif %}>Speed</option>
-                <option value="vision" {% if request.GET.sort_by == "vision" %}selected{% endif %}>Vision</option>
-                <option value="workrate" {% if request.GET.sort_by == "workrate" %}selected{% endif %}>Work Rate</option>
-                <option value="stamina" {% if request.GET.sort_by == "stamina" %}selected{% endif %}>Stamina</option>
-
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="attribute_order">Attribute Order</label>
-            <select name="attribute_order" id="attribute_order">
-                <option value="asc" {% if request.GET.attribute_order == "asc" %}selected{% endif %}>Ascending</option>
-                <option value="desc" {% if request.GET.attribute_order == "desc" %}selected{% endif %}>Descending</option>
-            </select>
-        </div>
+    <div class="filter-group">
+        <label for="team">Team</label>
+        <select name="team" id="team">
+            <option value="">All Teams</option>
+            {% for team in teams %}
+            <option value="{{ team.id }}" {% if team.id|stringformat:"s" == request.GET.team %}selected{% endif %}>
+                {{ team.name }}
+            </option>
+            {% endfor %}
+        </select>
     </div>
+</div>
 
     <!-- Row 4: Free Agents -->
     <div class="filter-row">
@@ -117,3 +75,24 @@
         <a href="{% url 'players:all_players' %}" class="reset-btn">Reset</a>
     </div>
 </form>
+
+<script>
+function updateTeams() {
+    const leagueId = document.getElementById("league").value;
+    const teamSelect = document.getElementById("team");
+
+    // Clear existing options
+    teamSelect.innerHTML = '<option value="">All Teams</option>';
+
+    // Update options based on the league (use data from server rendering or AJAX for better performance)
+    const leagueTeams = {{ league_teams|safe }}; // Server-side context variable with team data
+    if (leagueId && leagueTeams[leagueId]) {
+        leagueTeams[leagueId].forEach(team => {
+            const option = document.createElement("option");
+            option.value = team.id;
+            option.textContent = team.name;
+            teamSelect.appendChild(option);
+        });
+    }
+}
+</script>

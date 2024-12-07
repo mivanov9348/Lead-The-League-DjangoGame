@@ -14,4 +14,4 @@ def get_standings_for_league(league):
     ).select_related('team').order_by('-points', '-goalscored', 'goalconceded')
 
 def get_teams_by_league(league_id):
-    return Team.objects.filter(league_id=league_id)
+    return Team.objects.filter(league_id=league_id) if league_id else Team.objects.none()

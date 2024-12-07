@@ -12,9 +12,8 @@
 <div class="transfer-market">
     <h1>All Players</h1>
 
-   {% include 'players/_players_filter.html' %}
+    {% include 'players/_players_filter.html' %}
 
-    <!-- Players Table -->
     <div class="table-container">
 
         <table>
@@ -42,10 +41,22 @@
                 <th title="Red Cards"><i class="fas fa-square-full"></i></th>
                 <th title="Rating"><i class="fas fa-star"></i></th>
                 <th title="Price">
+                    {% if current_sort == "price" %}
+                    <a href="?sort_by=-price">
+                        <i class="fas fa-dollar-sign"></i>
+                        Price <i class="fas fa-arrow-up"></i> <!-- Възходящо сортиране -->
+                    </a>
+                    {% elif current_sort == "-price" %}
+                    <a href="?sort_by=price">
+                        <i class="fas fa-dollar-sign"></i>
+                        Price <i class="fas fa-arrow-down"></i> <!-- Низходящо сортиране -->
+                    </a>
+                    {% else %}
                     <a href="?sort_by=price">
                         <i class="fas fa-dollar-sign"></i>
                         Price
                     </a>
+                    {% endif %}
                 </th>
             </tr>
             </thead>
@@ -91,10 +102,13 @@
         {% if page == current_page %}
         <span>{{ page }}</span>
         {% else %}
-        <a href="?page={{ page }}">{{ page }}</a>
+        <a href="?page={{ page }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+            {{ page }}
+        </a>
         {% endif %}
         {% endfor %}
         {% endif %}
     </div>
+
 </div>
 {% endblock %}

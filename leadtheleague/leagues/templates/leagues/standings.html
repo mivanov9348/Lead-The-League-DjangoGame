@@ -11,6 +11,16 @@
 <div class="table-container">
     <div class="table-header">
         <h1>STANDINGS</h1>
+        <form method="get" id="league-select-form">
+            <select id="league" name="league" onchange="document.getElementById('league-select-form').submit();">
+                <option value="">Choose League</option>
+                {% for league in leagues %}
+                <option value="{{ league.id }}" {% if league.id == selected_league.id %}selected{% endif %}>
+                    {{ league.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
     </div>
     <table class="standings-table">
         <thead>
