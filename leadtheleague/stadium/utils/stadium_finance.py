@@ -6,3 +6,4 @@ def calculate_match_income(stadium, attendance_percentage):
 
 def calculate_monthly_maintenance(stadium):
     return stadium.maintenance_cost
+

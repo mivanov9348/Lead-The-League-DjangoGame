@@ -1,8 +1,6 @@
 from django.contrib import admin, messages
-
 from players.utils.generate_player_utils import generate_team_players
 from .models import Team, TeamFinance
-
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):

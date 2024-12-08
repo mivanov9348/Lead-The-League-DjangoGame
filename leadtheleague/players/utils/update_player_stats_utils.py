@@ -1,7 +1,6 @@
 from setuptools import logging
-
 from game.models import Settings
-from game.utils import get_current_season
+from game.utils.get_season_stats_utils import get_current_season
 from players.models import PlayerMatchStatistic, PlayerMatchRating
 
 def get_base_price(position_name):
@@ -12,8 +11,6 @@ def get_base_price(position_name):
         logging.error(f"Настройката '{setting_name}' не съществува.")
         return 100000
 
-
-# Фактор за възраст
 def get_age_factor(age):
     if 14 <= age <= 18:
         return 1.00

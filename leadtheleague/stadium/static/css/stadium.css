@@ -1,0 +1,91 @@
+.stadium-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    margin-top:120px;
+    border: 5px solid black;
+}
+
+.current-stadium {
+    width: 70%;
+    background-color: var(--darkgreen-color);
+    color:white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.current-stadium h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.stadium-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.stadium-img {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.info p {
+    margin: 5px 0;
+}
+
+/* Дясна страна: Tier-и */
+.tiers {
+    width: 30%;
+    background-color: var(--darkergreen-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto; /* Добавя скролиране по вертикала */
+}
+
+.tiers h2 {
+    margin-bottom: 20px;
+}
+
+.tier-list {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.tier {
+    padding: 15px 20px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Отключен Tier */
+.tier.unlocked {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.tier.unlocked:hover {
+    background-color: #45a049;
+}
+
+/* Заключен Tier */
+.tier.locked {
+    background-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Активен Tier */
+.tier.unlocked.active {
+    border: 2px solid #ffc107;
+    background-color: #4caf50;
+}

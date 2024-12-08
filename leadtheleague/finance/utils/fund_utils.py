@@ -1,8 +1,7 @@
 from decimal import Decimal
-
 from django.db import transaction
 from finance.models import Fund
-from game.utils import get_setting_value
+from game.utils.settings_utils import get_setting_value
 
 
 def add_fund_income(fund, amount):

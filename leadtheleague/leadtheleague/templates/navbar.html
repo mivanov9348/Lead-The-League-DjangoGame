@@ -105,9 +105,9 @@
                     <a class="nav-link dropdown-toggle" href="#" id="clubDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-building"></i>Club</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#academy"><i class="fas fa-user-graduate"></i>Youth Academy</a>
+                        <li><a class="dropdown-item" href="{% url 'players:youth_academy' %}"><i class="fas fa-user-graduate"></i>Youth Academy</a>
                         </li>
-                        <li><a class="dropdown-item" href="#statistics"><i class="fas fa-chart-line"></i>Stadium</a>
+                        <li><a class="dropdown-item" href="{% url 'stadium:stadium' %}"><i class="fas fa-chart-line"></i>Stadium</a>
                         </li>
                         <li><a class="dropdown-item" href="{% url 'finance:team_finance' %}"><i
                                 class="fas fa-chart-line"></i>Finance</a>

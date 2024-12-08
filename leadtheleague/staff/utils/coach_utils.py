@@ -1,8 +1,7 @@
 import random
-
 from core.utils.names_utils import get_random_first_name, get_random_last_name
 from core.utils.nationality_utils import get_random_nationality, get_nationality_region
-from game.utils import get_setting_value
+from game.utils.settings_utils import get_setting_value
 from staff.models import Coach
 
 def get_coaches_without_team():

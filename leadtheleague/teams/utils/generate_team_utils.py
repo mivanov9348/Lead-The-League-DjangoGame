@@ -1,7 +1,8 @@
 from django.db import transaction
 from game.models import Settings
-from teams.models import TeamSeasonStats
-
+from players.models import Player
+from players.utils.generate_player_utils import generate_player_season_stats
+from teams.models import TeamSeasonStats, Team
 
 def update_team_stats(match):
     if not match.is_played:
@@ -57,3 +58,22 @@ def update_team_stats(match):
 
         home_stats.save()
         away_stats.save()
+
+
+
+def create_team_season_stats(new_season):
+    with transaction.atomic():
+        teams = Team.objects.all()
+        for team in teams:
+            if not TeamSeasonStats.objects.filter(team=team, season=new_season).exists():
+                league = team.league
+
+                TeamSeasonStats.objects.create(
+                    team=team,
+                    season=new_season,
+                    league=league
+                )
+
+            players = Player.objects.filter(team_players__team=team)
+            for player in players:
+                generate_player_season_stats(player, new_season, team)

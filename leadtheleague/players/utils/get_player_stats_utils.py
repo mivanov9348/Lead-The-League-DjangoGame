@@ -1,51 +1,11 @@
-from django.core.cache import cache
 from django.db.models import Prefetch, QuerySet, Avg
-from game.utils import get_current_season
+
+from game.utils.get_season_stats_utils import get_current_season
 from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating
-
-STATISTICS_MAPPING = {
-    'assists': 'assists',
-    'cleanSheets': 'cleanSheets',
-    'conceded': 'conceded',
-    'dribbles': 'dribbles',
-    'fouls': 'fouls',
-    'goals': 'goals',
-    'matches': 'matches',
-    'minutesPlayed': 'minutesPlayed',
-    'passes': 'passes',
-    'redCards': 'redCards',
-    'saves': 'saves',
-    'shoots': 'shoots',
-    'shootsOnTarget': 'shootsOnTarget',
-    'tackles': 'tackles',
-    'yellowCards': 'yellowCards',
-    'price': 'price',
-}
-
-ATTRIBUTES_MAPPING = {
-    'handling': 'handling',
-    'reflexes': 'reflexes',
-    'finishing': 'finishing',
-    'shooting': 'shooting',
-    'technique': 'technique',
-    'passing': 'passing',
-    'crossing': 'crossing',
-    'tackling': 'tackling',
-    'strength': 'strength',
-    'determination': 'determination',
-    'ballcontrol': 'ballcontrol',
-    'dribbling': 'dribbling',
-    'speed': 'speed',
-    'vision': 'vision',
-    'workrate': 'workrate',
-    'stamina': 'stamina',
-}
-
 
 def get_all_positions() -> QuerySet[Position]:
     """Retrieve all positions from the database."""
     return Position.objects.all()
-
 
 def get_average_player_rating_for_current_season(player: Player) -> float:
     # Получаваме текущия сезон
@@ -58,15 +18,6 @@ def get_average_player_rating_for_current_season(player: Player) -> float:
     ).aggregate(Avg('rating'))['rating__avg']
 
     return average_rating if average_rating is not None else 0.0
-
-
-def get_attributes():
-    attributes = cache.get('attributes')
-    if not attributes:
-        attributes = list(Attribute.objects.values_list('name', flat=True))
-        cache.set('attributes', attributes, 3600)  # Кеширане за 1 час
-    return attributes
-
 
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
@@ -197,3 +148,30 @@ def get_all_free_agents():
         })
 
     return free_agents_data
+
+
+def get_all_youth_players_by_team(team):
+    """Retrieve all youth players from a specific team."""
+    youth_players = team.team_players.filter(
+        player__is_youth=True
+    ).select_related('player', 'team')
+
+    youth_players_data = []
+    for team_player in youth_players:
+        player = team_player.player
+        youth_players_data.append({
+            'id': player.id,
+            'name': player.name,
+            'first_name': player.first_name,
+            'last_name': player.last_name,
+            'position': player.position.name if player.position else 'Unknown',
+            'positionabbr': player.position.abbreviation if player.position else 'Unknown',
+            'nationality': player.nationality.name if player.nationality else 'Unknown',
+            'nationalityabbr': player.nationality.abbreviation if player.nationality else 'Unknown',
+            'age': player.age,
+            'price': player.price,
+            'image': player.image.url if player.image else None,
+            'potential':player.potential_rating
+        })
+
+    return youth_players_data

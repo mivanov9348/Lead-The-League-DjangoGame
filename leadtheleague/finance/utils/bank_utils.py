@@ -3,7 +3,8 @@ from django.db import transaction
 from finance.models import Bank
 from finance.utils.fund_utils import distribute_to_funds
 from finance.utils.transaction_utils import create_transaction
-from game.utils import get_setting_value
+from game.utils.settings_utils import get_setting_value
+
 
 def get_bank():
     try:

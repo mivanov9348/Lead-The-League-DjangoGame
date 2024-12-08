@@ -5,11 +5,10 @@ from core.models import Nationality
 from core.utils.names_utils import get_random_first_name, get_random_last_name
 from finance.models import Bank
 from finance.utils.bank_utils import distribute_income
-from game.utils import get_setting_value
+from game.utils.settings_utils import get_setting_value
 from players.utils.generate_player_utils import generate_free_agents
 from staff.models import Agent
 from teams.utils.team_finance_utils import team_expense
-
 
 def generate_agents(free_agents_count):
     agents = []

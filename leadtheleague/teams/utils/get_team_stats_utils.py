@@ -1,14 +1,11 @@
 from django.db.models import Q
-
 from fixtures.models import Fixture
 from players.models import Player
 from players.utils.get_player_stats_utils import get_player_data
 from teams.models import Team, TeamFinance
 
-
 def get_all_teams():
     return Team.objects.all()
-
 
 def get_team_players_season_stats(team):
     # Филтриране на играчите чрез релацията team_players

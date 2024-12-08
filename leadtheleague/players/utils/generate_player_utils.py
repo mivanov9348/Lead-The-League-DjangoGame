@@ -2,12 +2,14 @@ import os
 import random
 import shutil
 import logging
+from django.db import transaction
 from core.utils.names_utils import get_random_first_name, get_random_last_name
-from core.utils.nationality_utils import get_all_nationalities
+from core.utils.nationality_utils import get_all_nationalities, get_random_nationality_priority
 from game.models import Settings
-from game.utils import get_setting_value
+from game.utils.settings_utils import get_setting_value
 from leadtheleague import settings
-from players.models import Position, Attribute, PlayerAttribute, Player, PositionAttribute
+from players.models import Position, Attribute, PlayerAttribute, Player, PositionAttribute, Statistic, \
+    PlayerSeasonStatistic
 from players.utils.update_player_stats_utils import update_player_price
 from teams.models import TeamPlayer
 
@@ -38,9 +40,9 @@ def calculate_player_attributes(player):
 
         # Възрастов фактор (с минимална възраст 14 години)
         if age < 28:
-            age_factor = max(0.8, min((age - 14) / 14 + 0.8, 1.2))  # Подобрение до 28 години
+            age_factor = max(0.8, min((age - 14) / 14 + 0.8, 1.2))
         else:
-            age_factor = max(0.6, 1.2 - (age - 28) * 0.05)  # Намаление след 28 години
+            age_factor = max(0.6, 1.2 - (age - 28) * 0.05)
 
         age_adjusted_value = adjusted_value * age_factor
 
@@ -62,7 +64,47 @@ def calculate_player_attributes(player):
         for attr, (value, progress) in attributes.items()
     ])
 
-    return player  # Връщаме играча
+    return player
+
+
+def get_potential_age_factor(player):
+    # Get age factor for potential
+
+    if player.age <= 17:
+        age_factor = 1.5
+    elif 18 <= player.age <= 25:
+        age_factor = 1.0
+    elif 26 <= player.age <= 30:
+        age_factor = 0.75
+    else:
+        age_factor = 0.5
+    return age_factor
+
+
+def calculate_player_potential(player):
+    base_potential = 1.0
+
+    attributes = PlayerAttribute.objects.filter(player=player)
+    attribute_dict = {attr.attribute.name: attr.value for attr in attributes}
+
+    technical_attributes = ['Dribbling', 'Passing', 'Shooting']
+    physical_attributes = ['Speed', 'Strength']
+
+    determination = PlayerAttribute.objects.get(player=player, attribute__name='Determination').value
+    workrate = PlayerAttribute.objects.get(player=player, attribute__name='WorkRate').value
+
+    technical_average = sum(attribute_dict.get(attr, 1) for attr in technical_attributes) / len(technical_attributes)
+    physical_average = sum(attribute_dict.get(attr, 1) for attr in physical_attributes) / len(physical_attributes)
+
+    growth_factors = (
+            determination / 20 * 2 +
+            workrate / 20 * 1.5 +
+            technical_average / 20 * 2 +
+            physical_average / 20
+    )
+    potential = base_potential + growth_factors
+    potential *= get_potential_age_factor(player)
+    return min(potential, 5.0)
 
 def choose_random_photo(photo_folder):
     random_photo = random.choice(os.listdir(photo_folder))
@@ -94,18 +136,25 @@ def copy_player_image_to_media(photo_folder, player_id):
     # Return the relative path for ImageField
     return f'playerimages/{player_id}.png'
 
-def generate_random_player(team=None, position=None):
+
+def generate_random_player(team=None, position=None, age=None):
     nationalities = get_all_nationalities()
     positions = Position.objects.all()
-    nationality = random.choice(nationalities)
+
+    if team:
+        team_nationality = team.nationality
+        nationality = get_random_nationality_priority(team_nationality, 0.8)  # за settings
+    else:
+        nationality = random.choice(nationalities)
+
     region = nationality.region
     team_player_numbers = set(TeamPlayer.objects.filter(team=team).values_list('shirt_number', flat=True))
     first_name = get_random_first_name(region)
     last_name = get_random_last_name(region)
+
     if position is None:
         position = random.choice(positions)
 
-    # Creating the player
     age = random.randint(18, 35)
     player = Player(
         first_name=first_name,
@@ -127,6 +176,8 @@ def generate_random_player(team=None, position=None):
 
     player.price = update_player_price(player)
 
+    player.potential_rating = calculate_player_potential(player)
+
     while True:
         random_number = random.randint(1, 99)
         if random_number not in team_player_numbers:
@@ -137,6 +188,7 @@ def generate_random_player(team=None, position=None):
         TeamPlayer.objects.create(player=player, team=team, shirt_number=random_number)
 
     return player
+
 
 def generate_team_players(team):
     try:
@@ -197,8 +249,8 @@ def generate_team_players(team):
 
         generate_random_player(team, random_position)
 
-def generate_free_agents(agent):
 
+def generate_free_agents(agent):
     try:
         min_free_agents = int(get_setting_value('minimum_free_agents'))
         max_free_agents = int(get_setting_value('maximum_free_agents'))
@@ -252,3 +304,31 @@ def retirement_player(player):
         player.is_active = False
         player.save()
         TeamPlayer.objects.filter(player=player).delete()
+
+
+def generate_youth_player(team=None):
+    """
+    Generate youth player.
+    """
+    player = generate_random_player(team=team)
+    player.age = random.randint(14, 17)  # за settings
+    player.is_youth = True
+
+    player.potential_rating = calculate_player_potential(player)
+
+    player.save()
+    return player
+
+def generate_player_season_stats(player, new_season, team):
+    statistics = Statistic.objects.all()
+    with transaction.atomic():
+        for stat in statistics:
+            # Проверка дали статистиката вече съществува за играча в този сезон
+            if not PlayerSeasonStatistic.objects.filter(player=player, statistic=stat, season=new_season).exists():
+                # Създаване на запис със стойност по подразбиране 0
+                PlayerSeasonStatistic.objects.create(
+                    player=player,
+                    statistic=stat,
+                    season=new_season,
+                    value=0
+                )

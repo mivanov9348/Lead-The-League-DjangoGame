@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/stadium.css' %}">
+<title>sasd</title>
+
+<div class="stadium-container">
+    <div class="current-stadium">
+        <h2>{{stadium.name}}</h2>
+        <hr/>
+        <div class="stadium-info">
+            <img src="" alt="Stadium Image" class="stadium-img">
+            <div class="info">
+                <p><strong>Capacity:</strong> {{ stadium.capacity }}</p>
+                <p><strong>Ticket Price:</strong> ${{ stadium.ticket_price }}</p>
+                <p><strong>Tier:</strong> {{ stadium.tier.level}}</p>
+                <p><strong>Maintenance:</strong></p>
+                <p><strong>Popularity Bonus:</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tiers">
+        <h2>Stadium Tiers</h2>
+        <hr/>
+        <ul class="tier-list">
+            {% for tier_info in tiers %}
+            {% with tier_info.tier as tier %}
+            <li class="tier {% if tier_info.is_unlocked %}unlocked{% else %}locked{% endif %}">
+                <div>
+                    <h3>{{ tier.name }}</h3>
+                    <hr/>
+                    <p><strong>Capacity Boost:</strong> +{{ tier.capacity_boost }}</p>
+                    <p><strong>Ticket Price Multiplier:</strong> ×{{ tier.ticket_price_multiplier }}</p>
+                    <p><strong>Popularity Bonus:</strong> +{{ tier.popularity_bonus }}</p>
+                    <p><strong>Upgrade Cost:</strong> ${{ tier.upgrade_cost }}</p>
+                    {% if tier_info.can_purchase %}
+                    <button class="buy-button" data-tier-id="{{ tier.id }}">Buy</button>
+                    {% endif %}
+                </div>
+            </li>
+            {% endwith %}
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        document.querySelectorAll('.buy-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tierId = button.dataset.tierId;
+                // Make an AJAX request or handle upgrade logic here
+                alert(`Buying Tier ID: ${tierId}`);
+            });
+        });
+    {% endblock %}
+    </script>

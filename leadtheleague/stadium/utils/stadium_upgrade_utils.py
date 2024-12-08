@@ -1,6 +1,13 @@
 from stadium.models import StadiumTier
 
 
+def can_upgrade_stadium(stadium, tier):
+    """
+    Checks if the stadium can be upgraded to the given tier.
+    """
+    return stadium.tier is None or tier.level == stadium.tier.level + 1
+
+
 def upgrade_stadium(stadium, team):
     current_tier = stadium.tier
     next_tier = StadiumTier.objects.filter(level=current_tier.level + 1).first()
