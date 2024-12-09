@@ -1,4 +1,6 @@
-from stadium.models import StadiumTier
+from django.db import transaction
+
+from teams.utils.generate_team_utils import boost_reputation
 
 
 def can_upgrade_stadium(stadium, tier):
@@ -8,24 +10,23 @@ def can_upgrade_stadium(stadium, tier):
     return stadium.tier is None or tier.level == stadium.tier.level + 1
 
 
-def upgrade_stadium(stadium, team):
-    current_tier = stadium.tier
-    next_tier = StadiumTier.objects.filter(level=current_tier.level + 1).first()
+@transaction.atomic
+def upgrade_stadium(stadium, tier):
+    """
+    Upgrades the stadium to the given tier.
+    Adjusts the stadium's attributes and related team popularity.
+    """
+    if not can_upgrade_stadium(stadium, tier):
+        raise ValueError("Invalid tier upgrade")
 
-    if not next_tier:
-        return {"success": False, "message": "There is no next level to upgrade!"}
+    # Update stadium attributes
+    stadium.tier = tier
+    stadium.capacity = tier.capacity_boost
+    stadium.ticket_price = tier.ticket_price
 
-    upgrade_cost = next_tier.capacity_boost * 100  # Примерна цена
-
-    if team.budget < upgrade_cost:
-        return {"success": False, "message": "No money!"}
-
-    team.budget -= upgrade_cost
-    stadium.tier = next_tier
-    stadium.capacity += next_tier.capacity_boost
-    stadium.ticket_price *= next_tier.ticket_price_multiplier
-    stadium.maintenance_cost = next_tier.maintenance_cost
-    stadium.save()
+    # Update team's popularity
+    team = stadium.team
+    boost_reputation(team, tier.popularity_bonus)
     team.save()
 
-    return {"success": True, "message": f"The stadium is upgraded to {next_tier.name}!"}
+    stadium.save()

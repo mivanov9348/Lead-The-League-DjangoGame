@@ -11,7 +11,7 @@
 {% csrf_token %}
 <div class="youth-container">
     <div class="academy-grid">
-        <h2>Youth Academy Players</h2>
+        <h2>Youth Players</h2>
         <hr/>
         <div class="players-grid">
             {% for player in players %}
@@ -24,11 +24,56 @@
                 <p>Nationality: {{ player.nationality.name }}</p>
                 <p>Potential: {{ player.potential }} ★</p>
                 <p>Shirt Number: {{ player.team_players.first.shirt_number|default:'N/A' }}</p>
+                <div class="player-actions">
+                    <form method="post" action="{% url 'players:release_player' player.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="release-btn">Release</button>
+                    </form>
+                    {% if player.age >= 18 %}
+                    <form method="post" action="{% url 'players:sign_player' player.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="sign-btn">Sign Player</button>
+                    </form>
+                    {% endif %}
+                </div>
             </div>
-            {% endfor %}
 
+            {% endfor %}
         </div>
     </div>
+
+    <div class="attributes-panel">
+        <h2>Progress</h2>
+        <hr/>
+        <table class="attributes-table">
+            <thead>
+            <tr>
+                <th>Player</th>
+                {% for attribute in players.0.attributes %}
+                <th>{{ attribute.name }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for player in players %}
+            <tr>
+                <td>{{ player.first_name }} {{ player.last_name }}</td>
+                {% for attribute in player.attributes %}
+                <td>
+                    {{ attribute.value }}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ attribute.progress|floatformat:1.0 }}%;"></div>
+                    </div>
+                    <span>{{ attribute.progress|floatformat:1 }}</span>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
 </div>
 
 {% endblock %}

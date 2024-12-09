@@ -53,7 +53,7 @@ def calculate_player_attributes(player):
         # Ограничаваме стойността между 1 и 20
         final_value = min(max(round(final_value), 1), 20)
 
-        progress_value = random.uniform(0.0, 10.0)
+        progress_value = random.uniform(0.0, 1.0)
 
         # Запазваме резултата за този атрибут
         attributes[attribute] = (final_value, progress_value)

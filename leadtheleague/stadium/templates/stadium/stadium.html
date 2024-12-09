@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/stadium.css' %}">
 <title>sasd</title>
 
+<meta name="csrf-token" content="{{ csrf_token }}">
 <div class="stadium-container">
     <div class="current-stadium">
         <h2>{{stadium.name}}</h2>
@@ -15,7 +15,7 @@
             <div class="info">
                 <p><strong>Capacity:</strong> {{ stadium.capacity }}</p>
                 <p><strong>Ticket Price:</strong> ${{ stadium.ticket_price }}</p>
-                <p><strong>Tier:</strong> {{ stadium.tier.level}}</p>
+                <p><strong>Tier:</strong> {{ stadium.tier.level }}</p>
                 <p><strong>Maintenance:</strong></p>
                 <p><strong>Popularity Bonus:</strong></p>
             </div>
@@ -33,7 +33,7 @@
                     <h3>{{ tier.name }}</h3>
                     <hr/>
                     <p><strong>Capacity Boost:</strong> +{{ tier.capacity_boost }}</p>
-                    <p><strong>Ticket Price Multiplier:</strong> ×{{ tier.ticket_price_multiplier }}</p>
+                    <p><strong>Ticket Price Multiplier:</strong> ×{{ tier.ticket_price }}</p>
                     <p><strong>Popularity Bonus:</strong> +{{ tier.popularity_bonus }}</p>
                     <p><strong>Upgrade Cost:</strong> ${{ tier.upgrade_cost }}</p>
                     {% if tier_info.can_purchase %}
@@ -47,12 +47,44 @@
     </div>
 
     <script>
+        const getCSRFToken = () => {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    if (!token) {
+        console.error("CSRF token is missing!");
+    }
+    return token;
+};
         document.querySelectorAll('.buy-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const tierId = button.dataset.tierId;
-                // Make an AJAX request or handle upgrade logic here
-                alert(`Buying Tier ID: ${tierId}`);
-            });
+    button.addEventListener('click', () => {
+        const tierId = button.dataset.tierId;
+        console.log("Selected Tier ID:", tierId); // Дебъг лог
+        if (!tierId) {
+            alert('Tier ID is missing!');
+            return;
+        }
+
+        fetch('/stadium/purchase_tier/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ tier_id: tierId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload(); // Reload the page to update the stadium info
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
-    {% endblock %}
+    });
+});
+
     </script>
+    {% endblock %}

@@ -4,6 +4,12 @@ from finance.utils.bank_utils import get_bank
 from finance.utils.transaction_utils import create_transaction
 from teams.models import TeamFinance
 
+def check_team_balance(team, amount_needed):
+    try:
+        team_finance = TeamFinance.objects.get(team=team)
+        return team_finance.balance >= Decimal(amount_needed)
+    except TeamFinance.DoesNotExist:
+        return False
 
 @transaction.atomic
 def terminate_team_finance(team):

@@ -1,7 +1,9 @@
+from django.shortcuts import get_object_or_404
 from setuptools import logging
 from game.models import Settings
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import PlayerMatchStatistic, PlayerMatchRating
+from teams.models import TeamPlayer
 
 def get_base_price(position_name):
     setting_name = f'{position_name}_base_price'
@@ -51,7 +53,6 @@ def get_statistics_factor(player, season):
         return 5.0
     average_rating = sum(match_ratings) / len(match_ratings)
     return 1 + average_rating / 10
-
 
 # Финална функция за изчисление на цената
 def update_player_price(player):
@@ -116,3 +117,14 @@ def update_player_rating(player, match):
     )
 
     return rating
+
+
+def release_player_from_team(user_team, player):
+    team_player = get_object_or_404(TeamPlayer, team=user_team, player=player)
+    team_player.delete()
+    player.is_free_agent = True
+    player.save()
+
+def promote_player(player):
+    player.is_youth = False
+    player.save()

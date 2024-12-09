@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
 from staff.models import Coach
-from .forms import TeamCreationForm, TeamLogoForm
+from .forms import  TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
 from django.shortcuts import render, redirect, get_object_or_404
@@ -35,8 +35,7 @@ def get_sort_field(sort_by):
         'work_rate': 'player__playerattribute__work_rate',
     }
 
-    return valid_sort_fields.get(sort_by, 'player__first_name')  # Default е по име
-
+    return valid_sort_fields.get(sort_by, 'player__first_name')
 
 def squad(request):
     team = get_object_or_404(Team, user=request.user)
@@ -70,7 +69,8 @@ def squad(request):
             'stats': get_player_season_stats(player)
         })
 
-    # Подгответе контекста за шаблона
+    print(players_data)
+
     context = {
         'team': team,
         'players_data': players_data,
@@ -113,8 +113,10 @@ def line_up(request):
             team_tactics.tactic = selected_tactic
             team_tactics.save()
 
-    # Извличане на данни за всички играчи от отбора
-    team_players = team.team_players.select_related('player__position', 'player__nationality').prefetch_related(
+    # Извличане на данни за всички играчи от отбора без младежките
+    team_players = team.team_players.filter(player__is_youth=False).select_related(
+        'player__position', 'player__nationality'
+    ).prefetch_related(
         Prefetch(
             'player__season_stats',
             queryset=PlayerSeasonStatistic.objects.select_related('statistic')
@@ -160,7 +162,7 @@ def line_up(request):
         "team": team,
         "tactics": tactics,
         "selected_tactic": selected_tactic,
-        "players": all_players,  # Коригирано от reservePlayers на players
+        "players": all_players,
     }
 
     return render(request, "team/line_up.html", context)
@@ -194,7 +196,7 @@ def save_lineup(request):
         for key, value in request.POST.items():
             if key.startswith("player_assignment_"):
                 player_id = int(key.replace("player_assignment_", ""))
-                player = get_object_or_404(Player, id=player_id)
+                player = get_object_or_404(Player, id=player_id, is_youth=False)  # Изключваме младежите
 
                 if value == "starting":
                     position = player.position.abbreviation

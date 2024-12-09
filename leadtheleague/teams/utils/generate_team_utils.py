@@ -60,6 +60,15 @@ def update_team_stats(match):
         away_stats.save()
 
 
+def boost_reputation(team, reputation_increase):
+    new_reputation = team.reputation + reputation_increase
+    team.reputation = max(1000, min(new_reputation, 10000)) #за settings
+    team.save()
+
+def reduce_reputation(team, reputation_decrease):
+    new_reputation = team.reputation + reputation_decrease
+    team.popularity = max(1000, min(new_reputation, 10000))  # за settings
+    team.save()
 
 def create_team_season_stats(new_season):
     with transaction.atomic():

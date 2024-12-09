@@ -65,3 +65,16 @@ def process_agent_payment(agent, price):
             distribute_income(bank, tax_amount, f'Get Free Agent {agent.first_name} {agent.last_name}')
         except Bank.DoesNotExist:
             pass
+
+
+def hire_agent_to_player(agent, player):
+    if agent is None:
+        agents = Agent.objects.all()
+
+        if not agents.exists():
+            raise ValueError("Not enough agents!")
+
+        agent = random.choice(agents)
+
+    player.agent = agent
+    player.save()

@@ -1,7 +1,8 @@
 from django.db.models import Prefetch, QuerySet, Avg
 
 from game.utils.get_season_stats_utils import get_current_season
-from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating
+from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating, PlayerAttribute
+
 
 def get_all_positions() -> QuerySet[Position]:
     """Retrieve all positions from the database."""
@@ -47,9 +48,18 @@ def get_personal_player_data(player):
     }
 
 
+
 def get_player_attributes(player):
-    player = Player.objects.prefetch_related('playerattribute_set__attribute').get(id=player.id)
-    return {attr.attribute.name: attr.value for attr in player.playerattribute_set.all()}
+    """Retrieve all attributes for a given player."""
+    attributes = PlayerAttribute.objects.filter(player=player).select_related('attribute')
+    return [
+        {
+            'name': attr.attribute.name,
+            'value': attr.value,
+            'progress': attr.progress,
+        }
+        for attr in attributes
+    ]
 
 
 def get_player_season_stats(player, season=None):
@@ -151,14 +161,18 @@ def get_all_free_agents():
 
 
 def get_all_youth_players_by_team(team):
-    """Retrieve all youth players from a specific team."""
+    """Retrieve all youth players from a specific team along with their attributes."""
     youth_players = team.team_players.filter(
         player__is_youth=True
-    ).select_related('player', 'team')
+    ).select_related('player__position', 'player__nationality', 'team')
 
     youth_players_data = []
     for team_player in youth_players:
         player = team_player.player
+
+        # Използваме get_player_attributes, за да получим атрибути на играча
+        attributes_data = get_player_attributes(player)
+
         youth_players_data.append({
             'id': player.id,
             'name': player.name,
@@ -171,7 +185,8 @@ def get_all_youth_players_by_team(team):
             'age': player.age,
             'price': player.price,
             'image': player.image.url if player.image else None,
-            'potential':player.potential_rating
+            'potential': player.potential_rating,
+            'attributes': attributes_data,  # Добавяне на атрибутите към играча
         })
 
     return youth_players_data

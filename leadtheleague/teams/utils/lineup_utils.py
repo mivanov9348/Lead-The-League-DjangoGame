@@ -59,7 +59,7 @@ def auto_select_starting_lineup(team):
     }
 
     selected_players = {key: [] for key in required_positions.keys()}
-    players = Player.objects.filter(team_players__team=team)
+    players = Player.objects.filter(team_players__team=team, is_youth=False)
 
     for player in players:
         pos_abbr = player.position.abbreviation

@@ -46,7 +46,8 @@
             {% for player in players_data %}
             <tr>
                 <td>{{ player.shirt_number|default:"-" }}</td>
-                <td><a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name|default:"-" }}</a></td>
+                <td><a href="{% url 'players:player_profile' player.personal_info.id %}">{{
+                    player.personal_info.name|default:"-" }}</a></td>
                 <td>{{ player.personal_info.positionabbr|default:"-" }}</td>
                 <td title="{{player.personal_info.nationality}}">{{ player.personal_info.nationalityabbr|default:"-" }}
                 </td>
@@ -195,25 +196,13 @@
             <tbody>
             {% for player in players_data %}
             <tr>
-                <td>{{ player.attributes.Handling|default:"-" }}</td>
-                <td>{{ player.attributes.Reflexes|default:"-" }}</td>
-                <td>{{ player.attributes.Finishing|default:"-" }}</td>
-                <td>{{ player.attributes.Shooting|default:"-" }}</td>
-                <td>{{ player.attributes.Technique|default:"-" }}</td>
-                <td>{{ player.attributes.Passing|default:"-" }}</td>
-                <td>{{ player.attributes.Crossing|default:"-" }}</td>
-                <td>{{ player.attributes.Tackling|default:"-" }}</td>
-                <td>{{ player.attributes.Strength|default:"-" }}</td>
-                <td>{{ player.attributes.Determination|default:"-" }}</td>
-                <td>{{ player.attributes.BallControl|default:"-" }}</td>
-                <td>{{ player.attributes.Dribbling|default:"-" }}</td>
-                <td>{{ player.attributes.Speed|default:"-" }}</td>
-                <td>{{ player.attributes.Vision|default:"-" }}</td>
-                <td>{{ player.attributes.WorkRate|default:"-" }}</td>
+                {% for attribute in player.attributes %}
+                <td>{{ attribute.value|default:"-" }}</td>
+                {% endfor %}
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-center">No attributes available</td>
+                <td colspan="15" class="text-center">No attributes available</td>
             </tr>
             {% endfor %}
             </tbody>
