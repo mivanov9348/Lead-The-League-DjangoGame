@@ -1,3 +1,4 @@
+import math
 import os
 import random
 import shutil
@@ -12,6 +13,7 @@ from players.models import Position, Attribute, PlayerAttribute, Player, Positio
     PlayerSeasonStatistic
 from players.utils.update_player_stats_utils import update_player_price
 from teams.models import TeamPlayer
+
 
 def calculate_player_attributes(player):
     position = player.position
@@ -71,18 +73,18 @@ def get_potential_age_factor(player):
     # Get age factor for potential
 
     if player.age <= 17:
-        age_factor = 1.5
+        age_factor = 1.3
     elif 18 <= player.age <= 25:
         age_factor = 1.0
     elif 26 <= player.age <= 30:
-        age_factor = 0.75
+        age_factor = 0.7
     else:
         age_factor = 0.5
     return age_factor
 
 
 def calculate_player_potential(player):
-    base_potential = 1.0
+    base_potential = 0.1
 
     attributes = PlayerAttribute.objects.filter(player=player)
     attribute_dict = {attr.attribute.name: attr.value for attr in attributes}
@@ -97,14 +99,22 @@ def calculate_player_potential(player):
     physical_average = sum(attribute_dict.get(attr, 1) for attr in physical_attributes) / len(physical_attributes)
 
     growth_factors = (
-            determination / 20 * 2 +
-            workrate / 20 * 1.5 +
-            technical_average / 20 * 2 +
-            physical_average / 20
+            (determination / 20) * 1.2 +
+            (workrate / 20) * 1.0 +
+            (technical_average / 20) * 1.1 +
+            (physical_average / 20) * 0.8
     )
-    potential = base_potential + growth_factors
+
+    random_factor = random.uniform(-0.1, 0.1)
+
+    # Изчисление на потенциала
+    potential = base_potential + growth_factors + random_factor
     potential *= get_potential_age_factor(player)
-    return min(potential, 5.0)
+
+    # Ограничаване и нормализация
+    potential = math.pow(potential, 0.9)
+    return min(max(potential, 0.1), 5.0)
+
 
 def choose_random_photo(photo_folder):
     random_photo = random.choice(os.listdir(photo_folder))
@@ -318,6 +328,7 @@ def generate_youth_player(team=None):
 
     player.save()
     return player
+
 
 def generate_player_season_stats(player, new_season, team):
     statistics = Statistic.objects.all()

@@ -5,6 +5,7 @@
     width: 100%;
     gap: 20px;
     background-color: var(--darkergreen-color);
+    border:2px solid white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
@@ -97,14 +98,7 @@
 .attributes-table th, .attributes-table td {
     border: 1px solid var(--lightgray-color);
     padding: 10px;
-}
-
-.attributes-table tbody tr:nth-child(even) {
-    background-color: var(--lightgray-color);
-}
-
-.attributes-table tbody tr:nth-child(odd) {
-    background-color: var(--white-color);
+    color:white;
 }
 
 .player-actions {
@@ -154,13 +148,21 @@ button {
 
 .progress-fill {
     height: 100%;
-    background-color: #27ae60;
+    background-color: red;
     transition: width 0.3s ease-in-out;
 }
 
 .attributes-table td span {
     font-size: 0.8em;
-    color: #333;
+    color: white;
     display: block;
     margin-top: 5px;
+}
+
+.attributes-table tbody tr {
+    border-bottom: 2px solid white; /* Бяла лента между редовете */
+}
+
+.attributes-table tbody tr:last-child {
+    border-bottom: none; /* Премахване на бялата лента след последния ред */
 }

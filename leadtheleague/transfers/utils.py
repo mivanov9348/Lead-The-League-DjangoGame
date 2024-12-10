@@ -29,27 +29,6 @@ def transfer_free_agent(team, player):
     agent_sell_player(team, player)
     create_transfer(team, player, True)
 
-def filter_free_agents(free_agents, nationality='', position='', age=None):
-    if nationality:
-        free_agents = [player for player in free_agents if player['nationality'] == nationality]
-    if position:
-        free_agents = [player for player in free_agents if player['position'] == position]
-    if age:
-        try:
-            age = int(age)
-            free_agents = [player for player in free_agents if player['age'] == age]
-        except ValueError:
-            pass
-    return free_agents
-
-def sort_free_agents(free_agents, sort_field='', order='asc'):
-    reverse = order == 'desc'
-    if sort_field:
-        if sort_field == "Price":  # Сортировка по цена
-            free_agents.sort(key=lambda x: x.get('price', 0), reverse=reverse)
-        else:  # Сортировка по атрибути
-            free_agents.sort(key=lambda x: x.get('attributes', {}).get(sort_field, 0), reverse=reverse)
-    return free_agents
 
 def find_transfer_offer_by_id(offer_id):
     try:

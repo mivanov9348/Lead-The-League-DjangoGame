@@ -135,29 +135,38 @@ def get_player_match_stats(player, match=None):
         match_stats[match_id][stat.statistic.name] = stat.value
     return match_stats
 
-
 def get_all_free_agents():
-    free_agents = Player.objects.filter(is_free_agent=True).prefetch_related('playerattribute_set__attribute')
-    free_agents_data = []
-    for player in free_agents:
-        attributes = {attr.attribute.name: attr.value for attr in player.playerattribute_set.all()}
-        free_agents_data.append({
-            'id': player.id,
-            'name': player.name,
-            'first_name': player.first_name,
-            'last_name': player.last_name,
-            'position': player.position.name if player.position else 'Unknown',
-            'positionabbr': player.position.abbreviation if player.position else 'Unknown',
-            'nationality': player.nationality.name if player.nationality else 'Unknown',
-            'nationalityabbr': player.nationality.abbreviation if player.nationality else 'Unknown',
-            'age': player.age,
-            'price': player.price,
-            'attributes': attributes,
-            'image': player.image,
-            'agent': player.agent
-        })
+    players = Player.objects.filter(is_free_agent=True).prefetch_related(
+        Prefetch(
+            'playerattribute_set',
+            queryset=PlayerAttribute.objects.select_related('attribute'),
+            to_attr='attributes'
+        )
+    )
+    return players
 
-    return free_agents_data
+# def get_all_free_agents():
+#     free_agents = Player.objects.filter(is_free_agent=True).prefetch_related('playerattribute_set__attribute')
+#     free_agents_data = []
+#     for player in free_agents:
+#         attributes = {attr.attribute.name: attr.value for attr in player.playerattribute_set.all()}
+#         free_agents_data.append({
+#             'id': player.id,
+#             'name': player.name,
+#             'first_name': player.first_name,
+#             'last_name': player.last_name,
+#             'position': player.position.name if player.position else 'Unknown',
+#             'positionabbr': player.position.abbreviation if player.position else 'Unknown',
+#             'nationality': player.nationality.name if player.nationality else 'Unknown',
+#             'nationalityabbr': player.nationality.abbreviation if player.nationality else 'Unknown',
+#             'age': player.age,
+#             'price': player.price,
+#             'attributes': attributes,
+#             'image': player.image,
+#             'agent': player.agent
+#         })
+#
+#     return free_agents_data
 
 
 def get_all_youth_players_by_team(team):
@@ -170,7 +179,6 @@ def get_all_youth_players_by_team(team):
     for team_player in youth_players:
         player = team_player.player
 
-        # Използваме get_player_attributes, за да получим атрибути на играча
         attributes_data = get_player_attributes(player)
 
         youth_players_data.append({
