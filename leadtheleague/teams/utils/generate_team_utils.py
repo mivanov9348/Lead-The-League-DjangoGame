@@ -59,7 +59,6 @@ def update_team_stats(match):
         home_stats.save()
         away_stats.save()
 
-
 def boost_reputation(team, reputation_increase):
     new_reputation = team.reputation + reputation_increase
     team.reputation = max(1000, min(new_reputation, 10000)) #за settings

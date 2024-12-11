@@ -41,17 +41,19 @@
     </div>
 
     <div class="player-attributes">
-        <h2>Attributes</h2>
-        <hr/>
-        <div class="attributes-grid">
-            {% for name, value in attributes.items %}
-            <div class="attribute
-            {% if value <= 10 %}attribute-low{% elif value <= 15 %}attribute-medium{% else %}attribute-high{% endif %}">
-                {{ name }}: {{ value }}
-            </div>
-            {% endfor %}
+    <h2>Attributes</h2>
+    <hr/>
+    <div class="attributes-grid">
+        {% for attribute in attributes %}
+        <div class="attribute
+        {% if attribute.value <= 10 %}attribute-low
+        {% elif attribute.value <= 15 %}attribute-medium
+        {% else %}attribute-high{% endif %}">
+            {{ attribute.name }}: {{ attribute.value }}
         </div>
+        {% endfor %}
     </div>
+</div>
 
     <div class="player-stats">
         <h2>Season Statistics</h2>

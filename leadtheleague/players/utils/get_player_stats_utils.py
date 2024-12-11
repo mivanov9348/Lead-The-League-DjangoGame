@@ -143,7 +143,12 @@ def get_all_free_agents():
             to_attr='attributes'
         )
     )
+    for player in players:
+        player.attributes = {
+            attr.attribute.name: attr.value for attr in player.attributes
+        }
     return players
+
 
 # def get_all_free_agents():
 #     free_agents = Player.objects.filter(is_free_agent=True).prefetch_related('playerattribute_set__attribute')

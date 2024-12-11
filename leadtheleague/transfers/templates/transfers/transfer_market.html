@@ -31,7 +31,7 @@
                 <th>#</th>
                 <th>Name</th>
                 <th>Pos</th>
-                <th>Nationality</th>
+                <th>Nat</th>
                 <th>Age</th>
                 <th>Agent</th> <!-- Добавена колона за агент -->
                 <th title="Handling">HND</th>
@@ -56,8 +56,8 @@
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td><a href="{% url 'players:player_profile' player.id %}">{{ player.name }}</a></td>
-                <td>{{ player.positionabbr }}</td>
-                <td>{{ player.nationality }}</td>
+                <td>{{ player.position.abbreviation }}</td>
+                <td>{{ player.nationality.abbreviation }}</td>
                 <td>{{ player.age }}</td>
                 <td>{{ player.agent.first_name }} {{ player.agent.last_name }}{% if not player.agent %}No Agent{% endif %}</td>
                 <td>{{ player.attributes.Handling }}</td>

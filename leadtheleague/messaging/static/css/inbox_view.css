@@ -1,16 +1,14 @@
-
 .inbox-page {
     display: flex;
+    gap: 20px;
+    padding: 5px;
     height: calc(100vh - 130px);
-    background-color: #0b0b0b;
     font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    margin-top:120px;
-    border:5px solid lightblue;
+    margin-top: 120px;
 }
 
-/* Sidebar styles */
 .inbox-sidebar {
-    width: 30%;
+    width: 25%;
     background-color: var(--darkergreen-color);
     color: white;
     border-right: 2px solid #444;
@@ -22,22 +20,16 @@
 
 .sidebar-header {
     text-align: center;
-    font-size: 20px;
+    font-size: 12px;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid white;
 }
 
-.inbox-sidebar form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #666;
-    background-color: #111;
-    color: #fff;
+.sidebar-header h2 {
+    font-size: 22px;
 }
 
-/* List styles */
 .inbox-list {
     flex: 1;
     overflow-y: auto;
@@ -48,40 +40,32 @@
 
 .inbox-item {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-    padding: 15px;
+    align-items: center;
+    padding: 5px 5px;
     border-radius: 8px;
-    border: 1px solid #444;
     background-color: var(--darkergreen-color);
-    transition: transform 0.3s ease, background 0.3s ease;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    margin-top:10px;
 }
 
 .inbox-item:hover {
-    transform: translateY(-2px);
     background-color: #005500;
 }
 
-.inbox-item.unread {
-    font-weight: bold;
-    border: 2px solid yellow;
+.status-indicator {
+    font-size: 18px;
+    margin-right: 10px;
 }
 
-.delete-btn {
-    margin-top: 10px;
-    align-self: flex-end;
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
+.inbox-preview-text {
+    color: #fff;
     font-size: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-.delete-btn:hover {
-    background-color: #e60000;
-}
 
 /* Detail View */
 .inbox-detail {
@@ -92,6 +76,7 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    border: 2px solid lightblue; /* Optional border for better separation */
 }
 
 .detail-header {
@@ -107,6 +92,7 @@
     font-size: 14px;
     color: #bbb;
     margin-bottom: 10px;
+    border-bottom: 1px solid white;
 }
 
 .detail-message {
