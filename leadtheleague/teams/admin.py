@@ -1,6 +1,8 @@
 from django.contrib import admin, messages
 from players.utils.generate_player_utils import generate_team_players
 from .models import Team, TeamFinance
+from .utils.generate_team_utils import set_team_logos
+
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
@@ -25,11 +27,27 @@ class TeamAdmin(admin.ModelAdmin):
             level=messages.SUCCESS
         )
 
-    actions = ['fill_selected_teams_with_players']
+    def set_team_logos_action(self, request, queryset):
+        successful_teams, errors = set_team_logos(queryset)
+        if successful_teams > 0:
+            self.message_user(
+                request,
+                f"Logos successfully set for {successful_teams} team(s).",
+                level=messages.SUCCESS
+            )
+        if errors:
+            for error in errors:
+                self.message_user(
+                    request,
+                    error,
+                    level=messages.WARNING
+                )
+
+    actions = ['fill_selected_teams_with_players', 'set_team_logos_action']
     fill_selected_teams_with_players.short_description = "Fill Selected Teams with Players"
+    set_team_logos_action.short_description = "Set Logos for Selected Teams"
 
 
-# Финансовият админ за отбори
 @admin.register(TeamFinance)
 class TeamFinanceAdmin(admin.ModelAdmin):
     list_display = ('team', 'balance', 'total_income', 'total_expenses')  # Основни полета

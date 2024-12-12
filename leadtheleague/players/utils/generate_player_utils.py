@@ -20,27 +20,21 @@ def calculate_player_attributes(player):
     age = player.age
     attributes = {}
 
-    # Getting All Attributes
     all_attributes = Attribute.objects.all()
 
-    # Getting Attributes Weights
     position_importances = {
         pos_attr.attribute.id: pos_attr.importance
         for pos_attr in PositionAttribute.objects.filter(position=position)
     }
 
     for attribute in all_attributes:
-        # Based Value
         base_value = 1
 
-        # Важност на атрибута за позицията (ако няма зададена важност, приемаме 1)
         importance = position_importances.get(attribute.id, 1)
 
-        # Увеличение на стойността според важността
-        importance_factor = importance * 3  # Пример: важност 4 = +12, важност 1 = +3
+        importance_factor = importance * 3
         adjusted_value = base_value + importance_factor
 
-        # Възрастов фактор (с минимална възраст 14 години)
         if age < 28:
             age_factor = max(0.8, min((age - 14) / 14 + 0.8, 1.2))
         else:
@@ -48,16 +42,13 @@ def calculate_player_attributes(player):
 
         age_adjusted_value = adjusted_value * age_factor
 
-        # Добавяме случайност
         random_factor = random.uniform(0.9, 1.1)
         final_value = age_adjusted_value * random_factor
 
-        # Ограничаваме стойността между 1 и 20
         final_value = min(max(round(final_value), 1), 20)
 
-        progress_value = random.uniform(0.0, 1.0)
+        progress_value = random.uniform(0.0, 0.9)
 
-        # Запазваме резултата за този атрибут
         attributes[attribute] = (final_value, progress_value)
 
     PlayerAttribute.objects.filter(player=player).delete()
@@ -68,9 +59,7 @@ def calculate_player_attributes(player):
 
     return player
 
-
 def get_potential_age_factor(player):
-    # Get age factor for potential
 
     if player.age <= 17:
         age_factor = 1.3
@@ -119,6 +108,7 @@ def calculate_player_potential(player):
 def choose_random_photo(photo_folder):
     random_photo = random.choice(os.listdir(photo_folder))
     return os.path.join(photo_folder, random_photo)
+
 
 def copy_player_image_to_media(photo_folder, player_id):
     """

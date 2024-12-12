@@ -166,3 +166,20 @@ button {
 .attributes-table tbody tr:last-child {
     border-bottom: none; /* Премахване на бялата лента след последния ред */
 }
+.stars-container {
+    position: relative;
+    width: 100px; /* Ширина на контейнера за 5 звезди */
+    height: 20px; /* Височина на звездите */
+    background: url('/path/to/empty-stars.png') repeat-x; /* Изображение на празни звезди */
+    background-size: contain;
+}
+
+.stars-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: url('/path/to/full-stars.png') repeat-x; /* Изображение на пълни звезди */
+    background-size: contain;
+    width: 0; /* Ширината ще се задава динамично */
+}

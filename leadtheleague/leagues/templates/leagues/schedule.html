@@ -21,11 +21,13 @@
                     {% for match in fixture.matches %}
                     <div class="calendar-match">
                         <div class="match-teams">
+                            <img src="{{ match.opponent.logo.url }}" alt="{{ match.opponent.name }} Logo">
                             <div class="opponent">{{ match.opponent }}</div>
                             <div class="match-time">{{ match.time }}</div>
                         </div>
                         {% if match.result %}
                         <div class="match-result">
+
                             <span class="home-score">{{ match.result.home_score }}</span> -
                             <span class="away-score">{{ match.result.away_score }}</span>
                         </div>

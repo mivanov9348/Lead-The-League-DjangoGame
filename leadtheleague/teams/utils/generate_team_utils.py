@@ -1,5 +1,9 @@
+import os
+
+from django.core.files import File
 from django.db import transaction
 from game.models import Settings
+from leadtheleague import settings
 from players.models import Player
 from players.utils.generate_player_utils import generate_player_season_stats
 from teams.models import TeamSeasonStats, Team
@@ -85,3 +89,23 @@ def create_team_season_stats(new_season):
             players = Player.objects.filter(team_players__team=team)
             for player in players:
                 generate_player_season_stats(player, new_season, team)
+
+
+def set_team_logos(teams):
+    logos_dir = os.path.join(settings.MEDIA_URL, 'logos')  # Използваме MEDIA_URL вместо MEDIA_ROOT за URL път
+    successful_teams = 0
+    errors = []
+
+    for team in teams:
+        logo_path = os.path.join(logos_dir, f"{team.name}.png")
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, 'logos', f"{team.name}.png")):
+            try:
+                team.logo = f"logos/{team.name}.png"  # Задаваме само относителния път
+                team.save(update_fields=['logo'])
+                successful_teams += 1
+            except Exception as e:
+                errors.append(f"Error setting logo for team {team.name}: {e}")
+        else:
+            errors.append(f"Logo not found for team {team.name}")
+
+    return successful_teams, errors

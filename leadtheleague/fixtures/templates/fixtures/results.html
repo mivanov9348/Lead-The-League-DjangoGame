@@ -20,6 +20,7 @@
         <a href="?date={{ previous_date }}">Previous</a>
         <a href="?date={{ next_date }}">Next</a>
     </div>
+
     {% for league in leagues %}
     <div class="league">
         <div class="league-header">
@@ -30,14 +31,27 @@
         <div class="match">
             <div class="time">{{ fixture.time }}</div>
             <div class="status">{{ fixture.status }}</div>
-            <div class="home-team">{{ fixture.home_team.name }}</div>
+
+            <!-- Home team with logo -->
+            <div class="home-team">
+                <img class="team-logo" src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }} Logo">
+                {{ fixture.home_team.name }}
+            </div>
+
             <div class="score">
                 <a class="score-link" href="">
                     {{ fixture.home_goals }} - {{ fixture.away_goals }}
                 </a>
             </div>
-            <div class="away-team">{{ fixture.away_team.name }}</div>
+
+            <!-- Away team with logo -->
+            <div class="away-team">
+                <img class="team-logo" src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }} Logo">
+                {{ fixture.away_team.name }}
+            </div>
+
             <div class="half-score">{{ fixture.half_time_score }}</div>
+
             <div class="toggle-button" onclick="toggleGoalscorers({{ fixture.id }})">&#9660;</div>
         </div>
         <div id="goalscorers-{{ fixture.id }}" class="goalscorers-panel" style="display: none;">
@@ -61,6 +75,7 @@
     </div>
     {% endfor %}
 </div>
+
 {% endblock %}
 
 {% block script %}

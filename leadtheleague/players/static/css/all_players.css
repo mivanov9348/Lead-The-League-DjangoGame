@@ -15,75 +15,64 @@ h1 {
     border-radius: 10px;
     overflow-x: auto;
 }
-/* Стил за самата таблица */
+
 table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
     font-size: 0.85em;
-    table-layout: fixed; /* Уверява, че колоните ще имат фиксирана ширина */
+    table-layout: auto;
 }
 
 /* Стил за хедъра и клетките */
 th, td {
-    width: 30px; /* Примерна тесна ширина за колоните със статистика */
+    padding: 5px;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Разширяване на колоните за име и държава */
-th:nth-child(2), td:nth-child(2) { /* Втората колона (Име) */
-    width: 90px; /* Пример за по-широко */
-}
-
-th:nth-child(3), td:nth-child(3) { /* Петата колона (Националност) */
-    width: 90px; /* Пример за по-широко */
-}
-
-/* Клетки на таблицата */
-td {
-    padding: 12px;
-    border: 1px solid #ddd; /* Лек бордюр между клетките */
+/* Алтернативен фон за редовете */
+tbody tr:nth-child(odd) {
+    background-color: var(--darkgreen-color); /* Тъмен фон за редовете */
     color: white; /* Бял текст */
 }
 
-
-
-/* Алтернативен фон за редовете */
-tbody tr:nth-child {
-    background-color: var(--darkgreen-color); /* Бял фон за таблицата */
-        color: white; /* Бял текст */
-
+tbody tr:nth-child(even) {
+    background-color: var(--darkergreen-color);
+    color:white;
 }
 
 /* Hover ефект върху редовете */
 tbody tr:hover {
     background-color: #e9ecef; /* Светлосин фон при задържане */
-    transition: background-color 0.3s ease; /* Плавен преход */
+    color: #333; /* Тъмен текст при задържане */
+    transition: background-color 0.3s ease;
 }
 
-/* Цени и важни числа да изпъкват */
+
+th {
+    font-weight: bold;
+    background-color: var(--darkergreen-color); /* Тъмен фон за заглавията */
+    color: white; /* Бял текст */
+    text-transform: uppercase; /* Главни букви */
+}
+
 td:last-child {
     font-weight: bold;
-    color: white; /* Бял текст */
+    color: #007bff;
 }
 
-/* Стил за линковете в таблицата */
-a {
-    color: white; /* Бял текст */
-    text-decoration: none;
-    font-weight: bold;
+td img.icon {
+    width: 60px;
+    height: auto;
 }
 
-a:hover {
-    color: #0056b3; /* По-тъмен син цвят */
-    text-decoration: underline;
-}
-
-/* Стил за пагинацията */
 .pagination {
     display: flex;
     justify-content: center;
     margin-top: 20px;
-    padding: 10px 0;
     font-family: 'Arial', sans-serif;
 }
 
@@ -108,3 +97,8 @@ a:hover {
     background-color: #e9ecef;
 }
 
+/* Допълнителни малки оптимизации */
+table {
+    word-wrap: break-word;
+    max-width: 100%;
+}

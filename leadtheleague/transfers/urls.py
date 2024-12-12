@@ -4,7 +4,7 @@ from transfers import views
 app_name = 'transfers'
 
 urlpatterns = [
-    path('transfer_market/', views.transfer_market, name='transfer_market'),
+    path('free_agent_market/', views.free_agent_market, name='free_agent_market'),
     path('transfer_history/', views.transfer_history, name='transfer_history'),
     path('negotiations/', views.negotiations, name='negotiations'),
     path('accept_transfer/', views.accept_transfer, name='accept_transfer'),

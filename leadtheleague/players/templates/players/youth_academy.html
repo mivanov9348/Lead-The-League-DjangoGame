@@ -18,9 +18,9 @@
                 <h3>{{ player.first_name }} {{ player.last_name }}</h3>
                 <hr/>
                 <p>Age: {{ player.age }}</p>
-                <p>Position: {{ player.position.name }}</p>
-                <p>Nationality: {{ player.nationality.name }}</p>
-                <p>Potential: {{ player.potential }} ★</p>
+                <p>Position: {{ player.positionabbr }}</p>
+                <p>Nationality: {{ player.nationalityabbr }}</p>
+                <p>Potential: {{ player.potential|floatformat:2 }} ★</p>
                 <div class="player-actions">
                     <form method="post" action="{% url 'players:release_player' player.id %}">
                         {% csrf_token %}

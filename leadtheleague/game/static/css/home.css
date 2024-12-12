@@ -46,7 +46,6 @@
     background-color: var(--darkgreen-color);
 }
 
-/* Стилове за картата на следващия мач */
 .next-match-card {
     color: var(--blue-color);
     border-radius: 10px;
@@ -57,10 +56,8 @@
     justify-content: space-between;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
         font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
-
 }
 
-/* Детайли за мача */
 .match-details {
     display: flex;
     justify-content: space-around;
@@ -81,8 +78,7 @@
 .team-logo img {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
-    border: 3px solid #ffffff;
+
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 

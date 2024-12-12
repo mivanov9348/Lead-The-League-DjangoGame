@@ -1,10 +1,13 @@
 import random
-
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from accounts.models import CustomUser
 from messaging.models import MessageTemplate, SystemMessage, UserMessageStatus
 
+
+def get_user_and_global_messages(user):
+    return SystemMessage.objects.filter(Q(is_global=True) | Q(recipient=user))
 
 def get_message_preview(message):
     preview_text = message.content[:15]

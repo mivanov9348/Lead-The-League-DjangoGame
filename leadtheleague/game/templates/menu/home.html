@@ -24,7 +24,7 @@
                         <p class="highlight">{{ next_match.home_team.name }}</p>
                     </div>
                     <div class="match-info text-center">
-                        <p> {{ next_match.division }}</p>
+                        <p> {{ next_match.league }}</p>
                         <p> {{ next_match.match_date }} {{ next_match.match_time }} </p>
                     </div>
                     <div class="opponent-info text-center">
@@ -47,15 +47,29 @@
         </div>
 
         <div class="row mt-4">
+
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <a href="#">Latest News</a>
+                        <a href="#">Last Messages</a>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body table-container">
+                        <table class="table table-sm">
+
+                            <tbody>
+                            {% for messages in latest_messages %}
+                            <tr>
+                                <td>{{ messages.date_sent|date:"d M Y" }}</td>
+                                <td>{{ messages.preview }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
+
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
@@ -78,6 +92,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
@@ -122,6 +137,7 @@
                             {% for match in schedule %}
                             <tr>
                                 <td>{{ match.date }}</td>
+                                <td><img src="{{ match.opponent.logo.url }}" class="icon"/></td>
                                 <td>{{ match.opponent }}</td>
                                 <td>{{ match.location }}</td>
                             </tr>

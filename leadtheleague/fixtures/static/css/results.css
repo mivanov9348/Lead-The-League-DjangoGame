@@ -1,49 +1,15 @@
-.filter-container{
-    text-align:center;
-
-}
-
-.filter-container input[type="date"] {
-    background: white;
-    border:2px solid black;
-    color: var(--green-color);
-    font-weight:500;
-    text-align:center;
-    height:30px;
-}
-
-.filter-container button{
-    background-color: white;
-    border:1px solid black;
-    color:green;
-    font-weight:600;
-    height:30px;
-}
-
-.filter-container button:hover {
-    background-color: black;
-    border:1px solid black;
-    color:green;
-    font-weight:600;
-}
-
-
 .livescore-container {
     width: 70%;
     margin: 10px auto;
     max-width: 1200px;
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    color:white;
-}
-
-.navigation-container {
-    text-align: center;
+    font-family: 'Varsity Regular';
+    color: white;
 }
 
 .navigation-container a {
     margin: 0 10px;
     text-decoration: none;
-    color:white;
+    color: white;
 }
 
 .navigation-container a:hover {
@@ -58,70 +24,65 @@
 }
 
 .league-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
     padding: 10px;
     background-color: var(--green-color);
     border-bottom: 1px solid #333;
-    color:black;
-}
-
-.league-name {
+    color: black;
     font-weight: bold;
-    font-size: 16px;
 }
 
 .match {
     display: grid;
-    grid-template-columns: 60px 40px 1fr 60px 1fr 80px 40px; /* Добавя колона за стрелката */
+    grid-template-columns: 60px 40px 1fr 60px 1fr 80px 40px;
     align-items: center;
     justify-items: center;
     padding: 10px;
     border-bottom: 1px solid #333;
-    font-family:"Varsity Regular";
-     color:white;
 }
 
 .match:last-child {
     border-bottom: none;
 }
 
-.time,
-.status,
-.team,
-.score,
-.half-score {
-    text-align: center;
+.home-team,
+.away-team {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: 'Varsity Regular';
+    color: white;
 }
 
-.score-link{
-    text-decoration:none;
+.team-logo {
+    height: 20px; /* Fixed size for logo */
+    width: auto; /* Maintain aspect ratio */
+    margin-right: 5px; /* Space between logo and text */
+    vertical-align: middle; /* Align logo with text */
+}
+
+.score-link {
+    text-decoration: none;
     color: var(--green-color);
 }
 
-.score-link:hover{
+.score-link:hover {
     color: var(--blue-color);
 }
 
 .toggle-button {
     cursor: pointer;
-    text-align: center;
     color: var(--blue-color);
 }
 
 .toggle-button:hover {
-    color: var(--white-color);
+    color: white;
 }
 
 .goalscorers-panel {
     background-color: #f4f4f4;
     padding: 10px;
     border-top: 1px solid #ddd;
-}
-
-.goalscorers {
-    margin: 5px 0;
 }
 
 .goalscorers ul {

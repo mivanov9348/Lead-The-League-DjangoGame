@@ -13,7 +13,7 @@ class Team(models.Model):
     league = models.ForeignKey("leagues.League", on_delete=models.CASCADE, related_name='league_teams', null=True)
     reputation = models.IntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
     is_COM = models.BooleanField(default=True)
-    logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
+    logo = models.ImageField(upload_to='logos/', null=True, blank=True)
     nationality = models.ForeignKey('core.Nationality', on_delete=models.SET_NULL, related_name='nation_teams',
                                     null=True,
                                     blank=True)

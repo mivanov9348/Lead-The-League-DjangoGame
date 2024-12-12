@@ -42,10 +42,10 @@
     <div class="inbox-detail">
         {% if message %}
         <div class="detail-header">
-            <h2 class="detail-title">{{ message.message.title }}</h2>
-            <p class="detail-date">{{ message.message.date_sent|date:"d.m.Y H:i" }}</p>
+            <h2 class="detail-title">{{ message.title }}</h2>
+            <p class="detail-date">{{ message.date_sent|date:"d.m.Y H:i" }}</p>
         </div>
-        <p class="detail-message">{{ message.message.message }}</p>
+        <p class="detail-message">{{ message.message }}</p>
         {% else %}
         <div class="no-message-container">
             <h2 class="no-message">Select a message to view details</h2>
