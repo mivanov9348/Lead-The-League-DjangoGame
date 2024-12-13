@@ -20,7 +20,8 @@ urlpatterns = [
     path('finance/', include('finance.urls', namespace='finance')),
     path('staff/', include('staff.urls', namespace='staff')),
     path('stadium/', include('stadium.urls', namespace='stadium')),
+    path('cups/', include('cups.urls', namespace='cups')),
 ]
 
-if settings.DEBUG:  # Не забравяйте да добавите този блок за сервиране на медийни файлове по време на разработка
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

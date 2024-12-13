@@ -1,15 +1,16 @@
 from django.db import transaction
 from django.utils import timezone
-from fixtures.models import Fixture
+from fixtures.models import LeagueFixture, CupFixture
 from game.models import Season
 from match.models import Match
-from players.models import Player, Statistic, PlayerMatchStatistic, PlayerSeasonStatistic
+from players.models import Player, PlayerMatchStatistic
 
 def generate_matches_for_season(season):
-    fixtures = Fixture.objects.filter(season=season)
     matches_to_create = []
 
-    for fixture in fixtures:
+    # Обработка на LeagueFixture
+    league_fixtures = LeagueFixture.objects.filter(season=season)
+    for fixture in league_fixtures:
         matches_to_create.append(Match(
             home_team=fixture.home_team,
             away_team=fixture.away_team,
@@ -22,7 +23,24 @@ def generate_matches_for_season(season):
             season=season
         ))
 
-    Match.objects.bulk_create(matches_to_create)
+    # Обработка на CupFixture
+    cup_fixtures = CupFixture.objects.filter(season=season)
+    for fixture in cup_fixtures:
+        matches_to_create.append(Match(
+            home_team=fixture.home_team,
+            away_team=fixture.away_team,
+            league=None,  # Cup fixtures may not have an associated league
+            match_date=fixture.date,
+            match_time=fixture.match_time,
+            home_goals=fixture.home_goals,
+            away_goals=fixture.away_goals,
+            is_played=fixture.is_finished,
+            season=season
+        ))
+
+    # Създаване на всички мачове в една транзакция
+    with transaction.atomic():
+        Match.objects.bulk_create(matches_to_create)
 
 def generate_player_day_match_stats_by_player(player, today=None):
     today = today or timezone.now().date()

@@ -1,5 +1,6 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
+from cups.models import Cup
+from cups.utils.generate_cup_fixtures import generate_season_cup_and_fixtures
 from fixtures.utils import generate_fixtures
 from game.models import Season
 from leagues.models import League
@@ -9,27 +10,39 @@ from teams.utils.get_team_stats_utils import get_all_teams
 
 def create_new_season(year, season_number, start_date, match_time):
     try:
-        season = Season.objects.get(year=year, season_number=season_number)
-        return season
-    except ObjectDoesNotExist:
-        try:
-            season = Season(year=year, season_number=season_number, start_date=start_date, match_time=match_time)
-            season.save()
+        with transaction.atomic():
+            season, created = Season.objects.get_or_create(
+                year=year,
+                season_number=season_number,
+                defaults={'start_date': start_date, 'match_time': match_time}
+            )
 
-            # generate fixtures
+            if not created:
+                return season
+
+            # Генериране на фикстури за лиги
             leagues = League.objects.all()
             for league in leagues:
                 generate_fixtures(start_date, league, season, match_time)
 
-            # generate 5 youth players
+            # Генериране на играчи
             teams = get_all_teams()
             for team in teams:
-                for i in range(5):
+                for _ in range(5):
                     generate_youth_player(team)
 
-            generate_matches_for_season(season)
-        except IntegrityError as e:
-            print("Foreign key error in Match creation:", e)
-            raise
-        return season
+            # Генериране на купи
+            cups = Cup.objects.all()
+            for cup in cups:
+                try:
+                    generate_season_cup_and_fixtures(cup)
+                except Exception as e:
+                    print(f"Error generating cup {cup.name}: {e}")
 
+            # Генериране на мачове
+            generate_matches_for_season(season)
+
+        return season
+    except IntegrityError as e:
+        print("Error during transaction:", e)
+        return None

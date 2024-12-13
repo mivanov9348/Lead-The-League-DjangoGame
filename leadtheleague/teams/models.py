@@ -1,22 +1,20 @@
 from decimal import Decimal
-from django.core.validators import MinLengthValidator, MaxLengthValidator, MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from accounts.models import CustomUser
 
 class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    abbreviation = models.CharField(
-        max_length=3,
-        validators=[MinValueValidator(2), MaxValueValidator(3)],
-    )
+    abbreviation = models.CharField(max_length=3)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
     league = models.ForeignKey("leagues.League", on_delete=models.CASCADE, related_name='league_teams', null=True)
-    reputation = models.IntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
+    reputation = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10000)], null=True, blank=True)
     is_COM = models.BooleanField(default=True)
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)
     nationality = models.ForeignKey('core.Nationality', on_delete=models.SET_NULL, related_name='nation_teams',
                                     null=True,
                                     blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -64,7 +62,6 @@ class TeamMatchStatistic(models.Model):
             models.Index(fields=['player']),
         ]
 
-
 class TeamSeasonStats(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     season = models.ForeignKey('game.Season', on_delete=models.CASCADE)
@@ -86,7 +83,6 @@ class TeamSeasonStats(models.Model):
             models.Index(fields=['league']),
         ]
 
-
 class Tactics(models.Model):
     name = models.CharField(max_length=30, unique=True)
     num_goalkeepers = models.IntegerField(default=1)
@@ -96,7 +92,6 @@ class Tactics(models.Model):
 
     def __str__(self):
         return f'{self.name}'
-
 
 class TeamTactics(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
@@ -118,7 +113,6 @@ class TeamTactics(models.Model):
             models.Index(fields=['team']),
             models.Index(fields=['tactic']),
         ]
-
 
 class TrainingEfficiency(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='trainings')

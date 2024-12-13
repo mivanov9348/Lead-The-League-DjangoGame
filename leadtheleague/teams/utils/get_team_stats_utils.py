@@ -1,5 +1,6 @@
 from django.db.models import Q
-from fixtures.models import Fixture
+
+from fixtures.models import CupFixture, LeagueFixture
 from players.models import Player
 from players.utils.get_player_stats_utils import get_player_data
 from teams.models import Team, TeamFinance
@@ -25,16 +26,24 @@ def get_team_balance(user):
         return team_finance.balance if team_finance else 0
     return
 
-
 def get_team_schedule(league, user_team):
     if not league or not user_team:
         return None
 
-    team_schedule = Fixture.objects.filter(
+    league_schedule = LeagueFixture.objects.filter(
         Q(league=league) & (Q(home_team=user_team) | Q(away_team=user_team))
     ).order_by('date', 'match_time')
 
-    return team_schedule
+    cup_schedule = CupFixture.objects.filter(
+        (Q(home_team=user_team) | Q(away_team=user_team))
+    ).order_by('date', 'match_time')
+
+    combined_schedule = sorted(
+        list(league_schedule) + list(cup_schedule),
+        key=lambda fixture: (fixture.date, fixture.match_time)
+    )
+
+    return combined_schedule
 
 def get_poster_schedule(league, user_team):
     team_schedule = get_team_schedule(league, user_team)

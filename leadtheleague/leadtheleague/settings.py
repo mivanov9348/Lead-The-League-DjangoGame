@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'transfers',
     'finance',
     'staff',
-    'stadium'
+    'stadium',
+    'cups'
 ]
 
 MIDDLEWARE = [
