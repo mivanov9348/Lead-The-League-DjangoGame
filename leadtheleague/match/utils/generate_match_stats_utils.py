@@ -1,11 +1,14 @@
 from django.db import transaction
 from django.utils import timezone
+
+from cups.models import SeasonCup
 from fixtures.models import LeagueFixture, CupFixture
 from game.models import Season
 from match.models import Match
 from players.models import Player, PlayerMatchStatistic
 
-def generate_matches_for_season(season):
+
+def generate_league_matches_for_season(season):
     matches_to_create = []
 
     # Обработка на LeagueFixture
@@ -15,21 +18,7 @@ def generate_matches_for_season(season):
             home_team=fixture.home_team,
             away_team=fixture.away_team,
             league=fixture.league,
-            match_date=fixture.date,
-            match_time=fixture.match_time,
-            home_goals=fixture.home_goals,
-            away_goals=fixture.away_goals,
-            is_played=fixture.is_finished,
-            season=season
-        ))
-
-    # Обработка на CupFixture
-    cup_fixtures = CupFixture.objects.filter(season=season)
-    for fixture in cup_fixtures:
-        matches_to_create.append(Match(
-            home_team=fixture.home_team,
-            away_team=fixture.away_team,
-            league=None,  # Cup fixtures may not have an associated league
+            season_cup=None,
             match_date=fixture.date,
             match_time=fixture.match_time,
             home_goals=fixture.home_goals,
@@ -41,6 +30,41 @@ def generate_matches_for_season(season):
     # Създаване на всички мачове в една транзакция
     with transaction.atomic():
         Match.objects.bulk_create(matches_to_create)
+
+
+def generate_cup_matches_for_season(season):
+    """
+    Генерира мачове за всички CupFixtures от всички SeasonCup за даден сезон.
+    """
+    matches_to_create = []
+
+    # Вземаме всички SeasonCup за дадения сезон
+    season_cups = SeasonCup.objects.filter(season=season).prefetch_related('cup_fixtures')
+
+    # Обхождаме всички купи
+    for season_cup in season_cups:
+        # Вземаме всички фикстури, асоциирани с тази купа
+        cup_fixtures = season_cup.cup_fixtures.all()
+
+        for fixture in cup_fixtures:
+            matches_to_create.append(Match(
+                home_team=fixture.home_team,
+                away_team=fixture.away_team,
+                season_cup=season_cup,
+                match_date=fixture.date,
+                match_time=fixture.match_time,
+                home_goals=fixture.home_goals,
+                away_goals=fixture.away_goals,
+                is_played=fixture.is_finished,
+                season=season,
+                league=None
+            ))
+
+    with transaction.atomic():
+        Match.objects.bulk_create(matches_to_create)
+
+    print(f"Създадени са {len(matches_to_create)} мачове за сезона {season.year}.")
+
 
 def generate_player_day_match_stats_by_player(player, today=None):
     today = today or timezone.now().date()

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/cup_fixtures.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="cup-container">
+    <!-- Заглавен бокс -->
+    <div class="title-box">
+        <h1>{{ season_cup.cup.name }}</h1>
+        <p class="phase">Current Phase: {{ season_cup.current_stage }}</p>
+    </div>
+
+    <!-- Dropdown за фазите -->
+    <div class="stage-dropdown">
+        <select id="stage-select">
+            <option value="round-of-32">Round of 32</option>
+            <option value="round-of-16">Round of 16</option>
+            <option value="quarter-finals">Quarter-finals</option>
+            <option value="semi-finals">Semi-finals</option>
+            <option value="final">Final</option>
+        </select>
+    </div>
+
+    <!-- Секция с мачовете -->
+    <div class="fixtures">
+        {% for fixture in fixtures %}
+        <div class="fixture">
+            <!-- Лого на домакинския отбор -->
+            <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="icon">
+
+            <!-- Информация за мача -->
+            <div class="fixture-content">
+                <span class="team">{{ fixture.home_team.name }}</span>
+                <span class="score">{{ fixture.home_goals }} : {{ fixture.away_goals }}</span>
+                <span class="team">{{ fixture.away_team.name }}</span>
+            </div>
+
+            <!-- Лого на гостуващия отбор -->
+            <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="icon">
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,10 @@
 from django.db import IntegrityError, transaction
-from cups.models import Cup
-from cups.utils.generate_cup_fixtures import generate_season_cup_and_fixtures
 from fixtures.utils import generate_fixtures
 from game.models import Season
 from leagues.models import League
-from match.utils.generate_match_stats_utils import generate_matches_for_season
+from match.utils.generate_match_stats_utils import generate_league_matches_for_season
 from players.utils.generate_player_utils import generate_youth_player
+from teams.utils.generate_team_utils import create_team_season_stats
 from teams.utils.get_team_stats_utils import get_all_teams
 
 def create_new_season(year, season_number, start_date, match_time):
@@ -31,16 +30,10 @@ def create_new_season(year, season_number, start_date, match_time):
                 for _ in range(5):
                     generate_youth_player(team)
 
-            # Генериране на купи
-            cups = Cup.objects.all()
-            for cup in cups:
-                try:
-                    generate_season_cup_and_fixtures(cup)
-                except Exception as e:
-                    print(f"Error generating cup {cup.name}: {e}")
+            create_team_season_stats(season)
 
             # Генериране на мачове
-            generate_matches_for_season(season)
+            generate_league_matches_for_season(season)
 
         return season
     except IntegrityError as e:

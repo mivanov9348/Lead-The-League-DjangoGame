@@ -3,43 +3,37 @@ from django.db import transaction
 from django.db.models import Max
 from django.db.utils import IntegrityError
 from cups.models import SeasonCup
+from cups.utils.get_cups_utils import determine_stage_by_teams_count
 from fixtures.models import CupFixture
-from game.utils.get_season_stats_utils import get_current_season
+from fixtures.utils import create_cup_fixture
 from teams.models import Team
-import logging
 
-logging.basicConfig(
-    filename='cup_generation.log',
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 
 def get_teams_for_cup(cup):
-    logging.info(f"Getting teams for cup: {cup.name}")
     teams_count = cup.teams_count
     nationality = cup.nationality
 
     active_teams = list(Team.objects.filter(is_active=True, nationality=nationality))
     inactive_teams = list(Team.objects.filter(is_active=False, nationality=nationality))
-    logging.debug(f"Active teams: {len(active_teams)}, Inactive teams: {len(inactive_teams)}")
 
     if len(active_teams) < teams_count:
         random.shuffle(inactive_teams)
-        required_inactive = teams_count - len(active_teams)
-        active_teams += inactive_teams[:required_inactive]
+        additional_teams_needed = teams_count - len(active_teams)
+        active_teams += inactive_teams[:additional_teams_needed]
 
     while len(active_teams) < teams_count:
-        placeholder_team = Team(name=f"Placeholder {len(active_teams) + 1}", is_active=False, nationality=nationality)
-        placeholder_team.save()
-        logging.warning(f"Adding placeholder team: {placeholder_team.name}")
+        placeholder_team = Team.objects.create(
+            name=f"Placeholder {len(active_teams) + 1}",
+            is_active=False,
+            nationality=nationality
+        )
         active_teams.append(placeholder_team)
 
     random.shuffle(active_teams)
-    logging.info(f"Total teams for cup {cup.name}: {len(active_teams)}")
     return active_teams
 
+
 def create_season_cup(cup, season):
-    logging.info(f"Creating SeasonCup for cup: {cup.name} in season {season.year}")
     try:
         with transaction.atomic():
             season_cup, created = SeasonCup.objects.get_or_create(
@@ -47,71 +41,101 @@ def create_season_cup(cup, season):
                 cup=cup,
                 defaults={'current_stage': "Not Started"}
             )
-
             if created:
+                print(f"SeasonCup създаден за купа '{cup.name}'.")
+
                 teams = get_teams_for_cup(cup)
                 if not teams:
-                    logging.error(f"Not enough teams for cup: {cup.name}")
+                    print(f"Не са намерени отбори за купа '{cup.name}'.")
                     return None
 
                 season_cup.participating_teams.set(teams)
                 season_cup.save()
-                logging.info(f"SeasonCup created for cup: {cup.name}")
-
+                print(f"Успешно свързани отбори за купа '{cup.name}'.")
             return season_cup
     except IntegrityError as e:
-        logging.error(f"Error creating SeasonCup for cup {cup.name}: {e}")
+        print(f"Грешка при създаване на SeasonCup за купа '{cup.name}': {e}")
         return None
 
-def generate_fixtures_for_season_cup(season_cup):
-    logging.info(f"Generating fixtures for SeasonCup: {season_cup.cup.name}")
+
+def generate_cup_fixtures(season_cup, cup):
     try:
         with transaction.atomic():
             if CupFixture.objects.filter(season_cup=season_cup).exists():
-                logging.warning(f"Fixtures already exist for SeasonCup: {season_cup.cup.name}")
+                print(f"Фикстури вече съществуват за купа '{cup.name}'.")
                 return
 
             teams = list(season_cup.participating_teams.all())
-            logging.debug(f"Participating teams: {[team.name for team in teams]}")
 
             if len(teams) % 2 != 0:
-                placeholder_team = Team(name="Bye Team", is_active=False, nationality=season_cup.cup.nationality)
-                placeholder_team.save()
+                placeholder_team = Team.objects.create(
+                    name="Bye Team",
+                    is_active=False,
+                    nationality=season_cup.cup.nationality
+                )
                 teams.append(placeholder_team)
-                logging.warning(f"Odd number of teams, added placeholder team: {placeholder_team.name}")
+
+            random.shuffle(teams)
+
+            stage = determine_stage_by_teams_count(len(season_cup.progressing_teams.all()))
+            season_cup.current_stage = stage
+            season_cup.save()
 
             fixtures = []
-            for i in range(0, len(teams), 2):
-                if i + 1 < len(teams):
-                    fixtures.append((teams[i], teams[i + 1]))
+            while len(teams) > 1:
+                home_team = teams.pop(random.randint(0, len(teams) - 1))
+                away_team = teams.pop(random.randint(0, len(teams) - 1))
+                fixtures.append((home_team, away_team))
 
-            max_fixture_number = (
-                CupFixture.objects.filter(season_cup=season_cup)
-                .aggregate(Max('fixture_number'))['fixture_number__max'] or 0
-            )
+            max_fixture_number = CupFixture.objects.aggregate(Max('fixture_number'))['fixture_number__max'] or 0
 
             for index, (home_team, away_team) in enumerate(fixtures, start=1):
-                CupFixture.objects.create(
-                    fixture_number=max_fixture_number + index,
-                    home_team=home_team,
-                    away_team=away_team,
-                    round_number=1,
-                    date=None,
-                    match_time="18:00",
-                    season=season_cup.season,
-                    season_cup=season_cup,
-                    round_stage="Round of 32",
-                )
-                logging.info(f"Fixture created: {home_team.name} vs {away_team.name}")
+                new_fixture_number = max_fixture_number + index
+
+                create_cup_fixture(season_cup, new_fixture_number, home_team, away_team, season_cup.current_stage, 1,
+                                   "18:00", None)
+
+                print(f"Фикстура {home_team.name} vs {away_team.name} за купа '{cup.name}' създадена.")
     except IntegrityError as e:
-        logging.error(f"Error generating fixtures for SeasonCup: {season_cup.cup.name}: {e}")
+        print(f"Error generating fixtures for SeasonCup: {season_cup.cup.name}: {e}")
 
-def generate_season_cup_and_fixtures(cup):
-    logging.info(f"Starting generation for cup: {cup.name}")
-    current_season = get_current_season()
-    season_cup = create_season_cup(cup, current_season)
 
-    if season_cup:
-        generate_fixtures_for_season_cup(season_cup)
-    else:
-        logging.warning(f"SeasonCup not created for cup: {cup.name}")
+# Generate next stage fixtures
+def generate_next_round_fixtures(season_cup):
+    progressing_teams = list(season_cup.progressing_teams.all())
+
+    stage = determine_stage_by_teams_count(len(progressing_teams))
+    season_cup.current_stage = stage
+    season_cup.save()
+
+    if len(progressing_teams) % 2 != 0:
+        placeholder_team = Team.objects.create(
+            name="Bye Team",
+            is_active=False,
+            nationality=season_cup.cup.nationality
+        )
+        progressing_teams.append(placeholder_team)
+
+    random.shuffle(progressing_teams)
+
+    fixtures = []
+    while len(progressing_teams) > 1:
+        home_team = progressing_teams.pop(random.randint(0, len(progressing_teams) - 1))
+        away_team = progressing_teams.pop(random.randint(0, len(progressing_teams) - 1))
+        fixtures.append((home_team, away_team))
+
+    max_fixture_number = CupFixture.objects.aggregate(Max('fixture_number'))['fixture_number__max'] or 0
+
+    for index, (home_team, away_team) in enumerate(fixtures, start=1):
+        new_fixture_number = max_fixture_number + index
+
+        create_cup_fixture(
+            season_cup=season_cup,
+            fixture_number=new_fixture_number,
+            home_team=home_team,
+            away_team=away_team,
+            round_stage=stage,
+            round_number=season_cup.cupfixtures.count() // len(fixtures) + 1,
+        )
+
+        print(f"{home_team.name} vs {away_team.name} - '{season_cup.current_stage}'.")

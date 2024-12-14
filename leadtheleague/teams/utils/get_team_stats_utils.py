@@ -32,15 +32,15 @@ def get_team_schedule(league, user_team):
 
     league_schedule = LeagueFixture.objects.filter(
         Q(league=league) & (Q(home_team=user_team) | Q(away_team=user_team))
-    ).order_by('date', 'match_time')
+    ).order_by('fixture_number')
 
     cup_schedule = CupFixture.objects.filter(
         (Q(home_team=user_team) | Q(away_team=user_team))
-    ).order_by('date', 'match_time')
+    ).order_by('fixture_number')
 
     combined_schedule = sorted(
         list(league_schedule) + list(cup_schedule),
-        key=lambda fixture: (fixture.date, fixture.match_time)
+        key=lambda fixture: (fixture.fixture_number)
     )
 
     return combined_schedule

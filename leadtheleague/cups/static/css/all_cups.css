@@ -1,0 +1,106 @@
+/* Основен контейнер */
+.all-cups-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+    width: 80%;
+}
+
+/* Dropdown за избор на купа */
+.dropdown-container {
+    margin-bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dropdown-container select {
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+}
+
+/* Контейнер за заглавието на купата */
+.title-box {
+    background-color: var(--darkgreen-color);
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.title-box h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.title-box .phase {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #e8f5e9;
+}
+
+/* Контейнер за мачовете */
+.fixtures {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.no-fixtures {
+    text-align: center;
+    color: #555;
+    font-size: 16px;
+}
+
+/* Контейнер за всеки отделен мач */
+.fixture {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    color: #333;
+    padding: 10px 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Контейнер за текста (отбори и резултат) */
+.fixture-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+    text-align: center;
+}
+
+.team {
+    font-weight: bold;
+    font-size: 18px;
+    flex: 1;
+}
+
+.score {
+    font-size: 18px;
+    text-align: center;
+    flex: 0.5;
+}
+
+/* Стилове за логата */
+.icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #f4f4f4;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

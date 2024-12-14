@@ -87,9 +87,12 @@
                        role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i>Cup</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href=""><i class="fas fa-list-ol"></i>
+                        <li><a class="dropdown-item" href="{% url 'cups:cup_fixtures' %}"><i class="fas fa-list-ol"></i>
                             Cup Fixtures</a></li>
+                        <li><a class="dropdown-item" href="{% url 'cups:all_cups' %}"><i class="fas fa-list-ol"></i>
+                            All Cups</a></li>
                     </ul>
+
                 </li>
 
                 <li class="nav-item dropdown">

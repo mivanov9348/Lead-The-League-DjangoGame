@@ -8,74 +8,55 @@
 {% endblock %}
 
 {% block content %}
-<div class="filter-container">
-    <form method="get">
-        <input type="date" id="date" name="date" value="{{ selected_date }}">
-        <button type="submit">Show</button>
-    </form>
-</div>
-
 <div class="livescore-container">
-    <div class="navigation-container" style="display: flex; justify-content: space-between;">
-        <a href="?date={{ previous_date }}">Previous</a>
-        <a href="?date={{ next_date }}">Next</a>
-    </div>
 
     {% for league in leagues %}
     <div class="league">
         <div class="league-header">
             <span class="league-name">{{ league }}</span>
         </div>
-        {% for fixture in fixtures %}
-        {% if fixture.league == league %}
-        <div class="match">
-            <div class="time">{{ fixture.time }}</div>
-            <div class="status">{{ fixture.status }}</div>
 
-            <!-- Home team with logo -->
-            <div class="home-team">
-                <img class="team-logo" src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }} Logo">
-                {{ fixture.home_team.name }}
+        {% for round, fixtures in fixtures.items %}
+        <div class="round">
+            <div class="round-header">
+                <h3>Round {{ round }}</h3>
             </div>
+            {% for fixture in fixtures %}
+            {% if fixture.league_name == league %}
+            <div class="match">
+                <!-- Home team with logo -->
+                <div class="home-team">
+                    {% if fixture.home_team.logo %}
+                    <img class="team-logo" src="{{ fixture.home_team.logo }}" alt="{{ fixture.home_team.name }} Logo">
+                    {% endif %}
+                    {{ fixture.home_team.name }}
+                </div>
 
-            <div class="score">
-                <a class="score-link" href="">
-                    {{ fixture.home_goals }} - {{ fixture.away_goals }}
-                </a>
+                <!-- Match score -->
+                <div class="score">
+                    <a class="score-link" href="#">
+                        0 - 0
+                    </a>
+                </div>
+
+                <!-- Away team with logo -->
+                <div class="away-team">
+                    {% if fixture.away_team.logo %}
+                    <img class="team-logo" src="{{ fixture.away_team.logo }}" alt="{{ fixture.away_team.name }} Logo">
+                    {% endif %}
+                    {{ fixture.away_team.name }}
+                </div>
+
+                <!-- Match time -->
+                <div class="time">{{ fixture.time }}</div>
             </div>
-
-            <!-- Away team with logo -->
-            <div class="away-team">
-                <img class="team-logo" src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }} Logo">
-                {{ fixture.away_team.name }}
-            </div>
-
-            <div class="half-score">{{ fixture.half_time_score }}</div>
-
-            <div class="toggle-button" onclick="toggleGoalscorers({{ fixture.id }})">&#9660;</div>
+            {% endif %}
+            {% endfor %}
         </div>
-        <div id="goalscorers-{{ fixture.id }}" class="goalscorers-panel" style="display: none;">
-            <div class="goalscorers">
-                <strong>Home Team Goalscorers:</strong>
-                <ul>
-                    {% for player in fixture.home_team_goalscorers.all %}
-                    <li>{{ player.name }}</li>
-                    {% endfor %}
-                </ul>
-                <strong>Away Team Goalscorers:</strong>
-                <ul>
-                    {% for player in fixture.away_team_goalscorers.all %}
-                    <li>{{ player.name }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
         {% endfor %}
     </div>
     {% endfor %}
 </div>
-
 {% endblock %}
 
 {% block script %}
@@ -89,7 +70,7 @@
                 panel.style.display = 'none';
             }
         }
-        // Прикрепяне на функцията global scope, за да бъде видима при клик.
+        // Attach function to global scope for click events.
         window.toggleGoalscorers = toggleGoalscorers;
     });
 </script>

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/all_cups.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="all-cups-container">
+    <div class="dropdown-container">
+        <form method="get" id="cup-form">
+            <select name="cup" id="cup-select" onchange="document.getElementById('cup-form').submit();">
+                {% for cup in cups %}
+                <option value="{{ cup.id }}"
+                        {% if selected_season_cup and cup.id == selected_season_cup.cup.id %}selected{% endif %}>
+                    {{ cup.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- Информация за избраната купа -->
+    {% if selected_season_cup %}
+    <div class="title-box">
+        <h1>{{ selected_season_cup.cup.name }}</h1>
+        <p class="phase">Current Phase: {{ selected_season_cup.current_stage }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Мачове за избраната купа -->
+    <div class="fixtures">
+        {% if fixtures %}
+            {% for fixture in fixtures %}
+            <div class="fixture">
+                <!-- Лого на домакинския отбор -->
+                <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="icon">
+
+                <!-- Информация за отборите и резултата -->
+                <div class="fixture-content">
+                    <span class="team">{{ fixture.home_team.name }}</span>
+                    <span class="score">{{ fixture.home_goals }} : {{ fixture.away_goals }}</span>
+                    <span class="team">{{ fixture.away_team.name }}</span>
+                </div>
+
+                <!-- Лого на гостуващия отбор -->
+                <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="icon">
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-fixtures">No fixtures available for the selected cup.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
