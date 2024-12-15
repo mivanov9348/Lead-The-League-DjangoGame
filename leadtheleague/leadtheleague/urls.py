@@ -21,6 +21,7 @@ urlpatterns = [
     path('staff/', include('staff.urls', namespace='staff')),
     path('stadium/', include('stadium.urls', namespace='stadium')),
     path('cups/', include('cups.urls', namespace='cups')),
+    path('europeancups/', include('europeancups.urls', namespace='europeancups'))
 ]
 
 if settings.DEBUG:

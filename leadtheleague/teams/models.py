@@ -19,6 +19,7 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
+
 class TeamFinance(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
@@ -28,13 +29,14 @@ class TeamFinance(models.Model):
     def __str__(self):
         return f'{self.team.name} Balance: {self.balance}'
 
+
 class TeamPlayer(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='team_players')
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_players')
     shirt_number = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(99)], null=True, blank=True)
 
     class Meta:
-        unique_together = ('team', 'shirt_number')  # Гарантира, че номерът на фланелка е уникален за всеки отбор
+        unique_together = ('team', 'shirt_number')
 
     def __str__(self):
         return f"{self.player.name} - {self.team.name} (# {self.shirt_number})"
@@ -62,6 +64,7 @@ class TeamMatchStatistic(models.Model):
             models.Index(fields=['player']),
         ]
 
+
 class TeamSeasonStats(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     season = models.ForeignKey('game.Season', on_delete=models.CASCADE)
@@ -83,6 +86,7 @@ class TeamSeasonStats(models.Model):
             models.Index(fields=['league']),
         ]
 
+
 class Tactics(models.Model):
     name = models.CharField(max_length=30, unique=True)
     num_goalkeepers = models.IntegerField(default=1)
@@ -92,6 +96,7 @@ class Tactics(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
 
 class TeamTactics(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
@@ -113,6 +118,7 @@ class TeamTactics(models.Model):
             models.Index(fields=['team']),
             models.Index(fields=['tactic']),
         ]
+
 
 class TrainingEfficiency(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='trainings')

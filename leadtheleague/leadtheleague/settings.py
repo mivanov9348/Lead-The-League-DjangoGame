@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'finance',
     'staff',
     'stadium',
-    'cups'
+    'cups',
+    'europeancups'
 ]
 
 MIDDLEWARE = [
