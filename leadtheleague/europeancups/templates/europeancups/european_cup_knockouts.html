@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/european_cup_knockouts.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'europeancups/_partial_choose_phase.html' %}
+
+<div class="knockouts-container">
+    {% for stage in knockout_stages %}
+    <div class="knockout-stage">
+        <div class="stage-header">
+            <h4>{{ stage.stage_name }}</h4>
+        </div>
+        <div class="stage-matches">
+            {% for match in stage.matches %}
+            <div class="match">
+                <span class="team">{{ match.home_team }}</span>
+                <span class="vs">vs</span>
+                <span class="team">{{ match.away_team }}</span>
+                {% if match.is_finished %}
+                <span class="result">({{ match.home_goals }} : {{ match.away_goals }})</span>
+                {% else %}
+                <span class="details">TBA</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

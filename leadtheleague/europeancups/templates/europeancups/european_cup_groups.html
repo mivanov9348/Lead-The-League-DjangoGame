@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/european_cup_groups.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include 'europeancups/_partial_choose_phase.html' %}
+
+<div class="groups-container">
+    {% for group_data in grouped_data %}
+    <div class="group-card">
+        <div class="card-header">
+            <h5>Group {{ group_data.group.name }}</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Team</th>
+                    <th>P</th>
+                    <th>W</th>
+                    <th>D</th>
+                    <th>L</th>
+                    <th>GS</th>
+                    <th>GF</th>
+                    <th>GD</th>
+                    <th>Pts</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for team in group_data.teams %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ team.team.name }}</td>
+                    <td>{{ team.matches }}</td>
+                    <td>{{ team.wins }}</td>
+                    <td>{{ team.draws }}</td>
+                    <td>{{ team.loses }}</td>
+                    <td>{{ team.goals_scored }}</td>
+                    <td>{{ team.goals_conceded }}</td>
+                    <td>{{ team.goals_difference }}</td>
+                    <td>{{ team.points }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="fixtures">
+                <h6>Fixtures</h6>
+                <ul class="fixtures-list">
+                    {% for fixture in group_data.fixtures %}
+                    <li>{{ fixture.home_team.name }} - {{ fixture.away_team.name }}
+                        {% if fixture.is_finished %}
+                        <span class="result">{{ fixture.home_goals }} : {{ fixture.away_goals }}</span>
+                        {% else %}
+                        <span class="upcoming">{{ fixture.date }} at {{ fixture.match_time }}</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

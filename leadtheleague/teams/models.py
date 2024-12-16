@@ -7,7 +7,6 @@ class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)
     abbreviation = models.CharField(max_length=3)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
-    league = models.ForeignKey("leagues.League", on_delete=models.CASCADE, related_name='league_teams', null=True)
     reputation = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10000)], null=True, blank=True)
     is_COM = models.BooleanField(default=True)
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)
@@ -28,7 +27,6 @@ class TeamFinance(models.Model):
 
     def __str__(self):
         return f'{self.team.name} Balance: {self.balance}'
-
 
 class TeamPlayer(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='team_players')
@@ -63,29 +61,6 @@ class TeamMatchStatistic(models.Model):
             models.Index(fields=['statistic']),
             models.Index(fields=['player']),
         ]
-
-
-class TeamSeasonStats(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    season = models.ForeignKey('game.Season', on_delete=models.CASCADE)
-    league = models.ForeignKey('leagues.League', on_delete=models.CASCADE, null=True)
-    matches = models.IntegerField(default=0)
-    wins = models.IntegerField(default=0)
-    draws = models.IntegerField(default=0)
-    losses = models.IntegerField(default=0)
-    goalscored = models.IntegerField(default=0)
-    goalconceded = models.IntegerField(default=0)
-    goaldifference = models.IntegerField(default=0)
-    points = models.IntegerField(default=0)
-
-    class Meta:
-        unique_together = ('season', 'team')
-        indexes = [
-            models.Index(fields=['team']),
-            models.Index(fields=['season']),
-            models.Index(fields=['league']),
-        ]
-
 
 class Tactics(models.Model):
     name = models.CharField(max_length=30, unique=True)

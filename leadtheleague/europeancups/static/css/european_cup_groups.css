@@ -1,0 +1,98 @@
+.groups-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 20px;
+    width: 100%;
+    background-color: var(--darkgreen-color);
+            font-family: 'OLD SPORT 02 ATHLETIC NCV';
+
+}
+
+/* Card Styling */
+.group-card {
+    flex: 1 1 calc(25% - 15px);
+    background-color: var(--white-color);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.group-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Header Styling */
+.card-header {
+    background-color: var(--darkgreen-color);
+
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    margin: 15px 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.table th, .table td {
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Fixtures Section */
+.fixtures {
+    margin-top: 20px;
+}
+
+.fixtures h6 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #4caf50;
+}
+
+.fixtures-list {
+    list-style: none;
+    padding: 0;
+}
+
+.fixtures-list li {
+    margin-bottom: 8px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: space-between;
+}
+
+.fixtures-list .result {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.fixtures-list .upcoming {
+    color: #ff9800;
+}
