@@ -1,10 +1,5 @@
 import os
-from django.db import transaction
-from game.models import Settings
 from leadtheleague import settings
-from players.models import Player
-from players.utils.generate_player_utils import generate_player_season_stats
-from teams.models import Team
 
 def update_team_stats(match):
     if not match.is_played:

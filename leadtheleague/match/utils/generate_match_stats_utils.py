@@ -4,14 +4,15 @@ from django.utils import timezone
 from cups.models import SeasonCup
 from fixtures.models import LeagueFixture, CupFixture
 from game.models import Season
+from game.utils.get_season_stats_utils import get_current_season
 from match.models import Match
 from players.models import Player, PlayerMatchStatistic
 
-
 def generate_league_matches_for_season(season):
+    if season is None:
+        season = get_current_season()
     matches_to_create = []
 
-    # Обработка на LeagueFixture
     league_fixtures = LeagueFixture.objects.filter(season=season)
     for fixture in league_fixtures:
         matches_to_create.append(Match(
@@ -27,23 +28,16 @@ def generate_league_matches_for_season(season):
             season=season
         ))
 
-    # Създаване на всички мачове в една транзакция
     with transaction.atomic():
         Match.objects.bulk_create(matches_to_create)
 
 
 def generate_cup_matches_for_season(season):
-    """
-    Генерира мачове за всички CupFixtures от всички SeasonCup за даден сезон.
-    """
     matches_to_create = []
 
-    # Вземаме всички SeasonCup за дадения сезон
     season_cups = SeasonCup.objects.filter(season=season).prefetch_related('cup_fixtures')
 
-    # Обхождаме всички купи
     for season_cup in season_cups:
-        # Вземаме всички фикстури, асоциирани с тази купа
         cup_fixtures = season_cup.cup_fixtures.all()
 
         for fixture in cup_fixtures:

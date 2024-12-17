@@ -23,19 +23,29 @@
                             const logo = document.createElement('img');
                             logo.src = team.logo || '/static/images/default_logo.png';
                             logo.alt = team.name;
+                            logo.className = 'team-logo';
 
                             const name = document.createElement('p');
                             name.textContent = team.name;
+                            name.className = 'team-name';
+
+                            const status = document.createElement('p');
+                            status.textContent = team.user === 'Available'
+                                ? 'Available'
+                                : `Selected by ${team.user}`;
+                            status.className = team.user === 'Available' ? 'team-available' : 'team-unavailable';
 
                             const button = document.createElement('button');
-                            button.textContent = team.user === 'Available' ? 'Choose' : `Selected by ${team.user}`;
+                            button.textContent = team.user === 'Available' ? 'Choose' : 'Unavailable';
                             button.disabled = team.user !== 'Available';
                             if (team.user === 'Available') {
                                 button.onclick = () => chooseTeam(team.id);
                             }
+                            button.className = 'team-select-btn';
 
                             teamCard.appendChild(logo);
                             teamCard.appendChild(name);
+                            teamCard.appendChild(status);
                             teamCard.appendChild(button);
 
                             teamContainer.appendChild(teamCard);
@@ -79,20 +89,28 @@
 
         {% if teams %}
         <div id="team-container" class="team-container">
-            {% for team in teams %}
+            {% for league_team in teams %}
             <div class="team-card">
-                <img src="">
-                <p>{{ team.name }}</p>
-                <p>
-                    {% if team.user %}
-                        {{ team.user.username }}
+                <!-- Team Logo -->
+                <img class="team-logo" src="{{ league_team.team.logo.url|default:'/static/images/default_logo.png' }}"
+                     alt="{{ league_team.team.name }} Logo">
+
+                <!-- Team Name -->
+                <p class="team-name">{{ league_team.team.name }}</p>
+
+                <!-- Status (Available or Selected) -->
+                <p class="{{ league_team.team.user|yesno:'team-unavailable,team-available' }}">
+                    {% if league_team.team.user %}
+                        Selected by {{ league_team.team.user.username }}
                     {% else %}
-                        COM
+                        Available
                     {% endif %}
                 </p>
-                <input type="radio" name="team_id" value="{{ team.id }}" id="team-{{ team.id }}"
-                       {% if team.user %}disabled{% endif %}>
-                <label for="team-{{ team.id }}">Select</label>
+
+                <!-- Select Radio Button -->
+                <input type="radio" name="team_id" value="{{ league_team.team.id }}" id="team-{{ league_team.team.id }}"
+                       {% if league_team.team.user %}disabled{% endif %}>
+                <label for="team-{{ league_team.team.id }}">Select</label>
             </div>
             {% endfor %}
         </div>

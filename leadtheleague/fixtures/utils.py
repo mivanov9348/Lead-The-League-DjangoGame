@@ -1,14 +1,12 @@
 from django.db import IntegrityError
 from fixtures.models import LeagueFixture, CupFixture
-from teams.models import Team
 from datetime import timedelta
 import random
 
-def generate_fixtures(start_date, league, season, match_time):
-    last_fixture = LeagueFixture.objects.order_by('-fixture_number').first()
-    fixture_number = last_fixture.fixture_number + 1 if last_fixture else 1
+def generate_league_fixtures(league_season, start_date, match_time="18:00"):
+    league_teams = list(league_season.teams.all())
+    teams = [lt.team for lt in league_teams]
 
-    teams = list(Team.objects.filter(league=league))
     random.shuffle(teams)
 
     if len(teams) % 2 != 0:
@@ -20,27 +18,23 @@ def generate_fixtures(start_date, league, season, match_time):
     round_number = 1
 
     schedule = []
-
-    for r in range(total_rounds):
+    for _ in range(total_rounds):
         round_pairs = []
         for i in range(half_size):
             home_team = teams[i]
             away_team = teams[-(i + 1)]
 
-            if home_team is not None and away_team is not None:
-                if r % 2 == 0:
-                    round_pairs.append((home_team, away_team))
-                else:
-                    round_pairs.append((away_team, home_team))
+            if home_team and away_team:  # Игнориране на почивния отбор
+                round_pairs.append((home_team, away_team))
 
         schedule.append(round_pairs)
         teams = [teams[0]] + teams[-1:] + teams[1:-1]
 
-    return_legs = []
-    for fixture_round in schedule:
-        return_legs.append([(away, home) for home, away in fixture_round])
-
+    return_legs = [[(away, home) for home, away in round_pairs] for round_pairs in schedule]
     full_schedule = schedule + return_legs
+
+    last_fixture = LeagueFixture.objects.order_by('-fixture_number').first()
+    fixture_number = last_fixture.fixture_number + 1 if last_fixture else 1
 
     for fixture_round in full_schedule:
         for home_team, away_team in fixture_round:
@@ -49,19 +43,20 @@ def generate_fixtures(start_date, league, season, match_time):
                 away_team=away_team,
                 round_number=round_number,
                 date=current_date,
-                league=league,
+                league=league_season.league,
+                season=league_season.season,
                 fixture_number=fixture_number,
-                season=season,
-                match_time=match_time
+                match_time=match_time,
             )
             fixture_number += 1
 
         round_number += 1
         current_date += timedelta(days=1)
 
-    return round_number
+    return f"Fixtures generated for LeagueSeason: {league_season}."
 
-def create_cup_fixture(season_cup, fixture_number, home_team, away_team, round_stage, round_number=1, match_time="18:00", date=None):
+def create_cup_fixture(season_cup, fixture_number, home_team, away_team, round_stage, round_number=1,
+                       match_time="18:00", date=None):
     try:
         fixture = CupFixture.objects.create(
             fixture_number=fixture_number,
@@ -79,3 +74,33 @@ def create_cup_fixture(season_cup, fixture_number, home_team, away_team, round_s
     except IntegrityError as e:
         print(f"Error when trying to create CupFixture: {e}")
         return None
+
+from collections import defaultdict
+
+def get_fixtures_by_round(round_number=None):
+    if round_number is None:
+        round_number = 1  # По подразбиране първи кръг
+
+    league_fixtures = (
+        LeagueFixture.objects.filter(round_number=round_number)
+        .select_related('league', 'season', 'home_team', 'away_team')
+        .order_by('season__league__id', 'match_time')
+    )
+
+    fixtures_by_league_season = defaultdict(list)
+    for fixture in league_fixtures:
+        league_season_key = f"{fixture.season.league.name} ({fixture.season.season.name})"
+        fixtures_by_league_season[league_season_key].append({
+            "time": fixture.match_time.strftime('%H:%M'),
+            "home_team": {
+                "name": fixture.home_team.name,
+                "logo": fixture.home_team.logo.url if fixture.home_team.logo else None,
+            },
+            "away_team": {
+                "name": fixture.away_team.name,
+                "logo": fixture.away_team.logo.url if fixture.away_team.logo else None,
+            },
+            "league_name": fixture.league.name,
+        })
+
+    return fixtures_by_league_season

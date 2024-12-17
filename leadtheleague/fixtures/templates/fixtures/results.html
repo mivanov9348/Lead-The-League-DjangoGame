@@ -9,49 +9,49 @@
 
 {% block content %}
 <div class="livescore-container">
+    <div class="controls">
+        <h2>Fixtures for Round {{ round_number }}</h2>
+        <div class="navigation">
+            <a href="?round={{ round_number|add:"-1" }}" {% if round_number <= 1 %}class="disabled"{% endif %}>
+                Previous Round
+            </a>
+            <a href="?round={{ round_number|add:"1" }}">Next Round</a>
+        </div>
+    </div>
 
-    {% for league in leagues %}
-    <div class="league">
+    {% for league_season, fixtures_list in fixtures.items %}
+    <div class="league-season">
         <div class="league-header">
-            <span class="league-name">{{ league }}</span>
+            <h3>{{ league_season }}</h3>
         </div>
 
-        {% for round, fixtures in fixtures.items %}
-        <div class="round">
-            <div class="round-header">
-                <h3>Round {{ round }}</h3>
+        {% for fixture in fixtures_list %}
+        <div class="match">
+            <!-- Home team with logo -->
+            <div class="home-team">
+                {% if fixture.home_team.logo %}
+                <img class="team-logo" src="{{ fixture.home_team.logo }}" alt="{{ fixture.home_team.name }} Logo">
+                {% endif %}
+                {{ fixture.home_team.name }}
             </div>
-            {% for fixture in fixtures %}
-            {% if fixture.league_name == league %}
-            <div class="match">
-                <!-- Home team with logo -->
-                <div class="home-team">
-                    {% if fixture.home_team.logo %}
-                    <img class="team-logo" src="{{ fixture.home_team.logo }}" alt="{{ fixture.home_team.name }} Logo">
-                    {% endif %}
-                    {{ fixture.home_team.name }}
-                </div>
 
-                <!-- Match score -->
-                <div class="score">
-                    <a class="score-link" href="#">
-                        0 - 0
-                    </a>
-                </div>
-
-                <!-- Away team with logo -->
-                <div class="away-team">
-                    {% if fixture.away_team.logo %}
-                    <img class="team-logo" src="{{ fixture.away_team.logo }}" alt="{{ fixture.away_team.name }} Logo">
-                    {% endif %}
-                    {{ fixture.away_team.name }}
-                </div>
-
-                <!-- Match time -->
-                <div class="time">{{ fixture.time }}</div>
+            <!-- Match score (can be dynamic based on actual match result) -->
+            <div class="score">
+                <a class="score-link" href="#">
+                    {{ fixture.home_goals }} - {{ fixture.away_goals }}
+                </a>
             </div>
-            {% endif %}
-            {% endfor %}
+
+            <!-- Away team with logo -->
+            <div class="away-team">
+                {% if fixture.away_team.logo %}
+                <img class="team-logo" src="{{ fixture.away_team.logo }}" alt="{{ fixture.away_team.name }} Logo">
+                {% endif %}
+                {{ fixture.away_team.name }}
+            </div>
+
+            <!-- Match time -->
+            <div class="time">{{ fixture.time }}</div>
         </div>
         {% endfor %}
     </div>

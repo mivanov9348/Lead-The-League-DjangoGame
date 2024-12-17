@@ -4,9 +4,12 @@ import random
 import shutil
 import logging
 from django.db import transaction
+from django.utils.timezone import get_current_timezone_name
+
 from core.utils.names_utils import get_random_first_name, get_random_last_name
 from core.utils.nationality_utils import get_all_nationalities, get_random_nationality_priority
 from game.models import Settings
+from game.utils.get_season_stats_utils import get_current_season
 from game.utils.settings_utils import get_setting_value
 from leadtheleague import settings
 from players.models import Position, Attribute, PlayerAttribute, Player, PositionAttribute, Statistic, \
@@ -71,7 +74,6 @@ def get_potential_age_factor(player):
         age_factor = 0.5
     return age_factor
 
-
 def calculate_player_potential(player):
     base_potential = 0.1
 
@@ -96,11 +98,9 @@ def calculate_player_potential(player):
 
     random_factor = random.uniform(-0.1, 0.1)
 
-    # Изчисление на потенциала
     potential = base_potential + growth_factors + random_factor
     potential *= get_potential_age_factor(player)
 
-    # Ограничаване и нормализация
     potential = math.pow(potential, 0.9)
     return min(max(potential, 0.1), 5.0)
 
@@ -187,6 +187,8 @@ def generate_random_player(team=None, position=None, age=None):
     if team:
         TeamPlayer.objects.create(player=player, team=team, shirt_number=random_number)
 
+    generate_player_season_stats(player)
+
     return player
 
 
@@ -258,10 +260,8 @@ def generate_free_agents(agent):
         logging.error(f"Error fetching settings: {e}")
         return []
 
-    # Генериране на случайна бройка играчи за агента в зададения диапазон
     total_free_agents = random.randint(min_free_agents, max_free_agents)
 
-    # Разпределяне на играчите между позициите
     position_distribution = {
         'Goalkeeper': 0,
         'Defender': 0,
@@ -277,7 +277,6 @@ def generate_free_agents(agent):
         position_distribution[pos] = count
         remaining_players -= count
 
-    # Останалите играчи отиват в последната позиция
     position_distribution[positions[-1]] = remaining_players
 
     free_agents = []
@@ -306,30 +305,29 @@ def retirement_player(player):
         TeamPlayer.objects.filter(player=player).delete()
 
 
-def generate_youth_player(team=None):
-    """
-    Generate youth player.
-    """
-    player = generate_random_player(team=team)
-    player.age = random.randint(14, 17)  # за settings
-    player.is_youth = True
+def generate_youth_players(team=None):
+    youth_players = []
+    for _ in range(random.randint(1, 5)):
+        player = generate_random_player(team=team)
+        player.age = random.randint(14, 17)  # за settings
+        player.is_youth = True
 
-    player.potential_rating = calculate_player_potential(player)
+        player.potential_rating = calculate_player_potential(player)
 
-    player.save()
-    return player
+        player.save()
+        youth_players.append(player)
+    return youth_players
 
 
-def generate_player_season_stats(player, new_season, team):
+def generate_player_season_stats(player):
+    season = get_current_season()
     statistics = Statistic.objects.all()
     with transaction.atomic():
         for stat in statistics:
-            # Проверка дали статистиката вече съществува за играча в този сезон
-            if not PlayerSeasonStatistic.objects.filter(player=player, statistic=stat, season=new_season).exists():
-                # Създаване на запис със стойност по подразбиране 0
+            if not PlayerSeasonStatistic.objects.filter(player=player, statistic=stat, season=season).exists():
                 PlayerSeasonStatistic.objects.create(
                     player=player,
                     statistic=stat,
-                    season=new_season,
+                    season=season,
                     value=0
                 )

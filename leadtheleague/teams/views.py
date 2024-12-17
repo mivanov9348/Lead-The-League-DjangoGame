@@ -5,7 +5,7 @@ from players.utils.get_player_stats_utils import get_player_season_stats, get_pe
 from staff.models import Coach
 from .forms import  TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
-from teams.models import Team, TeamTactics, Tactics, TeamSeasonStats, TeamPlayer
+from teams.models import Team, TeamTactics, Tactics, TeamPlayer
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
@@ -82,10 +82,8 @@ def squad(request):
 
 def team_stats(request):
     team = Team.objects.get(id=request.user.team.id)  # Assuming the user is linked to a team
-    season_stats = TeamSeasonStats.objects.filter(team=team)
     context = {
         'team': team,
-        'season_stats': season_stats,
     }
 
     return render(request, 'team/team_stats.html', context)
