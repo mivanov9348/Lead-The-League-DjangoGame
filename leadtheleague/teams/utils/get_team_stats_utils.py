@@ -9,7 +9,6 @@ def get_all_teams():
     return Team.objects.all()
 
 def get_team_players_season_stats(team):
-    # Филтриране на играчите чрез релацията team_players
     players = Player.objects.filter(team_players__team=team)
     standings_data = []
 
@@ -18,7 +17,6 @@ def get_team_players_season_stats(team):
         standings_data.append(player_data)
 
     return standings_data
-
 
 def get_team_balance(user):
     if user.is_authenticated and hasattr(user, 'team'):

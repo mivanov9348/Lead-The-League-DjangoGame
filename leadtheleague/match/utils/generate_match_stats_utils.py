@@ -1,8 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
-
 from cups.models import SeasonCup
-from fixtures.models import LeagueFixture, CupFixture
+from fixtures.models import LeagueFixture
 from game.models import Season
 from game.utils.get_season_stats_utils import get_current_season
 from match.models import Match

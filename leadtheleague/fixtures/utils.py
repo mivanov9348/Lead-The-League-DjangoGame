@@ -1,89 +1,102 @@
-from django.db import IntegrityError
-from fixtures.models import LeagueFixture, CupFixture
-from datetime import timedelta
+from collections import defaultdict
+from django.db.models import Prefetch, Max
+from fixtures.models import LeagueFixture
 import random
+from game.models import MatchSchedule
+from teams.models import Team
 
-def generate_league_fixtures(league_season, start_date, match_time="18:00"):
-    league_teams = list(league_season.teams.all())
+
+def generate_league_fixtures(league_season):
+    league_teams = list(league_season.teams.select_related('team'))
     teams = [lt.team for lt in league_teams]
+
+    if len(teams) % 2 != 0:
+        teams.append(None)  # Добавяме празен отбор, ако броят е нечетен
 
     random.shuffle(teams)
 
-    if len(teams) % 2 != 0:
-        teams.append(None)
-
     total_rounds = len(teams) - 1
     half_size = len(teams) // 2
-    current_date = start_date
-    round_number = 1
 
+    # Генерираме мачовете за първия етап
     schedule = []
     for _ in range(total_rounds):
         round_pairs = []
         for i in range(half_size):
             home_team = teams[i]
             away_team = teams[-(i + 1)]
-
-            if home_team and away_team:  # Игнориране на почивния отбор
+            if home_team and away_team:
                 round_pairs.append((home_team, away_team))
 
         schedule.append(round_pairs)
-        teams = [teams[0]] + teams[-1:] + teams[1:-1]
+        teams = [teams[0]] + teams[-1:] + teams[1:-1]  # Завъртане на отборите
 
+    # Генерираме мачовете за втория етап (реванши)
     return_legs = [[(away, home) for home, away in round_pairs] for round_pairs in schedule]
     full_schedule = schedule + return_legs
 
-    last_fixture = LeagueFixture.objects.order_by('-fixture_number').first()
-    fixture_number = last_fixture.fixture_number + 1 if last_fixture else 1
+    # Намираме съществуващите фикстури за лигата
+    last_fixture_number = (
+        LeagueFixture.objects.aggregate(Max('fixture_number')).get('fixture_number__max') or 0
+    )
+    fixture_number = last_fixture_number + 1
 
-    for fixture_round in full_schedule:
+    # Намираме наличния график за лигата в текущия сезон
+    league_match_schedule = MatchSchedule.objects.filter(
+        season=league_season.season,
+        event_type='league',
+    ).order_by('date')
+
+    if not league_match_schedule.exists():
+        raise ValueError("No match schedule available for league fixtures in the current season.")
+
+    # Уверяваме се, че имаме достатъчно дати в графика
+    if len(league_match_schedule) < len(full_schedule):
+        raise ValueError("Not enough dates in the league match schedule to generate fixtures.")
+
+    # Създаваме фикстурите
+    bulk_create_list = []
+    round_number = 1
+
+    for match_date, fixture_round in zip(league_match_schedule, full_schedule):
         for home_team, away_team in fixture_round:
-            LeagueFixture.objects.create(
-                home_team=home_team,
-                away_team=away_team,
-                round_number=round_number,
-                date=current_date,
-                league=league_season.league,
-                season=league_season.season,
-                fixture_number=fixture_number,
-                match_time=match_time,
+            # Добавяме фикстура към списъка за създаване
+            bulk_create_list.append(
+                LeagueFixture(
+                    home_team=home_team,
+                    away_team=away_team,
+                    round_number=round_number,
+                    date=match_date.date,
+                    league=league_season.league,
+                    season=league_season.season,
+                    fixture_number=fixture_number,
+                    match_time=match_date.season.match_time,  # Използваме времето от сезона
+                )
             )
             fixture_number += 1
 
+        match_date.is_league_day_assigned = True
+        match_date.save()
+
         round_number += 1
-        current_date += timedelta(days=1)
 
-    return f"Fixtures generated for LeagueSeason: {league_season}."
+    LeagueFixture.objects.bulk_create(bulk_create_list)
 
-def create_cup_fixture(season_cup, fixture_number, home_team, away_team, round_stage, round_number=1,
-                       match_time="18:00", date=None):
-    try:
-        fixture = CupFixture.objects.create(
-            fixture_number=fixture_number,
-            home_team=home_team,
-            away_team=away_team,
-            round_number=round_number,
-            date=date,
-            match_time=match_time,
-            season=season_cup.season,
-            season_cup=season_cup,
-            round_stage=round_stage,
-        )
-        print(f"Created: {home_team.name} vs {away_team.name} за '{round_stage}'.")
-        return fixture
-    except IntegrityError as e:
-        print(f"Error when trying to create CupFixture: {e}")
-        return None
+    return f"Fixtures successfully generated for LeagueSeason: {league_season}."
 
-from collections import defaultdict
+
 
 def get_fixtures_by_round(round_number=None):
     if round_number is None:
-        round_number = 1  # По подразбиране първи кръг
+        round_number = 1
 
     league_fixtures = (
         LeagueFixture.objects.filter(round_number=round_number)
         .select_related('league', 'season', 'home_team', 'away_team')
+        .prefetch_related(
+            Prefetch('home_team', queryset=Team.objects.only('id', 'name', 'logo')),
+            Prefetch('away_team', queryset=Team.objects.only('id', 'name', 'logo'))
+        )
         .order_by('season__league__id', 'match_time')
     )
 

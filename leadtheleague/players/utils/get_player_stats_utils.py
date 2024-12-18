@@ -1,11 +1,9 @@
 from django.db.models import Prefetch, QuerySet, Avg
-
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating, PlayerAttribute
 
 
 def get_all_positions() -> QuerySet[Position]:
-    """Retrieve all positions from the database."""
     return Position.objects.all()
 
 def get_average_player_rating_for_current_season(player: Player) -> float:
