@@ -33,7 +33,7 @@ def transfer_free_agent(team, player):
 def find_transfer_offer_by_id(offer_id):
     try:
         return TransferOffer.objects.select_related('offering_team').prefetch_related(
-            Prefetch('player__team_players', queryset=TeamPlayer.objects.select_related('team'))
+            Prefetch('player__team_players', queryset=TeamPlayer.objects.select_related('teams'))
         ).get(id=offer_id)
     except TransferOffer.DoesNotExist:
         return None

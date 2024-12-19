@@ -1,0 +1,94 @@
+.results-container {
+    width: 100%;
+    margin: auto;
+    padding: 20px;
+    background-color: var(--darkgreen-color);
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color:white;
+}
+
+.round-navigation {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.round-navigation .nav-button {
+    text-decoration: none;
+    color: white;
+    background-color: var(--green-color);
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+}
+
+.round-navigation .nav-button:hover {
+    background-color: #005bb5;
+}
+
+.current-round {
+    font-size: 1.2em;
+    font-weight: bold;
+    color:white;
+}
+
+.league-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: var(--green-color);
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.league-name {
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.5em;
+    color:white;
+    font-weight: bold;
+}
+
+.fixtures-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Равномерно разстояние между мачовете */
+}
+
+.fixture {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+}
+
+.team-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.team-name {
+    font-size: 1em;
+    color: #333;
+}
+
+.score {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    min-width: 80px;
+}

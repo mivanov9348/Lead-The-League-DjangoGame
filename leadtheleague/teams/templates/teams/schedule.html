@@ -27,15 +27,14 @@
                         </div>
                         {% if match.result %}
                         <div class="match-result">
-
                             <span class="home-score">{{ match.result.home_score }}</span> -
                             <span class="away-score">{{ match.result.away_score }}</span>
                         </div>
                         {% else %}
-                        <hr/>
                         <div class="home-team">{{ match.home_away }}</div>
                         <div class="match-type">{{ match.type }}</div>
                         {% endif %}
+
                     </div>
                     {% endfor %}
                 </div>

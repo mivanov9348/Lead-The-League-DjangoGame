@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{{ team.name }} Stats{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/team_stats.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="team-stats-container">
+    <div class="team-info">
+        {% if team.logo_url %}
+        <img src="{{ team.logo_url }}" alt="{{ team.name }} Logo" class="team-logo">
+        {% else %}
+        <img src="{% static 'images/default_logo.png' %}" alt="Default Logo" class="team-logo">
+        {% endif %}
+        <h2>{{ team.name }}</h2>
+        <p><strong>Abbreviation:</strong> {{ team.abbreviation }}</p>
+        <p><strong>Reputation:</strong> {{ team.reputation }}</p>
+        <p><strong>Nationality:</strong> {{ team.nationality }} ({{ team.nationality_abbr }})</p>
+        <hr>
+        <h3>Trophies and Success</h3>
+        <p>Include team achievements here...</p>
+        <hr>
+        <h3>Finances</h3>
+        <p><strong>Balance:</strong> {{ team.finances.balance|floatformat:2 }} $</p>
+        <p><strong>Total Income:</strong> {{ team.finances.total_income|floatformat:2 }} $</p>
+        <p><strong>Total Expenses:</strong> {{ team.finances.total_expenses|floatformat:2 }} $</p>
+    </div>
+
+    <div class="team-players">
+        {% if players %}
+        <div class="players-grid">
+            {% for player in players %}
+            <div class="player-card">
+                {% if player.image_url %}
+                <img src="{{ player.image_url }}" alt="{{ player.first_name }} {{ player.last_name }}"
+                     class="player-image">
+                {% else %}
+                <img src="{% static 'images/default_player.png' %}" alt="Default Player" class="player-image">
+                {% endif %}
+                <p><strong>{{ player.first_name }} {{ player.last_name }}</strong> (#{{ player.shirt_number }})</p>
+                <p><strong>Position:</strong> {{ player.position }} </p>
+                <p><strong>Nationality:</strong> {{ player.nationality }}</p>
+                <p><strong>Age:</strong> {{ player.age }}</p>
+                <p><strong>Price:</strong> {{ player.price|floatformat:2 }} $</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No players found for this team.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,16 +1,20 @@
-from django.db.models import Prefetch
+from itertools import chain
+from django.db.models import Prefetch, Q
 from django.http import JsonResponse
+from fixtures.models import LeagueFixture, CupFixture
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
 from staff.models import Coach
-from .forms import  TeamLogoForm
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
-from teams.models import Team, TeamTactics, Tactics, TeamPlayer
+from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+
+from .utils.get_team_stats_utils import get_team_data
 from .utils.training_utils import player_training
+
 
 def get_sort_field(sort_by):
     valid_sort_fields = {
@@ -36,6 +40,7 @@ def get_sort_field(sort_by):
     }
 
     return valid_sort_fields.get(sort_by, 'player__first_name')
+
 
 def squad(request):
     team = get_object_or_404(Team, user=request.user)
@@ -72,38 +77,40 @@ def squad(request):
     print(players_data)
 
     context = {
-        'team': team,
+        'teams': team,
         'players_data': players_data,
         'current_sort': sort_by,
         'current_order': order
     }
-    return render(request, 'team/squad.html', context)
+    return render(request, 'teams/squad.html', context)
 
 
-def team_stats(request):
-    team = Team.objects.get(id=request.user.team.id)  # Assuming the user is linked to a team
+def team_stats(request, team_id):
+    team_data = get_team_data(team_id)
+
+    players = TeamPlayer.objects.filter(team_id=team_id).select_related('player', 'player__position',
+                                                                        'player__nationality')
+    players_data = [get_personal_player_data(player.player) for player in players]
+
     context = {
-        'team': team,
+        'team': team_data,
+        'players': players_data,
     }
-
-    return render(request, 'team/team_stats.html', context)
+    return render(request, 'teams/team_stats.html', context)
 
 
 @login_required
 @csrf_exempt
 def line_up(request):
     try:
-        # Получаване на отбора на потребителя
         team = get_object_or_404(Team, user=request.user)
     except AttributeError:
         return redirect("error_page")
 
-    # Вземане на тактиките на отбора
     team_tactics, _ = TeamTactics.objects.get_or_create(team=team)
     tactics = Tactics.objects.all()
     selected_tactic = team_tactics.tactic if team_tactics.tactic else tactics.first()
 
-    # Обработка на GET заявка за промяна на тактика
     if request.method == "GET" and "tactic_id" in request.GET:
         tactic_id = request.GET.get("tactic_id")
         selected_tactic = Tactics.objects.filter(id=tactic_id).first()
@@ -111,7 +118,6 @@ def line_up(request):
             team_tactics.tactic = selected_tactic
             team_tactics.save()
 
-    # Извличане на данни за всички играчи от отбора без младежките
     team_players = team.team_players.filter(player__is_youth=False).select_related(
         'player__position', 'player__nationality'
     ).prefetch_related(
@@ -121,11 +127,9 @@ def line_up(request):
         )
     )
 
-    # Получаване на стартовите и резервните играчи от текущата тактика
     starting_players_ids = set(team_tactics.starting_players.values_list('id', flat=True))
     reserve_players_ids = set(team_tactics.reserve_players.values_list('id', flat=True))
 
-    # Създаване на списък с играчи и техните данни
     all_players = []
     for team_player in team_players:
         player = team_player.player
@@ -145,7 +149,6 @@ def line_up(request):
             'image_url': player.image.url if player.image else None,
         })
 
-    # Сортиране на играчите: стартови -> резервни -> останалите
     all_players = sorted(
         all_players,
         key=lambda p: (
@@ -155,15 +158,14 @@ def line_up(request):
         )
     )
 
-    # Подготовка на контекста за предаване към шаблона
     context = {
-        "team": team,
+        "teams": team,
         "tactics": tactics,
         "selected_tactic": selected_tactic,
         "players": all_players,
     }
 
-    return render(request, "team/line_up.html", context)
+    return render(request, "teams/line_up.html", context)
 
 
 @login_required
@@ -234,7 +236,8 @@ def training(request):
 
     players_data = [get_personal_player_data(player.player) for player in players_qs]
 
-    return render(request, 'team/training.html', {'coaches': coaches, 'players': players_data})
+    return render(request, 'teams/training.html', {'coaches': coaches, 'players': players_data})
+
 
 @csrf_exempt
 def train_coach(request, coach_id):
@@ -252,21 +255,52 @@ def train_coach(request, coach_id):
 
 
 @login_required
-def my_team(request):
+def schedule(request):
     team = get_object_or_404(Team, user=request.user)
 
-    if request.method == 'POST':
-        form = TeamLogoForm(request.POST, request.FILES, instance=team)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Team logo has been updated!')
-            return redirect('my_team')
-    else:
-        form = TeamLogoForm(instance=team)
+    league_fixtures = LeagueFixture.objects.filter(
+        Q(home_team=team) | Q(away_team=team)
+    ).select_related('league', 'season').order_by('date', 'match_time')
+
+    cup_fixtures = CupFixture.objects.filter(
+        Q(home_team=team) | Q(away_team=team)
+    ).select_related('season_cup', 'season_cup__cup').order_by('date', 'match_time')
+
+    fixtures = chain(league_fixtures, cup_fixtures)
+
+    fixture_dict = {}
+
+    for fixture in fixtures:
+        # Проверяваме дали `fixture.date` не е None
+        if fixture.date:
+            fixture_date = fixture.date.strftime("%Y-%m-%d")  # Форматираме датата за групиране
+        else:
+            fixture_date = "No Date"  # Ако датата липсва, добавяме ключ за "без дата"
+
+        if fixture_date not in fixture_dict:
+            fixture_dict[fixture_date] = []
+
+        fixture_info = {
+            "date": fixture.date,
+            "round": fixture.round_number,
+            "home_away": "Home" if fixture.home_team == team else "Away",
+            "opponent": fixture.away_team if fixture.home_team == team else fixture.home_team,
+            "time": fixture.match_time.strftime("%H:%M") if fixture.match_time else "No Time",
+            "type": "League" if isinstance(fixture, LeagueFixture) else "Cup",
+        }
+        fixture_dict[fixture_date].append(fixture_info)
+
+    sorted_fixtures = sorted(fixture_dict.items(), key=lambda x: x[0])
+
+    fixture_list = []
+    for date, fixtures_on_date in sorted_fixtures:
+        fixture_list.append({
+            "date": date,
+            "matches": fixtures_on_date[:10],
+        })
 
     context = {
-        'team': team,
-        'form': form
+        'fixtures': fixture_list,
     }
 
-    return render(request, 'team/my_team.html', context)
+    return render(request, 'teams/schedule.html', context)

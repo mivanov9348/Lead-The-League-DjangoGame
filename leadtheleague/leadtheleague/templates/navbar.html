@@ -58,11 +58,11 @@
                             Squad</a></li>
                         <li><a class="dropdown-item" href="{% url 'teams:line_up' %}"><i class="fas fa-calendar"></i>
                             Line-up</a></li>
+                        <li><a class="dropdown-item" href="{% url 'teams:schedule' %}"><i class="fas fa-clock"></i>
+                            Schedule</a></li>
                         <li><a class="dropdown-item" href="{% url 'teams:training' %}"><i class="fas fa-clock"></i>
                             Training</a></li>
 
-                        <li><a class="dropdown-item" href="{% url 'teams:my_team' %}"><i class="fas fa-clock"></i>
-                            My Team</a></li>
                     </ul>
                 </li>
 
@@ -73,9 +73,8 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i class="fas fa-list-ol"></i>
                             League Table</a></li>
-                        <li><a class="dropdown-item" href="{% url 'leagues:schedule' %}"><i class="fas fa-calendar"></i>
-                            Schedule</a></li>
-                        <li><a class="dropdown-item" href="{% url 'fixtures:results' %}"><i class="fas fa-clock"></i>
+                        <li><a class="dropdown-item" href="{% url 'leagues:league_results' %}"><i
+                                class="fas fa-clock"></i>
                             Results</a></li>
                         <li><a class="dropdown-item" href="{% url 'players:all_players' %}"><i class="fas fa-clock"></i>
                             All Players</a></li>
@@ -100,7 +99,8 @@
                        role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-trophy"></i>European Cup</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'europeancups:european_cup_groups' %}"><i class="fas fa-list-ol"></i>
+                        <li><a class="dropdown-item" href="{% url 'europeancups:european_cup_groups' %}"><i
+                                class="fas fa-list-ol"></i>
                             European Cup Fixtures</a></li>
                     </ul>
                 </li>

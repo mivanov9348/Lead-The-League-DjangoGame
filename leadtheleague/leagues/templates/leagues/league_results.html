@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Results{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/league_results.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <div class="round-navigation">
+        {% if round_number > 1 %}
+        <a href="?round={{ round_number|add:-1 }}" class="nav-button">Previous Round</a>
+        {% endif %}
+        <span class="current-round">Round {{ round_number }}</span>
+        <a href="?round={{ round_number|add:1 }}" class="nav-button">Next Round</a>
+    </div>
+
+    {% if league_data %}
+    {% for league_name, fixtures in league_data.items %}
+    <div class="league-section">
+        <h2 class="league-name">{{ league_name }}</h2>
+        <div class="fixtures-grid">
+            {% for fixture in fixtures %}
+            <div class="fixture">
+                <div class="team home-team">
+                    <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="team-logo">
+                    <span class="team-name">{{ fixture.home_team.name }}</span>
+                </div>
+                <div class="score">{{ fixture.home_goals }} - {{ fixture.away_goals }}</div>
+                <div class="team away-team">
+                    <span class="team-name">{{ fixture.away_team.name }}</span>
+                    <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="team-logo">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>No fixtures found for this round.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    // JavaScript logic if needed
+</script>
+{% endblock %}

@@ -8,7 +8,7 @@ from teams.models import TeamTactics
 
 def choose_event_random_player(team):
     try:
-        team_tactics = TeamTactics.objects.select_related('team').get(team=team)
+        team_tactics = TeamTactics.objects.select_related('teams').get(team=team)
         starting_player_ids = list(team_tactics.starting_players.values_list('id', flat=True))
         if starting_player_ids:
             selected_player_id = random.choice(starting_player_ids)

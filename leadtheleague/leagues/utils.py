@@ -1,14 +1,12 @@
-import json
-import os
-from core.models import Nationality
-from game.models import Season
-from leadtheleague import settings
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams
 
 
 def get_all_leagues():
     return League.objects.all()
+
+def get_all_season_leagues(season):
+    return LeagueSeason.objects.filter(season=season)
 
 
 def get_selected_league(league_id):

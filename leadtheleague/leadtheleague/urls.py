@@ -13,7 +13,6 @@ urlpatterns = [
     path('game/', include('game.urls', namespace='game')),
     path('players/', include('players.urls', namespace='players')),
     path('leagues/', include('leagues.urls', namespace='leagues')),
-    path('fixtures/', include('fixtures.urls', namespace='fixtures')),
     path('messaging/', include('messaging.urls', namespace='messaging')),
     path('match/', include('match.urls', namespace='match')),
     path('transfers/', include('transfers.urls', namespace='transfers')),

@@ -10,8 +10,8 @@ def filter_players(queryset, filters):
     if filters.get('free_agents') == "1":
         queryset = queryset.filter(team_players=None)
     else:
-        if filters.get('team'):
-            queryset = queryset.filter(team_players__team__id=filters['team'])
+        if filters.get('teams'):
+            queryset = queryset.filter(team_players__team__id=filters['teams'])
         if filters.get('league'):
             queryset = queryset.filter(team_players__team__league_id=filters['league'])
 

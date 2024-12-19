@@ -51,111 +51,109 @@ def create_groups_for_season(european_cup_season):
 
     return f"Groups created successfully for {european_cup_season}!"
 
+from django.db import transaction
+
 def generate_group_fixtures(group):
     print(f"Generating fixtures for group: {group.name}")
 
+    # Fetch teams in the group
     group_teams = list(GroupTeam.objects.filter(group=group))
-    print(f"Teams in group {group.name}: {[team.team.name for team in group_teams]}")
+    teams = [team.team for team in group_teams]
 
-    if len(group_teams) < 2:
+    if len(teams) < 2:
         raise ValueError("Group must have at least two teams to generate fixtures.")
 
-    max_fixture_number = EuropeanCupFixture.objects.aggregate(
-        Max('fixture_number')
-    )['fixture_number__max'] or 0
-    next_fixture_number = max_fixture_number + 1
-    print(f"Starting fixture number: {next_fixture_number}")
+    if len(teams) % 2 != 0:
+        teams.append(None)  # Add a bye if odd number of teams
 
+    # Calculate number of rounds
+    num_rounds = len(teams) - 1
+    total_rounds = 2 * num_rounds
+
+    # Fetch shared dates across all groups
+    if not hasattr(generate_group_fixtures, "shared_dates"):
+        generate_group_fixtures.shared_dates = list(
+            MatchSchedule.objects.filter(
+                event_type='euro',
+                is_euro_cup_day_assigned=False,
+            ).order_by('date')[:total_rounds]
+        )
+    match_schedule = generate_group_fixtures.shared_dates
+
+    if len(match_schedule) < total_rounds:
+        raise ValueError(f"Not enough match dates. Needed: {total_rounds}, available: {len(match_schedule)}.")
+
+    max_fixture_number = EuropeanCupFixture.objects.aggregate(Max('fixture_number'))['fixture_number__max'] or 0
+    next_fixture_number = max_fixture_number + 1
     fixtures = []
 
-    teams = [team.team for team in group_teams]
-    if len(teams) % 2 != 0:
-        teams.append(None)  # None represents a bye
-    print(f"Teams after adding bye (if needed): {[team.name if team else 'None' for team in teams]}")
+    # Helper function for rotating teams
+    def rotate_teams(teams):
+        return [teams[0]] + [teams[-1]] + teams[1:-1]
 
-    num_rounds = len(teams) - 1  # Number of rounds (round-robin algorithm)
-    print(f"Number of rounds: {num_rounds}")
+    # Generate fixtures
+    with transaction.atomic():
+        match_date_index = 0
 
-    # Fetch all available match dates for the tournament
-    match_schedule = MatchSchedule.objects.filter(
-        event_type='euro',
-        is_euro_cup_day_assigned=False,
-    ).order_by('date')
+        # Generate first half (normal order)
+        for round_num in range(num_rounds):
+            round_matches = [
+                (teams[i], teams[-(i + 1)]) for i in range(len(teams) // 2) if teams[i] and teams[-(i + 1)]
+            ]
+            match_date = match_schedule[match_date_index]
 
-    print(f"Available match dates: {[date.date for date in match_schedule]}")
+            for home_team, away_team in round_matches:
+                fixtures.append(EuropeanCupFixture(
+                    fixture_number=next_fixture_number,
+                    home_team=home_team,
+                    away_team=away_team,
+                    group=group,
+                    european_cup_season=group.european_cup_season,
+                    round_stage="Group Stage",
+                    round_number=round_num + 1,
+                    date=match_date.date,
+                ))
+                next_fixture_number += 1
 
-    if len(match_schedule) < 6 * group.european_cup_season.groups.count():
-        raise ValueError("Not enough match dates available for all group fixtures.")
+            teams = rotate_teams(teams)
+            match_date_index += 1
 
-    # Assign fixtures to dates, cycling through the schedule as needed
-    match_date_index = 0
-    for round_num in range(num_rounds):
-        print(f"Generating matches for round {round_num + 1}")
-        matches = []
-        for i in range(len(teams) // 2):
-            home_team = teams[i]
-            away_team = teams[-(i + 1)]
-            if home_team and away_team:
-                matches.append((home_team, away_team))
+        # Generate reverse fixtures (second half)
+        for round_num in range(num_rounds):
+            round_matches = [
+                (fixture.away_team, fixture.home_team)
+                for fixture in fixtures[round_num * (len(teams) // 2):(round_num + 1) * (len(teams) // 2)]
+            ]
+            match_date = match_schedule[match_date_index]
 
-        print(f"Matches for round {round_num + 1}: {[(m[0].name, m[1].name) for m in matches]}")
+            for home_team, away_team in round_matches:
+                fixtures.append(EuropeanCupFixture(
+                    fixture_number=next_fixture_number,
+                    home_team=home_team,
+                    away_team=away_team,
+                    group=group,
+                    european_cup_season=group.european_cup_season,
+                    round_stage="Group Stage",
+                    round_number=num_rounds + round_num + 1,
+                    date=match_date.date,
+                ))
+                next_fixture_number += 1
 
-        # Rotate teams for the next round (round-robin algorithm)
-        teams = [teams[0]] + [teams[-1]] + teams[1:-1]
-        print(f"Teams rotated for next round: {[team.name if team else 'None' for team in teams]}")
+            match_date_index += 1
 
-        # Assign a date to this round's matches
-        match_date = match_schedule[match_date_index % len(match_schedule)]
-        print(f"Date for round {round_num + 1}: {match_date.date}")
+        # Save all fixtures in bulk
+        EuropeanCupFixture.objects.bulk_create(fixtures)
 
-        for match in matches:
-            print(f"Adding fixture: {match[0].name} vs {match[1].name} on {match_date.date}")
-            fixtures.append(EuropeanCupFixture(
-                fixture_number=next_fixture_number,
-                home_team=match[0],
-                away_team=match[1],
-                group=group,
-                european_cup_season=group.european_cup_season,
-                round_stage="Group Stage",
-                round_number=round_num + 1,
-                date=match_date.date,
-            ))
-            next_fixture_number += 1
+        # Mark shared dates as assigned only once
+        if not hasattr(generate_group_fixtures, "shared_dates_assigned"):
+            for match_date in match_schedule:
+                match_date.is_euro_cup_day_assigned = True
+                match_date.save()
+            generate_group_fixtures.shared_dates_assigned = True
 
-        match_date_index += 1
-
-    # Reverse matches (second half of the rounds)
-    reverse_round_start = num_rounds
-    print(f"Generating reverse matches (rounds {reverse_round_start + 1} to {reverse_round_start + num_rounds})")
-    for round_num in range(num_rounds):
-        match_date = match_schedule[match_date_index % len(match_schedule)]
-        print(f"Date for reverse round {round_num + 1}: {match_date.date}")
-
-        for fixture in fixtures[round_num * (len(teams) // 2):(round_num + 1) * (len(teams) // 2)]:
-            print(f"Adding reverse fixture: {fixture.away_team.name} vs {fixture.home_team.name} on {match_date.date}")
-            fixtures.append(EuropeanCupFixture(
-                fixture_number=next_fixture_number,
-                home_team=fixture.away_team,
-                away_team=fixture.home_team,
-                group=group,
-                european_cup_season=group.european_cup_season,
-                round_stage="Group Stage",
-                round_number=reverse_round_start + round_num + 1,
-                date=match_date.date,
-            ))
-            next_fixture_number += 1
-
-        match_date_index += 1
-
-    # Update dates in `match_schedule` to assigned
-    for match_date in match_schedule[:match_date_index]:
-        match_date.is_euro_cup_day_assigned = True
-        match_date.save()
-        print(f"Updated match date {match_date.date} to assigned.")
-
-    EuropeanCupFixture.objects.bulk_create(fixtures)
     print(f"Successfully created {len(fixtures)} fixtures for group {group.name}.")
     return f"Successfully created {len(fixtures)} fixtures for group {group.name}."
+
 
 
 # Which Teams Advance
@@ -265,7 +263,7 @@ def draw_knockout_round(european_cup_season, stage_name, stage_order):
 
 
 
-# АAdd team to europeancup
+# АAdd teams to europeancup
 def add_team_to_european_cup(team, european_cup_season):
     if EuropeanCupTeam.objects.filter(team=team, european_cup_season=european_cup_season).exists():
         raise ValueError(f"The team {team.name} is currently added to {european_cup_season}.")

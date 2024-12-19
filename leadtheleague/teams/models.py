@@ -6,7 +6,7 @@ from accounts.models import CustomUser
 class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)
     abbreviation = models.CharField(max_length=3)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team', null=True, blank=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='teams', null=True, blank=True)
     reputation = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10000)], null=True, blank=True)
     is_COM = models.BooleanField(default=True)
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)

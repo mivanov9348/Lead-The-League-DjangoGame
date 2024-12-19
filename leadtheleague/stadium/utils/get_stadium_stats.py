@@ -12,7 +12,7 @@ def get_stadium_info(stadium):
 
     return {
         "name": stadium.name,
-        "team": stadium.team.name,
+        "teams": stadium.team.name,
         "tier": stadium.tier.name if stadium.tier else "Default Tier",
         "capacity": stadium.capacity,
         "ticket_price": stadium.ticket_price,

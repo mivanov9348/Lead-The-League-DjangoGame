@@ -37,7 +37,7 @@ def terminate_team_finance(team):
 def create_team_finance(team):
     # Проверка дали отборът вече има финансов профил
     if hasattr(team, 'finance'):
-        raise ValueError(f'The team {team.name} already has finance profile!')
+        raise ValueError(f'The teams {team.name} already has finance profile!')
 
     # THIS MUST BE TAKEN FROM SETTINGS
     new_team_balance_prize = 2000000
@@ -65,7 +65,7 @@ def team_income(team, amount):
             team_finance.total_income += amount_decimal
             team_finance.save()
     except TeamFinance.DoesNotExist:
-        raise ValueError(f"The team {team.name} does not have a finance wallet!")
+        raise ValueError(f"The teams {team.name} does not have a finance wallet!")
 
 
 def team_expense(team, price):

@@ -5,7 +5,7 @@ from teams.models import TeamTactics
 
 def get_starting_lineup(team):
     try:
-        team_tactics = TeamTactics.objects.select_related('team').get(team=team)
+        team_tactics = TeamTactics.objects.select_related('teams').get(team=team)
         starting_players = team_tactics.starting_players.all().order_by('position_id')
         return starting_players
     except TeamTactics.DoesNotExist:

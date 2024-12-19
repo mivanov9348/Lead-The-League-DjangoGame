@@ -12,12 +12,12 @@ def update_team_stats(match):
     # away_goals = match.away_goals
     #
     # home_stats, _ = TeamSeasonStats.objects.get_or_create(
-    #     team=home_team,
+    #     teams=home_team,
     #     season=match.season,
     #     league=match.league
     # )
     # away_stats, _ = TeamSeasonStats.objects.get_or_create(
-    #     team=away_team,
+    #     teams=away_team,
     #     season=match.season,
     #     league=match.league
     # )

@@ -4,8 +4,6 @@ import random
 import shutil
 import logging
 from django.db import transaction
-from django.utils.timezone import get_current_timezone_name
-
 from core.utils.names_utils import get_random_first_name, get_random_last_name
 from core.utils.nationality_utils import get_all_nationalities, get_random_nationality_priority
 from game.models import Settings

@@ -1,7 +1,7 @@
 
 def delete_user(team):
     # deactivate user
-    # team -> com
+    # teams -> com
     pass
 
 def end_of_season():

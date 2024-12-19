@@ -17,12 +17,12 @@ class TeamAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(
                     request,
-                    f"Error generating players for team {team.name}: {e}",
+                    f"Error generating players for teams {team.name}: {e}",
                     level=messages.ERROR
                 )
         self.message_user(
             request,
-            f"Players successfully generated for {successful_teams} team(s).",
+            f"Players successfully generated for {successful_teams} teams(s).",
             level=messages.SUCCESS
         )
 
@@ -31,7 +31,7 @@ class TeamAdmin(admin.ModelAdmin):
         if successful_teams > 0:
             self.message_user(
                 request,
-                f"Logos successfully set for {successful_teams} team(s).",
+                f"Logos successfully set for {successful_teams} teams(s).",
                 level=messages.SUCCESS
             )
         if errors:
@@ -51,12 +51,12 @@ class TeamAdmin(admin.ModelAdmin):
             except Exception as e:
                 self.message_user(
                     request,
-                    f"Error generating youth players for team {team.name}: {e}",
+                    f"Error generating youth players for teams {team.name}: {e}",
                     level=messages.ERROR
                 )
         self.message_user(
             request,
-            f"Youth players successfully generated for {successful_teams} team(s).",
+            f"Youth players successfully generated for {successful_teams} teams(s).",
             level=messages.SUCCESS
         )
 

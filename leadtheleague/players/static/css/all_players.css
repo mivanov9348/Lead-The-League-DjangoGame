@@ -1,104 +1,100 @@
-h1 {
-    text-align: center;
-    color: #222; /* Тъмен цвят за текста */
-    font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
-    font-size: 2.5em;
+.filters {
+    display: flex;
+    justify-content: center;
     margin-bottom: 20px;
-    text-transform: uppercase;
 }
 
-/* Стил за контейнера на таблицата */
-.table-container {
-    margin: 20px auto;
-    padding: 20px;
-    background-color: var(--darkgreen-color);
-    border-radius: 10px;
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    font-size: 0.85em;
-    table-layout: auto;
-}
-
-/* Стил за хедъра и клетките */
-th, td {
-    padding: 5px;
-    border: 1px solid #ddd;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Алтернативен фон за редовете */
-tbody tr:nth-child(odd) {
-    background-color: var(--darkgreen-color); /* Тъмен фон за редовете */
-    color: white; /* Бял текст */
-}
-
-tbody tr:nth-child(even) {
+.filter-button {
+    margin: 0 10px;
+    padding: 10px 15px;
     background-color: var(--darkergreen-color);
-    color:white;
-}
-
-/* Hover ефект върху редовете */
-tbody tr:hover {
-    background-color: #e9ecef; /* Светлосин фон при задържане */
-    color: #333; /* Тъмен текст при задържане */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-
-th {
-    font-weight: bold;
-    background-color: var(--darkergreen-color); /* Тъмен фон за заглавията */
-    color: white; /* Бял текст */
-    text-transform: uppercase; /* Главни букви */
+.filter-button:hover {
+    background-color: #0056b3;
 }
 
-td:last-child {
+.filter-button.active {
+    background-color: #0056b3;
+    color: #fff;
     font-weight: bold;
-    color: #007bff;
 }
 
-td img.icon {
-    width: 60px;
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.player-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: var(--darkergreen-color);
+    color: white;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.player-image {
+    width: 100%;
     height: auto;
+    border-bottom: 1px solid #ddd;
+}
+
+.player-info {
+    padding: 15px;
+}
+
+.player-name {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.player-team,
+.player-position {
+    margin-bottom: 5px;
+    color: white;
+}
+
+.player-stats {
+    font-size: 0.9em;
+    color: white;
 }
 
 .pagination {
     display: flex;
     justify-content: center;
     margin-top: 20px;
-    font-family: 'Arial', sans-serif;
 }
 
-.pagination a {
+.pagination .step-links {
+    margin: 0;
+    padding: 0;
+}
+
+.pagination a,
+.pagination span {
     margin: 0 5px;
     padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
     text-decoration: none;
-    color: #007bff;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
+    color: #000;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-.pagination a.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.pagination a:hover:not(.active) {
-    background-color: #e9ecef;
-}
-
-/* Допълнителни малки оптимизации */
-table {
-    word-wrap: break-word;
-    max-width: 100%;
+.pagination a:hover {
+    background-color: #f0f0f0;
 }

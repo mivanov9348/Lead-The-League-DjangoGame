@@ -6,6 +6,7 @@ from players.models import Player, PlayerSeasonStatistic, Position, Attribute, P
 def get_all_positions() -> QuerySet[Position]:
     return Position.objects.all()
 
+
 def get_average_player_rating_for_current_season(player: Player) -> float:
     # Получаваме текущия сезон
     current_season = get_current_season()
@@ -18,11 +19,14 @@ def get_average_player_rating_for_current_season(player: Player) -> float:
 
     return average_rating if average_rating is not None else 0.0
 
+
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
     return {
-        'team_name': team_player.team.name if team_player else 'No team',
+        'id': team_player.team.id if team_player else 'No Team',
+        'team_name': team_player.team.name if team_player else 'No teams',
         'shirt_number': team_player.shirt_number if team_player else None,
+        'team_logo': team_player.team.logo.url if team_player else None,
     }
 
 
@@ -44,7 +48,6 @@ def get_personal_player_data(player):
         'image_url': player.image.url if player.image else None,
 
     }
-
 
 
 def get_player_attributes(player):
@@ -98,6 +101,7 @@ def get_players_season_stats_by_team(team):
             'personal_info': {
                 'id': player.id,
                 'name': player.name,
+                'age': player.age,
                 'position': player.position.name if player.position else 'Unknown',
                 'position_abbr': player.position.abbreviation if player.position else 'N/A',
                 'nationality': player.nationality.name if player.nationality else 'Unknown',
@@ -122,16 +126,21 @@ def get_player_data(player):
 
 
 def get_player_match_stats(player, match=None):
-    query = player.match_stats.select_related('match', 'statistic')
+    query = player.match_stats.select_related('match')
+
     if match:
         query = query.filter(match=match)
+
     match_stats = {}
     for stat in query:
         match_id = stat.match.id
         if match_id not in match_stats:
             match_stats[match_id] = {}
-        match_stats[match_id][stat.statistic.name] = stat.value
+        for key, value in stat.statistics.items():
+            match_stats[match_id][key] = value
+
     return match_stats
+
 
 def get_all_free_agents():
     players = Player.objects.filter(is_free_agent=True).prefetch_related(
@@ -148,32 +157,8 @@ def get_all_free_agents():
     return players
 
 
-# def get_all_free_agents():
-#     free_agents = Player.objects.filter(is_free_agent=True).prefetch_related('playerattribute_set__attribute')
-#     free_agents_data = []
-#     for player in free_agents:
-#         attributes = {attr.attribute.name: attr.value for attr in player.playerattribute_set.all()}
-#         free_agents_data.append({
-#             'id': player.id,
-#             'name': player.name,
-#             'first_name': player.first_name,
-#             'last_name': player.last_name,
-#             'position': player.position.name if player.position else 'Unknown',
-#             'positionabbr': player.position.abbreviation if player.position else 'Unknown',
-#             'nationality': player.nationality.name if player.nationality else 'Unknown',
-#             'nationalityabbr': player.nationality.abbreviation if player.nationality else 'Unknown',
-#             'age': player.age,
-#             'price': player.price,
-#             'attributes': attributes,
-#             'image': player.image,
-#             'agent': player.agent
-#         })
-#
-#     return free_agents_data
-
-
 def get_all_youth_players_by_team(team):
-    """Retrieve all youth players from a specific team along with their attributes."""
+    """Retrieve all youth players from a specific teams along with their attributes."""
     youth_players = team.team_players.filter(
         player__is_youth=True
     ).select_related('player__position', 'player__nationality', 'team')
