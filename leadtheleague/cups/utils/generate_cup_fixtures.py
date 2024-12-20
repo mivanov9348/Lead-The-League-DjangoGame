@@ -5,7 +5,6 @@ from django.db.utils import IntegrityError
 from cups.models import SeasonCup
 from cups.utils.get_cups_utils import determine_stage_by_teams_count
 from fixtures.models import CupFixture
-from game.models import MatchSchedule
 from teams.models import Team
 
 
@@ -64,7 +63,6 @@ def generate_cup_fixtures(season_cup, cup, first_available_schedule):
             if CupFixture.objects.filter(season_cup=season_cup).exists():
                 return
 
-            # Взимаме отборите
             teams = list(season_cup.participating_teams.all())
             if len(teams) % 2 != 0:
                 placeholder_team, _ = Team.objects.get_or_create(
@@ -101,18 +99,18 @@ def generate_cup_fixtures(season_cup, cup, first_available_schedule):
             first_available_schedule.save()
 
             CupFixture.objects.bulk_create(bulk_create_list)
-
+        season_cup.current_stage = 'Round 1'
+        season_cup.save()
     except IntegrityError as e:
         raise ValueError(f"Грешка при генериране на мачове за Cup '{cup.name}': {e}")
     except Exception as e:
         raise ValueError(f"Неочаквана грешка: {e}")
 
 
-def generate_next_round_fixtures(season_cup):
+def generate_next_round_fixtures(season_cup, shared_match_date):
     try:
         with transaction.atomic():
             progressing_teams = list(season_cup.progressing_teams.all())
-
             if len(progressing_teams) < 2:
                 raise ValueError(f"Not enough teams to generate the next round for {season_cup.cup.name}.")
 
@@ -125,19 +123,9 @@ def generate_next_round_fixtures(season_cup):
                 progressing_teams.append(placeholder_team)
 
             random.shuffle(progressing_teams)
-
             stage = determine_stage_by_teams_count(len(progressing_teams))
             season_cup.current_stage = stage
             season_cup.save()
-
-            cup_match_schedule = MatchSchedule.objects.filter(
-                season=season_cup.season,
-                event_type='cup',
-                is_cup_day_assigned=False,
-            ).order_by('date')
-
-            if not cup_match_schedule.exists():
-                raise ValueError("No available match schedule for the next round of cup fixtures.")
 
             fixtures = []
             while len(progressing_teams) > 1:
@@ -149,27 +137,25 @@ def generate_next_round_fixtures(season_cup):
 
             bulk_create_list = []
             for index, (home_team, away_team) in enumerate(fixtures):
-                match_date = cup_match_schedule[index]  # Следваща свободна дата
                 new_fixture_number = max_fixture_number + index + 1
 
                 cup_fixture = CupFixture(
                     fixture_number=new_fixture_number,
                     home_team=home_team,
                     away_team=away_team,
-                    round_number=season_cup.cupfixtures.count() // len(fixtures) + 1,
-                    date=match_date.date,
-                    match_time=match_date.season.match_time,
+                    round_number=(season_cup.cup_fixtures.aggregate(Max('round_number'))['round_number__max'] or 0) + 1,
+                    date=shared_match_date.date,
+                    match_time=shared_match_date.season.match_time,
                     season=season_cup.season,
                     season_cup=season_cup,
                     round_stage=stage,
                 )
                 bulk_create_list.append(cup_fixture)
 
-                match_date.is_cup_day_assigned = True
-                match_date.save()
-
             CupFixture.objects.bulk_create(bulk_create_list)
 
+        season_cup.current_stage = stage
+        season_cup.save()
     except IntegrityError as e:
         raise ValueError(f"Error generating next round fixtures for {season_cup.cup.name}: {e}")
     except Exception as e:

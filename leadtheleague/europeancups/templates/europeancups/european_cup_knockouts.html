@@ -12,23 +12,30 @@
     {% for stage in knockout_stages %}
     <div class="knockout-stage">
         <div class="stage-header">
-            <h4>{{ stage.stage_name }}</h4>
+            <h2>{{ stage.stage_name }}</h2>
         </div>
         <div class="stage-matches">
             {% for match in stage.matches %}
             <div class="match">
-                <span class="team">{{ match.home_team }}</span>
-                <span class="vs">vs</span>
-                <span class="team">{{ match.away_team }}</span>
-                {% if match.is_finished %}
-                <span class="result">({{ match.home_goals }} : {{ match.away_goals }})</span>
-                {% else %}
-                <span class="details">TBA</span>
-                {% endif %}
+                <div class="team home">
+                    <span class="team-name">{{ match.home_team }}</span>
+                </div>
+                <div class="match-details">
+                    {% if match.is_finished %}
+                    <span class="result">{{ match.home_goals }} : {{ match.away_goals }}</span>
+                    {% else %}
+                    <span class="details">Match Not Played</span>
+                    {% endif %}
+                </div>
+                <div class="team away">
+                    <span class="team-name">{{ match.away_team }}</span>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
+    {% empty %}
+    <p class="no-stages">No knockout stages available yet.</p>
     {% endfor %}
 </div>
 

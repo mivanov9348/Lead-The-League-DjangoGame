@@ -1,11 +1,16 @@
-import datetime
 import random
 from datetime import timedelta
-from itertools import cycle
 from math import ceil, log2
 from europeancups.models import EuropeanCupSeason
 from game.models import MatchSchedule
 
+def get_next_euro_match_day():
+    next_schedule = MatchSchedule.objects.filter(
+        event_type='euro',
+        is_euro_cup_day_assigned=True,
+        is_played=False
+    ).order_by('date').first()
+    return next_schedule.date if next_schedule else None
 
 def get_max_league_rounds(season):
     league_seasons = season.league_seasons.select_related('league')
@@ -17,6 +22,7 @@ def get_max_cup_rounds(season):
     season_cups = season.season_cups.prefetch_related('participating_teams')
     max_teams = max((sc.participating_teams.count() for sc in season_cups), default=0)
     return ceil(log2(max_teams)) if max_teams >= 2 else 0
+
 
 def get_max_euro_rounds(season):
     euro_seasons = EuropeanCupSeason.objects.filter(season=season).only(
@@ -41,9 +47,9 @@ def generate_season_schedule(season):
     max_euro_rounds = get_max_euro_rounds(season)
 
     total_matches = (
-        ['league'] * max_league_rounds +
-        ['cup'] * max_cup_rounds +
-        ['euro'] * max_euro_rounds
+            ['league'] * max_league_rounds +
+            ['cup'] * max_cup_rounds +
+            ['euro'] * max_euro_rounds
     )
 
     total_days = len(total_matches)
@@ -57,9 +63,9 @@ def generate_season_schedule(season):
     schedule[-1] = 'euro'
 
     remaining_matches = (
-        ['league'] * max_league_rounds +
-        ['cup'] * (max_cup_rounds - 1) +
-        ['euro'] * (max_euro_rounds - 1)
+            ['league'] * max_league_rounds +
+            ['cup'] * (max_cup_rounds - 1) +
+            ['euro'] * (max_euro_rounds - 1)
     )
 
     random.shuffle(remaining_matches)

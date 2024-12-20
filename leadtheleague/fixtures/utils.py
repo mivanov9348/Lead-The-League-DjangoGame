@@ -1,27 +1,23 @@
 from collections import defaultdict
 from itertools import chain
-
 from django.db.models import Prefetch, Max, Q
 from fixtures.models import LeagueFixture, CupFixture, EuropeanCupFixture
 import random
 from game.models import MatchSchedule
-from players.utils.get_player_stats_utils import get_player_data
-from teams.models import Team, TeamFinance
-
+from teams.models import Team
 
 def generate_league_fixtures(league_season):
-    league_teams = list(league_season.teams.select_related('teams'))
+    league_teams = list(league_season.teams.select_related('team'))
     teams = [lt.team for lt in league_teams]
 
     if len(teams) % 2 != 0:
-        teams.append(None)  # Добавяме празен отбор, ако броят е нечетен
+        teams.append(None)
 
     random.shuffle(teams)
 
     total_rounds = len(teams) - 1
     half_size = len(teams) // 2
 
-    # Генерираме мачовете за първия етап
     schedule = []
     for _ in range(total_rounds):
         round_pairs = []
@@ -32,9 +28,8 @@ def generate_league_fixtures(league_season):
                 round_pairs.append((home_team, away_team))
 
         schedule.append(round_pairs)
-        teams = [teams[0]] + teams[-1:] + teams[1:-1]  # Завъртане на отборите
+        teams = [teams[0]] + teams[-1:] + teams[1:-1]
 
-    # Генерираме мачовете за втория етап (реванши)
     return_legs = [[(away, home) for home, away in round_pairs] for round_pairs in schedule]
     full_schedule = schedule + return_legs
 

@@ -77,7 +77,7 @@ def squad(request):
     print(players_data)
 
     context = {
-        'teams': team,
+        'team': team,
         'players_data': players_data,
         'current_sort': sort_by,
         'current_order': order

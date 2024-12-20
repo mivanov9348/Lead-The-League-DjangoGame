@@ -1,4 +1,4 @@
-/* Knockouts Flexbox Layout */
+/* Knockouts Layout */
 .knockouts-container {
     display: flex;
     flex-direction: column;
@@ -50,17 +50,4 @@
 }
 
 .vs {
-    flex: 0 0 auto;
-    font-size: 1.2rem;
-    color: #555;
-}
-
-.result {
-    font-weight: bold;
-    color: #4caf50;
-}
-
-.details {
-    font-size: 0.9rem;
-    color: #777;
-}
+    flex: 0 0 auto
