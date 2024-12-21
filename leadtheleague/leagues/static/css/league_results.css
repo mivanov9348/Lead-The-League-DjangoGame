@@ -1,5 +1,5 @@
 .results-container {
-    width: 100%;
+    width: 80%;
     margin: auto;
     padding: 20px;
     background-color: var(--darkgreen-color);
@@ -53,15 +53,15 @@ h1 {
 }
 
 .fixtures-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Равномерно разстояние между мачовете */
+    display: grid; /* Използваме Grid вместо Flexbox */
+    grid-template-columns: 1fr; /* Подреждаме всички мачове в една колона */
+    row-gap: 15px; /* Равномерно разстояние между редовете */
 }
 
 .fixture {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Разделяме колоните: Отбор - Резултат - Отбор */
+    align-items: center; /* Вертикално центриране */
     padding: 10px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
@@ -71,6 +71,8 @@ h1 {
 .team {
     display: flex;
     align-items: center;
+    justify-content: center; /* Центриране на отборите в колоната */
+    text-align: center;
 }
 
 .team-logo {
@@ -86,9 +88,8 @@ h1 {
 }
 
 .score {
+    text-align: center;
     font-size: 1.2em;
     font-weight: bold;
     color: #333;
-    text-align: center;
-    min-width: 80px;
 }

@@ -6,6 +6,7 @@ import random
 from game.models import MatchSchedule
 from teams.models import Team
 
+
 def generate_league_fixtures(league_season):
     league_teams = list(league_season.teams.select_related('team'))
     teams = [lt.team for lt in league_teams]
@@ -35,11 +36,10 @@ def generate_league_fixtures(league_season):
 
     # Намираме съществуващите фикстури за лигата
     last_fixture_number = (
-        LeagueFixture.objects.aggregate(Max('fixture_number')).get('fixture_number__max') or 0
+            LeagueFixture.objects.aggregate(Max('fixture_number')).get('fixture_number__max') or 0
     )
     fixture_number = last_fixture_number + 1
 
-    # Намираме наличния график за лигата в текущия сезон
     league_match_schedule = MatchSchedule.objects.filter(
         season=league_season.season,
         event_type='league',
@@ -48,17 +48,14 @@ def generate_league_fixtures(league_season):
     if not league_match_schedule.exists():
         raise ValueError("No match schedule available for league fixtures in the current season.")
 
-    # Уверяваме се, че имаме достатъчно дати в графика
     if len(league_match_schedule) < len(full_schedule):
         raise ValueError("Not enough dates in the league match schedule to generate fixtures.")
 
-    # Създаваме фикстурите
     bulk_create_list = []
     round_number = 1
 
     for match_date, fixture_round in zip(league_match_schedule, full_schedule):
         for home_team, away_team in fixture_round:
-            # Добавяме фикстура към списъка за създаване
             bulk_create_list.append(
                 LeagueFixture(
                     home_team=home_team,
@@ -81,6 +78,7 @@ def generate_league_fixtures(league_season):
     LeagueFixture.objects.bulk_create(bulk_create_list)
 
     return f"Fixtures successfully generated for LeagueSeason: {league_season}."
+
 
 def get_poster_schedule(league, user_team):
     # Retrieve fixtures by type (league, cup, euro) for the user's teams
@@ -108,6 +106,7 @@ def get_poster_schedule(league, user_team):
 
     return schedule_data
 
+
 def get_team_schedule(team):
     fixtures_by_type = get_fixtures_by_team_and_type(team)
     all_fixtures = chain(
@@ -116,6 +115,7 @@ def get_team_schedule(team):
         fixtures_by_type.get("euro", [])
     )
     return list(all_fixtures)
+
 
 def get_fixtures_by_round(round_number):
     # Fetch all fixtures for the specified round
@@ -153,7 +153,6 @@ def get_fixtures_by_round(round_number):
     return fixtures_by_league_season
 
 
-
 def get_fixtures_by_team_and_type(team):
     league_fixtures = LeagueFixture.objects.filter(
         Q(home_team=team) | Q(away_team=team)
@@ -173,6 +172,7 @@ def get_fixtures_by_team_and_type(team):
         "euro": euro_fixtures,
     }
 
+
 def format_fixtures(fixtures, team):
     formatted_fixtures = []
 
@@ -181,8 +181,11 @@ def format_fixtures(fixtures, team):
             "date": fixture.date,
             "round": getattr(fixture, 'round_number', getattr(fixture, 'round_stage', '')),
             "home_away": "Home" if fixture.home_team == team else "Away",
+            'home_goals': fixture.home_goals,
+            'away_goals': fixture.away_goals,
             "opponent": fixture.away_team if fixture.home_team == team else fixture.home_team,
             "time": fixture.match_time.strftime("%H:%M") if fixture.match_time else "No Time",
+            "is_finished": fixture.is_finished,
             "type": (
                 "League" if isinstance(fixture, LeagueFixture)
                 else "Cup" if isinstance(fixture, CupFixture)

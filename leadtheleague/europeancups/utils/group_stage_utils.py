@@ -137,8 +137,8 @@ def generate_group_fixtures(group):
     print(f"Successfully created {len(fixtures)} fixtures for group {group.name}.")
     return f"Successfully created {len(fixtures)} fixtures for group {group.name}."
 
+
 def simulate_matchday_matches(euro_cup_match_day):
-    """Simulates all matches for a specific European match day."""
     fixtures = EuropeanCupFixture.objects.filter(
         date=euro_cup_match_day,
         group__isnull=False,
@@ -168,6 +168,7 @@ def simulate_matchday_matches(euro_cup_match_day):
     match_day = MatchSchedule.objects.get(date=euro_cup_match_day, event_type='euro')
     match_day.is_played = True
     match_day.save()
+
 
 def update_euro_cup_standings(match_day):
     """Updates group standings based on fixtures played on the specified match day."""
@@ -216,19 +217,11 @@ def update_euro_cup_standings(match_day):
         home_group_team.save()
         away_group_team.save()
 
+
 def advance_teams_from_groups(european_cup_season):
     teams_qualify_from_group = european_cup_season.total_teams_qualify_from_group
     advancing_teams = []
     eliminated_teams = []
-
-    # Създаваме или намираме първия KnockoutStage
-    knockout_stage = create_knockout_stage(
-        european_cup_season=european_cup_season,
-        stage_order=1,
-        stage_name="Round of 16",
-        teams_per_match=2,
-        is_final=False
-    )
 
     with transaction.atomic():
         for group in Group.objects.filter(european_cup_season=european_cup_season):
@@ -248,7 +241,7 @@ def advance_teams_from_groups(european_cup_season):
                 advancing_teams.append(group_team.team.name)
 
                 # Създаваме KnockoutTeam
-                create_knockout_team(knockout_stage, group_team.team)
+                create_knockout_team(group_team.team)
 
             # Отбори, които отпадат
             for group_team in group_teams[teams_qualify_from_group:]:

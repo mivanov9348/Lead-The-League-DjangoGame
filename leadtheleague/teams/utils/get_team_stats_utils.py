@@ -31,29 +31,31 @@ def get_team_balance(user):
 
 
 def get_poster_schedule(league, user_team):
-    # Retrieve fixtures by type (league, cup, euro) for the user's teams
     fixtures_by_type = get_fixtures_by_team_and_type(user_team)
 
-    # Combine all fixtures into one iterable
     all_fixtures = chain(
         fixtures_by_type.get("league", []),
         fixtures_by_type.get("cup", []),
         fixtures_by_type.get("euro", [])
     )
 
-    # Format the fixtures for easier processing
     formatted_fixtures = format_fixtures(all_fixtures, user_team)
 
-    # Prepare the schedule data in the required format
     schedule_data = []
     for fixture in formatted_fixtures:
+        print(f'fixture: {fixture}')
         location = 'H' if fixture["home_away"] == "Home" else 'A'
         opponent = fixture["opponent"]
+        if fixture['is_finished']:
+            result = f'{fixture['home_goals']}' "-" f'{fixture['away_goals']}'
+        else:
+            result = "TBD"
 
         schedule_data.append({
             'date': fixture["date"],
             'opponent': opponent,
-            'location': location
+            'location': location,
+            'result': result
         })
 
     return schedule_data
@@ -68,13 +70,10 @@ def get_team_schedule(team):
 
 
 def get_team_data(team_id):
-    # Извличане на отбора
     team = get_object_or_404(Team, id=team_id, is_active=True)
 
-    # Данни за финансите на отбора
     finances = TeamFinance.objects.filter(team=team).first()
 
-    # Подробности за отбора
     team_data = {
         'id': team.id,
         'name': team.name,

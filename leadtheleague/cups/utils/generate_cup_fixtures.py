@@ -7,7 +7,6 @@ from cups.utils.get_cups_utils import determine_stage_by_teams_count
 from fixtures.models import CupFixture
 from teams.models import Team
 
-
 def get_teams_for_cup(cup):
     teams_count = cup.teams_count
     nationality = cup.nationality
@@ -105,7 +104,6 @@ def generate_cup_fixtures(season_cup, cup, first_available_schedule):
         raise ValueError(f"Грешка при генериране на мачове за Cup '{cup.name}': {e}")
     except Exception as e:
         raise ValueError(f"Неочаквана грешка: {e}")
-
 
 def generate_next_round_fixtures(season_cup, shared_match_date):
     try:

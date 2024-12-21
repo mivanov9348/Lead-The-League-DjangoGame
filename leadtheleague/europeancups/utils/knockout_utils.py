@@ -2,6 +2,8 @@ import random
 from django.db import models, transaction
 from europeancups.models import KnockoutTeam, KnockoutStage
 from fixtures.models import EuropeanCupFixture
+from game.models import MatchSchedule
+
 
 def get_knockout_stage_name(team_count):
     if team_count == 16:
@@ -15,6 +17,7 @@ def get_knockout_stage_name(team_count):
     else:
         return f"Knockout Stage ({team_count} Teams)"
 
+
 def create_knockout_stage(european_cup_season, stage_order, stage_name, teams_per_match=2, is_final=False):
     knockout_stage, created = KnockoutStage.objects.get_or_create(
         european_cup_season=european_cup_season,
@@ -27,30 +30,44 @@ def create_knockout_stage(european_cup_season, stage_order, stage_name, teams_pe
     )
     return knockout_stage
 
-def create_knockout_team(knockout_stage, team):
+
+def create_knockout_team(team):
     return KnockoutTeam.objects.create(
-        knockout_stage=knockout_stage,
         team=team
     )
 
 
+def update_knockout_teams(knockout_stage, advancing_teams):
+    KnockoutTeam.objects.filter(knockout_stage=knockout_stage).delete()
+
+    for team in advancing_teams:
+        KnockoutTeam.objects.create(knockout_stage=knockout_stage, team=team)
+
+
 def generate_euro_cup_knockout(european_cup_season, match_date):
-    knockout_stage = european_cup_season.knockout_stages.filter(is_final=False).order_by('-stage_order').first()
+    current_stage = european_cup_season.knockout_stages.order_by('-stage_order').first()
+    next_stage_order = (current_stage.stage_order + 1) if current_stage else 1
 
-    if not knockout_stage:
-        raise ValueError("No valid knockout stage found.")
-
-    # Вземаме отборите
-    teams = list(KnockoutTeam.objects.filter(knockout_stage=knockout_stage).values_list('team', flat=True))
+    teams = list(KnockoutTeam.objects.filter(knockout_stage=current_stage).values_list('team', flat=True))
     if len(teams) % 2 != 0:
         raise ValueError("Odd number of teams in the knockout stage!")
+
+    stage_name = get_knockout_stage_name(len(teams))
+
+    knockout_stage = KnockoutStage.objects.create(
+        european_cup_season=european_cup_season,
+        stage_order=next_stage_order,
+        stage_name=stage_name,
+        teams_per_match=2,
+        is_final=(len(teams) == 2)
+    )
 
     random.shuffle(teams)
 
     max_fixture_number = (
-        EuropeanCupFixture.objects.aggregate(
-            max_number=models.Max('fixture_number')
-        )['max_number'] or 0
+            EuropeanCupFixture.objects.aggregate(
+                max_number=models.Max('fixture_number')
+            )['max_number'] or 0
     )
 
     fixtures = []
@@ -67,28 +84,30 @@ def generate_euro_cup_knockout(european_cup_season, match_date):
             round_stage=knockout_stage.stage_name,
             season=european_cup_season.season,
             round_number=knockout_stage.stage_order,
-            fixture_number=max_fixture_number + 1  # Генерираме уникален номер
+            fixture_number=max_fixture_number + 1
         )
-        max_fixture_number += 1  # Увеличаваме номера за следващата фикстура
+        max_fixture_number += 1
         fixtures.append(fixture)
 
     return fixtures
 
-def simulate_euro_knockout_round(european_cup_season, match_date):
+
+def simulate_euro_knockout_round(european_cup_season, knockout_stage):
     fixtures = EuropeanCupFixture.objects.filter(
         european_cup_season=european_cup_season,
-        date=match_date,
+        knockout_stage=knockout_stage,
         is_finished=False
     )
 
     if not fixtures.exists():
-        raise ValueError(f"No fixtures to simulate for the date {match_date}.")
+        raise ValueError(f"No fixtures to simulate for the stage {knockout_stage.stage_name}.")
+
+    match_date = fixtures.first().date
 
     advancing_teams = []
 
     with transaction.atomic():
         for fixture in fixtures:
-            # Генериране на случайни резултати
             home_goals = random.randint(0, 5)
             away_goals = random.randint(0, 5)
 
@@ -96,7 +115,6 @@ def simulate_euro_knockout_round(european_cup_season, match_date):
             fixture.away_goals = away_goals
             fixture.is_finished = True
 
-            # Определяне на победителя
             if home_goals > away_goals:
                 winner = fixture.home_team
             elif away_goals > home_goals:
@@ -108,20 +126,20 @@ def simulate_euro_knockout_round(european_cup_season, match_date):
             fixture.save()
             advancing_teams.append(winner)
 
-        current_stage = european_cup_season.knockout_stages.order_by('-stage_order').first()
-        next_stage_order = current_stage.stage_order + 1
-        stage_name = "Final" if len(advancing_teams) == 2 else f"Round of {len(advancing_teams)}"
+        knockout_stage.is_played = True
+        knockout_stage.save()
 
-        new_knockout_stage = KnockoutStage.objects.create(
-            european_cup_season=european_cup_season,
-            stage_order=next_stage_order,
-            stage_name=stage_name,
-            teams_per_match=2,
-            is_final=(len(advancing_teams) == 2)
-        )
+        match_schedule = MatchSchedule.objects.filter(
+            date=match_date,
+            season=european_cup_season.season,
+            event_type='euro'
+        ).first()
 
-        KnockoutTeam.objects.filter(knockout_stage=current_stage).delete()
-        for team in advancing_teams:
-            KnockoutTeam.objects.create(knockout_stage=new_knockout_stage, team=team)
+        if match_schedule:
+            match_schedule.is_played = True
+            match_schedule.save()
 
-    return advancing_teams, new_knockout_stage
+        update_knockout_teams(knockout_stage, advancing_teams)
+
+    return advancing_teams
+

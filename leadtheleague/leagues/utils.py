@@ -1,3 +1,9 @@
+import random
+
+from django.db import transaction
+
+from fixtures.models import LeagueFixture
+from game.models import MatchSchedule
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams
 
@@ -16,8 +22,7 @@ def get_selected_league(league_id):
 
 def get_standings_for_league(league):
     league_season = LeagueSeason.objects.filter(
-        league=league,
-        is_completed=False
+        league=league
     ).order_by('-season__year').first()
 
     if not league_season:
@@ -33,6 +38,16 @@ def get_standings_for_league(league):
 def get_teams_by_league(league_id):
     return Team.objects.filter(league_id=league_id) if league_id else Team.objects.none()
 
+def check_and_mark_league_seasons_completed():
+    with transaction.atomic():
+        active_league_seasons = LeagueSeason.objects.filter(is_completed=False)
+
+        for league_season in active_league_seasons:
+            if not league_season.league.league_fixtures.filter(
+                season=league_season.season, is_finished=False
+            ).exists():
+                league_season.is_completed = True
+                league_season.save()
 
 def populate_league_teams_from_json(league_season, json_data):
     league_name = league_season.league.name
@@ -65,3 +80,79 @@ def populate_league_teams_from_json(league_season, json_data):
             },
         )
     return f"Teams populated for {league_name}."
+
+def simulate_day_league_fixtures(match_day):
+    with transaction.atomic():
+        active_seasons = LeagueSeason.objects.filter(season__match_schedule__date=match_day)
+
+        for league_season in active_seasons:
+            league = league_season.league
+
+            fixtures = LeagueFixture.objects.filter(
+                league=league, date=match_day, is_finished=False
+            )
+
+            if not fixtures.exists():
+                continue
+
+            for fixture in fixtures:
+                home_goals = random.randint(0, 7)
+                away_goals = random.randint(0, 7)
+
+                fixture.home_goals = home_goals
+                fixture.away_goals = away_goals
+                fixture.is_finished = True
+
+                if home_goals > away_goals:
+                    fixture.winner = fixture.home_team
+                elif away_goals > home_goals:
+                    fixture.winner = fixture.away_team
+
+                fixture.save()
+
+            update_league_standings(league_season, fixtures)
+
+        check_and_mark_league_seasons_completed()
+
+def update_league_standings(league_season, fixtures):
+    for fixture in fixtures:
+        home_team_record = LeagueTeams.objects.get(
+            league_season=league_season, team=fixture.home_team
+        )
+        away_team_record = LeagueTeams.objects.get(
+            league_season=league_season, team=fixture.away_team
+        )
+
+        # Актуализация на изиграни мачове
+        home_team_record.matches += 1
+        away_team_record.matches += 1
+
+        # Резултати и точки
+        home_team_record.goalscored += fixture.home_goals
+        home_team_record.goalconceded += fixture.away_goals
+        away_team_record.goalscored += fixture.away_goals
+        away_team_record.goalconceded += fixture.home_goals
+
+        if fixture.home_goals > fixture.away_goals:
+            home_team_record.wins += 1
+            away_team_record.losses += 1
+            home_team_record.points += 3
+        elif fixture.away_goals > fixture.home_goals:
+            away_team_record.wins += 1
+            home_team_record.losses += 1
+            away_team_record.points += 3
+        else:
+            home_team_record.draws += 1
+            away_team_record.draws += 1
+            home_team_record.points += 1
+            away_team_record.points += 1
+
+        home_team_record.goaldifference = (
+            home_team_record.goalscored - home_team_record.goalconceded
+        )
+        away_team_record.goaldifference = (
+            away_team_record.goalscored - away_team_record.goalconceded
+        )
+
+        home_team_record.save()
+        away_team_record.save()

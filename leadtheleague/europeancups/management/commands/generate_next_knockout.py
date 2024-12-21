@@ -17,7 +17,6 @@ class Command(BaseCommand):
         for european_cup_season in european_cup_seasons:
             self.stdout.write(f"Processing EuropeanCupSeason: {european_cup_season}")
 
-            # Намираме свободна дата
             free_date = MatchSchedule.objects.filter(
                 season=european_cup_season.season,
                 event_type='euro',
@@ -29,10 +28,8 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"No available date for EuropeanCupSeason {european_cup_season}."))
                 continue
 
-            # Генерираме жребия
             generate_euro_cup_knockout(european_cup_season, free_date.date)
 
-            # Обновяваме датата
             free_date.is_euro_cup_day_assigned = True
             free_date.save()
 

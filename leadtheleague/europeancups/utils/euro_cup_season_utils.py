@@ -1,6 +1,9 @@
 from django.db import transaction
-from europeancups.models import EuropeanCupSeason, EuropeanCupTeam
+from europeancups.models import EuropeanCupSeason, EuropeanCupTeam, KnockoutStage
+from fixtures.models import EuropeanCupFixture
+from game.utils.get_season_stats_utils import get_current_season
 from teams.models import Team
+
 
 def create_season_european_cup(cup, season, total_teams, groups_count, teams_per_group, teams_qualify_from_group):
     with transaction.atomic():
@@ -18,6 +21,7 @@ def create_season_european_cup(cup, season, total_teams, groups_count, teams_per
 
         return european_cup_season
 
+
 # АAdd teams to europeancup
 def add_team_to_european_cup(team, european_cup_season):
     if EuropeanCupTeam.objects.filter(team=team, european_cup_season=european_cup_season).exists():
@@ -28,6 +32,7 @@ def add_team_to_european_cup(team, european_cup_season):
         european_cup_season=european_cup_season
     )
     return f"The team {team.name} is added for season {european_cup_season}."
+
 
 def populate_remaining_teams(european_cup_season):
     total_teams = european_cup_season.total_teams
@@ -62,3 +67,34 @@ def populate_remaining_teams(european_cup_season):
 
     return "Added successfully!"
 
+
+def set_european_cup_season_champion():
+    current_season = get_current_season()
+    european_cup_season = EuropeanCupSeason.objects.filter(season=current_season).first()
+
+    final_stage = KnockoutStage.objects.filter(
+        european_cup_season=european_cup_season,
+        is_final=True
+    ).first()
+
+    if not final_stage:
+        raise ValueError("Final stage not found for the current European Cup season.")
+
+    # Намери мача от финала
+    final_fixture = EuropeanCupFixture.objects.filter(
+        european_cup_season=european_cup_season,
+        knockout_stage=final_stage,
+        is_finished=True
+    ).first()
+
+    if not final_fixture:
+        raise ValueError("No finished final match found for the current European Cup season.")
+
+    champion = final_fixture.winner
+    if not champion:
+        raise ValueError("No winner found for the final match.")
+
+    european_cup_season.champion = champion
+    european_cup_season.save()
+
+    return champion
