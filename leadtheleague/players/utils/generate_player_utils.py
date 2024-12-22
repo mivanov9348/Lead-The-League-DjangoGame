@@ -13,7 +13,7 @@ from leadtheleague import settings
 from players.models import Position, Attribute, PlayerAttribute, Player, PositionAttribute, Statistic, \
     PlayerSeasonStatistic
 from players.utils.update_player_stats_utils import update_player_price
-from teams.models import TeamPlayer
+from teams.models import TeamPlayer, Team
 
 
 def calculate_player_attributes(player):
@@ -60,8 +60,8 @@ def calculate_player_attributes(player):
 
     return player
 
-def get_potential_age_factor(player):
 
+def get_potential_age_factor(player):
     if player.age <= 17:
         age_factor = 1.3
     elif 18 <= player.age <= 25:
@@ -71,6 +71,7 @@ def get_potential_age_factor(player):
     else:
         age_factor = 0.5
     return age_factor
+
 
 def calculate_player_potential(player):
     base_potential = 0.1
@@ -189,6 +190,11 @@ def generate_random_player(team=None, position=None, age=None):
 
     return player
 
+def generate_players_for_all_teams():
+    teams = Team.objects.prefetch_related('team_players')
+    for team in teams.iterator():
+        generate_team_players(team)
+
 
 def generate_team_players(team):
     try:
@@ -296,36 +302,66 @@ def generate_free_agents(agent):
     return free_agents
 
 
+def process_retirement_players():
+    active_players = Player.objects.filter(is_active=True)
+    print(f"Намерени {active_players.count()} активни играчи за проверка на пенсиониране.")
+
+    for player in active_players:
+        retirement_player(player)
+        print(f"Играч {player.name} обработен за пенсиониране.")
+
+
 def retirement_player(player):
     if player.age >= 35:
         player.is_active = False
         player.save()
+        print(f"Player {player.name} is retired.")
+
         TeamPlayer.objects.filter(player=player).delete()
 
 
-def generate_youth_players(team=None):
+def generate_youth_players(season):
+    teams = Team.objects.filter(is_active=True)
     youth_players = []
-    for _ in range(random.randint(1, 5)):
-        player = generate_random_player(team=team)
-        player.age = random.randint(14, 17)  # за settings
-        player.is_youth = True
 
-        player.potential_rating = calculate_player_potential(player)
+    with transaction.atomic():
+        for team in teams:
+            number_of_players = random.randint(1, 5)
+            for _ in range(number_of_players):
+                player = generate_random_player(team=team)
+                player.age = random.randint(14, 17)
+                player.is_youth = True
+                player.potential_rating = calculate_player_potential(player)
+                player.season = season
+                player.save()
+                youth_players.append(player)
 
-        player.save()
-        youth_players.append(player)
     return youth_players
 
+def generate_all_players_season_stats():
+    all_players = Player.objects.filter(is_active=True).iterator()
+    for player in all_players:
+        generate_player_season_stats(player)
 
 def generate_player_season_stats(player):
     season = get_current_season()
     statistics = Statistic.objects.all()
-    with transaction.atomic():
-        for stat in statistics:
-            if not PlayerSeasonStatistic.objects.filter(player=player, statistic=stat, season=season).exists():
-                PlayerSeasonStatistic.objects.create(
-                    player=player,
-                    statistic=stat,
-                    season=season,
-                    value=0
-                )
+
+    existing_stats = set(
+        PlayerSeasonStatistic.objects.filter(player=player, season=season)
+        .values_list('statistic_id', flat=True)
+    )
+
+    new_stats = [
+        PlayerSeasonStatistic(
+            player=player,
+            statistic=stat,
+            season=season,
+            value=0
+        )
+        for stat in statistics if stat.id not in existing_stats
+    ]
+
+    PlayerSeasonStatistic.objects.bulk_create(new_stats)
+
+    print(f"Generated stats for player: {player.first_name} {player.last_name}")

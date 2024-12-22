@@ -1,25 +1,19 @@
 from django.db import transaction
-from europeancups.models import EuropeanCupSeason, EuropeanCupTeam, KnockoutStage
+
+from cups.utils.get_cups_utils import promote_cup_champions_to_europe
+from europeancups.models import EuropeanCupSeason, EuropeanCupTeam, KnockoutStage, EuropeanCup
 from fixtures.models import EuropeanCupFixture
 from game.utils.get_season_stats_utils import get_current_season
+from leagues.models import League
+from leagues.utils import promote_league_teams_to_europe
 from teams.models import Team
 
 
-def create_season_european_cup(cup, season, total_teams, groups_count, teams_per_group, teams_qualify_from_group):
-    with transaction.atomic():
-        if total_teams != groups_count * teams_per_group:
-            raise ValueError("Count of the teams is not equal to groups_count * teams_per_group!")
-
-        european_cup_season = EuropeanCupSeason.objects.create(
-            cup=cup,
-            season=season,
-            total_teams=total_teams,
-            groups_count=groups_count,
-            teams_per_group=teams_per_group,
-            total_teams_qualify_from_group=teams_qualify_from_group
-        )
-
-        return european_cup_season
+def generate_european_cups_season(season):
+    european_cups = EuropeanCup.objects.all()
+    for euro_cup in european_cups:
+        if not EuropeanCupSeason.objects.filter(cup=euro_cup, season=season).exists():
+            EuropeanCupSeason.objects.create(cup=euro_cup, season=season)
 
 
 # АAdd teams to europeancup
@@ -34,38 +28,51 @@ def add_team_to_european_cup(team, european_cup_season):
     return f"The team {team.name} is added for season {european_cup_season}."
 
 
-def populate_remaining_teams(european_cup_season):
-    total_teams = european_cup_season.total_teams
+def europe_promotion(new_season):
+    european_cups = EuropeanCup.objects.all()
+    top_leagues = League.objects.filter(is_top_league=True)
+    new_euro_cup_season = EuropeanCupSeason.objects.filter(season=new_season).first()
+    if not new_euro_cup_season:
+        raise ValueError(f"No European Cup Season found for season {new_season}.")
 
-    current_team_count = EuropeanCupTeam.objects.filter(european_cup_season=european_cup_season).count()
+    with transaction.atomic():
+        total_added_teams = 0
 
-    remaining_spots = total_teams - current_team_count
+        cup_champions = promote_cup_champions_to_europe(new_season, new_euro_cup_season, european_cups)
+        total_added_teams += len(cup_champions)
 
-    if remaining_spots <= 0:
-        return "All teams are added!"
+        league_teams = promote_league_teams_to_europe(new_season, new_euro_cup_season, european_cups, cup_champions)
+        total_added_teams += len(league_teams)
 
-    excluded_countries = ["Bulgaria", "Germany", "England", "Spain", "Italy"]
+        fill_remaining_spots(new_euro_cup_season, total_added_teams)
 
-    inactive_teams = Team.objects.filter(
-        is_active=False
-    ).exclude(
-        id__in=EuropeanCupTeam.objects.filter(
-            european_cup_season=european_cup_season
-        ).values_list('team_id', flat=True)
-    ).exclude(
-        nationality__name__in=excluded_countries
-    )[:remaining_spots]
 
-    if not inactive_teams.exists():
-        raise ValueError("Not enough teams.")
+def fill_remaining_spots(new_european_cup_season, total_added_teams):
+    total_teams_needed = new_european_cup_season.total_teams
+    remaining_spots = total_teams_needed - total_added_teams
 
-    for team in inactive_teams:
-        EuropeanCupTeam.objects.create(
-            team=team,
-            european_cup_season=european_cup_season
-        )
+    if remaining_spots > 0:
+        excluded_countries = ["Bulgaria", "Germany", "England", "Spain", "Italy"]
+        inactive_teams = Team.objects.filter(
+            is_active=False
+        ).exclude(
+            id__in=EuropeanCupTeam.objects.filter(
+                european_cup_season=new_european_cup_season
+            ).values_list('team_id', flat=True)
+        ).exclude(
+            nationality__name__in=excluded_countries
+        )[:remaining_spots]
 
-    return "Added successfully!"
+        if not inactive_teams.exists():
+            raise ValueError("Not enough teams to fill remaining spots.")
+
+        for team in inactive_teams:
+            EuropeanCupTeam.objects.create(
+                team=team,
+                european_cup_season=new_european_cup_season
+            )
+
+        print(f"Added {len(inactive_teams)} remaining teams to complete the list for {new_european_cup_season}.")
 
 
 def set_european_cup_season_champion():

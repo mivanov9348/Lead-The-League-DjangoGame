@@ -40,14 +40,12 @@ def generate_matches_from_fixtures(fixtures, event_type, season):
 
     print(f"Създадени са {len(matches_to_create)} мачове за {event_type} сезона {season.year}.")
 
-
 def generate_league_matches(season=None):
     if season is None:
         season = get_current_season()
 
     league_fixtures = LeagueFixture.objects.filter(season=season)
     generate_matches_from_fixtures(league_fixtures, event_type='league', season=season)
-
 
 def generate_cup_matches(season=None):
     if season is None:
@@ -56,14 +54,12 @@ def generate_cup_matches(season=None):
     cup_fixtures = CupFixture.objects.filter(season=season)
     generate_matches_from_fixtures(cup_fixtures, event_type='cup', season=season)
 
-
 def generate_euro_cup_matches(season=None):
     if season is None:
         season = get_current_season()
 
     euro_cup_fixtures = EuropeanCupFixture.objects.filter(season=season)
     generate_matches_from_fixtures(euro_cup_fixtures, event_type='euro_cup', season=season)
-
 
 def generate_player_day_match_stats(players, today=None):
     today = today or timezone.now().date()

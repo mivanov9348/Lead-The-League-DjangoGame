@@ -1,6 +1,10 @@
+import random
+
 from django.db.models import Prefetch, QuerySet, Avg
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import Player, PlayerSeasonStatistic, Position, Attribute, PlayerMatchRating, PlayerAttribute
+from players.utils.generate_player_utils import generate_random_player
+from teams.models import TeamPlayer, Team
 
 
 def get_all_positions() -> QuerySet[Position]:
@@ -186,3 +190,44 @@ def get_all_youth_players_by_team(team):
         })
 
     return youth_players_data
+
+def ensure_all_teams_has_minimum_players():
+    teams = Team.objects.all()
+    for team in teams:
+        ensure_team_has_minimum_players(team)
+
+def ensure_team_has_minimum_players(team):
+    required_positions = {
+        "Goalkeeper": 1,
+        "Defender": 4,
+        "Midfielder": 4,
+        "Forward": 2,
+    }
+
+    # Fetch current players by position
+    team_players = TeamPlayer.objects.filter(team=team).select_related("player")
+    position_count = {pos: 0 for pos in required_positions.keys()}
+
+    for team_player in team_players:
+        position_name = team_player.player.position.name
+        if position_name in position_count:
+            position_count[position_name] += 1
+
+    # Generate random players for missing positions
+    for position_name, required_count in required_positions.items():
+        missing_count = required_count - position_count.get(position_name, 0)
+        if missing_count > 0:
+            position = Position.objects.filter(name=position_name).first()
+            for _ in range(missing_count):
+                generate_random_player(team=team, position=position)
+
+    # Ensure there are 11 total players
+    current_player_count = team_players.count()
+    if current_player_count < 11:
+        additional_players_needed = 11 - current_player_count
+        all_positions = list(Position.objects.all())
+        for _ in range(additional_players_needed):
+            random_position = random.choice(all_positions)
+            generate_random_player(team=team, position=random_position)
+
+    return f"Team '{team.name}' now has at least 11 players with the required positions."

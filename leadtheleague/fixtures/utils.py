@@ -3,11 +3,41 @@ from itertools import chain
 from django.db.models import Prefetch, Max, Q
 from fixtures.models import LeagueFixture, CupFixture, EuropeanCupFixture
 import random
-from game.models import MatchSchedule
+from game.models import MatchSchedule, Season
+from leagues.models import LeagueSeason
 from teams.models import Team
+from django.db import transaction
 
 
-def generate_league_fixtures(league_season):
+def generate_all_league_fixtures(season):
+    print(f"Starting fixture generation for season: {season}")  # Дебъг: вход
+
+    league_seasons = LeagueSeason.objects.filter(season=season)
+    print(f"Found league seasons: {list(league_seasons)}")  # Дебъг: извеждане на намерените сезони
+
+    if not league_seasons.exists():
+        print("No LeagueSeason instances found.")  # Дебъг: ако няма сезони
+        return f"No LeagueSeason instances found for the season: {season}."
+
+    errors = []
+    with transaction.atomic():
+        for league_season in league_seasons:
+            try:
+                print(f"Processing LeagueSeason: {league_season}")  # Дебъг: текущо състояние
+                generate_league_fixtures_for_season(league_season)
+            except Exception as e:
+                error_message = f"Error generating fixtures for {league_season}: {str(e)}"
+                print(error_message)  # Дебъг: пълна информация за грешката
+                errors.append(error_message)
+
+    if errors:
+        print(f"Errors occurred: {errors}")
+        return f"Some errors occurred:\n" + "\n".join(errors)
+
+    print("Successfully completed fixture generation for all league seasons.")
+    return f"Fixtures successfully generated for all LeagueSeasons in season: {season}."
+
+def generate_league_fixtures_for_season(league_season):
     league_teams = list(league_season.teams.select_related('team'))
     teams = [lt.team for lt in league_teams]
 
@@ -80,6 +110,36 @@ def generate_league_fixtures(league_season):
     return f"Fixtures successfully generated for LeagueSeason: {league_season}."
 
 
+# Функция за завъртане на отборите
+def rotate_teams(teams):
+    teams[1:] = teams[-1:] + teams[1:-1]
+
+
+# Печат на информация за календарите
+def print_match_schedule(match_schedule):
+    for match_date in match_schedule:
+        print(f"Match Date: {match_date.date}, Match Time: {match_date.match_time}")
+
+
+# Създаване на мачове
+def create_fixtures(fixture_round, league_season, match_date, fixture_number):
+    fixtures = []
+    for home_team, away_team in fixture_round:
+        fixtures.append(
+            LeagueFixture(
+                home_team_id=home_team,
+                away_team_id=away_team,
+                round_number=fixture_number,
+                date=match_date.date,
+                league=league_season.league,
+                season=league_season.season,
+                fixture_number=fixture_number,
+                match_time=league_season.season.match_time,
+            )
+        )
+    return fixtures
+
+
 def get_poster_schedule(league, user_team):
     # Retrieve fixtures by type (league, cup, euro) for the user's teams
     fixtures_by_type = get_fixtures_by_team_and_type(user_team)
@@ -107,14 +167,20 @@ def get_poster_schedule(league, user_team):
     return schedule_data
 
 
-def get_team_schedule(team):
-    fixtures_by_type = get_fixtures_by_team_and_type(team)
-    all_fixtures = chain(
-        fixtures_by_type.get("league", []),
-        fixtures_by_type.get("cup", []),
-        fixtures_by_type.get("euro", [])
-    )
-    return list(all_fixtures)
+def get_team_fixtures_for_current_season(team):
+    active_season = Season.objects.filter(is_active=True).first()
+    if not active_season:
+        return []
+
+    league_fixtures = LeagueFixture.objects.filter(
+        (Q(home_team=team) | Q(away_team=team)) & Q(season=active_season)
+    ).select_related('league', 'season').order_by('date', 'match_time')
+
+    cup_fixtures = CupFixture.objects.filter(
+        (Q(home_team=team) | Q(away_team=team)) & Q(season_cup__season=active_season)
+    ).select_related('season_cup', 'season_cup__cup').order_by('date', 'match_time')
+
+    return chain(league_fixtures, cup_fixtures)
 
 
 def get_fixtures_by_round(round_number):
@@ -151,26 +217,6 @@ def get_fixtures_by_round(round_number):
         })
 
     return fixtures_by_league_season
-
-
-def get_fixtures_by_team_and_type(team):
-    league_fixtures = LeagueFixture.objects.filter(
-        Q(home_team=team) | Q(away_team=team)
-    ).select_related('league', 'season').order_by('date', 'match_time')
-
-    cup_fixtures = CupFixture.objects.filter(
-        Q(home_team=team) | Q(away_team=team)
-    ).select_related('season_cup', 'season_cup__cup').order_by('date', 'match_time')
-
-    euro_fixtures = EuropeanCupFixture.objects.filter(
-        Q(home_team=team) | Q(away_team=team)
-    ).select_related('european_cup_season', 'group', 'knockout_stage').order_by('date', 'match_time')
-
-    return {
-        "league": league_fixtures,
-        "cup": cup_fixtures,
-        "euro": euro_fixtures,
-    }
 
 
 def format_fixtures(fixtures, team):

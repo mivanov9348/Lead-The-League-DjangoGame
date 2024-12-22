@@ -1,5 +1,7 @@
 import os
 from leadtheleague import settings
+from teams.models import Team
+
 
 def update_team_stats(match):
     if not match.is_played:
@@ -67,16 +69,17 @@ def reduce_reputation(team, reputation_decrease):
     team.save()
 
 
-def set_team_logos(teams):
-    logos_dir = os.path.join(settings.MEDIA_URL, 'logos')  # Използваме MEDIA_URL вместо MEDIA_ROOT за URL път
+def set_team_logos():
+    all_teams = Team.objects.all().itterator()
+    logos_dir = os.path.join(settings.MEDIA_URL, 'logos')
     successful_teams = 0
     errors = []
 
-    for team in teams:
+    for team in all_teams:
         logo_path = os.path.join(logos_dir, f"{team.name}.png")
         if os.path.exists(os.path.join(settings.MEDIA_ROOT, 'logos', f"{team.name}.png")):
             try:
-                team.logo = f"logos/{team.name}.png"  # Задаваме само относителния път
+                team.logo = f"logos/{team.name}.png"
                 team.save(update_fields=['logo'])
                 successful_teams += 1
             except Exception as e:

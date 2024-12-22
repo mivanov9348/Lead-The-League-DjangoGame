@@ -2,6 +2,8 @@ from itertools import chain
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from fixtures.models import LeagueFixture, CupFixture
+from fixtures.utils import get_team_fixtures_for_current_season
+from game.models import Season
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
 from staff.models import Coach
@@ -12,7 +14,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
-from .utils.get_team_stats_utils import get_team_data
+from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
 from .utils.training_utils import player_training
 
 
@@ -253,38 +255,29 @@ def train_coach(request, coach_id):
         print(f"Error in train_coach: {str(e)}")  # Отпечатва грешката
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-
 @login_required
 def schedule(request):
-    team = get_object_or_404(Team, user=request.user)
+    user_team = Team.objects.filter(user=request.user).first()
 
-    league_fixtures = LeagueFixture.objects.filter(
-        Q(home_team=team) | Q(away_team=team)
-    ).select_related('league', 'season').order_by('date', 'match_time')
+    fixtures_by_type = get_fixtures_by_team_and_type(user_team)
 
-    cup_fixtures = CupFixture.objects.filter(
-        Q(home_team=team) | Q(away_team=team)
-    ).select_related('season_cup', 'season_cup__cup').order_by('date', 'match_time')
-
-    fixtures = chain(league_fixtures, cup_fixtures)
-
+    all_fixtures = list(chain(
+        fixtures_by_type.get("league", []),
+        fixtures_by_type.get("cup", []),
+        fixtures_by_type.get("euro", [])
+    ))
     fixture_dict = {}
 
-    for fixture in fixtures:
-        # Проверяваме дали `fixture.date` не е None
-        if fixture.date:
-            fixture_date = fixture.date.strftime("%Y-%m-%d")  # Форматираме датата за групиране
-        else:
-            fixture_date = "No Date"  # Ако датата липсва, добавяме ключ за "без дата"
-
+    for fixture in all_fixtures:
+        fixture_date = fixture.date.strftime("%Y-%m-%d") if fixture.date else "No Date"
         if fixture_date not in fixture_dict:
             fixture_dict[fixture_date] = []
 
         fixture_info = {
             "date": fixture.date,
-            "round": fixture.round_number,
-            "home_away": "Home" if fixture.home_team == team else "Away",
-            "opponent": fixture.away_team if fixture.home_team == team else fixture.home_team,
+            "round": getattr(fixture, 'round_number', None),
+            "home_away": "Home" if fixture.home_team == user_team else "Away",
+            "opponent": fixture.away_team if fixture.home_team == user_team else fixture.home_team,
             "time": fixture.match_time.strftime("%H:%M") if fixture.match_time else "No Time",
             "type": "League" if isinstance(fixture, LeagueFixture) else "Cup",
         }

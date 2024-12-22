@@ -1,8 +1,9 @@
 from django.contrib import admin, messages
 
-from players.utils.generate_player_utils import generate_team_players, generate_youth_players
+from players.utils.generate_player_utils import generate_team_players
 from .models import Team, TeamFinance
 from .utils.generate_team_utils import set_team_logos
+
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
@@ -28,7 +29,7 @@ class TeamAdmin(admin.ModelAdmin):
         )
 
     def set_team_logos_action(self, request, queryset):
-        successful_teams, errors = set_team_logos(queryset)
+        successful_teams, errors = set_team_logos()
         if successful_teams > 0:
             self.message_user(
                 request,
@@ -43,32 +44,12 @@ class TeamAdmin(admin.ModelAdmin):
                     level=messages.WARNING
                 )
 
-    def generate_youth_players_action(self, request, queryset):
-        successful_teams = 0
-        for team in queryset:
-            try:
-                generate_youth_players(team)
-                successful_teams += 1
-            except Exception as e:
-                self.message_user(
-                    request,
-                    f"Error generating youth players for teams {team.name}: {e}",
-                    level=messages.ERROR
-                )
-        self.message_user(
-            request,
-            f"Youth players successfully generated for {successful_teams} teams(s).",
-            level=messages.SUCCESS
-        )
-
     actions = [
         'fill_selected_teams_with_players',
         'set_team_logos_action',
-        'generate_youth_players_action'
     ]
     fill_selected_teams_with_players.short_description = "Fill Selected Teams with Players"
     set_team_logos_action.short_description = "Set Logos for Selected Teams"
-    generate_youth_players_action.short_description = "Generate Youth Players for Selected Teams"
 
 
 @admin.register(TeamFinance)

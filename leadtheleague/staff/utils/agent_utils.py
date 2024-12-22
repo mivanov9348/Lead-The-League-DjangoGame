@@ -10,11 +10,11 @@ from players.utils.generate_player_utils import generate_free_agents
 from staff.models import Agent
 from teams.utils.team_finance_utils import team_expense
 
-def generate_agents(free_agents_count):
+def generate_agents():
     agents = []
     nationalities = Nationality.objects.all()
 
-    free_agents_count = int(free_agents_count)
+    free_agents_count = 10
 
     for _ in range(free_agents_count):
         nationality = random.choice(nationalities)

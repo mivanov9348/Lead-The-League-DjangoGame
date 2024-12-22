@@ -1,8 +1,9 @@
+from django.db.models import F
 from django.shortcuts import get_object_or_404
 from setuptools import logging
 from game.models import Settings
 from game.utils.get_season_stats_utils import get_current_season
-from players.models import PlayerMatchStatistic, PlayerMatchRating
+from players.models import PlayerMatchStatistic, PlayerMatchRating, Player
 from teams.models import TeamPlayer
 
 def get_base_price(position_name):
@@ -125,6 +126,10 @@ def release_player_from_team(user_team, player):
     player.is_free_agent = True
     player.save()
 
-def promote_player(player):
-    player.is_youth = False
-    player.save()
+def promoting_youth_players():
+    # If players make 18 years old -> Main Team
+    youth_players_ready_for_promotion = Player.objects.filter(is_youth=True, age__gte=18)
+    youth_players_ready_for_promotion.update(is_youth=False)
+
+def all_players_age_up():
+    Player.objects.update(age=F('age') + 1)

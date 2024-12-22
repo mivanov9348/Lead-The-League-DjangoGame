@@ -1,8 +1,9 @@
 from itertools import chain
-
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
-
-from fixtures.utils import get_fixtures_by_team_and_type, format_fixtures
+from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
+from fixtures.utils import format_fixtures
+from game.models import Season
 from players.models import Player
 from players.utils.get_player_stats_utils import get_player_data
 from teams.models import Team, TeamFinance
@@ -60,13 +61,32 @@ def get_poster_schedule(league, user_team):
 
     return schedule_data
 
+def get_fixtures_by_team_and_type(team):
+    active_season = Season.objects.filter(is_active=True).first()
+    if not active_season:
+        return {
+            "league": [],
+            "cup": [],
+            "euro": [],
+        }
 
-def get_team_schedule(team):
-    fixtures_by_type = get_fixtures_by_team_and_type(team)
-    all_fixtures = chain(
-        fixtures_by_type["league"], fixtures_by_type["cup"], fixtures_by_type["euro"]
-    )
-    return format_fixtures(all_fixtures, team)
+    league_fixtures = LeagueFixture.objects.filter(
+        (Q(home_team=team) | Q(away_team=team)) & Q(season=active_season)
+    ).order_by('date', 'match_time')
+
+    cup_fixtures = CupFixture.objects.filter(
+        (Q(home_team=team) | Q(away_team=team)) & Q(season_cup__season=active_season)
+    ).select_related('season_cup', 'season_cup__cup').order_by('date', 'match_time')
+
+    euro_fixtures = EuropeanCupFixture.objects.filter(
+        (Q(home_team=team) | Q(away_team=team)) & Q(european_cup_season__season=active_season)
+    ).select_related('european_cup_season', 'group', 'knockout_stage').order_by('date', 'match_time')
+
+    return {
+        "league": league_fixtures,
+        "cup": cup_fixtures,
+        "euro": euro_fixtures,
+    }
 
 
 def get_team_data(team_id):

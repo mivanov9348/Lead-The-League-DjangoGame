@@ -5,6 +5,7 @@ from django.db.utils import IntegrityError
 from cups.models import SeasonCup
 from cups.utils.get_cups_utils import determine_stage_by_teams_count
 from fixtures.models import CupFixture
+from game.models import MatchSchedule
 from teams.models import Team
 
 def get_teams_for_cup(cup):
@@ -30,7 +31,6 @@ def get_teams_for_cup(cup):
     random.shuffle(active_teams)
     return active_teams
 
-
 def create_season_cup(cup, season):
     try:
         with transaction.atomic():
@@ -55,14 +55,33 @@ def create_season_cup(cup, season):
         print(f"Грешка при създаване на SeasonCup за купа '{cup.name}': {e}")
         return None
 
+def get_first_available_cup_schedule(season):
+    return MatchSchedule.objects.filter(
+        season=season,
+        event_type='cup',
+        is_cup_day_assigned=False
+    ).order_by('date').first()
 
-def generate_cup_fixtures(season_cup, cup, first_available_schedule):
+def process_all_season_cups(season):
+    season_cups = SeasonCup.objects.filter(season=season)
+    first_available_schedule = get_first_available_cup_schedule(season)
+
+    for season_cup in season_cups:
+
+        if not first_available_schedule:
+            raise ValueError(f"Няма наличен график за мачове в сезон {season} за купа.")
+
+        generate_cup_fixtures(season_cup, first_available_schedule)
+
+def generate_cup_fixtures(season_cup, first_available_schedule):
     try:
         with transaction.atomic():
             if CupFixture.objects.filter(season_cup=season_cup).exists():
-                return
+                return  # Мачовете за този сезон вече са създадени
 
             teams = list(season_cup.participating_teams.all())
+
+            # Добавяме "бай" отбор, ако броят на отборите е нечетен
             if len(teams) % 2 != 0:
                 placeholder_team, _ = Team.objects.get_or_create(
                     name="Bye Team",
@@ -72,6 +91,8 @@ def generate_cup_fixtures(season_cup, cup, first_available_schedule):
                 teams.append(placeholder_team)
 
             random.shuffle(teams)
+
+            # Създаваме двойки за срещи
             fixtures = []
             while len(teams) > 1:
                 home_team = teams.pop(random.randint(0, len(teams) - 1))
@@ -80,6 +101,8 @@ def generate_cup_fixtures(season_cup, cup, first_available_schedule):
 
             max_fixture_number = CupFixture.objects.aggregate(Max('fixture_number'))['fixture_number__max'] or 0
             bulk_create_list = []
+
+            # Създаваме обекти за всички срещи
             for index, (home_team, away_team) in enumerate(fixtures):
                 new_fixture_number = max_fixture_number + index + 1
                 bulk_create_list.append(CupFixture(
@@ -97,13 +120,17 @@ def generate_cup_fixtures(season_cup, cup, first_available_schedule):
             first_available_schedule.is_cup_day_assigned = True
             first_available_schedule.save()
 
+            # Вмъкваме мачовете в базата данни
             CupFixture.objects.bulk_create(bulk_create_list)
+
         season_cup.current_stage = 'Round 1'
         season_cup.save()
+
     except IntegrityError as e:
-        raise ValueError(f"Грешка при генериране на мачове за Cup '{cup.name}': {e}")
+        raise ValueError(f"Грешка при генериране на мачове за Cup: {e}")
     except Exception as e:
         raise ValueError(f"Неочаквана грешка: {e}")
+
 
 def generate_next_round_fixtures(season_cup, shared_match_date):
     try:

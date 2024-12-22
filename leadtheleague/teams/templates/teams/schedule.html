@@ -10,6 +10,7 @@
 {% block content %}
 <div class="container mt-5">
     <div class="schedule-container">
+        {% if fixtures %}
         <div class="calendar-grid">
             {% for fixture in fixtures %}
             <div class="calendar-day">
@@ -21,30 +22,27 @@
                     {% for match in fixture.matches %}
                     <div class="calendar-match">
                         <div class="match-teams">
+                            {% if match.opponent.logo %}
                             <img src="{{ match.opponent.logo.url }}" alt="{{ match.opponent.name }} Logo">
-                            <div class="opponent">{{ match.opponent }}</div>
+                            {% endif %}
+                            <div class="opponent">{{ match.opponent.name }}</div>
                             <div class="match-time">{{ match.time }}</div>
                         </div>
-                        {% if match.result %}
-                        <div class="match-result">
-                            <span class="home-score">{{ match.result.home_score }}</span> -
-                            <span class="away-score">{{ match.result.away_score }}</span>
+                        <div class="match-details">
+                            <div class="home-away">{{ match.home_away }}</div>
+                            <div class="match-type">{{ match.type }}</div>
                         </div>
-                        {% else %}
-                        <div class="home-team">{{ match.home_away }}</div>
-                        <div class="match-type">{{ match.type }}</div>
-                        {% endif %}
-
                     </div>
                     {% endfor %}
                 </div>
             </div>
-            {% empty %}
-            <div class="no-fixtures text-center">
-                No fixtures available.
-            </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="no-fixtures text-center">
+            No fixtures available.
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -13,6 +13,10 @@ def calculate_coach_price(rating):
     price_coefficient = get_setting_value('coach_price_coefficient')
     return base_price * (1 + rating * price_coefficient)
 
+def new_seasons_coaches():
+    coaches_count = int(get_setting_value('coaches_count'))
+    coaches = [generate_coach() for _ in range(coaches_count)]
+
 def generate_coach():
     random_nationality = get_random_nationality()
     region = get_nationality_region(random_nationality)
