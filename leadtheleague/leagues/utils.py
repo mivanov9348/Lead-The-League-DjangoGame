@@ -4,6 +4,8 @@ import random
 from django.db import transaction
 from europeancups.models import EuropeanCupTeam
 from fixtures.models import LeagueFixture
+from game.models import Season, MatchSchedule
+from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams
@@ -186,24 +188,56 @@ def update_league_standings(league_season, fixtures):
         away_team_record.save()
 
 
+def assign_league_champions(season):
+    if not season:
+        season = get_current_season()
+        return
+
+    played_league_days = MatchSchedule.objects.filter(
+        season=season,
+        is_league_day_assigned=True,
+        is_played=True
+    )
+
+    if not played_league_days.exists():
+        print("Няма изиграни лиги през активния сезон.")
+        return
+
+    league_seasons = LeagueSeason.objects.filter(season=season)
+
+    for league_season in league_seasons:
+        league_teams = league_season.teams.all()
+
+        if not league_teams.exists():
+            print(f"Няма отбори за лига {league_season.league.name}.")
+            continue
+
+        champion_team = league_teams.order_by('-points', '-goaldifference', '-goalscored').first()
+
+        if champion_team:
+            league_season.champion_team = champion_team.team
+            league_season.is_completed = True
+            league_season.save()
+            print(f"Шампион на лигата {league_season.league.name}: {champion_team.team.name}")
+        else:
+            print(f"Неуспешно определяне на шампиона за лига {league_season.league.name}.")
+
+
 def process_relegation_promotion(new_season):
     leagues = League.objects.order_by('level')
 
     for league in leagues:
-        # Вземаме последния завършен сезон и текущия сезон за лигата
         previous_league_season = league.seasons.filter(is_completed=True).order_by('-season__year').first()
         current_league_season = league.seasons.filter(season=new_season, is_completed=False).first()
 
         if not previous_league_season:
             continue
 
-        # Подреждаме отборите от предишния сезон
         league_teams = previous_league_season.teams.order_by('-points', '-goaldifference', '-goalscored')
 
-        # Обработка на промоция
         if not league.is_top_league:
             promoted_teams = league_teams[:league.promoted]
-            upper_league = League.objects.filter(level=league.level - 1, country=league.country).first()
+            upper_league = League.objects.filter(level=league.level - 1, nationality=league.nationality).first()
 
             if upper_league:
                 upper_league_season, created = LeagueSeason.objects.get_or_create(
@@ -211,16 +245,15 @@ def process_relegation_promotion(new_season):
                 )
 
                 for team in promoted_teams:
-                    if team.team.country == league.country:  # Проверка за националност
+                    if team.team.nationality == league.nationality:  # Проверка за националност
                         LeagueTeams.objects.create(
                             league_season=upper_league_season,
                             team=team.team
                         )
 
-        # Обработка на изпадане
         if not league.is_bottom_league:
             relegated_teams = league_teams.reverse()[:league.relegated]  # Последните X отбора
-            lower_league = League.objects.filter(level=league.level + 1, country=league.country).first()
+            lower_league = League.objects.filter(level=league.level + 1, nationality=league.nationality).first()
 
             if lower_league:
                 lower_league_season, created = LeagueSeason.objects.get_or_create(
@@ -228,13 +261,12 @@ def process_relegation_promotion(new_season):
                 )
 
                 for team in relegated_teams:
-                    if team.team.country == league.country:  # Проверка за националност
+                    if team.team.nationality == league.nationality:  # Проверка за националност
                         LeagueTeams.objects.create(
                             league_season=lower_league_season,
                             team=team.team
                         )
 
-        # Оставащи отбори
         remaining_teams = league_teams[league.promoted:len(league_teams) - league.relegated]
         for team in remaining_teams:
             LeagueTeams.objects.create(

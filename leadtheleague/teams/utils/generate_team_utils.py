@@ -1,4 +1,7 @@
 import os
+
+from django.db import transaction
+
 from leadtheleague import settings
 from teams.models import Team
 
@@ -58,10 +61,12 @@ def update_team_stats(match):
     #     home_stats.save()
     #     away_stats.save()
 
+
 def boost_reputation(team, reputation_increase):
     new_reputation = team.reputation + reputation_increase
-    team.reputation = max(1000, min(new_reputation, 10000)) #за settings
+    team.reputation = max(1000, min(new_reputation, 10000))  # за settings
     team.save()
+
 
 def reduce_reputation(team, reputation_decrease):
     new_reputation = team.reputation + reputation_decrease
@@ -70,18 +75,21 @@ def reduce_reputation(team, reputation_decrease):
 
 
 def set_team_logos():
-    all_teams = Team.objects.all().itterator()
-    logos_dir = os.path.join(settings.MEDIA_URL, 'logos')
+    all_teams = Team.objects.all()
+    logos_dir = os.path.join(settings.MEDIA_ROOT, 'logos')  # Коригирано към MEDIA_ROOT
     successful_teams = 0
     errors = []
 
     for team in all_teams:
-        logo_path = os.path.join(logos_dir, f"{team.name}.png")
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, 'logos', f"{team.name}.png")):
+        logo_filename = f"{team.name}.png"
+        logo_path = os.path.join(logos_dir, logo_filename)
+
+        if os.path.exists(logo_path):
             try:
-                team.logo = f"logos/{team.name}.png"
-                team.save(update_fields=['logo'])
-                successful_teams += 1
+                with transaction.atomic():  # Използване на транзакция за надеждност
+                    team.logo = f"logos/{logo_filename}"
+                    team.save(update_fields=['logo'])
+                    successful_teams += 1
             except Exception as e:
                 errors.append(f"Error setting logo for team {team.name}: {e}")
         else:

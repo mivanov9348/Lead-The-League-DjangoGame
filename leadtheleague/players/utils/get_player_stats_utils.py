@@ -25,7 +25,7 @@ def get_average_player_rating_for_current_season(player: Player) -> float:
 
 
 def get_player_team(player):
-    team_player = player.team_players.select_related('teams').first()
+    team_player = player.team_players.select_related('team').first()
     return {
         'id': team_player.team.id if team_player else 'No Team',
         'team_name': team_player.team.name if team_player else 'No teams',

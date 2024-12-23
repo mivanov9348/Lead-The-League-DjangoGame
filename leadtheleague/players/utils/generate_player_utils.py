@@ -190,9 +190,10 @@ def generate_random_player(team=None, position=None, age=None):
 
     return player
 
+
 def generate_players_for_all_teams():
     teams = Team.objects.prefetch_related('team_players')
-    for team in teams.iterator():
+    for team in teams.iterator(chunk_size=1000):
         generate_team_players(team)
 
 
@@ -338,10 +339,12 @@ def generate_youth_players(season):
 
     return youth_players
 
+
 def generate_all_players_season_stats():
-    all_players = Player.objects.filter(is_active=True).iterator()
+    all_players = Player.objects.filter(is_active=True).iterator(chunk_size=1000)
     for player in all_players:
         generate_player_season_stats(player)
+
 
 def generate_player_season_stats(player):
     season = get_current_season()

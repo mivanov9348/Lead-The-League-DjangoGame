@@ -42,10 +42,8 @@ def distribute_to_funds(bank, funds_share):
 
     with transaction.atomic():
         for fund_name, key in fund_keys.items():
-            # Преобразуване на процента към Decimal
             percentage = Decimal(str(get_setting_value(key)))
 
-            # Изчисляване на дела за фонда
             amount = funds_share * percentage
 
             if amount > 0:

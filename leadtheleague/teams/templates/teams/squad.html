@@ -5,208 +5,95 @@
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/squad.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+
 {% endblock %}
 
 {% block content %}
-
 <div class="team-info">
     <h1>{{ team.name }}</h1>
 </div>
 
 <div class="table-container">
-    <!-- Player Info -->
-    <div class="table-section player-info">
-        <div class="section-title">Player Info</div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th title="Kit Number">
-                    <a href="?sort_by=shirt_number&order={% if current_sort == 'shirt_number' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-tshirt"></i>
-                    </a>
-                </th>
-                <th title="Name">
-                    <a href="?sort_by=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-user"></i>
-                    </a>
-                </th>
-                <th title="Position">
-                    <a href="?sort_by=positionabbr&order={% if current_sort == 'positionabbr' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-map-marker-alt"></i>
-                    </a>
-                </th>
-                <th title="Nationality">
-                    <a href="?sort_by=nationalityabbr&order={% if current_sort == 'nationalityabbr' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-flag"></i>
-                    </a>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for player in players_data %}
-            <tr>
-                <td>{{ player.shirt_number|default:"-" }}</td>
-                <td><a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name|default:"-" }}</a></td>
-                <td>{{ player.personal_info.positionabbr|default:"-" }}</td>
-                <td title="{{player.personal_info.nationality}}">{{ player.personal_info.nationalityabbr|default:"-" }}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="text-center">No players available</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <table id="squad-table" class="display responsive nowrap" style="width:100%">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Position</th>
+            <th>Nationality</th>
+            <th>Matches</th>
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Shots</th>
+            <th>Saves</th>
+            <th>Clean Sheets</th>
+            <th>🟨</th>
+            <th>🟥</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for player in players_data %}
+        <tr>
 
-    <!-- Player Stats -->
-    <div class="table-section player-stats">
-        <div class="section-title">Season Stats</div>
-        <table>
-            <thead>
-            <tr>
-                <th title="Matches"><i class="fa fa-calendar"></i></th>
-                <th title="Goals"><i class="fa fa-futbol"></i></th>
-                <th title="Assists"><i class="fa fa-handshake"></i></th>
-                <th title="Shots"><i class="fa fa-bullseye"></i></th>
-                <th title="Shoots on Target"><i class="fa fa-crosshairs"></i></th>
-                <th title="Passes"><i class="fa fa-exchange-alt"></i></th>
-                <th title="Dribbles"><i class="fa fa-running"></i></th>
-                <th title="Tackles"><i class="fa fa-shield-alt"></i></th>
-                <th title="Fouls"><i class="fa fa-ban"></i></th>
-                <th title="Yellow Cards"><i class="fa fa-square" style="color:yellow;"></i></th>
-                <th title="Red Cards"><i class="fa fa-square" style="color:red;"></i></th>
-                <th title="Saves"><i class="fa fa-hand-paper"></i></th>
-                <th title="Clean Sheets"><i class="fa fa-bed"></i></th>
-                <th title="Conceded"><i class="fa fa-door-open"></i></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for player in players_data %}
-            <tr>
-                <td>{{ player.stats.Matches }}</td>
-                <td>{{ player.stats.Goals }}</td>
-                <td>{{ player.stats.Assists }}</td>
-                <td>{{ player.stats.Shoots }}</td>
-                <td>{{ player.stats.ShootsOnTarget }}</td>
-                <td>{{ player.stats.Passes }}</td>
-                <td>{{ player.stats.Dribbles }}</td>
-                <td>{{ player.stats.Tackles }}</td>
-                <td>{{ player.stats.Fouls }}</td>
-                <td>{{ player.stats.YellowCards }}</td>
-                <td>{{ player.stats.RedCards }}</td>
-                <td>{{ player.stats.Saves }}</td>
-                <td>{{ player.stats.CleanSheets }}</td>
-                <td>{{ player.stats.Conceded }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" class="text-center">No players available</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Player Attributes -->
-    <div class="table-section player-attributes">
-        <div class="section-title">Player Attributes</div>
-        <table>
-            <thead>
-            <tr>
-                <th title="Handling">
-                    <a href="?sort_by=handling&order={% if current_sort == 'handling' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-hand-paper"></i>
-                    </a>
-                </th>
-                <th title="Reflexes">
-                    <a href="?sort_by=reflexes&order={% if current_sort == 'reflexes' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-bolt"></i>
-                    </a>
-                </th>
-                <th title="Finishing">
-                    <a href="?sort_by=Finishing&order={% if current_sort == 'Finishing' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-flag-checkered"></i>
-                    </a>
-                </th>
-                <th title="Shooting">
-                    <a href="?sort_by=shooting&order={% if current_sort == 'shooting' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-bullseye"></i>
-                    </a>
-                </th>
-                <th title="Technique">
-                    <a href="?sort_by=technique&order={% if current_sort == 'technique' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-tools"></i>
-                    </a>
-                </th>
-                <th title="Passing">
-                    <a href="?sort_by=passing&order={% if current_sort == 'passing' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-exchange-alt"></i>
-                    </a>
-                </th>
-                <th title="Crossing">
-                    <a href="?sort_by=crossing&order={% if current_sort == 'crossing' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-arrows-alt-h"></i>
-                    </a>
-                </th>
-                <th title="Tackling">
-                    <a href="?sort_by=tackling&order={% if current_sort == 'tackling' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-shield-alt"></i>
-                    </a>
-                </th>
-                <th title="Strength">
-                    <a href="?sort_by=strength&order={% if current_sort == 'strength' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-dumbbell"></i>
-                    </a>
-                </th>
-                <th title="Determination">
-                    <a href="?sort_by=determination&order={% if current_sort == 'determination' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-bullhorn"></i>
-                    </a>
-                </th>
-                <th title="Ball Control">
-                    <a href="?sort_by=ball_control&order={% if current_sort == 'ball_control' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-futbol"></i>
-                    </a>
-                </th>
-                <th title="Dribbling">
-                    <a href="?sort_by=dribbling&order={% if current_sort == 'dribbling' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-running"></i>
-                    </a>
-                </th>
-                <th title="Speed">
-                    <a href="?sort_by=speed&order={% if current_sort == 'speed' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-tachometer-alt"></i>
-                    </a>
-                </th>
-                <th title="Vision">
-                    <a href="?sort_by=vision&order={% if current_sort == 'vision' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                </th>
-                <th title="Work Rate">
-                    <a href="?sort_by=work_rate&order={% if current_sort == 'work_rate' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                        <i class="fa fa-chart-line"></i>
-                    </a>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for player in players_data %}
-            <tr>
-                {% for attribute in player.attributes %}
-                <td>{{ attribute.value|default:"-" }}</td>
-                {% endfor %}
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="15" class="text-center">No attributes available</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            <td>{{ player.shirt_number|default:"-" }}</td>
+            <td>
+                {% if player.personal_info.image_url %}
+                <img src="{{ player.personal_info.image_url }}" alt="{{ player.personal_info.name }}"
+                     class="player-photo">
+                {% else %}
+                <img src="{% static 'images/default_player.png' %}" alt="Default Photo" class="player-photo">
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name|default:"-" }}</a>
+            </td>
+            <td>{{ player.personal_info.age }}</td>
+            <td>{{ player.personal_info.positionabbr|default:"-" }}</td>
+            <td>{{ player.personal_info.nationalityabbr|default:"-" }}</td>
+            <td>{{ player.stats.Matches|default:"-" }}</td>
+            <td>{{ player.stats.Goals|default:"-" }}</td>
+            <td>{{ player.stats.Assists|default:"-" }}</td>
+            <td>{{ player.stats.Shoots|default:"-" }}</td>
+            <td>{{ player.stats.Saves|default:"-" }}</td>
+            <td>{{ player.stats.CleanSheets|default:"-" }}</td>
+            <td>{{ player.stats.YellowCards|default:"-" }}</td>
+            <td>{{ player.stats.RedCards|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<script>
+    $('#squad-table').DataTable({
+     responsive: true,
+     scrollX: true,
+     order: [],
+     columnDefs: [
+         { targets: '_all', className: 'dt-center' }
+     ],
+     language: {
+         search: "Search:",
+         lengthMenu: "Show _MENU_ players",
+         info: "Showing _START_ to _END_ of _TOTAL_ players",
+         paginate: {
+             first: "First",
+             last: "Last",
+             next: "Next",
+             previous: "Previous"
+         }
+     }
+ });
+
+</script>
+{% endblock %}
+
+{% block extra_js %}
 
 {% endblock %}

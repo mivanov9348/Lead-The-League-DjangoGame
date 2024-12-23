@@ -19,7 +19,6 @@ from staff.utils.agent_utils import generate_agents
 from staff.utils.coach_utils import new_seasons_coaches
 from teams.utils.generate_team_utils import set_team_logos
 
-
 def create_game_season(year, season_number, start_date, match_time, is_active):
     start_datetime = datetime.datetime.combine(start_date, match_time)
 
@@ -47,7 +46,6 @@ def create_game_season(year, season_number, start_date, match_time, is_active):
     except IntegrityError as e:
         return None, f"Error creating season: {str(e)}"
 
-
 def finalize_season(season):
     if not check_are_all_competition_completed(season):
         return False
@@ -57,7 +55,6 @@ def finalize_season(season):
     season.end_date = datetime.date.today()
     season.save()
     return True
-
 
 def prepare_first_season(season):
     try:

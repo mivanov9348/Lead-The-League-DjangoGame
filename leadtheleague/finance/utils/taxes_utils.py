@@ -1,6 +1,7 @@
 from decimal import Decimal
 from finance.utils.bank_utils import distribute_income
-from game.utils import get_setting_value
+from game.utils.settings_utils import get_setting_value
+
 
 # tax from transfer
 def transfer_tax(bank, transfer_amount):

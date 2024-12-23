@@ -39,6 +39,7 @@ def create_groups_for_season(season):
 
     return f"Groups created successfully for {european_cup_season}!"
 
+
 def generate_group_fixtures(season):
     european_cup_season = EuropeanCupSeason.objects.get(season=season)
     if not european_cup_season:
@@ -72,6 +73,7 @@ def generate_group_fixtures(season):
             return [teams[0]] + [teams[-1]] + teams[1:-1]
 
         match_date_index = 0
+        used_dates = []
 
         # First half fixtures
         for round_num in range(num_rounds):
@@ -79,6 +81,7 @@ def generate_group_fixtures(season):
                 (teams[i], teams[-(i + 1)]) for i in range(len(teams) // 2) if teams[i] and teams[-(i + 1)]
             ]
             match_date = shared_dates[match_date_index]
+            used_dates.append(match_date)
 
             for home_team, away_team in round_matches:
                 fixtures.append(EuropeanCupFixture(
@@ -95,6 +98,10 @@ def generate_group_fixtures(season):
 
             teams = rotate_teams(teams)
             match_date_index += 1
+
+        for match_date in used_dates:
+            match_date.is_euro_cup_day_assigned = True
+            match_date.save()
 
         # Second half fixtures (reversed)
         for round_num in range(num_rounds):
@@ -118,6 +125,9 @@ def generate_group_fixtures(season):
                 next_fixture_number += 1
 
             match_date_index += 1
+            for match_date in used_dates:
+                match_date.is_euro_cup_day_assigned = True
+                match_date.save()
 
         EuropeanCupFixture.objects.bulk_create(fixtures)
 
@@ -131,11 +141,6 @@ def generate_group_fixtures(season):
 
     for group in groups:
         generate_fixtures_for_group(group, shared_dates)
-
-    # Mark shared dates as assigned
-    for match_date in shared_dates:
-        match_date.is_euro_cup_day_assigned = True
-        match_date.save()
 
     return f"Successfully generated fixtures for all groups in season {season}!"
 
@@ -228,31 +233,34 @@ def advance_teams_from_groups(european_cup_season):
     with transaction.atomic():
         for group in Group.objects.filter(european_cup_season=european_cup_season):
             group_teams = GroupTeam.objects.filter(group=group).order_by(
-                '-points', '-goals_difference', '-goals_for'
+                '-points', '-goals_difference', '-goals_for', 'goals_against'
             )
 
-            # Отбори, които продължават
             qualified_teams = group_teams[:teams_qualify_from_group]
             for group_team in qualified_teams:
                 european_cup_team = EuropeanCupTeam.objects.get(
                     team=group_team.team,
                     european_cup_season=european_cup_season
                 )
-                european_cup_team.is_eliminated = False
-                european_cup_team.save()
-                advancing_teams.append(group_team.team.name)
 
-                # Създаваме KnockoutTeam
+                if european_cup_team.is_eliminated:
+                    european_cup_team.is_eliminated = False
+                    european_cup_team.save()
+
+                advancing_teams.append(group_team.team.name)
                 create_knockout_team(group_team.team)
 
-            # Отбори, които отпадат
             for group_team in group_teams[teams_qualify_from_group:]:
                 european_cup_team = EuropeanCupTeam.objects.get(
                     team=group_team.team,
                     european_cup_season=european_cup_season
                 )
-                european_cup_team.is_eliminated = True
-                european_cup_team.save()
+
+                if not european_cup_team.is_eliminated:
+                    european_cup_team.is_eliminated = True
+                    european_cup_team.save()
+
                 eliminated_teams.append(group_team.team.name)
 
     return advancing_teams, eliminated_teams
+

@@ -30,26 +30,33 @@
 
     <!-- Мачове за избраната купа -->
     <div class="fixtures">
-        {% if fixtures %}
+        {% if fixtures_grouped %}
+        {% for round_stage, fixtures in fixtures_grouped.items %}
+        <div class="round-stage">
+            <h2>{{ round_stage }}</h2>
             {% for fixture in fixtures %}
             <div class="fixture">
-                <!-- Лого на домакинския отбор -->
                 <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="icon">
-
-                <!-- Информация за отборите и резултата -->
                 <div class="fixture-content">
                     <span class="team">{{ fixture.home_team.name }}</span>
-                    <span class="score">{{ fixture.home_goals }} : {{ fixture.away_goals }}</span>
+                    <span class="score">
+                        {% if fixture.is_finished %}
+                            {{ fixture.home_goals }} : {{ fixture.away_goals }}
+                        {% else %}
+                            TBA
+                        {% endif %}
+                    </span>
                     <span class="team">{{ fixture.away_team.name }}</span>
                 </div>
-
-                <!-- Лого на гостуващия отбор -->
                 <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="icon">
             </div>
             {% endfor %}
+        </div>
+        {% endfor %}
         {% else %}
-            <p class="no-fixtures">No fixtures available for the selected cup.</p>
+        <p class="no-fixtures">No fixtures available for the selected cup.</p>
         {% endif %}
     </div>
+
 </div>
 {% endblock %}

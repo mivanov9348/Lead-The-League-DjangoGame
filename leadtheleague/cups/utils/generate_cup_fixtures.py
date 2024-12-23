@@ -63,48 +63,64 @@ def get_first_available_cup_schedule(season):
     ).order_by('date').first()
 
 def process_all_season_cups(season):
+    print(f"Processing all SeasonCups for season: {season}")
     season_cups = SeasonCup.objects.filter(season=season)
+    print(f"Found {season_cups.count()} SeasonCups for the season.")
+
     first_available_schedule = get_first_available_cup_schedule(season)
+    print(f"First available schedule: {first_available_schedule}")
 
     for season_cup in season_cups:
-
+        print(f"Processing SeasonCup: {season_cup}")
         if not first_available_schedule:
-            raise ValueError(f"Няма наличен график за мачове в сезон {season} за купа.")
-
+            raise ValueError(f"No available match schedule for season {season}.")
         generate_cup_fixtures(season_cup, first_available_schedule)
 
 def generate_cup_fixtures(season_cup, first_available_schedule):
     try:
+        print(f"Generating fixtures for SeasonCup: {season_cup}")
         with transaction.atomic():
             if CupFixture.objects.filter(season_cup=season_cup).exists():
-                return  # Мачовете за този сезон вече са създадени
+                print(f"Fixtures already exist for SeasonCup: {season_cup}")
+                return  # Fixtures for this SeasonCup are already created
 
             teams = list(season_cup.participating_teams.all())
+            print(f"Participating teams ({len(teams)}): {[team.name for team in teams]}")
 
-            # Добавяме "бай" отбор, ако броят на отборите е нечетен
+            # Add a "bye" team if the number of teams is odd
             if len(teams) % 2 != 0:
-                placeholder_team, _ = Team.objects.get_or_create(
+                print("Odd number of teams, adding Bye Team.")
+                placeholder_team, created = Team.objects.get_or_create(
                     name="Bye Team",
                     is_active=False,
                     nationality=season_cup.cup.nationality
                 )
+                if created:
+                    print("Created a new Bye Team.")
                 teams.append(placeholder_team)
 
-            random.shuffle(teams)
+            print(f"Teams after potential Bye addition ({len(teams)}): {[team.name for team in teams]}")
 
-            # Създаваме двойки за срещи
+            random.shuffle(teams)
+            print(f"Shuffled teams: {[team.name for team in teams]}")
+
+            # Create match pairs
             fixtures = []
             while len(teams) > 1:
                 home_team = teams.pop(random.randint(0, len(teams) - 1))
                 away_team = teams.pop(random.randint(0, len(teams) - 1))
                 fixtures.append((home_team, away_team))
+                print(f"Created fixture: {home_team.name} vs {away_team.name}")
 
             max_fixture_number = CupFixture.objects.aggregate(Max('fixture_number'))['fixture_number__max'] or 0
+            print(f"Max fixture number so far: {max_fixture_number}")
+
             bulk_create_list = []
 
-            # Създаваме обекти за всички срещи
+            # Prepare CupFixture objects
             for index, (home_team, away_team) in enumerate(fixtures):
                 new_fixture_number = max_fixture_number + index + 1
+                print(f"Preparing fixture #{new_fixture_number}: {home_team.name} vs {away_team.name}")
                 bulk_create_list.append(CupFixture(
                     fixture_number=new_fixture_number,
                     home_team=home_team,
@@ -119,17 +135,22 @@ def generate_cup_fixtures(season_cup, first_available_schedule):
 
             first_available_schedule.is_cup_day_assigned = True
             first_available_schedule.save()
+            print(f"Marked schedule as assigned: {first_available_schedule}")
 
-            # Вмъкваме мачовете в базата данни
+            # Bulk insert the fixtures into the database
             CupFixture.objects.bulk_create(bulk_create_list)
+            print(f"Inserted {len(bulk_create_list)} fixtures into the database.")
 
         season_cup.current_stage = 'Round 1'
         season_cup.save()
+        print(f"Updated SeasonCup stage to 'Round 1'.")
 
     except IntegrityError as e:
-        raise ValueError(f"Грешка при генериране на мачове за Cup: {e}")
+        print(f"Integrity error: {e}")
+        raise ValueError(f"Error generating matches for Cup: {e}")
     except Exception as e:
-        raise ValueError(f"Неочаквана грешка: {e}")
+        print(f"Unexpected error: {e}")
+        raise ValueError(f"Unexpected error: {e}")
 
 
 def generate_next_round_fixtures(season_cup, shared_match_date):

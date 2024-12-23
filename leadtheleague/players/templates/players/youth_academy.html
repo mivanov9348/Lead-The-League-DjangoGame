@@ -60,8 +60,10 @@
                     {{ attribute.value }}
                     <div class="progress-bar">
                         <div class="progress-fill"
-                             style="width: {{ attribute.progress|floatformat:1|floatformat:1 }}%;"></div>
+                             style="width: {{ attribute.progress|floatformat:1 }}%;"></div>
+
                     </div>
+
                     <span>{{ attribute.progress|floatformat:1 }}</span>
 
                 </td>

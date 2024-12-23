@@ -1,85 +1,83 @@
-.table-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 10px;
-}
+.table-container{
+    background-color: var(--darkergreen-color);
+    color:white;
 
-.table-section {
-    flex: 1 1 calc(33% - 20px);
-    border: 1px solid #ddd;
+}
+#squad-table {
+    color: white;
+    background-color: var(--darkgreen-color);
     border-radius: 10px;
     overflow: hidden;
-    background-color: var(--darkgreen-color);
-    color: white;
+    font-size: 14px; /* Компактен шрифт */
 }
 
-.section-title {
+/* Стил за колони */
+th, td {
     text-align: center;
-    font-size: 1.2em;
-    font-weight: bold;
-    background-color: var(--darkergreen-color);
-    color: white;
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    width:100%;
-}
-
-.table-section table {
-    width: 100%;
-    border-collapse: collapse;
+    vertical-align: middle;
     border: 1px solid #ddd;
+    padding: 5px; /* Намален padding */
+    max-width: 50px; /* Ограничение на ширината */
+    white-space: nowrap; /* Всичко на един ред */
+    overflow: hidden;
+    text-overflow: ellipsis;
+        background-color: var(--darkergreen-color);
+        color:white
+
 }
 
-.table-section th {
-    background-color: black;
-    color: white;
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #ddd; /* Бордъри около клетките */
+/* Заглавията на колоните */
+#squad-table th {
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 14px;
 }
 
-.table-section td {
-    text-align: center;
-    padding: 8px;
-    border: 1px solid #ddd; /* Бордъри около клетките */
-    color: white;
+#squad-table th:hover {
+    color: #f2f2f2;
+    background-color: var(--darkergreen-color);
 }
 
-/* Hover ефект */
-.table-section tr:hover {
+/* Тяло на таблицата */
+#squad-table tbody tr {
+    background-color: var(--darkgreen-color);
+}
+
+#squad-table tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Контейнер за хоризонтално превъртане */
-.table-section {
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #888 #444;
+/* За снимките на играчите */
+.player-photo {
+    width: 40px; /* Намален размер */
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
 }
 
-/* Стилове за скролбара (за webkit браузъри) */
-.table-section::-webkit-scrollbar {
-    height: 8px;
+/* Стил за навигацията и търсенето */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: var(--darkgreen-color);
+    color: white;
+    font-size: 14px;
+    width: 100px; /* Намален размер */
 }
-.table-section::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 10px;
+
+/* Пагинация */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: 1px solid #ddd;
+    padding: 5px;
+    margin: 2px;
+    color: white;
+    background-color: var(--darkergreen-color);
+    border-radius: 5px;
 }
-.table-section::-webkit-scrollbar-thumb:hover {
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
     background-color: #555;
-}
-
-/* Добавяне на стилове за празен ред */
-.table-section .text-center {
-    color: #bbb;
-    font-style: italic;
-}
-
-/* Адаптивност за мобилни устройства */
-@media (max-width: 768px) {
-    .table-section {
-        flex: 1 1 100%;
-    }
 }

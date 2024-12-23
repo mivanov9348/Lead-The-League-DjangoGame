@@ -12,100 +12,97 @@
         <button class="nav-button" id="global-finance-btn">Global Finance</button>
     </nav>
 
-    <section id="team-finance-section">
-        <header>
+    <section id="team-finance-section" class="active">
+        <header class="team-finance-header">
             <h1>{{ team.name }} Finance</h1>
-            <p>Balance: <strong>{{ finance.balance|intcomma }} 💰</strong></p>
+            <p class="balance">Balance: <strong>{{ finance.balance|intcomma }} 💰</strong></p>
         </header>
-
-        <section>
+        <hr/>
+        <section class="transactions">
             <h2>Last Transactions</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                    </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in transactions %}
-                    <tr>
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.amount|intcomma }}</td>
-                        <td>{{ transaction.description }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4">No transactions</td>
-                    </tr>
-                    {% endfor %}
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.type }}</td>
+                    <td>{{ transaction.amount|intcomma }}</td>
+                    <td>{{ transaction.description }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No transactions</td>
+                </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </section>
     </section>
 
     <!-- Global Finance Section -->
-    <section id="global-finance-section" style="display: none;">
-        <header>
-            <h1>Global Finance Overview</h1>
-            <p>Bank Balance: <strong>{{ bank.balance|intcomma }} 💰</strong></p>
-        </header>
+    <section id="global-finance-section">
 
-        <section>
+
+        <section class="transactions">
             <h2>Bank Transactions</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                    </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in bank_transactions %}
-                    <tr>
-                        <td>{{ transaction.created_at }}</td>
-                        <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.amount|intcomma }}</td>
-                        <td>{{ transaction.description }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4">No transactions</td>
-                    </tr>
-                    {% endfor %}
+                {% for transaction in bank_transactions %}
+                <tr>
+                    <td>{{ transaction.created_at }}</td>
+                    <td>{{ transaction.type }}</td>
+                    <td>{{ transaction.amount|intcomma }}</td>
+                    <td>{{ transaction.description }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No transactions</td>
+                </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </section>
 
-        <section>
+        <section class="funds">
             <h2>Funds</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Balance</th>
-                        <th>Total Income</th>
-                        <th>Total Expense</th>
-                    </tr>
+                <tr>
+                    <th>Name</th>
+                    <th>Balance</th>
+                    <th>Total Income</th>
+                    <th>Total Expense</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for fund in funds %}
-                    <tr>
-                        <td>{{ fund.name }}</td>
-                        <td>{{ fund.balance|intcomma }}</td>
-                        <td>{{ fund.total_income|intcomma }}</td>
-                        <td>{{ fund.total_expense|intcomma }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4">No funds</td>
-                    </tr>
-                    {% endfor %}
+                {% for fund in funds %}
+                <tr>
+                    <td>{{ fund.name }}</td>
+                    <td>{{ fund.balance|intcomma }}</td>
+                    <td>{{ fund.total_income|intcomma }}</td>
+                    <td>{{ fund.total_expense|intcomma }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No funds</td>
+                </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </section>

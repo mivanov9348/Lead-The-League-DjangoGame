@@ -28,7 +28,15 @@
                     <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="team-logo">
                     <span class="team-name">{{ fixture.home_team.name }}</span>
                 </div>
-                <div class="score">{{ fixture.home_goals }} - {{ fixture.away_goals }}</div>
+
+                <div class="score">
+                    {% if fixture.is_finished %}
+                    {{ fixture.home_goals }} - {{ fixture.away_goals }}
+                    {% else %}
+                    TBA
+                    {% endif %}
+                </div>
+
                 <div class="team away-team">
                     <span class="team-name">{{ fixture.away_team.name }}</span>
                     <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="team-logo">
@@ -39,13 +47,7 @@
     </div>
     {% endfor %}
     {% else %}
-    <p>No fixtures found for this round.</p>
+    <p class="no-fixtures">No fixtures found for this round.</p>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block script %}
-<script>
-    // JavaScript logic if needed
-</script>
 {% endblock %}

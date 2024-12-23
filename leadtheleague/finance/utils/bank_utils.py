@@ -33,16 +33,13 @@ def distribute_income(bank, amount, description):
     if amount <= 0:
         raise ValueError("Amount must be positive!")
 
-    # Преобразуваме процентите към Decimal
     bank_share_percentage = Decimal(str(get_setting_value("bank_share"))).quantize(Decimal("0.0001"))
     funds_share_percentage = Decimal(str(get_setting_value("fund_share"))).quantize(Decimal("0.0001"))
 
-    # Проверяваме дали сумата от процентите е равна на 1 с малка допустима грешка
     total_percentage = bank_share_percentage + funds_share_percentage
     if total_percentage != Decimal("1"):
         raise ValueError(f"Bank and fund share percentages must sum to 1 (got {total_percentage}).")
 
-    # Изчисляваме дяловете
     bank_share = amount * bank_share_percentage
     funds_share = amount * funds_share_percentage
 

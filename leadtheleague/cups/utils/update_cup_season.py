@@ -1,11 +1,12 @@
 from cups.models import SeasonCup, Cup
+from cups.utils.generate_cup_fixtures import create_season_cup
 from fixtures.models import CupFixture
 
 def generate_cups_season(season):
     cups = Cup.objects.all()
     for cup in cups:
         if not SeasonCup.objects.filter(cup=cup, season=season).exists():
-            SeasonCup.objects.create(cup=cup, season=season)
+            create_season_cup(cup, season)
 
 def set_season_cup_completed(season_cup):
     season_cup.is_completed = True
