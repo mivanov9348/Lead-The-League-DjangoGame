@@ -29,7 +29,6 @@ def add_fund_expense(fund, amount):
 
 
 def distribute_to_funds(bank, funds_share):
-    """Distribute a specific amount to all funds."""
     fund_keys = {
         "Match Fund": "match_fund",
         "League Fund": "league_fund",

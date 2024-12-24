@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.db import transaction
-from finance.utils.bank_utils import get_bank
+from finance.utils.bank_utils import get_bank, distribute_income
 from finance.utils.transaction_utils import create_transaction
 from teams.models import TeamFinance
 
@@ -13,21 +13,31 @@ def check_team_balance(team, amount_needed):
 
 @transaction.atomic
 def terminate_team_finance(team):
-    print(f"Започваме процеса на прекратяване на финанси за отбор {team.name}")
 
     team_finance = TeamFinance.objects.filter(team=team).first()
     if not team_finance:
-        print(f"Отборът {team.name} не разполага с финансови данни.")
         return
 
     bank = get_bank()
-    print(f"Getting Bank Information: {bank}")
 
     create_transaction(bank, 'IN', team_finance.balance, f'Terminate Team ({team.name})')
-    print(f"Създадена транзакция за прекратяване на отбор ({team.name}) с баланс {team_finance.balance}")
-
     team_finance.delete()
-    print(f"Финансовите данни за отбор {team.name} бяха успешно изтрити.")
+
+
+def team_match_profit(team, income, description):
+    if income <= 0:
+        raise ValueError("Income amount must be positive!")
+
+    tax_percentage = Decimal("0.2")
+    team_percentage = Decimal("0.8")
+
+    tax_amount = income * float(tax_percentage)
+    team_amount = income * float(tax_percentage)
+
+    with transaction.atomic():
+        team_income(team, team_amount)
+        bank = get_bank()
+        distribute_income(bank, tax_amount, description)
 
 def team_income(team, amount):
     try:

@@ -7,6 +7,7 @@ from fixtures.models import LeagueFixture
 from game.models import Season, MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
+from match.utils.get_match_stats import get_match_by_fixture, calculate_match_attendance, match_income
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams
 
@@ -55,12 +56,9 @@ def check_and_mark_league_seasons_completed():
         active_league_seasons = LeagueSeason.objects.filter(is_completed=False)
 
         for league_season in active_league_seasons:
-            if not league_season.league.league_fixtures.filter(
-                    season=league_season.season, is_finished=False
-            ).exists():
+            if not league_season.fixtures.filter(is_finished=False).exists():
                 league_season.is_completed = True
                 league_season.save()
-
 
 def populate_teams_for_season(season):
     json_path = os.path.join(settings.BASE_DIR, "static/data/leagues_and_teams.json")
@@ -118,7 +116,7 @@ def simulate_day_league_fixtures(match_day):
             league = league_season.league
 
             fixtures = LeagueFixture.objects.filter(
-                league=league, date=match_day, is_finished=False
+                league_season__league=league, date=match_day, is_finished=False
             )
 
             if not fixtures.exists():
@@ -138,6 +136,22 @@ def simulate_day_league_fixtures(match_day):
                     fixture.winner = fixture.away_team
 
                 fixture.save()
+
+                try:
+                    match = get_match_by_fixture(fixture)
+                except ValueError:
+                    continue
+
+                match.home_goals = home_goals
+                match.away_goals = away_goals
+                match.is_played = True
+                match.current_minute = 90
+
+                attendance = calculate_match_attendance(match)
+                match.attendance = attendance
+                match.save()
+
+                match_income(match, match.home_team)
 
             update_league_standings(league_season, fixtures)
 

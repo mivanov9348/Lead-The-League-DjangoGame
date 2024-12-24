@@ -16,7 +16,6 @@ def get_bank_balance(bank):
     return bank.balance
 
 def get_bank_financials(bank):
-    """Return a dictionary with the bank's financial summary."""
     return {
         "balance": bank.balance,
         "total_income": bank.total_income,
@@ -24,14 +23,13 @@ def get_bank_financials(bank):
     }
 
 def update_bank_balance(bank):
-    """Update the bank's balance based on total income and expenses."""
     bank.balance = bank.total_income - bank.total_expenses
     bank.save()
 
 def distribute_income(bank, amount, description):
-    """Distribute income between the bank and funds."""
     if amount <= 0:
         raise ValueError("Amount must be positive!")
+    amount = Decimal(amount)
 
     bank_share_percentage = Decimal(str(get_setting_value("bank_share"))).quantize(Decimal("0.0001"))
     funds_share_percentage = Decimal(str(get_setting_value("fund_share"))).quantize(Decimal("0.0001"))

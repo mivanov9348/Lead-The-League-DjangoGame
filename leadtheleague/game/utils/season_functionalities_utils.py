@@ -1,7 +1,7 @@
 import datetime
 from django.db import transaction, IntegrityError
 
-from cups.utils.generate_cup_fixtures import process_all_season_cups
+from cups.utils.generate_cup_fixtures import process_all_season_cups, populate_season_cups_with_teams
 from cups.utils.update_cup_season import generate_cups_season
 from europeancups.utils.euro_cup_season_utils import generate_european_cups_season, europe_promotion
 from europeancups.utils.group_stage_utils import create_groups_for_season, generate_group_fixtures
@@ -65,6 +65,8 @@ def prepare_first_season(season):
             # Add Logo To Teams
             set_team_logos()
             print(f'Logos Add Successfully')
+            # Populate Season Cups With Teams
+            populate_season_cups_with_teams(season)
             # populate euro cup with teams
             europe_promotion(season)
             print(f'European teams found!')
@@ -79,15 +81,6 @@ def prepare_first_season(season):
             print(f'European Cup Group Successfully Created!')
             generate_group_fixtures(season)
             print(f'European Cup Group Fixtures Successfully Created!')
-            # LeagueMatches
-            generate_league_matches(season)
-            print(f'Generate League Matches')
-            # CupMatches
-            generate_cup_matches(season)
-            print(f'Generate Cup Matches')
-            # EuroCupMatches
-            generate_euro_cup_matches(season)
-            print(f'Generate Euro Cup Matches')
             # Players in all teams:
             generate_players_for_all_teams()
             print(f'Players are added to Teams')

@@ -1,9 +1,7 @@
 from itertools import chain
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
-from fixtures.models import LeagueFixture, CupFixture
-from fixtures.utils import get_team_fixtures_for_current_season
-from game.models import Season
+from fixtures.models import LeagueFixture
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes
 from staff.models import Coach

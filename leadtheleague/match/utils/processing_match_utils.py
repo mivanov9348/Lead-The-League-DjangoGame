@@ -6,6 +6,7 @@ from players.models import Player, PlayerMatchStatistic, PlayerSeasonStatistic, 
 from players.utils.get_player_stats_utils import get_player_match_stats
 from teams.models import TeamTactics
 
+
 def choose_event_random_player(team):
     try:
         team_tactics = TeamTactics.objects.select_related('teams').get(team=team)
@@ -23,15 +24,12 @@ def choose_event_random_player(team):
 def update_match_minute(match):
     current_minute = match.current_minute
 
-    # Увеличаваме минутата с произволно число между 1 и 5
     increment = random.randint(1, 7)
     current_minute += increment
 
-    # Ако минутата е по-голяма от 90, я настройваме на 90
     if current_minute > 90:
         current_minute = 90
 
-    # Записваме текущата минута и състоянието на мача в базата данни
     match.current_minute = current_minute
     match.save()
 
@@ -147,12 +145,10 @@ def update_matchscore(template, match, team_with_initiative):
 
 
 def log_match_event(match, minute, template, formattedText, players=None):
-    # Проверка дали всички елементи в 'players' са обекти от тип 'Player'
     if players and not all(isinstance(player, Player) for player in players):
         raise ValueError("Всички елементи в 'players' трябва да бъдат обекти от типа 'Player'.")
 
     try:
-        # Създаваме запис за събитието в базата данни
         match_event = MatchEvent.objects.create(
             match=match,
             minute=minute,
@@ -162,11 +158,9 @@ def log_match_event(match, minute, template, formattedText, players=None):
             possession_kept=template.event_result.possession_kept  # Вземаме дали е запазено притежанието на топката
         )
 
-        # Ако има играчи, свързваме ги със събитието
         if players:
             match_event.players.set(players)
 
-        # Записваме събитието
         match_event.save()
 
     except Exception as e:
@@ -183,12 +177,10 @@ def check_initiative(template, match):
 
 
 def fill_template_with_players(template, players):
-    # Форматираме имената на играчите за използване в шаблона
     player_1_name = f"{players[0].first_name} {players[0].last_name} ({players[0].team.name})"
     player_2_name = f"{players[1].first_name} {players[1].last_name} ({players[1].team.name})" if len(
         players) > 1 else ""
 
-    # Форматираме текста на шаблона, като заменяме player_1 и player_2 с реалните имена
     formatted_text = template.template_text.format(
         player_1=player_1_name,
         player_2=player_2_name

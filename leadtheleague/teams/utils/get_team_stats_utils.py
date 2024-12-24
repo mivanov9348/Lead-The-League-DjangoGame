@@ -4,25 +4,11 @@ from django.shortcuts import get_object_or_404
 from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
 from fixtures.utils import format_fixtures
 from game.models import Season
-from players.models import Player
-from players.utils.get_player_stats_utils import get_player_data
 from teams.models import Team, TeamFinance
 
 
 def get_all_teams():
     return Team.objects.all()
-
-
-def get_team_players_season_stats(team):
-    players = Player.objects.filter(team_players__team=team)
-    standings_data = []
-
-    for player in players:
-        player_data = get_player_data(player)
-        standings_data.append(player_data)
-
-    return standings_data
-
 
 def get_team_balance(user):
     if user.is_authenticated and hasattr(user, 'teams'):
@@ -32,31 +18,27 @@ def get_team_balance(user):
 
 
 def get_poster_schedule(league, user_team):
+    # Retrieve fixtures by type (league, cup, euro) for the user's teams
     fixtures_by_type = get_fixtures_by_team_and_type(user_team)
 
+    # Combine all fixtures into one iterable
     all_fixtures = chain(
         fixtures_by_type.get("league", []),
         fixtures_by_type.get("cup", []),
         fixtures_by_type.get("euro", [])
     )
 
-    formatted_fixtures = format_fixtures(all_fixtures, user_team)
-
+    # Prepare the schedule data in the required format
     schedule_data = []
-    for fixture in formatted_fixtures:
-        print(f'fixture: {fixture}')
-        location = 'H' if fixture["home_away"] == "Home" else 'A'
-        opponent = fixture["opponent"]
-        if fixture['is_finished']:
-            result = f'{fixture['home_goals']}' "-" f'{fixture['away_goals']}'
-        else:
-            result = "TBD"
+    for fixture in all_fixtures:
+        print(fixture)
+        location = 'H' if fixture.home_team == user_team else 'A'
+        opponent = fixture.away_team if location == 'H' else fixture.home_team
 
         schedule_data.append({
-            'date': fixture["date"],
+            'date': fixture.date,
             'opponent': opponent,
-            'location': location,
-            'result': result
+            'location': location
         })
 
     return schedule_data
@@ -71,8 +53,8 @@ def get_fixtures_by_team_and_type(team):
         }
 
     league_fixtures = LeagueFixture.objects.filter(
-        (Q(home_team=team) | Q(away_team=team)) & Q(season=active_season)
-    ).order_by('date', 'match_time')
+        (Q(home_team=team) | Q(away_team=team)) & Q(league_season__season=active_season)
+    ).select_related('league_season', 'league_season__league').order_by('date', 'match_time')
 
     cup_fixtures = CupFixture.objects.filter(
         (Q(home_team=team) | Q(away_team=team)) & Q(season_cup__season=active_season)
@@ -87,7 +69,6 @@ def get_fixtures_by_team_and_type(team):
         "cup": cup_fixtures,
         "euro": euro_fixtures,
     }
-
 
 def get_team_data(team_id):
     team = get_object_or_404(Team, id=team_id, is_active=True)
@@ -109,3 +90,5 @@ def get_team_data(team_id):
         },
     }
     return team_data
+
+

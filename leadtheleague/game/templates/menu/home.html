@@ -7,44 +7,50 @@
 {% block content %}
 <div class="container main-content mt-4">
     <div class="row team-next-match">
-        <div class="col-12">
-            <div class="card next-match-card">
-                <div class="card-header text-center text-uppercase fw-bold">
-                    <a href="#">Next Match</a>
+    <div class="col-12">
+        <div class="card next-match-card">
+            <div class="card-header text-center text-uppercase fw-bold">
+                <a href="#">Next Match</a>
+            </div>
+            <div class="card-body match-details">
+                <div class="team-info text-center">
+                    <div class="team-logo">
+                        {% if next_match.home_team.logo %}
+                        <img src="{{ next_match.home_team.logo.url }}" alt="{{ next_match.home_team.name }} Logo">
+                        {% else %}
+                        <p>No logo available</p>
+                        {% endif %}
+                    </div>
+                    <p class="highlight">{{ next_match.home_team.name }}</p>
                 </div>
-                <div class="card-body match-details">
-                    <div class="team-info text-center">
-                        <div class="team-logo">
-                            {% if next_match.home_team.logo %}
-                            <img src="{{ next_match.home_team.logo.url }}" alt="{{ next_match.home_team.name }} Logo">
-                            {% else %}
-                            <p>No logo available</p>
-                            {% endif %}
-                        </div>
-                        <p class="highlight">{{ next_match.home_team.name }}</p>
-                    </div>
-                    <div class="match-info text-center">
-                        <p> {{ next_match.league }}</p>
-                        <p> {{ next_match.match_date }} {{ next_match.match_time }} </p>
-                    </div>
-                    <div class="opponent-info text-center">
-                        <div class="team-logo">
-                            {% if next_match.away_team.logo %}
-                            <img src="{{ next_match.away_team.logo.url }}" alt="{{ next_match.away_team.name }} Logo">
-                            {% else %}
-                            <p>No logo available</p>
-                            {% endif %}
-                        </div>
-                        <p class="highlight">{{ next_match.away_team.name }}</p>
-                    </div>
+                <div class="match-info text-center">
+                    <p>{{ next_match.league }}</p>
+                    <p>{{ next_match.match_date }} {{ next_match.match_time }}</p>
+                    {% if next_match.stadium %}
+                    <p>Stadium: {{ next_match.stadium.name }}</p>
+                    {% else %}
+                    <p>Stadium: Not available</p>
+                    {% endif %}
                 </div>
-                <div class="match-button text-center">
-                    <a href="{% url 'match:user_match' %}" class="btn btn-primary">
-                        To Match
-                    </a>
+                <div class="opponent-info text-center">
+                    <div class="team-logo">
+                        {% if next_match.away_team.logo %}
+                        <img src="{{ next_match.away_team.logo.url }}" alt="{{ next_match.away_team.name }} Logo">
+                        {% else %}
+                        <p>No logo available</p>
+                        {% endif %}
+                    </div>
+                    <p class="highlight">{{ next_match.away_team.name }}</p>
                 </div>
             </div>
+            <div class="match-button text-center">
+                <a href="{% url 'match:user_match' %}" class="btn btn-primary">
+                    To Match
+                </a>
+            </div>
         </div>
+    </div>
+</div>
 
         <div class="row mt-4">
 

@@ -19,8 +19,8 @@ def get_max_league_rounds(season):
 
 def get_max_cup_rounds(season):
     try:
-        season_cups = season.season_cups.prefetch_related('participating_teams')
-        max_teams = max((sc.participating_teams.count() for sc in season_cups), default=0)
+        season_cups = season.season_cups.prefetch_related('cup')
+        max_teams = max((sc.cup.teams_count for sc in season_cups), default=0)
 
         print(f"Season: {season.year}, Max Teams: {max_teams}")
 
@@ -29,7 +29,7 @@ def get_max_cup_rounds(season):
             return 0
 
         max_rounds = ceil(log2(max_teams))
-        print(f"Max Rounds Needed: {max_rounds}")  # Лог за дебъгване
+        print(f"Max Rounds Needed: {max_rounds}")
 
         return max_rounds
     except Exception as e:

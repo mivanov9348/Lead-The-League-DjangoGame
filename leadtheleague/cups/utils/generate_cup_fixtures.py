@@ -31,6 +31,7 @@ def get_teams_for_cup(cup):
     random.shuffle(active_teams)
     return active_teams
 
+
 def create_season_cup(cup, season):
     try:
         with transaction.atomic():
@@ -41,19 +42,26 @@ def create_season_cup(cup, season):
             )
             if created:
                 print(f"SeasonCup създаден за купа '{cup.name}'.")
-
-                teams = get_teams_for_cup(cup)
-                if not teams:
-                    print(f"Не са намерени отбори за купа '{cup.name}'.")
-                    return None
-
-                season_cup.participating_teams.set(teams)
-                season_cup.save()
-                print(f"Успешно свързани отбори за купа '{cup.name}'.")
             return season_cup
     except IntegrityError as e:
         print(f"Грешка при създаване на SeasonCup за купа '{cup.name}': {e}")
         return None
+
+def populate_season_cups_with_teams(season):
+    try:
+        season_cups = SeasonCup.objects.filter(season=season)
+        for season_cup in season_cups:
+            teams = get_teams_for_cup(season_cup.cup)
+            if not teams:
+                print(f"No teams for '{season_cup.cup.name}'.")
+                continue
+
+            season_cup.participating_teams.set(teams)
+            season_cup.save()
+            print(f"Successfull -> '{season_cup.cup.name}'.")
+    except Exception as e:
+        print(f"Error -> '{season}': {e}")
+
 
 def get_first_available_cup_schedule(season):
     return MatchSchedule.objects.filter(
