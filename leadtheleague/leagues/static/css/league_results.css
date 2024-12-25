@@ -1,6 +1,5 @@
-/* Основни стилове */
 .results-container {
-    max-width: 900px;
+    width: 100px;
     margin: 0 auto;
     padding: 20px;
     font-family: Arial, sans-serif;
@@ -19,6 +18,8 @@
     color: #fff;
     text-decoration: none;
     border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
 }
 
 .nav-button:hover {
@@ -30,7 +31,6 @@
     font-weight: bold;
 }
 
-/* Оформление на разделите */
 .league-section {
     margin-bottom: 30px;
 }
@@ -58,6 +58,7 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color:white;
 }
 
 /* Елементи в мачовете */
@@ -85,7 +86,7 @@
     font-size: 1.2em;
     font-weight: bold;
     text-align: center;
-    color: #000;
+    color: white;
     min-width: 80px;
 }
 
@@ -103,4 +104,22 @@
     .score {
         margin: 10px 0;
     }
+}
+td:first-child {
+    text-align: left;
+}
+
+td:last-child {
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.team-logo {
+    margin-left: 10px; /* добавя разстояние между текста и логото за Away Team */
+}
+
+.team-name {
+    margin-right: 10px; /* добавя разстояние между логото и текста за Home Team */
 }

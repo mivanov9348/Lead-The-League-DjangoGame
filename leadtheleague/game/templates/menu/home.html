@@ -7,220 +7,218 @@
 {% block content %}
 <div class="container main-content mt-4">
     <div class="row team-next-match">
-    <div class="col-12">
-        <div class="card next-match-card">
-            <div class="card-header text-center text-uppercase fw-bold">
-                <a href="#">Next Match</a>
-            </div>
-            <div class="card-body match-details">
-                <div class="team-info text-center">
-                    <div class="team-logo">
-                        {% if next_match.home_team.logo %}
-                        <img src="{{ next_match.home_team.logo.url }}" alt="{{ next_match.home_team.name }} Logo">
+        <div class="col-12">
+            <div class="card next-match-card">
+                <div class="card-header text-center text-uppercase fw-bold">
+                    <a href="#">Next Match</a>
+                </div>
+                <div class="card-body match-details">
+                    <div class="team-info text-center">
+                        <div class="team-logo">
+                            {% if next_match.home_team.logo %}
+                            <img src="{{ next_match.home_team.logo.url }}" alt="{{ next_match.home_team.name }} Logo">
+                            {% else %}
+                            <p>No logo available</p>
+                            {% endif %}
+                        </div>
+                        <p class="highlight">{{ next_match.home_team.name }}</p>
+                    </div>
+                    <div class="match-info text-center">
+                        <p>{{ next_match.league }}</p>
+                        <p>{{ next_match.match_date }} {{ next_match.match_time }}</p>
+                        {% if next_match.stadium %}
+                        <p>Stadium: {{ next_match.stadium.name }}</p>
                         {% else %}
-                        <p>No logo available</p>
+                        <p>Stadium: Not available</p>
                         {% endif %}
                     </div>
-                    <p class="highlight">{{ next_match.home_team.name }}</p>
-                </div>
-                <div class="match-info text-center">
-                    <p>{{ next_match.league }}</p>
-                    <p>{{ next_match.match_date }} {{ next_match.match_time }}</p>
-                    {% if next_match.stadium %}
-                    <p>Stadium: {{ next_match.stadium.name }}</p>
-                    {% else %}
-                    <p>Stadium: Not available</p>
-                    {% endif %}
-                </div>
-                <div class="opponent-info text-center">
-                    <div class="team-logo">
-                        {% if next_match.away_team.logo %}
-                        <img src="{{ next_match.away_team.logo.url }}" alt="{{ next_match.away_team.name }} Logo">
-                        {% else %}
-                        <p>No logo available</p>
-                        {% endif %}
+                    <div class="opponent-info text-center">
+                        <div class="team-logo">
+                            {% if next_match.away_team.logo %}
+                            <img src="{{ next_match.away_team.logo.url }}" alt="{{ next_match.away_team.name }} Logo">
+                            {% else %}
+                            <p>No logo available</p>
+                            {% endif %}
+                        </div>
+                        <p class="highlight">{{ next_match.away_team.name }}</p>
                     </div>
-                    <p class="highlight">{{ next_match.away_team.name }}</p>
+                </div>
+                <div class="match-button text-center">
+                    <a href="{% url 'match:user_match' %}" class="btn btn-primary">
+                        To Match
+                    </a>
                 </div>
             </div>
-            <div class="match-button text-center">
-                <a href="{% url 'match:user_match' %}" class="btn btn-primary">
-                    To Match
-                </a>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="#">Last Messages</a>
+                </div>
+                <div class="card-body table-container">
+                    <table class="table table-sm">
+
+                        <tbody>
+                        {% for messages in latest_messages %}
+                        <tr>
+                            <td>{{ messages.date_sent|date:"d M Y" }}</td>
+                            <td>{{ messages.preview }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{% url 'leagues:standings' %}">Standings</a>
+                </div>
+                <div class="card-body table-container">
+                    <table class="table table-sm">
+                        <tbody>
+                        {% for team in standings %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <a href="{% url 'teams:team_stats' team.team.id %}">
+                                    <img src="/media/{{ team.team.logo }}" class="icon"
+                                         alt="{{ team.team.name }} Logo"/>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
+                            </td>
+                            <td>{{ team.points }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="#">Top Players</a>
+                </div>
+                <div class="card-body table-container">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Player Name</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
+                            <th>Rating</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for player_id, player_data in players.items %}
+                        <tr>
+                            <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{
+                                player_data.personal_info.name|default:"-" }}</a></td>
+                            <td>{{ player_data.season_stats.goals.value}}</td>
+                            <td>{{ player_data.season_stats.assists.value}}</td>
+                            <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Трети ред: График, трансфери, финанси -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{% url 'teams:schedule' %}">Schedule</a>
+                </div>
+                <div class="card-body table-container">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Opponent</th>
+                            <th>A/H</th>
+                            <th>Result</th>
+                            <th>Type</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for match in schedule %}
+                        <tr>
+                            <td>{{ match.date }}</td>
+                            <td>
+                                <a href="{% url 'teams:team_stats' match.opponent.id %}">
+                                    <img src="{{ match.opponent.logo.url }}" class="icon"
+                                         alt="{{ match.opponent.name }} Logo"/>
+                                </a>
+                                <a href="{% url 'teams:team_stats' match.opponent.id %}">{{ match.opponent.name }}</a>
+                            </td>
+                            <td>{{ match.location }}</td>
+                            <td>{{ match.result }}</td>
+                            <td>{{ match.competition }}</td> <!-- Тип състезание -->
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{% url 'transfers:transfer_history' %}">Latest Transfers</a>
+                </div>
+                <div class="card-body table-container">
+                    <table class="table table-sm">
+                        <tbody>
+                        {% for transfer in transfers %}
+                        <tr>
+                            <td>{{ transfer.transfer_date }}</td>
+                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{
+                                transfer.player.name|default:"-" }}</a></td>
+                            <td>
+                                {% if transfer.selling_team %}
+                                {{ transfer.selling_team.name }}
+                                {% else %}
+                                Free Agent
+                                {% endif %}
+                            </td>
+                            <td>{{ transfer.buying_team.name }}</td>
+                            <td>{{ transfer.amount }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="#">Finance Overview</a>
+                </div>
+                <div class="card-body">
+                    <!-- Финанси -->
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-        <div class="row mt-4">
-
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <a href="#">Last Messages</a>
-                    </div>
-                    <div class="card-body table-container">
-                        <table class="table table-sm">
-
-                            <tbody>
-                            {% for messages in latest_messages %}
-                            <tr>
-                                <td>{{ messages.date_sent|date:"d M Y" }}</td>
-                                <td>{{ messages.preview }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <a href="{% url 'leagues:standings' %}">Standings</a>
-                    </div>
-                    <div class="card-body table-container">
-                        <table class="table table-sm">
-                            <tbody>
-                            {% for team in standings %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>
-                                    <a href="{% url 'teams:team_stats' team.team.id %}">
-                                        <img src="/media/{{ team.team.logo }}" class="icon"
-                                             alt="{{ team.team.name }} Logo"/>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
-                                </td>
-                                <td>{{ team.points }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <a href="#">Top Players</a>
-                    </div>
-                    <div class="card-body table-container">
-                        <table class="table table-sm">
-                            <thead>
-                            <tr>
-                                <th>Player Name</th>
-                                <th>Goals</th>
-                                <th>Assists</th>
-                                <th>Rating</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for player_id, player_data in players.items %}
-                            <tr>
-                                <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{ player_data.personal_info.name|default:"-" }}</a></td>
-                                <td>{{ player_data.season_stats.goals.value}}</td>
-                                <td>{{ player_data.season_stats.assists.value}}</td>
-                                <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Трети ред: График, трансфери, финанси -->
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <a href="{% url 'teams:schedule' %}">Schedule</a>
-                    </div>
-                    <div class="card-body table-container">
-                        <table class="table table-sm">
-                            <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Opponent</th>
-                                <th>Location</th>
-                                <th>Result</th> <!-- Нова колона за резултата -->
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for match in schedule %}
-                            <tr>
-                                <td>{{ match.date }}</td>
-                                <td>
-                                    <a href="{% url 'teams:team_stats' match.opponent.id %}">
-                                        <img src="{{ match.opponent.logo.url }}" class="icon"
-                                             alt="{{ match.opponent.name }} Logo"/>
-                                    </a>
-                                    <a href="{% url 'teams:team_stats' match.opponent.id %}">{{ match.opponent.name }}</a>
-                                </td>
-                                <td>{{ match.location }}</td>
-                                <td>
-                                    {% if match.result %}
-                                    {{ match.result }}
-                                    {% else %}
-                                    TBD
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <a href="{% url 'transfers:transfer_history' %}">Latest Transfers</a>
-                    </div>
-                    <div class="card-body table-container">
-                        <table class="table table-sm">
-                            <tbody>
-                            {% for transfer in transfers %}
-                            <tr>
-                                <td>{{ transfer.transfer_date }}</td>
-                                <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{
-                                    transfer.player.name|default:"-" }}</a></td>
-                                <td>
-                                    {% if transfer.selling_team %}
-                                    {{ transfer.selling_team.name }}
-                                    {% else %}
-                                    Free Agent
-                                    {% endif %}
-                                </td>
-                                <td>{{ transfer.buying_team.name }}</td>
-                                <td>{{ transfer.amount }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <a href="#">Finance Overview</a>
-                    </div>
-                    <div class="card-body">
-                        <!-- Финанси -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}

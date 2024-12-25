@@ -28,6 +28,23 @@ class TeamFinance(models.Model):
     def __str__(self):
         return f'{self.team.name} Balance: {self.balance}'
 
+
+class TeamTransaction(models.Model):
+    TRANSACTION_TYPES = [
+        ('IN', 'Income'),
+        ('OUT', 'Expense'),
+    ]
+
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_transactions')
+    bank = models.ForeignKey("finance.Bank", on_delete=models.CASCADE, related_name='team_transactions')
+    type = models.CharField(max_length=3, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.type} - {self.amount} ({self.team.name})"
+
 class TeamPlayer(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='team_players')
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_players')

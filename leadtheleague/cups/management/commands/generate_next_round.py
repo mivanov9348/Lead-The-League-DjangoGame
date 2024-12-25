@@ -4,7 +4,6 @@ from cups.utils.generate_cup_fixtures import generate_next_round_fixtures
 from cups.utils.update_cup_season import populate_progressing_team
 from game.models import MatchSchedule, Season
 
-
 class Command(BaseCommand):
     help = "Generate the next round fixtures for all SeasonCups in a season."
 
@@ -19,7 +18,6 @@ class Command(BaseCommand):
         season_year = options.get("season")
         season_cups = SeasonCup.objects.all()
 
-        # Филтрираме по зададена година, ако е предоставена
         if season_year:
             season_cups = season_cups.filter(season__year=season_year)
 
@@ -28,7 +26,6 @@ class Command(BaseCommand):
                 self.style.WARNING(f"No SeasonCup records found for season {season_year or 'all seasons'}."))
             return
 
-        # Намиране на споделена дата за всички купи
         next_available_date = MatchSchedule.objects.filter(
             season__in=Season.objects.filter(year=season_year) if season_year else Season.objects.all(),
             event_type='cup',

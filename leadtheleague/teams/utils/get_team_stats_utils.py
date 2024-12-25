@@ -16,7 +16,6 @@ def get_team_balance(user):
         return team_finance.balance if team_finance else 0
     return
 
-
 def get_poster_schedule(league, user_team):
     # Retrieve fixtures by type (league, cup, euro) for the user's teams
     fixtures_by_type = get_fixtures_by_team_and_type(user_team)
@@ -31,14 +30,26 @@ def get_poster_schedule(league, user_team):
     # Prepare the schedule data in the required format
     schedule_data = []
     for fixture in all_fixtures:
-        print(fixture)
         location = 'H' if fixture.home_team == user_team else 'A'
         opponent = fixture.away_team if location == 'H' else fixture.home_team
+        result = f"{fixture.home_goals} - {fixture.away_goals}" if fixture.is_finished else None
+
+        # Determine competition type
+        if isinstance(fixture, LeagueFixture):
+            competition_type = "League"
+        elif isinstance(fixture, CupFixture):
+            competition_type = f"Cup - {fixture.round_stage}"
+        elif isinstance(fixture, EuropeanCupFixture):
+            competition_type = f"Euro - {fixture.round_stage}"
+        else:
+            competition_type = "Unknown"
 
         schedule_data.append({
             'date': fixture.date,
             'opponent': opponent,
-            'location': location
+            'location': location,
+            'result': result or "TBD",
+            'competition': competition_type,
         })
 
     return schedule_data

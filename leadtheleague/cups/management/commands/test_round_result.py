@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from cups.utils.update_cup_season import update_winner
 from fixtures.models import CupFixture
 from game.models import MatchSchedule
+from match.utils.get_match_stats import get_match_by_fixture, calculate_match_attendance, match_income
 
 
 class Command(BaseCommand):
@@ -49,6 +50,19 @@ class Command(BaseCommand):
             )
             match_dates.add(fixture.date)
 
-        MatchSchedule.objects.filter(date__in=match_dates, event_type='cup').update(is_played=True)
+            try:
+                match = get_match_by_fixture(fixture)
+            except ValueError:
+                continue
+
+            match.home_goals = home_goals
+            match.away_goals = away_goals
+            match.is_played = True
+            match.current_minute = 90
+
+            attendance = calculate_match_attendance(match)
+            match.attendance = attendance
+            match.save()
+            match_income(match, match.home_team)
 
         self.stdout.write(self.style.SUCCESS(f"All fixtures for round {round_number} have been updated."))

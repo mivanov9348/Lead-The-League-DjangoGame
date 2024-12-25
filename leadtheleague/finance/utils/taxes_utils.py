@@ -15,7 +15,7 @@ def transfer_tax(bank, transfer_amount):
     transfer_tax = transfer_amount * Decimal(transfer_tax_percentage / 100)
 
     # Distribute the tax between the bank and funds
-    distribute_income(bank, transfer_tax)
+    distribute_income(bank, transfer_tax, 'Tax from transfer')
 
     return transfer_tax
 
@@ -42,7 +42,7 @@ def sponsorship_contract_tax(bank, contract_amount):
     sponsorship_tax = contract_amount * Decimal(sponsorship_tax_percentage / 100)
 
     # Distribute the tax between the bank and funds
-    distribute_income(bank, sponsorship_tax)
+    distribute_income(bank, sponsorship_tax, "Sponsorship", None)
 
     return sponsorship_tax
 

@@ -6,6 +6,7 @@ from fixtures.models import EuropeanCupFixture
 from game.utils.get_season_stats_utils import get_current_season
 from leagues.models import League
 from leagues.utils import promote_league_teams_to_europe
+from messaging.utils import create_message
 from teams.models import Team
 
 
@@ -87,7 +88,6 @@ def set_european_cup_season_champion():
     if not final_stage:
         raise ValueError("Final stage not found for the current European Cup season.")
 
-    # Намери мача от финала
     final_fixture = EuropeanCupFixture.objects.filter(
         european_cup_season=european_cup_season,
         knockout_stage=final_stage,
@@ -103,5 +103,10 @@ def set_european_cup_season_champion():
 
     european_cup_season.champion = champion
     european_cup_season.save()
+    create_message(
+        category="european cup champion",
+        placeholders={},
+        is_global=True
+    )
 
     return champion

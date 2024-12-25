@@ -1,109 +1,117 @@
-.inbox-page {
+.inbox-container {
     display: flex;
-    gap: 20px;
-    padding: 5px;
-    height: calc(100vh - 130px);
-    font-family: 'OLD SPORT 02 ATHLETIC NCV';
-    margin-top: 120px;
+    flex-grow: 1;
+    height: 800px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    background-color: var(--darkgreen-color);
+    border:2px solid black;
 }
 
-.inbox-sidebar {
-    width: 25%;
-    background-color: var(--darkergreen-color);
+/* Sidebar Styling */
+.sidebar {
+    width: 30%;
+    background-color: var(--sidebar-bg);
     color: white;
-    border-right: 2px solid #444;
+    overflow-y: auto;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
 }
 
-.sidebar-header {
+.sidebar h2 {
+    font-size: 20px;
     text-align: center;
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    border-bottom: 1px solid white;
+    margin-bottom: 20px;
+    color: var(--accent-color);
 }
 
-.sidebar-header h2 {
-    font-size: 22px;
+#search-bar {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
 }
 
-.inbox-list {
-    flex: 1;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
+.message-list {
     list-style: none;
+    padding: 0;
+    max-height: 500px;
 }
 
-.inbox-item {
+/* Message Items */
+.message-item {
     display: flex;
     align-items: center;
-    padding: 5px 5px;
-    border-radius: 8px;
-    background-color: var(--darkergreen-color);
-    transition: background-color 0.3s ease;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top:10px;
+    background-color: #3b4a52;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.inbox-item:hover {
-    background-color: #005500;
+.message-item:hover {
+    background-color: grey;
+    color: black;
+    transform: scale(1.02);
 }
 
-.status-indicator {
-    font-size: 18px;
+.message-item.active {
+    background-color: var(--accent-color);
+    transform: scale(1.02);
+    color: white;
+}
+
+.message-item .status-indicator {
+    font-size: 16px;
     margin-right: 10px;
 }
 
-.inbox-preview-text {
-    color: #fff;
-    font-size: 14px;
+.message-item .preview-text {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-}
-
-
-/* Detail View */
-.inbox-detail {
-    flex: 1;
-    padding: 30px;
-    background-color: var(--darkergreen-color);
-    color: white;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    border: 2px solid lightblue; /* Optional border for better separation */
-}
-
-.detail-header {
-    margin-bottom: 20px;
-}
-
-.detail-title {
-    font-size: 22px;
-    font-weight: bold;
-}
-
-.detail-date {
+    flex-grow: 1;
     font-size: 14px;
-    color: #bbb;
+}
+
+/* Content Styling */
+.content {
+    border:2px solid black;
+
+    flex-grow: 1;
+    padding: 20px;
+    background-color: var(--darkergreen-color);
+    color: #333;
+}
+
+.message-detail {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message-detail h3 {
+    margin-bottom: 15px;
+}
+
+.no-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 18px;
+    color: var(--primary-color);
+    flex-direction: column;
+}
+
+.no-message i {
+    font-size: 32px;
     margin-bottom: 10px;
-    border-bottom: 1px solid white;
-}
-
-.detail-message {
-    font-size: 16px;
-    line-height: 1.5;
-    color: #ddd;
-    text-align: justify;
-    overflow-wrap: break-word;
-}
-
-.no-message-container {
-    text-align: center;
-    margin-top: auto;
 }

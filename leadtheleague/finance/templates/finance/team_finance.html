@@ -52,32 +52,51 @@
 
 
         <section class="transactions">
-            <h2>Bank Transactions</h2>
-            <table>
-                <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for transaction in bank_transactions %}
-                <tr>
-                    <td>{{ transaction.created_at }}</td>
-                    <td>{{ transaction.type }}</td>
-                    <td>{{ transaction.amount|intcomma }}</td>
-                    <td>{{ transaction.description }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">No transactions</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </section>
+    <h2>Bank Transactions</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in bank_transactions %}
+        <tr>
+            <td>{{ transaction.created_at }}</td>
+            <td>{{ transaction.type }}</td>
+            <td>{{ transaction.amount|intcomma }}</td>
+            <td>{{ transaction.description }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No transactions</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if bank_transactions.has_previous %}
+                <a href="?page=1">First</a>
+                <a href="?page={{ bank_transactions.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ bank_transactions.number }} of {{ bank_transactions.paginator.num_pages }}
+            </span>
+
+            {% if bank_transactions.has_next %}
+                <a href="?page={{ bank_transactions.next_page_number }}">Next</a>
+                <a href="?page={{ bank_transactions.paginator.num_pages }}">Last</a>
+            {% endif %}
+        </span>
+    </div>
+</section>
+
 
         <section class="funds">
             <h2>Funds</h2>

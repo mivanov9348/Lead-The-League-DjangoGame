@@ -1,8 +1,7 @@
 from decimal import Decimal
 from django.db import transaction
 from finance.utils.bank_utils import get_bank, distribute_income
-from finance.utils.transaction_utils import create_transaction
-from teams.models import TeamFinance
+from teams.models import TeamFinance, TeamTransaction
 
 def check_team_balance(team, amount_needed):
     try:
@@ -10,18 +9,6 @@ def check_team_balance(team, amount_needed):
         return team_finance.balance >= Decimal(amount_needed)
     except TeamFinance.DoesNotExist:
         return False
-
-@transaction.atomic
-def terminate_team_finance(team):
-
-    team_finance = TeamFinance.objects.filter(team=team).first()
-    if not team_finance:
-        return
-
-    bank = get_bank()
-
-    create_transaction(bank, 'IN', team_finance.balance, f'Terminate Team ({team.name})')
-    team_finance.delete()
 
 
 def team_match_profit(team, income, description):
@@ -35,29 +22,51 @@ def team_match_profit(team, income, description):
     team_amount = income * float(tax_percentage)
 
     with transaction.atomic():
-        team_income(team, team_amount)
+        team_income(team, team_amount, 'Income from Match')
         bank = get_bank()
-        distribute_income(bank, tax_amount, description)
+        distribute_income(bank, tax_amount, description, team)
 
-def team_income(team, amount):
+def team_transaction(team, amount, transaction_type, description=None):
+    if amount <= 0:
+        raise ValueError("Transaction amount must be positive!")
+
+    bank = get_bank()
+
     try:
         with transaction.atomic():
             team_finance = TeamFinance.objects.get(team=team)
             amount_decimal = Decimal(amount)
-            team_finance.balance += amount_decimal
-            team_finance.total_income += amount_decimal
+
+            if transaction_type == 'IN':
+                team_finance.balance += amount_decimal
+                team_finance.total_income += amount_decimal
+            elif transaction_type == 'OUT':
+                if team_finance.balance < amount_decimal:
+                    raise ValueError(f"{team.name} does not have enough balance for this transaction!")
+                team_finance.balance -= amount_decimal
+                team_finance.total_expenses += amount_decimal
+            else:
+                raise ValueError("Invalid transaction type! Use 'IN' or 'OUT'.")
+
             team_finance.save()
+
+            TeamTransaction.objects.create(
+                team=team,
+                bank=bank,
+                type=transaction_type,
+                amount=amount_decimal,
+                description=description
+            )
+
     except TeamFinance.DoesNotExist:
-        raise ValueError(f"The teams {team.name} does not have a finance wallet!")
+        raise ValueError(f"The team {team.name} does not have a finance wallet!")
+
+def team_income(team, amount, description):
+    team_transaction(team, amount, 'IN', description)
+
+def team_expense(team, price,description):
+    team_transaction(team, price, 'OUT', description)
 
 
-def team_expense(team, price):
-    try:
-        with transaction.atomic():
-            teamFinance = TeamFinance.objects.get(team=team)
-            price_decimal = Decimal(price)
-            teamFinance.balance -= price_decimal
-            teamFinance.total_expenses += price_decimal
-            teamFinance.save()
-    except TeamFinance.DoesNotExist:
-        raise ValueError("Team have not Finance Wallet!")
+def get_team_transactions(team):
+        return team.team_transactions.order_by('-created_at')

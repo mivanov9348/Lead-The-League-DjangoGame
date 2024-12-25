@@ -26,7 +26,7 @@ def update_bank_balance(bank):
     bank.balance = bank.total_income - bank.total_expenses
     bank.save()
 
-def distribute_income(bank, amount, description):
+def distribute_income(bank, amount, description, team):
     if amount <= 0:
         raise ValueError("Amount must be positive!")
     amount = Decimal(amount)
@@ -42,5 +42,5 @@ def distribute_income(bank, amount, description):
     funds_share = amount * funds_share_percentage
 
     with transaction.atomic():
-        create_transaction(bank, 'IN', bank_share, description)
+        create_transaction(bank, 'IN', bank_share, description, team)
         distribute_to_funds(bank, funds_share)

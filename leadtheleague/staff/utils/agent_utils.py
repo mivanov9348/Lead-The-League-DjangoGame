@@ -10,6 +10,7 @@ from players.utils.generate_player_utils import generate_free_agents
 from staff.models import Agent
 from teams.utils.team_finance_utils import team_expense
 
+
 def generate_agents():
     agents = []
     nationalities = Nationality.objects.all()
@@ -45,7 +46,7 @@ def agent_sell_player(team, player):
         player.agent = None
         player.save()
 
-    team_expense(team, player.price)
+    team_expense(team, player.price, 'Sell Player')
     process_agent_payment(agent, player.price)
 
 
@@ -62,7 +63,7 @@ def process_agent_payment(agent, price):
 
         try:
             bank = Bank.objects.get(is_main=True)
-            distribute_income(bank, tax_amount, f'Get Free Agent {agent.first_name} {agent.last_name}')
+            distribute_income(bank, tax_amount, f'Get Free Agent {agent.first_name} {agent.last_name}', None)
         except Bank.DoesNotExist:
             pass
 
