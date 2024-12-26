@@ -1,12 +1,10 @@
 from django.db import transaction
-
 from cups.utils.get_cups_utils import promote_cup_champions_to_europe
 from europeancups.models import EuropeanCupSeason, EuropeanCupTeam, KnockoutStage, EuropeanCup
 from fixtures.models import EuropeanCupFixture
 from game.utils.get_season_stats_utils import get_current_season
 from leagues.models import League
 from leagues.utils import promote_league_teams_to_europe
-from messaging.utils import create_message
 from teams.models import Team
 
 
@@ -103,10 +101,5 @@ def set_european_cup_season_champion():
 
     european_cup_season.champion = champion
     european_cup_season.save()
-    create_message(
-        category="european cup champion",
-        placeholders={},
-        is_global=True
-    )
 
     return champion

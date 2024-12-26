@@ -44,6 +44,10 @@
 }
 .card-body {
     background-color: var(--darkgreen-color);
+        overflow-y: auto;
+        height:300px;
+        color:white;
+
 }
 
 .next-match-card {

@@ -1,10 +1,14 @@
 from django.db.models import Prefetch
+
+from messaging.utils.category_messages_utils import create_free_agent_transfer_message
 from staff.utils.agent_utils import agent_sell_player
 from teams.models import TeamPlayer
 from transfers.models import Transfer, TransferOffer
 
+
 def get_all_transfers():
     return Transfer.objects.all()
+
 
 def transfer_history_by_team(team_id):
     transfers_in = Transfer.objects.filter(buying_team_id=team_id).order_by('-transfer_date')
@@ -16,6 +20,7 @@ def transfer_history_by_team(team_id):
     }
     return transfers
 
+
 def create_transfer(team, player, is_free_agent):
     Transfer.objects.create(
         player=player,
@@ -25,10 +30,11 @@ def create_transfer(team, player, is_free_agent):
         is_free_agent=is_free_agent
     )
 
+
 def transfer_free_agent(team, player):
     agent_sell_player(team, player)
     create_transfer(team, player, True)
-
+    create_free_agent_transfer_message(player, team)
 
 def find_transfer_offer_by_id(offer_id):
     try:
@@ -37,6 +43,7 @@ def find_transfer_offer_by_id(offer_id):
         ).get(id=offer_id)
     except TransferOffer.DoesNotExist:
         return None
+
 
 def create_transfer_record(player_team, offering_team, player, amount):
     return Transfer.objects.create(

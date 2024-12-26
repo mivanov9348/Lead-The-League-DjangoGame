@@ -7,8 +7,10 @@ from match.models import Match, Event, AttributeEventWeight, EventResult, EventT
 from teams.models import Team
 from teams.utils.team_finance_utils import team_match_profit
 
+
 def get_match_by_id(match_id):
     return Match.objects.filter(id=match_id).only('id', 'home_team', 'away_team', 'match_date').first()
+
 
 def get_match_by_fixture(fixture):
     try:
@@ -17,6 +19,7 @@ def get_match_by_fixture(fixture):
         return match
     except Match.DoesNotExist:
         raise ValueError(f"No match found for fixture: {fixture}")
+
 
 def get_matches_by_stadium(stadium, start_date=None, end_date=None):
     matches = Match.objects.filter(stadium=stadium)
@@ -35,12 +38,15 @@ def get_user_today_match(user):
     today = timezone.now().date()
     user_team = Team.objects.only('id').get(user=user)
 
-    next_match = Match.objects.filter(
-        Q(home_team=user_team) | Q(away_team=user_team),
-        match_date__gte=today
-    ).select_related('home_team', 'away_team').only('home_team', 'away_team', 'match_date', 'match_time').first()
+    next_unplayed_match = Match.objects.filter(
+        (Q(home_team=user_team) | Q(away_team=user_team)),
+        match_date__gte=today,
+        is_played=False
+    ).select_related('home_team', 'away_team').only(
+        'home_team', 'away_team', 'match_date', 'match_time', 'is_played'
+    ).order_by('match_date', 'match_time').first()  # Уверяваме се, че сортираме по дата и време
 
-    return next_match
+    return next_unplayed_match
 
 
 def get_match_status(match):
@@ -94,6 +100,7 @@ def get_event_players(template, main_player, team):
         )
     return players
 
+
 def calculate_match_attendance(match):
     max_capacity = 1000
     if match.stadium and match.stadium.capacity:
@@ -114,4 +121,4 @@ def match_income(match, team):
 
     attendance = calculate_match_attendance(match)
     income = attendance * ticket_price
-    team_match_profit(team, income, f'{match.home_team} - {match.away_team} (attendance: {attendance})')
+    team_match_profit(team, match, income, f'{match.home_team} - {match.away_team} (attendance: {attendance})')

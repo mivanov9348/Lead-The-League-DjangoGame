@@ -10,11 +10,11 @@ from teams.models import Team, TeamFinance
 def get_all_teams():
     return Team.objects.all()
 
-def get_team_balance(user):
-    if user.is_authenticated and hasattr(user, 'teams'):
-        team_finance = TeamFinance.objects.filter(team=user.team).first()
-        return team_finance.balance if team_finance else 0
-    return
+
+def get_team_balance(user_team):
+    team_finance = TeamFinance.objects.filter(team=user_team).first()
+    return team_finance.balance if team_finance else 0
+
 
 def get_poster_schedule(league, user_team):
     # Retrieve fixtures by type (league, cup, euro) for the user's teams
@@ -54,6 +54,7 @@ def get_poster_schedule(league, user_team):
 
     return schedule_data
 
+
 def get_fixtures_by_team_and_type(team):
     active_season = Season.objects.filter(is_active=True).first()
     if not active_season:
@@ -81,6 +82,7 @@ def get_fixtures_by_team_and_type(team):
         "euro": euro_fixtures,
     }
 
+
 def get_team_data(team_id):
     team = get_object_or_404(Team, id=team_id, is_active=True)
 
@@ -101,5 +103,3 @@ def get_team_data(team_id):
         },
     }
     return team_data
-
-

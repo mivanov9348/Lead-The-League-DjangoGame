@@ -31,5 +31,4 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Всички фондове бяха успешно разпределени!"))
 
         except Exception as e:
-            # Ако възникне грешка, транзакцията ще се отмени
             raise CommandError(f"Грешка при разпределението: {e}")

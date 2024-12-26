@@ -1,16 +1,15 @@
 from django.db import transaction
 from django.db.models import Sum
 from finance.models import Transaction
+from game.utils.get_season_stats_utils import get_current_season
+
 
 def get_transactions_for_bank(bank):
     return bank.transactions.all()
 
+
 def get_transactions_by_type(bank, transaction_type):
     return bank.transactions.filter(type=transaction_type)
-
-
-def calculate_total_transactions(transaction_type):
-    return Transaction.objects.filter(type=transaction_type).aggregate(total=Sum('amount'))['total'] or 0
 
 
 def add_income(bank, amount):
@@ -34,6 +33,7 @@ def add_expense(bank, amount):
 
 def create_transaction(bank, transaction_type, amount, description="", team=None):
     validate_transaction_type(transaction_type)
+    season = get_current_season()
 
     if amount <= 0:
         raise ValueError("The value must be positive!")
@@ -49,7 +49,8 @@ def create_transaction(bank, transaction_type, amount, description="", team=None
             type=transaction_type,
             amount=amount,
             description=description or "No description provided",
-            team=team
+            team=team,
+            season=season  # Ново поле
         )
 
 

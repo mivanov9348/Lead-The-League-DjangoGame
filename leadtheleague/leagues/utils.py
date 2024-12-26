@@ -8,6 +8,7 @@ from game.models import Season, MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
 from match.utils.get_match_stats import get_match_by_fixture, calculate_match_attendance, match_income
+from messaging.utils.category_messages_utils import create_league_matchday_message
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams
 
@@ -154,6 +155,7 @@ def simulate_day_league_fixtures(match_day):
                 match_income(match, match.home_team)
 
             update_league_standings(league_season, fixtures)
+            create_league_matchday_message(league_season)
 
         check_and_mark_league_seasons_completed()
 
@@ -167,11 +169,9 @@ def update_league_standings(league_season, fixtures):
             league_season=league_season, team=fixture.away_team
         )
 
-        # Актуализация на изиграни мачове
         home_team_record.matches += 1
         away_team_record.matches += 1
 
-        # Резултати и точки
         home_team_record.goalscored += fixture.home_goals
         home_team_record.goalconceded += fixture.away_goals
         away_team_record.goalscored += fixture.away_goals
@@ -200,7 +200,6 @@ def update_league_standings(league_season, fixtures):
 
         home_team_record.save()
         away_team_record.save()
-
 
 def assign_league_champions(season):
     if not season:

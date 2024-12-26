@@ -293,7 +293,6 @@ def generate_free_agents(agent):
             continue
 
         for _ in range(count):
-            # Генериране на произволен играч
             player = generate_random_player(team=None, position=position)
             player.is_free_agent = True
             player.agent = agent

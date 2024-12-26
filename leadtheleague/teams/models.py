@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from accounts.models import CustomUser
 
+
 class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)
     abbreviation = models.CharField(max_length=3)
@@ -37,6 +38,8 @@ class TeamTransaction(models.Model):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_transactions')
     bank = models.ForeignKey("finance.Bank", on_delete=models.CASCADE, related_name='team_transactions')
+    season = models.ForeignKey('game.Season', on_delete=models.SET_NULL, related_name='team_transactions', null=True,
+                               blank=True)
     type = models.CharField(max_length=3, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     description = models.TextField(blank=True, null=True)
@@ -44,6 +47,7 @@ class TeamTransaction(models.Model):
 
     def __str__(self):
         return f"{self.type} - {self.amount} ({self.team.name})"
+
 
 class TeamPlayer(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='team_players')
@@ -56,11 +60,13 @@ class TeamPlayer(models.Model):
     def __str__(self):
         return f"{self.player.name} - {self.team.name} (# {self.shirt_number})"
 
+
 class TeamStatistic(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
+
 
 class TeamMatchStatistic(models.Model):
     team = models.ForeignKey(Team, related_name='match_stats', on_delete=models.CASCADE)
@@ -78,6 +84,7 @@ class TeamMatchStatistic(models.Model):
             models.Index(fields=['statistic']),
             models.Index(fields=['player']),
         ]
+
 
 class Tactics(models.Model):
     name = models.CharField(max_length=30, unique=True)

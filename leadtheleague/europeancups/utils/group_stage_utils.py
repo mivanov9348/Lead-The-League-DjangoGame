@@ -110,6 +110,7 @@ def generate_group_fixtures(season):
                 for fixture in fixtures[round_num * (len(teams) // 2):(round_num + 1) * (len(teams) // 2)]
             ]
             match_date = shared_dates[match_date_index]
+            used_dates.append(match_date)
 
             for home_team, away_team in round_matches:
                 fixtures.append(EuropeanCupFixture(
@@ -125,9 +126,10 @@ def generate_group_fixtures(season):
                 next_fixture_number += 1
 
             match_date_index += 1
-            for match_date in used_dates:
-                match_date.is_euro_cup_day_assigned = True
-                match_date.save()
+
+        for match_date in used_dates:
+            match_date.is_euro_cup_day_assigned = True
+            match_date.save()
 
         EuropeanCupFixture.objects.bulk_create(fixtures)
 
@@ -143,7 +145,6 @@ def generate_group_fixtures(season):
         generate_fixtures_for_group(group, shared_dates)
 
     return f"Successfully generated fixtures for all groups in season {season}!"
-
 
 def simulate_matchday_matches(euro_cup_match_day):
     fixtures = EuropeanCupFixture.objects.filter(
@@ -263,4 +264,3 @@ def advance_teams_from_groups(european_cup_season):
                 eliminated_teams.append(group_team.team.name)
 
     return advancing_teams, eliminated_teams
-

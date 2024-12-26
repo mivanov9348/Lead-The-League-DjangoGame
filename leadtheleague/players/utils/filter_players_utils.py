@@ -1,4 +1,4 @@
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from core.utils.nationality_utils import get_all_nationalities
 from players.utils.get_player_stats_utils import get_all_positions, get_average_player_rating_for_current_season, \
     get_player_team, get_player_season_stats
@@ -31,10 +31,16 @@ def sort_players(queryset, sort_field, order):
         sort_field = f'-{sort_field}'
     return queryset.order_by(sort_field)
 
-def paginate_queryset(queryset, page_number, items_per_page=10):
-    paginator = Paginator(queryset, items_per_page)
-    page = paginator.get_page(page_number)
-    return page, paginator
+def paginate_queryset(queryset, page_number, per_page=30):
+    paginator = Paginator(queryset, per_page)
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    return page_obj, paginator
+
 
 def players_context(players_page, paginator):
     teams = Team.objects.values_list('name', flat=True)

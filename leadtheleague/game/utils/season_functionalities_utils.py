@@ -11,6 +11,8 @@ from game.utils.get_season_stats_utils import check_are_all_competition_complete
 from leagues.utils import generate_leagues_season, process_relegation_promotion, populate_teams_for_season
 from match.utils.generate_match_stats_utils import generate_league_matches, generate_cup_matches, \
     generate_euro_cup_matches
+from messaging.utils.category_messages_utils import create_message_for_new_season
+from messaging.utils.placeholders_utils import get_new_season_placeholders
 from players.utils.generate_player_utils import generate_youth_players, process_retirement_players, \
     generate_all_players_season_stats, generate_players_for_all_teams
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
@@ -41,6 +43,13 @@ def create_game_season(year, season_number, start_date, match_time, is_active):
             generate_leagues_season(new_season)
             generate_cups_season(new_season)
             generate_european_cups_season(new_season)
+            placeholders = get_new_season_placeholders(new_season)
+
+            create_message_for_new_season(
+                category='new season',
+                placeholders=placeholders,
+                is_global=True
+            )
 
         return new_season, "Season created successfully!"
     except IntegrityError as e:

@@ -123,8 +123,7 @@
                         <tbody>
                         {% for player_id, player_data in players.items %}
                         <tr>
-                            <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{
-                                player_data.personal_info.name|default:"-" }}</a></td>
+                            <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{ player_data.personal_info.name|default:"-" }}</a></td>
                             <td>{{ player_data.season_stats.goals.value}}</td>
                             <td>{{ player_data.season_stats.assists.value}}</td>
                             <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>
@@ -189,8 +188,7 @@
                         {% for transfer in transfers %}
                         <tr>
                             <td>{{ transfer.transfer_date }}</td>
-                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{
-                                transfer.player.name|default:"-" }}</a></td>
+                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{ transfer.player.name|default:"-" }}</a></td>
                             <td>
                                 {% if transfer.selling_team %}
                                 {{ transfer.selling_team.name }}
@@ -214,7 +212,20 @@
                     <a href="#">Finance Overview</a>
                 </div>
                 <div class="card-body">
-                    <!-- Финанси -->
+                    <h5>Balance: ${{ finance_overview.balance }}</h5>
+                    <p>Total Income: ${{ finance_overview.total_income }}</p>
+                    <p>Total Expenses: ${{ finance_overview.total_expenses }}</p>
+                    <hr>
+                    <h6>Recent Transactions:</h6>
+                    <ul>
+                        {% for transaction in recent_transactions %}
+                        <li>
+                            <strong>{{ transaction.type }}:</strong> ${{ transaction.amount }} - {{
+                            transaction.description }}
+                            <br><small>{{ transaction.created_at|date:"Y-m-d H:i" }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>

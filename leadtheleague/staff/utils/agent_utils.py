@@ -33,7 +33,6 @@ def generate_agents():
             age=age,
             balance=starting_balance
         )
-        generate_free_agents(agent)
         agents.append(agent)
 
     return agents
@@ -47,15 +46,14 @@ def agent_sell_player(team, player):
         player.save()
 
     team_expense(team, player.price, 'Sell Player')
-    process_agent_payment(agent, player.price)
+    if agent:
+        process_agent_payment(agent, player.price)
 
 
 def process_agent_payment(agent, price):
     with transaction.atomic():
         tax_rate_percentage = get_setting_value("free_agent_tax")
         tax_amount = price * Decimal(tax_rate_percentage / 100)
-
-        print(f'Agent: {agent}')
 
         agent_income = price - tax_amount
         agent.balance += agent_income
@@ -78,4 +76,6 @@ def hire_agent_to_player(agent, player):
         agent = random.choice(agents)
 
     player.agent = agent
+    player.is_free_agent = False
     player.save()
+

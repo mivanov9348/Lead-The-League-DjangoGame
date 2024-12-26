@@ -3,7 +3,6 @@ from django.db import transaction
 from finance.models import Fund
 from game.utils.settings_utils import get_setting_value
 
-
 def add_fund_income(fund, amount):
     """Add income to a fund."""
     if amount <= 0:
@@ -13,7 +12,6 @@ def add_fund_income(fund, amount):
         fund.total_income += amount
         fund.balance += amount
         fund.save()
-
 
 def add_fund_expense(fund, amount):
     """Add an expense to a fund."""
@@ -26,7 +24,6 @@ def add_fund_expense(fund, amount):
         fund.total_expense += amount
         fund.balance -= amount
         fund.save()
-
 
 def distribute_to_funds(bank, funds_share):
     fund_keys = {
