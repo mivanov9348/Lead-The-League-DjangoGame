@@ -5,6 +5,7 @@ from fixtures.models import EuropeanCupFixture
 from game.utils.get_season_stats_utils import get_current_season
 from leagues.models import League
 from leagues.utils import promote_league_teams_to_europe
+from messaging.utils.category_messages_utils import create_european_cup_champion_message
 from teams.models import Team
 
 
@@ -101,5 +102,5 @@ def set_european_cup_season_champion():
 
     european_cup_season.champion = champion
     european_cup_season.save()
-
+    create_european_cup_champion_message()
     return champion

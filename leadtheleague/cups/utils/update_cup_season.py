@@ -1,6 +1,8 @@
 from cups.models import SeasonCup, Cup
 from cups.utils.generate_cup_fixtures import create_season_cup
 from fixtures.models import CupFixture
+from messaging.utils.category_messages_utils import create_cup_champion_message
+
 
 def generate_cups_season(season):
     cups = Cup.objects.all()
@@ -19,6 +21,7 @@ def set_season_cup_winner(season_cup):
 
     season_cup.champion_team = final_fixture.winner
     season_cup.save()
+    create_cup_champion_message()
 
 def update_winner(fixture):
     if fixture.home_goals > fixture.away_goals:

@@ -61,12 +61,13 @@
 
 <script>
     function submitOffer(offerId, status) {
-        let url = "";
-        if (status === 'Accepted') {
-            url = "{% url 'transfers:accept_transfer' %}";
-        } else if (status === 'Rejected') {
-            url = "{% url 'transfers:reject_transfer' %}";
-        }
+        // Избор на правилния URL спрямо действието
+        let url = status === 'Accepted'
+            ? "{% url 'transfers:accept_transfer' %}"
+            : "{% url 'transfers:reject_transfer' %}";
+
+        // Извеждане на данни за дебъг
+        console.log(`Submitting Offer ID: ${offerId}, Action: ${status}`);
 
         fetch(url, {
             method: 'POST',
@@ -75,16 +76,30 @@
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({ offer_id: offerId })
-        }).then(response => response.json())
-          .then(data => {
-              if (data.status === 'success') {
-                  alert('Offer ' + status + ' successfully!');
-                  location.reload();
-              } else {
-                  alert('Failed to update offer: ' + data.message);
-              }
-          }).catch(error => console.error('Error:', error));
+        })
+        .then(response => {
+            console.log(`HTTP Status: ${response.status}`); // Показва HTTP статус
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Server Response:', data);
+            if (data.status === 'success') {
+                alert('Offer ' + status + ' successfully!');
+                location.reload(); // Презареждане след успех
+            } else {
+                alert('Failed to process the offer: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        });
     }
 </script>
+
+
 
 {% endblock %}

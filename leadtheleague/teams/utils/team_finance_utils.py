@@ -29,16 +29,13 @@ def check_team_balance(team, amount_needed):
     except TeamFinance.DoesNotExist:
         return False
 
-
 def process_bank_tax(team, income, description):
     tax_percentage = Decimal("0.2")
     tax_amount = Decimal(income) * tax_percentage
 
     with transaction.atomic():
-        # Record the tax as a team expense
         team_expense(team, tax_amount, f'Tax deduction: {description}')
 
-        # Transfer the tax to the bank
         bank = get_bank()
         distribute_income(bank, tax_amount, description, team)
 
@@ -54,6 +51,27 @@ def team_match_profit(team, match, income, description):
         # Step 2: Process the tax
         process_bank_tax(team, income, description)
 
+def sell_player_income(team, player, amount):
+    if amount <= 0:
+        raise ValueError("The sale amount must be positive.")
+
+    description = f"{team.name} buy {player.name}."
+
+    with transaction.atomic():
+        team_income(team, amount, description)
+
+        process_bank_tax(team, amount, description)
+
+def buy_player_expense(team, player, amount):
+    if amount <= 0:
+        raise ValueError("The purchase amount must be positive.")
+
+    description = f"Expense for the purchase of {player.name}."
+
+    with transaction.atomic():
+        team_expense(team, amount, description)
+
+        process_bank_tax(team, amount, description)
 
 def team_transaction(team, amount, transaction_type, description=None):
     if amount <= 0:

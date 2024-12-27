@@ -8,7 +8,7 @@ from game.models import Season, MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
 from match.utils.get_match_stats import get_match_by_fixture, calculate_match_attendance, match_income
-from messaging.utils.category_messages_utils import create_league_matchday_message
+from messaging.utils.category_messages_utils import create_league_matchday_message, create_league_champion_message
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams
 
@@ -231,6 +231,7 @@ def assign_league_champions(season):
             league_season.champion_team = champion_team.team
             league_season.is_completed = True
             league_season.save()
+            create_league_champion_message()
             print(f"Шампион на лигата {league_season.league.name}: {champion_team.team.name}")
         else:
             print(f"Неуспешно определяне на шампиона за лига {league_season.league.name}.")

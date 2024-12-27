@@ -45,7 +45,7 @@ def agent_sell_player(team, player):
         player.agent = None
         player.save()
 
-    team_expense(team, player.price, 'Sell Player')
+    team_expense(team, player.price, f'{team.name} buy {player.first_name} {player.last_name}')
     if agent:
         process_agent_payment(agent, player.price)
 
@@ -61,7 +61,7 @@ def process_agent_payment(agent, price):
 
         try:
             bank = Bank.objects.get(is_main=True)
-            distribute_income(bank, tax_amount, f'Get Free Agent {agent.first_name} {agent.last_name}', None)
+            distribute_income(bank, tax_amount, f'Tax from Free Agent {agent.first_name} {agent.last_name}', None)
         except Bank.DoesNotExist:
             pass
 
@@ -78,4 +78,3 @@ def hire_agent_to_player(agent, player):
     player.agent = agent
     player.is_free_agent = False
     player.save()
-
