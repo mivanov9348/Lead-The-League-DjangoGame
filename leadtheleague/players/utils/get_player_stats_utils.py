@@ -6,16 +6,13 @@ from players.models import Player, PlayerSeasonStatistic, Position, Attribute, P
 from players.utils.generate_player_utils import generate_random_player
 from teams.models import TeamPlayer, Team
 
-
 def get_all_positions() -> QuerySet[Position]:
     return Position.objects.all()
 
 
 def get_average_player_rating_for_current_season(player: Player) -> float:
-    # Получаваме текущия сезон
     current_season = get_current_season()
 
-    # Изчисляваме средния рейтинг за играча за текущия сезон
     average_rating = PlayerMatchRating.objects.filter(
         player=player,
         match__season=current_season  # Предполага се, че атрибутът 'season' е наличен
@@ -50,9 +47,25 @@ def get_personal_player_data(player):
         'is_youth': player.is_youth,
         'is_free_agent': player.is_free_agent,
         'image_url': player.image.url if player.image else None,
-
     }
 
+def format_player_data(player):
+    """Format a single player's data for frontend usage."""
+    attributes = {
+        attr.attribute.name.lower(): attr.value for attr in player.relevant_attributes
+    }
+    return {
+        'id': player.id,
+        'name': player.name,
+        'age': player.age,
+        'nationality': player.nationality.name if player.nationality else "-",
+        'nationalityabbr': player.nationality.abbreviation if player.nationality else "-",
+        'position': player.position.name if player.position else "-",
+        'positionabbr': player.position.abbreviation if player.position else "-",
+        'agent': f"{player.agent.first_name} {player.agent.last_name}" if player.agent else "No Agent",
+        **attributes,
+        'price': player.price,
+    }
 
 def get_player_attributes(player):
     """Retrieve all attributes for a given player."""
@@ -147,17 +160,22 @@ def get_player_match_stats(player, match=None):
 
 
 def get_all_free_agents():
-    players = Player.objects.filter(is_free_agent=True).prefetch_related(
+    """Retrieve all free agents with their relevant attributes."""
+    players = Player.objects.filter(is_free_agent=True).select_related(
+        'nationality', 'position', 'agent'
+    ).prefetch_related(
         Prefetch(
             'playerattribute_set',
-            queryset=PlayerAttribute.objects.select_related('attribute'),
-            to_attr='attributes'
+            queryset=PlayerAttribute.objects.filter(
+                attribute__name__in=[
+                    'Handling', 'Reflexes', 'Finishing', 'Shooting', 'Technique',
+                    'Passing', 'Crossing', 'Tackling', 'Strength', 'Determination',
+                    'BallControl', 'Dribbling', 'Speed', 'Vision', 'WorkRate'
+                ]
+            ).select_related('attribute'),
+            to_attr='relevant_attributes'
         )
     )
-    for player in players:
-        player.attributes = {
-            attr.attribute.name: attr.value for attr in player.attributes
-        }
     return players
 
 
@@ -186,7 +204,7 @@ def get_all_youth_players_by_team(team):
             'price': player.price,
             'image': player.image.url if player.image else None,
             'potential': player.potential_rating,
-            'attributes': attributes_data,  # Добавяне на атрибутите към играча
+            'attributes': attributes_data,
         })
 
     return youth_players_data
