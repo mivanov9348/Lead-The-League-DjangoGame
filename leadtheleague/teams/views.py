@@ -3,7 +3,7 @@ from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from fixtures.models import LeagueFixture
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
-    get_player_attributes
+    get_player_attributes, format_player_data
 from staff.models import Coach
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance
@@ -232,12 +232,23 @@ def training(request):
     team = get_object_or_404(Team, user=request.user)
 
     coaches = Coach.objects.filter(team=team)
+
     players_qs = TeamPlayer.objects.filter(team=team, player__is_active=True).select_related('player')
 
-    players_data = [get_personal_player_data(player.player) for player in players_qs]
+    players_data = []
+    for player in players_qs:
+        attributes = get_player_attributes(player.player)
+        players_data.append({
+            'id': player.player.id,
+            'first_name': player.player.first_name,
+            'last_name': player.player.last_name,
+            'age': player.player.age,
+            'position': player.player.position.name if player.player.position else "-",
+            'image_url': player.player.image.url if player.player.image else None,
+            'attributes': attributes,
+        })
 
     return render(request, 'teams/training.html', {'coaches': coaches, 'players': players_data})
-
 
 @csrf_exempt
 def train_coach(request, coach_id):

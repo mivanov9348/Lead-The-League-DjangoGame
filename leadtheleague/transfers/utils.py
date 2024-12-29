@@ -3,7 +3,6 @@ from decimal import Decimal
 from django.db.models import Prefetch
 from messaging.utils.category_messages_utils import create_free_agent_transfer_message, \
     create_team_to_team_transfer_message
-from staff.utils.agent_utils import agent_sell_player
 from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import sell_player_income, buy_player_expense
 from transfers.models import Transfer, TransferOffer
@@ -34,12 +33,6 @@ def create_transfer(team, player, is_free_agent):
     )
 
 
-def transfer_free_agent(team, player):
-    agent_sell_player(team, player)
-    create_transfer(team, player, True)
-    create_free_agent_transfer_message(player, team)
-
-
 def find_transfer_offer_by_id(offer_id):
     try:
         return TransferOffer.objects.select_related('offering_team').prefetch_related(
@@ -47,15 +40,6 @@ def find_transfer_offer_by_id(offer_id):
         ).get(id=offer_id)
     except TransferOffer.DoesNotExist:
         return None
-
-
-def create_transfer_record(player_team, offering_team, player, amount):
-    return Transfer.objects.create(
-        selling_team=player_team,
-        buying_team=offering_team,
-        player=player,
-        amount=amount
-    )
 
 
 def COM_receive_transfer_offer(transfer_offer):

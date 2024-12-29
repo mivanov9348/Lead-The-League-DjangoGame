@@ -258,14 +258,28 @@ def generate_team_players(team):
 
 
 def generate_free_agents(agent):
-    try:
-        min_free_agents = int(get_setting_value('minimum_free_agents'))
-        max_free_agents = int(get_setting_value('maximum_free_agents'))
-    except ValueError as e:
-        logging.error(f"Error fetching settings: {e}")
-        return []
+    def calculate_free_agent_first_cost(level):
+        price_scale = {
+            1.0: 500000,
+            2.0: 450000,
+            3.0: 400000,
+            4.0: 350000,
+            5.0: 300000,
+            6.0: 250000,
+            7.0: 200000,
+            8.0: 150000,
+            9.0: 100000,
+            10.0: 50000,
+        }
 
-    total_free_agents = random.randint(min_free_agents, max_free_agents)
+        rounded_level = max(k for k in price_scale.keys() if k <= level)
+        return price_scale[rounded_level]
+
+    player_cost = calculate_free_agent_first_cost(agent.scouting_level)
+    print(f"Agent scouting level: {agent.scouting_level}, Player cost: {player_cost}")
+
+    max_players = int(agent.balance // player_cost)
+    print(f"Initial max players: {max_players}, Agent balance: {agent.balance}")
 
     position_distribution = {
         'Goalkeeper': 0,
@@ -273,31 +287,46 @@ def generate_free_agents(agent):
         'Midfielder': 0,
         'Attacker': 0,
     }
-
-    remaining_players = total_free_agents
     positions = list(position_distribution.keys())
 
     for pos in positions[:-1]:
-        count = random.randint(0, remaining_players)
+        if max_players <= 0:
+            break
+        count = random.randint(0, max_players)
         position_distribution[pos] = count
-        remaining_players -= count
+        max_players -= count
 
-    position_distribution[positions[-1]] = remaining_players
+    if max_players > 0:
+        position_distribution[positions[-1]] = max_players
+    print(f"Position distribution: {position_distribution}")
 
     free_agents = []
+
     for pos_name, count in position_distribution.items():
+        if count <= 0:
+            continue
+
         try:
+            print(f"Trying to get position: {pos_name.capitalize()}")
             position = Position.objects.get(name=pos_name.capitalize())
         except Position.DoesNotExist:
             logging.error(f"The position '{pos_name}' doesn't exist!")
             continue
 
         for _ in range(count):
+            if agent.balance < player_cost:
+                break
+
             player = generate_random_player(team=None, position=position)
             player.is_free_agent = True
             player.agent = agent
             player.save()
+
+            agent.balance -= player_cost
+            agent.save()
+
             free_agents.append(player)
+            print(f"Generated free agent: {player}, Agent balance: {agent.balance}")
 
     return free_agents
 

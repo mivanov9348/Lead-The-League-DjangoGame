@@ -3,74 +3,179 @@
 
 {% block extra_css %}
 {% load static %}
+{% load humanize %}
 <link rel="stylesheet" href="{% static 'css/staff_market.css' %}">
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: var(--darkergreen-color);
+        color: white;
+    }
+
+    .coach-card {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        color: white;
+        font-family: 'Arial', sans-serif;
+        width: 250px;
+        margin: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+
+    .coach-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .hire-button {
+        background: white;
+        color: #4caf50;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .hire-button:hover {
+        background: #45a049;
+        color: white;
+    }
+
+    .sort-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+    }
+
+    .sort-dropdown {
+        padding: 8px 12px;
+        font-size: 1rem;
+        border-radius: 5px;
+        border: 1px solid #fff;
+        background: white;
+        color: #4caf50;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
+
+    .sort-dropdown:hover {
+        background: #f1f1f1;
+    }
+
+    .coach-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .messages {
+        margin: 20px auto;
+        text-align: center;
+    }
+    .coach-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+</style>
 {% endblock %}
 
 {% block content %}
-{% load humanize %}
-
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}"></div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div class="sort-container">
-    <label for="sort-dropdown">Sort by:</label>
-    <select id="sort-dropdown" class="sort-dropdown" onchange="sortCoaches()">
+    <select id="sort-dropdown" class="sort-dropdown" onchange="filterCoaches()">
         <option value="rating-desc">Rating: High to Low</option>
         <option value="rating-asc">Rating: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="price-asc">Price: Low to High</option>
     </select>
 </div>
 
 <div class="coach-grid" id="coach-grid">
     {% for coach in coaches %}
-    <div class="coach-card" data-rating="{{ coach.rating|default:0 }}">
+    <div class="coach-card" data-rating="{{ coach.rating|default:0 }}" data-price="{{ coach.price }}">
+        <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}" />
         <h2>{{ coach.first_name }} {{ coach.last_name }}</h2>
         <p>Age: {{ coach.age }}</p>
         <p>Rating: {{ coach.rating }}</p>
         <p>Price: ${{ coach.price|intcomma }}</p>
-        <form method="post" action="{% url 'staff:hire_coach' %}">
+        <form method="post" action="{% url 'staff:hire_coach' %}" class="hire-form">
             {% csrf_token %}
             {% if coach.team %}
             <p class="hired-message">Hired by {{ coach.team.name }}</p>
             {% else %}
             <input type="hidden" name="coach_id" value="{{ coach.id }}">
-            <hr/>
             <button type="submit" class="hire-button">Hire</button>
             {% endif %}
         </form>
-
     </div>
     {% empty %}
     <p>No Coaches available at the moment.</p>
     {% endfor %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function sortCoaches() {
+    function filterCoaches() {
         const grid = document.getElementById('coach-grid');
         const cards = Array.from(grid.getElementsByClassName('coach-card'));
         const sortValue = document.getElementById('sort-dropdown').value;
 
         cards.sort((a, b) => {
-    const ratingA = parseFloat(a.getAttribute('data-rating')) || 0; // Default to 0 if NaN
-    const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
+            const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
+            const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
+            const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+            const priceB = parseFloat(b.getAttribute('data-price')) || 0;
 
-    if (sortValue === 'rating-desc') {
-        return ratingB - ratingA; // Highest to Lowest
-    } else {
-        return ratingA - ratingB; // Lowest to Highest
-    }
-});
+            if (sortValue === 'rating-desc') {
+                return ratingB - ratingA; // Highest to Lowest Rating
+            } else if (sortValue === 'rating-asc') {
+                return ratingA - ratingB; // Lowest to Highest Rating
+            } else if (sortValue === 'price-desc') {
+                return priceB - priceA; // Highest to Lowest Price
+            } else if (sortValue === 'price-asc') {
+                return priceA - priceB; // Lowest to Highest Price
+            }
+        });
 
-        // Clear and re-add sorted cards
         grid.innerHTML = '';
         cards.forEach(card => grid.appendChild(card));
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const messages = document.querySelectorAll('.alert');
+    if (messages.length > 0) {
+        messages.forEach(message => {
+            const messageText = message.getAttribute('data-message') || 'Unknown error';
+            if (message.classList.contains('success')) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: messageText,
+                });
+            } else if (message.classList.contains('error')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: messageText,
+                });
+            }
+        });
+    }
+});
+    });
 </script>
 {% endblock %}
