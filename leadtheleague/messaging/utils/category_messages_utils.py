@@ -6,7 +6,7 @@ from messaging.models import UserMessageStatus, SystemMessage, MessageTemplate
 from messaging.utils.placeholders_utils import get_free_agent_transfer_placeholders, get_new_coach_placeholders, \
     get_league_matchday_placeholders, \
     get_cup_matchday_placeholders, get_european_cup_champion_placeholder, get_league_champion_placeholder, \
-    get_cup_champion_placeholder, get_team_to_team_transfer_placeholder
+    get_cup_champion_placeholder, get_team_to_team_transfer_placeholder, get_release_player_placeholders
 from transfers.models import Transfer
 
 
@@ -130,6 +130,32 @@ def create_free_agent_transfer_message(player, team):
 
     return system_message
 
+def create_release_player_message(player, team):
+    placeholders = get_release_player_placeholders(player, team)
+
+    templates = MessageTemplate.objects.filter(category='release player')
+    if not templates.exists():
+        raise ValueError("No templates found for 'release player' category.")
+
+    template = random.choice(templates)
+
+    try:
+        message = template.message.format(**placeholders)
+    except KeyError as e:
+        raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
+
+    system_message = SystemMessage.objects.create(
+        recipient=team.user,
+        title=template.title,
+        preview=message[:30],
+        message=message,
+        date_sent=now(),
+        is_global=False
+    )
+
+    create_user_message_status(system_message, is_global=False, recipient=team.user)
+
+    return system_message
 
 def create_new_coach_message(coach, team):
     placeholders = get_new_coach_placeholders(coach, team)

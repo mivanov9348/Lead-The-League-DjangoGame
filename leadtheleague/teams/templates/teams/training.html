@@ -10,39 +10,46 @@
 
 {% block content %}
 <div class="training-container">
-    <!-- Coaches Section -->
+    <!-- Coach Section -->
     <section class="panel-section">
-        <h2>Coaches</h2>
-        <hr/>
         <div class="coaches-grid">
+            {% if coaches %}
             {% for coach in coaches %}
             <div class="card">
-                <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}" />
+                <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}"/>
                 <h3>{{ coach.first_name }} {{ coach.last_name }}</h3>
                 <p>Rating: {{ coach.rating }}</p>
-                <button class="train-button" onclick="trainCoach('{{ coach.id }}')">Train</button>
-                <button class="fire-button" onclick="fireCoach('{{ coach.id }}', '{{ coach.first_name }} {{ coach.last_name }}')">Fire</button>
+                <button class="train-button" onclick="trainCoach('{{ team.id }}')">Train</button>
+                <button class="fire-button"
+                        onclick="fireCoach('{{ coach.id }}', '{{ coach.first_name }} {{ coach.last_name }}')">Fire
+                </button>
             </div>
             {% endfor %}
+            {% else %}
+            <p class="no-coach-message">No selected coach for the team. <a href="{% url 'staff:staff_market' %}">Assign
+                one!</a></p>
+
+
+            {% endif %}
         </div>
     </section>
 
+    <!-- Players Section -->
     <section class="panel-section">
-        <h2>Players</h2>
-        <hr/>
         <div class="players-grid">
             {% for player in players %}
             <div class="card">
-                <img src="{{ player.image_url }}" alt="{{ player.first_name }}" />
+                <img src="{{ player.image_url }}" alt="{{ player.first_name }}"/>
                 <h3>{{ player.first_name }} {{ player.last_name }}</h3>
                 <p>{{ player.position }}</p>
                 <p>Age: {{ player.age }}</p>
                 <select class="dropdown" id="attribute-{{ player.id }}">
                     {% for attribute in player.attributes %}
-                    <option value="{{ attribute.name }}">{{ attribute.name }} ({{ attribute.value }})</option>
+                    <option value="{{ attribute.name }}" {% if forloop.first %}selected{% endif %}>
+                        {{ attribute.name }} ({{ attribute.value }})
+                    </option>
                     {% endfor %}
                 </select>
-                <button class="train-button" onclick="trainPlayer('{{ player.id }}')">Train Attribute</button>
             </div>
             {% endfor %}
         </div>
@@ -56,111 +63,56 @@
         return '{{ csrf_token }}';
     }
 
-    function trainCoach(coachId) {
-        fetch(`/teams/train_coach/${coachId}/`, {
+    function trainCoach(teamId) {
+        const players = document.querySelectorAll('.players-grid .card');
+        const selectedAttributes = {};
+
+        for (const player of players) {
+            const select = player.querySelector('select');
+            if (!select.value) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'All players must have a selected attribute before training the coach.',
+                });
+                return;
+            }
+            selectedAttributes[select.id.split('-')[1]] = select.value; // player.id : attribute.name
+        }
+
+        fetch(`/teams/train_team/${teamId}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCSRFToken(),
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({})  // Ако има нужда от данни, добавете тук
+            body: JSON.stringify({ selectedAttributes }),
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                let changesList = data.changes.map(change =>
+                    `${change.player}: ${change.attribute} → ${change.new_value} (Progress: ${change.progress})`
+                ).join('<br>');
                 Swal.fire({
                     icon: 'success',
-                    title: 'Успешно',
-                    text: `Треньорът е трениран успешно!`,
+                    title: 'Training Complete!',
+                    html: changesList,
                 });
             } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Неуспех',
+                    title: 'Error',
                     text: data.error,
                 });
             }
         })
         .catch(error => {
-            console.error('Грешка:', error);
+            console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Грешка',
-                text: 'Възникна грешка: ' + error.message,
-            });
-        });
-    }
-
-    function fireCoach(coachId, coachName) {
-        fetch(`/staff/fire_coach/${coachId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCSRFToken(),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: `${coachName} беше уволен`,
-                    text: `${coachName} вече не е част от вашия отбор.`,
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Неуспех',
-                    text: data.error,
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Грешка:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Грешка',
-                text: 'Възникна грешка: ' + error.message,
-            });
-        });
-    }
-
-    function trainPlayer(playerId) {
-        const attributeId = document.getElementById(`attribute-${playerId}`).value;
-
-        fetch(`/players/train_attribute/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCSRFToken(),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ player_id: playerId, attribute_id: attributeId }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Успешно',
-                    text: `Атрибутът беше трениран! Напредък: ${data.progress}`,
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Неуспех',
-                    text: data.error,
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Грешка:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Грешка',
-                text: 'Възникна грешка: ' + error.message,
+                title: 'Error',
+                text: 'An error occurred: ' + error.message,
             });
         });
     }

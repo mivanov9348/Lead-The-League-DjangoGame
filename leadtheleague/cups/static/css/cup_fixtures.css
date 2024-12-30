@@ -7,7 +7,7 @@
 }
 
 .title-box {
-    background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
     color: #fff;
     padding: 20px;
     text-align: center;
@@ -52,7 +52,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
     color: white;
     padding: 10px 15px;
     border-radius: 5px;

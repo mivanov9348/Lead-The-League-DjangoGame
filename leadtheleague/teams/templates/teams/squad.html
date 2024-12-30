@@ -6,15 +6,10 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/squad.css' %}">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
 
 {% endblock %}
 
 {% block content %}
-<div class="team-info">
-    <h1>{{ team.name }}</h1>
-</div>
-
 <div class="table-container">
     <table id="squad-table" class="display responsive nowrap" style="width:100%">
         <thead>
@@ -25,12 +20,12 @@
             <th>Age</th>
             <th>Position</th>
             <th>Nationality</th>
-            <th>Matches</th>
-            <th>Goals</th>
-            <th>Assists</th>
-            <th>Shots</th>
-            <th>Saves</th>
-            <th>Clean Sheets</th>
+            <th>🕘</th>
+            <th>⚽</th>
+            <th>🤝</th>
+            <th>💥</th>
+            <th>🧤</th>
+            <th>🧹</th>
             <th>🟨</th>
             <th>🟥</th>
         </tr>
@@ -53,7 +48,7 @@
             </td>
             <td>{{ player.personal_info.age }}</td>
             <td>{{ player.personal_info.positionabbr|default:"-" }}</td>
-            <td>{{ player.personal_info.nationalityabbr|default:"-" }}</td>
+            <td>{{ player.personal_info.nationality|default:"-" }}</td>
             <td>{{ player.stats.Matches|default:"-" }}</td>
             <td>{{ player.stats.Goals|default:"-" }}</td>
             <td>{{ player.stats.Assists|default:"-" }}</td>

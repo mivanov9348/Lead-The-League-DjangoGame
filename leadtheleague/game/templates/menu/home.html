@@ -61,7 +61,6 @@
                 </div>
                 <div class="card-body table-container">
                     <table class="table table-sm">
-
                         <tbody>
                         {% for messages in latest_messages %}
                         <tr>
@@ -188,7 +187,8 @@
                         {% for transfer in transfers %}
                         <tr>
                             <td>{{ transfer.transfer_date }}</td>
-                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{ transfer.player.name|default:"-" }}</a></td>
+                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{
+                                transfer.player.name|default:"-" }}</a></td>
                             <td>
                                 {% if transfer.selling_team %}
                                 {{ transfer.selling_team.name }}
@@ -231,5 +231,5 @@
         </div>
     </div>
 </div>
-</div>
+
 {% endblock %}

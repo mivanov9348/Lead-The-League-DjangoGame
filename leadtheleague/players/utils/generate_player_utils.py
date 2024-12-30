@@ -48,7 +48,8 @@ def calculate_player_attributes(player):
 
         final_value = min(max(round(final_value), 1), 20)
 
-        progress_value = random.uniform(0.0, 0.9)
+        # Calculate progress and round to two decimal places
+        progress_value = round(random.uniform(0.0, 0.9), 2)
 
         attributes[attribute] = (final_value, progress_value)
 

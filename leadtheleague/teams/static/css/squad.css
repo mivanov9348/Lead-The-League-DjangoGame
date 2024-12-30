@@ -1,5 +1,5 @@
 .table-container{
-    background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
     color:white;
 
 }
@@ -17,11 +17,11 @@ th, td {
     vertical-align: middle;
     border: 1px solid #ddd;
     padding: 5px; /* Намален padding */
-    max-width: 50px; /* Ограничение на ширината */
+    max-width: 150px; /* Ограничение на ширината */
     white-space: nowrap; /* Всичко на един ред */
     overflow: hidden;
     text-overflow: ellipsis;
-        background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
         color:white
 
 }
@@ -35,7 +35,7 @@ th, td {
 
 #squad-table th:hover {
     color: #f2f2f2;
-    background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
 }
 
 /* Тяло на таблицата */
@@ -74,7 +74,7 @@ th, td {
     padding: 5px;
     margin: 2px;
     color: white;
-    background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
     border-radius: 5px;
 }
 

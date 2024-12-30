@@ -1,4 +1,8 @@
 
+.image {
+    height:160px;
+    width: 150px;
+}
 .sort-container {
     text-align: center;
     margin-top:50px;

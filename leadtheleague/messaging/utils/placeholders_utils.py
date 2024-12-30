@@ -59,6 +59,12 @@ def get_free_agent_transfer_placeholders(player, team):
         'team_name': team.name
     }
 
+def get_release_player_placeholders(player, team):
+    return {
+        'player_name': f"{player.first_name} {player.last_name}",
+        'team_name': team.name
+    }
+
 
 def get_new_coach_placeholders(coach, team):
     if not team.is_active:

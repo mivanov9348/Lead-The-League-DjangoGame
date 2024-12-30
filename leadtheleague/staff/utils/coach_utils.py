@@ -16,7 +16,7 @@ from teams.utils.team_finance_utils import team_expense
 
 
 def get_coaches_without_team():
-    coaches = Coach.objects.filter(team__isnull=True).values('id', 'first_name', 'last_name', 'image')
+    coaches = Coach.objects.filter(team__isnull=True)
     print(coaches)
     return coaches
 

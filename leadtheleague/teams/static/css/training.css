@@ -136,3 +136,10 @@ hr {
 .fire-button:hover {
         background-color: #d32f2f;
     }
+
+.no-coach-message {
+    text-align: center;
+    font-size: 18px;
+    color: #ff4444;
+    margin-top: 20px;
+}

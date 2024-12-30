@@ -1,0 +1,123 @@
+.table-container {
+    background-color: var(--darkgreen-color);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+    width: 100%;
+}
+
+h1 {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.table {
+    color: white;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+}
+
+.table thead th {
+    background-color: var(--darkgreen-color);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    font-size:16px;
+}
+
+.table tbody tr {
+    background-color: var(--darkgreen-color); /* Уеднаквява всички редове */
+            font-size: 14px;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: var(--darkgreen-color) !important; /* Изчиства различни цветове */
+    color: white !important; /* Уеднаквява текста */
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: var(--darkgreen-color) !important; /* Изчиства различни цветове */
+    color: white !important; /* Уеднаквява текста */
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 100, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.table tbody td {
+    text-align: center;
+    padding: 8px;
+    color: white;
+        font-size: 14px;
+
+}
+
+.make-offer-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+        background-color: var(--darkergreen-color);
+
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.make-offer-btn:hover {
+    background-color: black;
+    color: white;
+}
+
+.row.mb-3 input,
+.row.mb-3 select {
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.row.mb-3 input:focus,
+.row.mb-3 select:focus {
+    outline: none;
+}
+
+/* Footer стил за DataTables */
+.dataTables_wrapper  {
+    color: white;
+}
+
+.dataTables_wrapper {
+    background-color: var(--darkgreen-color) !important;
+    color: white !important;
+    border-radius: 5px;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+dataTables_paginate .paginate_button {
+    cursor: pointer; /* Променя курсора на pointer */
+    background-color: #f8f9fa; /* Светъл фон */
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    margin: 0 3px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease, color 0.2s ease; /* Плавна анимация */
+}
+
+.dataTables_paginate .paginate_button:hover {
+    color: green;
+    cursor:pointer;
+}
+
+.dataTables_paginate .paginate_button.current {
+    color: green;
+    font-weight:bolder;
+}

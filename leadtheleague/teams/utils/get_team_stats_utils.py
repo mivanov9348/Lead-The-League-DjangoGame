@@ -1,20 +1,16 @@
 from itertools import chain
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404
 from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
-from fixtures.utils import format_fixtures
 from game.models import Season
 from teams.models import Team, TeamFinance
-
 
 def get_all_teams():
     return Team.objects.all()
 
-
 def get_team_balance(user_team):
     team_finance = TeamFinance.objects.filter(team=user_team).first()
     return team_finance.balance if team_finance else 0
-
 
 def get_poster_schedule(league, user_team):
     # Retrieve fixtures by type (league, cup, euro) for the user's teams
@@ -27,14 +23,12 @@ def get_poster_schedule(league, user_team):
         fixtures_by_type.get("euro", [])
     )
 
-    # Prepare the schedule data in the required format
     schedule_data = []
     for fixture in all_fixtures:
         location = 'H' if fixture.home_team == user_team else 'A'
         opponent = fixture.away_team if location == 'H' else fixture.home_team
         result = f"{fixture.home_goals} - {fixture.away_goals}" if fixture.is_finished else None
 
-        # Determine competition type
         if isinstance(fixture, LeagueFixture):
             competition_type = "League"
         elif isinstance(fixture, CupFixture):
@@ -103,3 +97,6 @@ def get_team_data(team_id):
         },
     }
     return team_data
+
+
+

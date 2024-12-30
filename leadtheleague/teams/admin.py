@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from players.utils.generate_player_utils import generate_team_players
 from .models import Team
 from .utils.generate_team_utils import set_team_logos
+from .utils.lineup_utils import auto_select_starting_lineup
 
 
 @admin.register(Team)
@@ -43,11 +44,39 @@ class TeamAdmin(admin.ModelAdmin):
                     level=messages.WARNING
                 )
 
-    # Добавяме всички действия
+    def automatic_starting_lineup_action(self, request, queryset):
+        """Automatically select starting lineup for the selected teams."""
+        successful_teams = 0
+        for team in queryset:
+            try:
+                errors = auto_select_starting_lineup(team)
+                if errors:
+                    self.message_user(
+                        request,
+                        f"Team {team.name}: " + ", ".join(errors),
+                        level=messages.WARNING
+                    )
+                else:
+                    successful_teams += 1
+            except Exception as e:
+                self.message_user(
+                    request,
+                    f"Error setting lineup for team {team.name}: {e}",
+                    level=messages.ERROR
+                )
+        if successful_teams > 0:
+            self.message_user(
+                request,
+                f"Automatic starting lineup successfully set for {successful_teams} team(s).",
+                level=messages.SUCCESS
+            )
+
     actions = [
         'fill_selected_teams_with_players',
         'set_team_logos_action',
-        'populate_teams_action',
+        'automatic_starting_lineup_action',
     ]
+
     fill_selected_teams_with_players.short_description = "Fill Selected Teams with Players"
     set_team_logos_action.short_description = "Set Logos for Selected Teams"
+    automatic_starting_lineup_action.short_description = "Automatic Starting Lineup for Selected Teams"

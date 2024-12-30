@@ -6,21 +6,15 @@
 {% load humanize %}
 <link rel="stylesheet" href="{% static 'css/staff_market.css' %}">
 <style>
-    body {
-        font-family: 'Arial', sans-serif;
-        background-color: var(--darkergreen-color);
-        color: white;
-    }
 
     .coach-card {
-        background: linear-gradient(135deg, #4caf50, #45a049);
+        background-color: var(--darkgreen-color);
         border-radius: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 20px;
+        padding: 10px;
         color: white;
         font-family: 'Arial', sans-serif;
         width: 250px;
-        margin: 15px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         position: relative;
     }
@@ -49,21 +43,19 @@
 
     .sort-container {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        margin-bottom: 20px;
         padding: 10px;
-        background: rgba(0, 0, 0, 0.3);
         border-radius: 10px;
     }
 
     .sort-dropdown {
-        padding: 8px 12px;
+        padding: 5px 15px;
         font-size: 1rem;
         border-radius: 5px;
         border: 1px solid #fff;
         background: white;
-        color: #4caf50;
+        color: var(--darkergreen-color);
         font-weight: bold;
         transition: background 0.3s ease;
     }
@@ -75,7 +67,7 @@
     .coach-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 20px;
+        gap: 5px;
         justify-content: center;
     }
 
@@ -106,7 +98,7 @@
 <div class="coach-grid" id="coach-grid">
     {% for coach in coaches %}
     <div class="coach-card" data-rating="{{ coach.rating|default:0 }}" data-price="{{ coach.price }}">
-        <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}" />
+        <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}" class="image" />
         <h2>{{ coach.first_name }} {{ coach.last_name }}</h2>
         <p>Age: {{ coach.age }}</p>
         <p>Rating: {{ coach.rating }}</p>

@@ -1,19 +1,22 @@
+import json
+from datetime import date
+from decimal import Decimal
 from itertools import chain
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from fixtures.models import LeagueFixture
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes, format_player_data
+from players.utils.update_player_stats_utils import update_player_price
 from staff.models import Coach
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
-from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance
+from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance, TrainingImpact
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
 from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
-from .utils.training_utils import player_training
+from .utils.lineup_utils import validate_lineup, auto_select_starting_lineup
 
 
 def get_sort_field(sort_by):
@@ -107,9 +110,14 @@ def line_up(request):
     except AttributeError:
         return redirect("error_page")
 
-    team_tactics, _ = TeamTactics.objects.get_or_create(team=team)
-    tactics = Tactics.objects.all()
-    selected_tactic = team_tactics.tactic if team_tactics.tactic else tactics.first()
+    team_tactics, created = TeamTactics.objects.get_or_create(team=team)
+
+    if not team_tactics.tactic:
+        default_tactic = Tactics.objects.first()  # Избери първата тактика по подразбиране
+        team_tactics.tactic = default_tactic
+        team_tactics.save()
+
+    selected_tactic = team_tactics.tactic
 
     if request.method == "GET" and "tactic_id" in request.GET:
         tactic_id = request.GET.get("tactic_id")
@@ -160,7 +168,7 @@ def line_up(request):
 
     context = {
         "teams": team,
-        "tactics": tactics,
+        "tactics": Tactics.objects.all(),
         "selected_tactic": selected_tactic,
         "players": all_players,
     }
@@ -175,65 +183,57 @@ def save_lineup(request):
         team = get_object_or_404(Team, user=request.user)
         tactic_id = request.POST.get("tactic_id")
         selected_tactic = get_object_or_404(Tactics, id=tactic_id)
+        selected_players = request.POST.get("selected_players", "")
+        selected_players_ids = selected_players.split(",")  # Превърни в списък
 
-        # Изчистване на текущия състав
-        team_tactics, _ = TeamTactics.objects.get_or_create(team=team)
-        team_tactics.starting_players.clear()
-        team_tactics.reserve_players.clear()
-        team_tactics.tactic = selected_tactic
+        try:
+            # Увери се, че всички ID са валидни числа
+            selected_players_ids = [int(player_id) for player_id in selected_players_ids if player_id.isdigit()]
 
-        # Карта за валидиране на тактиката
-        tactic_requirements = {
-            "GK": selected_tactic.num_goalkeepers,
-            "DF": selected_tactic.num_defenders,
-            "MF": selected_tactic.num_midfielders,
-            "ATT": selected_tactic.num_attackers,
-        }
-        position_counts = {pos: 0 for pos in tactic_requirements}
-        reserve_count = 0
+            players = Player.objects.filter(id__in=selected_players_ids)
 
-        # Преброяване на играчите
-        for key, value in request.POST.items():
-            if key.startswith("player_assignment_"):
-                player_id = int(key.replace("player_assignment_", ""))
-                player = get_object_or_404(Player, id=player_id, is_youth=False)  # Изключваме младежите
+            if players.count() != len(selected_players_ids):
+                raise ValueError("Some selected players are invalid.")
 
-                if value == "starting":
-                    position = player.position.abbreviation
-                    if position in position_counts:
-                        position_counts[position] += 1
-                    team_tactics.starting_players.add(player)
-                elif value == "reserve":
-                    reserve_count += 1
-                    team_tactics.reserve_players.add(player)
+            errors = validate_lineup(players, selected_tactic)
+            if errors:
+                raise ValueError("; ".join(errors))
 
-        # Проверка за резервни играчи
-        if reserve_count > 10:
-            messages.error(request, "You cannot have more than 10 reserve players.")
-            return redirect("teams:line_up")
+            existing_team_tactics = TeamTactics.objects.filter(team=team)
+            if existing_team_tactics.exists():
+                existing_team_tactics.delete()
 
-        # Проверка на стартовия състав спрямо тактиката
-        for position, required_count in tactic_requirements.items():
-            if position_counts[position] != required_count:
-                messages.error(
-                    request,
-                    f"Your lineup does not match the selected tactic. "
-                    f"You need {required_count} {position} players, but you have {position_counts[position]}.",
-                )
-                return redirect("teams:line_up")
+            team_tactics = TeamTactics.objects.create(team=team, tactic=selected_tactic)
 
-        team_tactics.save()
-        messages.success(request, "Lineup successfully saved!")
+            team_tactics.starting_players.set(players)
+            team_tactics.save()
 
-    return redirect("teams:line_up")
+            return JsonResponse({"success": True, "message": "Lineup saved successfully!"})
 
+        except ValueError as e:
+            return JsonResponse({"success": False, "message": str(e)})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": "An error occurred while saving the lineup."})
+
+    return JsonResponse({"success": False, "message": "Invalid request."})
+
+@csrf_exempt
+def auto_lineup(request):
+    if request.method == "POST":
+        try:
+            user_team = Team.objects.filter(user=request.user).first()
+            auto_select_starting_lineup(user_team)
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+    return JsonResponse({"success": False, "message": "Invalid request method."})
 
 def training(request):
-    team = get_object_or_404(Team, user=request.user)
+    user_team = Team.objects.filter(user=request.user).first()
 
-    coaches = Coach.objects.filter(team=team)
+    coaches = Coach.objects.filter(team=user_team)
 
-    players_qs = TeamPlayer.objects.filter(team=team, player__is_active=True).select_related('player')
+    players_qs = TeamPlayer.objects.filter(team=user_team, player__is_active=True).select_related('player')
 
     players_data = []
     for player in players_qs:
@@ -248,21 +248,82 @@ def training(request):
             'attributes': attributes,
         })
 
-    return render(request, 'teams/training.html', {'coaches': coaches, 'players': players_data})
+    return render(request, 'teams/training.html', {'coaches': coaches, 'players': players_data, 'team': user_team,
+                                                   })
 
-@csrf_exempt
-def train_coach(request, coach_id):
-    try:
-        if request.method == 'POST':
-            coach = get_object_or_404(Coach, id=coach_id)
-            result = player_training(coach, None)
-            print(result["details"])  # Отпечатва детайлите в конзолата
-            return JsonResponse({"success": True, "impact": result["training_impact"]})
-        else:
-            return JsonResponse({"success": False, "error": "Invalid request method"}, status=400)
-    except Exception as e:
-        print(f"Error in train_coach: {str(e)}")  # Отпечатва грешката
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
+def train_team(request, team_id):
+    if request.method == "POST":
+        try:
+            team = Team.objects.get(id=team_id)
+            coach = team.coach
+
+            if not coach:
+                return JsonResponse({"success": False, "error": "No coach assigned to the team."})
+
+            data = json.loads(request.body)
+            selected_attributes = data.get("selectedAttributes", {})
+
+            if not selected_attributes:
+                return JsonResponse({"success": False, "error": "No selected attributes provided."})
+
+            team_players = TeamPlayer.objects.filter(team=team)
+            players = [team_player.player for team_player in team_players]
+            changes = []
+            today = date.today()
+
+            for player in players:
+                selected_attribute = selected_attributes.get(str(player.id))
+                if not selected_attribute:
+                    changes.append({
+                        "player": f"{player.first_name} {player.last_name}",
+                        "message": "No attribute selected",
+                    })
+                    continue  # Skip if no attribute was selected for the player
+
+                # Check if the player was trained today
+                if TrainingImpact.objects.filter(player=player, coach=coach, date__date=today).exists():
+                    changes.append({
+                        "player": f"{player.first_name} {player.last_name}",
+                        "attribute": selected_attribute,
+                        "message": f"{player.first_name} has already been trained today",
+                    })
+                    continue
+
+                player_attribute = player.playerattribute_set.filter(attribute__name=selected_attribute).first()
+                if player_attribute:
+                    progress_increase = round(min(0.1 + (float(coach.rating) ** 0.5) / 10.0, 0.5), 2)
+                    player_attribute.progress += progress_increase
+
+                    if player_attribute.progress >= 1.0:
+                        player_attribute.value += 1
+                        player_attribute.progress -= 1.0
+
+                    player_attribute.save()
+
+                    # Log the training in TrainingImpact
+                    TrainingImpact.objects.create(
+                        player=player,
+                        coach=coach,
+                        training_impact=progress_increase,
+                        notes=f"Trained {player_attribute.attribute.name}"
+                    )
+
+                    changes.append({
+                        "player": f"{player.first_name} {player.last_name}",
+                        "attribute": player_attribute.attribute.name,
+                        "new_value": player_attribute.value,
+                        "progress": round(player_attribute.progress, 2),
+                        "message": "Training completed successfully",
+                    })
+                    update_player_price(player)
+
+            return JsonResponse({"success": True, "changes": changes})
+        except Team.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Team not found."})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    return JsonResponse({"success": False, "error": "Invalid request method."})
 
 @login_required
 def schedule(request):

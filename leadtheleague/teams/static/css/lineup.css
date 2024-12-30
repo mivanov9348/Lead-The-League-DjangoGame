@@ -154,3 +154,25 @@ tr.reserve {
     background-color: grey; /* Червен цвят за резервни играчи */
     color: var(--white-color); /* Плавен преход при промяна на цвета */
 }
+.lineup-actions {
+    display: flex;
+    justify-content: flex-start; /* Позиционира бутоните вляво */
+    gap: 10px; /* Разстояние между бутоните */
+    margin-bottom: 20px; /* Разстояние между бутоните и формуляра */
+}
+
+#reset-lineup-btn, #auto-lineup-btn {
+    background-color: var(--darkgreen-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#reset-lineup-btn:hover, #auto-lineup-btn:hover {
+    background-color: black;
+    color:white;
+}

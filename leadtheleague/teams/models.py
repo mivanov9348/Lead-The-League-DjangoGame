@@ -119,7 +119,7 @@ class TeamTactics(models.Model):
         ]
 
 
-class TrainingEfficiency(models.Model):
+class TrainingImpact(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='trainings')
     coach = models.ForeignKey('staff.Coach', on_delete=models.CASCADE, related_name='trainings')
     date = models.DateTimeField(auto_now_add=True)

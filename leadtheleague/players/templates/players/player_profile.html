@@ -34,16 +34,18 @@
                 <li><strong>Age:</strong> {{ player.age }}</li>
                 <li><strong>Price:</strong> {{ player.price|intcomma }}</li>
             </ul>
-            {% if user_team != player_team %}
-            <div id="offer-section">
+            <div id="action-section">
+                {% if is_player_in_user_team %}
+                <button id="release-button" style="background-color:red" onclick="releasePlayer()">Release Player</button>
+                {% else %}
                 <button id="offer-button" onclick="toggleOfferInput()">Send Offer</button>
                 <div id="offer-input" style="display: none;">
                     <input type="number" id="offerAmount" value="{{ player.price }}" min="0"
                            placeholder="Enter offer amount">
                     <button id="sendOfferButton" onclick="sendOffer()">Send</button>
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 
@@ -115,68 +117,88 @@
             </tbody>
         </table>
     </div>
-
-
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     function goBack() {
-        console.log("Navigating back in history.");
         window.history.back();
     }
 
     function toggleOfferInput() {
         const offerInput = document.getElementById('offer-input');
-        console.log("Toggling offer input display.");
         offerInput.style.display = offerInput.style.display === 'none' ? 'block' : 'none';
-        console.log("Offer input display is now:", offerInput.style.display);
     }
 
     function sendOffer() {
-    const offerAmountElement = document.getElementById('offerAmount');
-    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        const offerAmount = document.getElementById('offerAmount').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    if (!offerAmountElement || !csrfTokenElement) {
-        console.error("Offer input or CSRF token element not found.");
-        return;
-    }
+        if (!offerAmount || parseFloat(offerAmount) <= 0) {
+            alert('Please enter a valid offer amount.');
+            return;
+        }
 
-    const offerAmount = offerAmountElement.value;
-    const csrfToken = csrfTokenElement.value;
-
-    if (!offerAmount || parseFloat(offerAmount) <= 0) {
-        alert('Please enter a valid offer amount.');
-        return;
-    }
-
-    fetch("{% url 'transfers:send_offer' player.id %}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-        },
-        body: JSON.stringify({
-            offer_amount: parseFloat(offerAmount)
+        fetch("{% url 'transfers:send_offer' player.id %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ offer_amount: parseFloat(offerAmount) })
         })
-    })
-    .then(response => {
-        console.log("Fetch response received. Status code:", response.status);
-        if (!response.ok) {
-            return response.json().then(errData => {
-                throw new Error(errData.message || `HTTP error! status: ${response.status}`);
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Offer sent successfully!');
+            if (data.status === 'success') window.location.reload();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function releasePlayer() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to undo this action!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, release the player!',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{% url 'players:release_player' player.id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire(
+                        'Released!',
+                        data.message || 'The player has been released successfully.',
+                        'success'
+                    ).then(() => {
+                        window.location.reload(); // Или актуализирайте интерфейса
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        data.message || 'Something went wrong.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                Swal.fire(
+                    'Error!',
+                    'Something went wrong.',
+                    'error'
+                );
+                console.error('Error:', error);
             });
         }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Offer sent successfully!');
-        } else {
-            alert('Failed to send offer: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error("Error occurred during fetch:", error.message);
-        alert('An error occurred: ' + error.message);
     });
 }
 </script>

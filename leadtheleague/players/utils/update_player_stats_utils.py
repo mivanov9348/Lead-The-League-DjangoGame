@@ -55,7 +55,6 @@ def get_statistics_factor(player, season):
     average_rating = sum(match_ratings) / len(match_ratings)
     return 1 + average_rating / 10
 
-# Финална функция за изчисление на цената
 def update_player_price(player):
     season = get_current_season()
     base_price = get_base_price(player.position.name)
@@ -65,7 +64,9 @@ def update_player_price(player):
     statistics_factor = get_statistics_factor(player, season)
 
     final_price = base_price * age_factor * position_factor * attribute_factor * statistics_factor
-    return int(final_price)  # Закръгляме до цяло число
+    player.price = final_price
+    player.save()
+    return int(final_price)
 
 
 # updatestats

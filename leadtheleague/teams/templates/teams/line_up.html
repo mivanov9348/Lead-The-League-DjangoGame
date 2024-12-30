@@ -1,128 +1,195 @@
 {% extends 'base.html' %}
-{% block title %}Select Your Line-Up{% endblock %}
+{% block title %}Select Your Starting 11{% endblock %}
 
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/lineup.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
 
 {% block content %}
-
-<div class="messages-container">
-    <ul>
-        {% if messages %}
-        {% for message in messages %}
-        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
-        {% endfor %}
-        {% endif %}
-    </ul>
-</div>
-
 <div class="lineup-form-container">
-    <form method="post" action="{% url 'teams:save_lineup' %}">
+    <form id="lineup-form" method="post" action="{% url 'teams:save_lineup' %}">
         {% csrf_token %}
 
-        <!-- Избор на тактика -->
-        <div class="tactics-section">
-            <select id="tactic-select" name="tactic_id" required>
-                <option value="">Choose Tactics:</option>
-                {% for tactic in tactics %}
-                <option value="{{ tactic.id }}" {% if tactic == selected_tactic %}selected{% endif %}>
-                    {{ tactic.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
+        <select id="tactic-select" name="tactic_id" required>
+            <option value="">Select Tactics</option>
+            {% for tactic in tactics %}
+            <option value="{{ tactic.id }}" {% if tactic == selected_tactic %}selected{% endif %}>
+                {{ tactic.name }}
+            </option>
+            {% endfor %}
+        </select>
 
-        <!-- Таблица с играчи -->
+        <button type="button" id="reset-lineup-btn">Reset</button>
+        <button type="button" id="auto-lineup-btn">Auto Lineup</button>
+
         <table class="players-table">
             <thead>
-            <tr class="save-btn-tr">
-                <th colspan="19">
-                    <button type="submit" class="save-button">Save Line-Up</button>
-                </th>
-            </tr>
             <tr>
-                <th>N</th>
                 <th></th>
                 <th>Name</th>
-                <th>Position</th>
-                <th>Nationality</th>
-                <th>Matches</th>
-                <th>Goals</th>
-                <th>Assists</th>
-                <th>Shoots (On Target)</th>
-                <th>Passes</th>
-                <th>Dribbles</th>
-                <th>Tackles</th>
-                <th>Fouls</th>
-                <th>Yellow Cards</th>
-                <th>Red Cards</th>
-                <th>Saves</th>
-                <th>Clean Sheets</th>
-                <th>Conceded</th>
-                <th>Starting 11</th>
+                <th>Pos</th>
+                <th>Nat</th>
+                <th>M</th>
+                <th>G</th>
+                <th>A</th>
+                <th>S</th>
+                <th>P</th>
+                <th>D</th>
+                <th>T</th>
+                <th>F</th>
+                <th>YC</th>
+                <th>RC</th>
+                <th>S</th>
+                <th>CS</th>
+                <th>C</th>
+                <th>Choose</th>
             </tr>
             </thead>
             <tbody>
             {% for player in players %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td><img src="{{ player.image_url }}" class="icon" alt="Team Icon"></td>
-                <td style="width:200px"><a href="{% url 'players:player_profile' player.id %}">{{ player.name|default:"-" }}</a></td>
+            <tr data-player-id="{{ player.id }}" data-position="{{ player.position_abbr }}">
+                <td>
+                    <img src="{{ player.image_url }}" class="icon" alt="Player">
+                </td>
+                <td>{{ player.name }}</td>
                 <td>{{ player.position_abbr }}</td>
                 <td>{{ player.nationality_abbr }}</td>
                 <td>{{ player.season_stats.Matches }}</td>
                 <td>{{ player.season_stats.Goals}}</td>
                 <td>{{ player.season_stats.Assists }}</td>
-                <td>{{ player.season_stats.Shoots }} ({{ player.season_stats.ShootsOnTarget }})</td>
+                <td>{{ player.season_stats.Shoots }}</td>
                 <td>{{ player.season_stats.Passes }}</td>
-                <td>{{ player.season_stats.Dribbles}}</td>
+                <td>{{ player.season_stats.Dribbles }}</td>
                 <td>{{ player.season_stats.Tackles }}</td>
-                <td>{{ player.season_stats.Fouls}}</td>
+                <td>{{ player.season_stats.Fouls }}</td>
                 <td>{{ player.season_stats.YellowCards }}</td>
                 <td>{{ player.season_stats.RedCards }}</td>
                 <td>{{ player.season_stats.Saves }}</td>
                 <td>{{ player.season_stats.CleanSheets }}</td>
                 <td>{{ player.season_stats.Conceded }}</td>
                 <td>
-                    <select name="player_assignment_{{ player.id }}">
-                        <option value="reserve" {% if not player.is_starting %}selected{% endif %}>Reserve</option>
-                        <option value="starting" {% if player.is_starting %}selected{% endif %}>Starting</option>
-                    </select>
+                    <input
+                            type="checkbox"
+                            class="player-checkbox"
+                            name="selected_players"
+                            value="{{ player.id }}"
+                            {% if player.is_starting %}checked{% endif %}
+                    >
                 </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+
+        <div class="action-buttons">
+            <button type="button" id="save-lineup-btn">Save Lineup</button>
+        </div>
     </form>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-    const playerSelects = document.querySelectorAll('select[name^="player_assignment_"]');
-
-    playerSelects.forEach(select => {
-        const row = select.closest("tr"); // Вземи родителския ред на селекта
-
-        // Функция за промяна на цвета
-        const updateRowClass = () => {
-            row.classList.remove("starting", "reserve"); // Премахни предишните класове
-            if (select.value === "starting") {
-                row.classList.add("starting"); // Добави клас за стартов играч
-            } else if (select.value === "reserve") {
-                row.classList.add("reserve"); // Добави клас за резервен играч
-            }
-        };
-
-        // Приложи цвета първоначално
-        updateRowClass();
-
-        // Промяна на класа при избор
-        select.addEventListener("change", updateRowClass);
-    });
-});
-
-</script>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('lineup-form');
+        const saveButton = document.getElementById('save-lineup-btn');
+        const resetButton = document.getElementById('reset-lineup-btn');
+        const autoLineupButton = document.getElementById('auto-lineup-btn');
+        const checkboxes = document.querySelectorAll('.player-checkbox');
+
+        // Функция за "Reset"
+        resetButton.addEventListener('click', () => {
+            checkboxes.forEach(cb => cb.checked = false);
+            Swal.fire({
+                icon: 'info',
+                title: 'Lineup Reset',
+                text: 'All players have been deselected.',
+            });
+        });
+
+        // Функция за "Auto Lineup"
+        autoLineupButton.addEventListener('click', () => {
+            fetch("{% url 'teams:auto_lineup' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Auto Lineup Generated',
+                            text: 'The lineup has been updated automatically.',
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unexpected Error',
+                        text: 'Could not generate auto lineup.',
+                    });
+                });
+        });
+
+        // Съществуващ код за "Save"
+        saveButton.addEventListener('click', () => {
+            const selectedPlayers = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            if (selectedPlayers.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No Players Selected',
+                    text: 'You must select at least one player.',
+                });
+                return;
+            }
+
+            const formData = new FormData(form);
+            formData.append("selected_players", selectedPlayers.join(","));
+
+            fetch(form.action, {
+                method: "POST",
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Lineup Saved',
+                            text: 'Your lineup was saved successfully!',
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unexpected Error',
+                        text: 'Could not save lineup.',
+                    });
+                });
+        });
+    });
+</script>
 {% endblock %}
