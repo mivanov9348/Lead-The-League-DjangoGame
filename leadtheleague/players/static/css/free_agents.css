@@ -5,6 +5,9 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: white;
     width: 100%;
+    justify-content: center;
+     align-items: center;
+    flex-direction: column;
 }
 
 h1 {
@@ -23,16 +26,19 @@ h1 {
 
 .table thead th {
     background-color: var(--darkgreen-color);
-    color: white;
     font-weight: bold;
     text-align: center;
     padding: 10px;
     font-size:16px;
+    color: grey;
+    border-bottom: 2px solid black;
+
 }
 
 .table tbody tr {
     background-color: var(--darkgreen-color); /* Уеднаквява всички редове */
-            font-size: 14px;
+    font-size: 14px;
+
 }
 
 .table tbody tr:nth-child(even) {
@@ -55,6 +61,7 @@ h1 {
     padding: 8px;
     color: white;
         font-size: 14px;
+    border-bottom: 2px solid black;
 
 }
 
@@ -120,4 +127,97 @@ dataTables_paginate .paginate_button {
 .dataTables_paginate .paginate_button.current {
     color: green;
     font-weight:bolder;
+}
+
+.modal-content {
+    border-radius: 10px;
+    background-color: var(--darkgreen-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid #ccc;
+    padding: 15px 20px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body .player-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.modal-body .player-info img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.modal-body .player-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.modal-footer {
+    border-top: 1px solid #ccc;
+    padding: 15px;
+    justify-content: center;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: var(--darkergreen-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: black;
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background-color: gray;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: black;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
 }

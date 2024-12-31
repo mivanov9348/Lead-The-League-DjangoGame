@@ -3,88 +3,129 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/stadium.css' %}">
-<title>sasd</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<meta name="csrf-token" content="{{ csrf_token }}">
-<div class="stadium-container">
-    <div class="current-stadium">
-        <h2>{{stadium.name}}</h2>
-        <hr/>
-        <div class="stadium-info">
-            <img src="" alt="Stadium Image" class="stadium-img">
-            <div class="info">
-                <p><strong>Capacity:</strong> {{ stadium.capacity }}</p>
-                <p><strong>Ticket Price:</strong> ${{ stadium.ticket_price }}</p>
-                <p><strong>Tier:</strong> {{ stadium.tier.level }}</p>
-                <p><strong>Maintenance:</strong></p>
-                <p><strong>Popularity Bonus:</strong></p>
+<title>Stadium Upgrade</title>
+<div class="main-container">
+    <div class="stadium-section">
+        <div class="stadium-header">
+            <h2 id="stadium-name">{{ stadium.name }}</h2>
+        </div>
+        <div class="stadium-details">
+            <img src="{% static 'images/stadium_placeholder.png' %}" alt="Stadium Image" class="stadium-image">
+            <div class="details">
+                <p><strong>Capacity:</strong> <span id="stadium-capacity">{{ stadium.capacity }}</span></p>
+                <p><strong>Ticket Price:</strong> $<span id="stadium-price">{{ stadium.ticket_price }}</span></p>
+                <p><strong>Tier:</strong> <span id="stadium-tier">{{ current_tier_level }}</span></p>
+                <p><strong>Popularity Bonus:</strong> +<span id="stadium-bonus">{{ current_popularity_bonus }}</span></p>
             </div>
         </div>
     </div>
-
-    <div class="tiers">
-        <h2>Stadium Tiers</h2>
-        <hr/>
-        <ul class="tier-list">
-            {% for tier_info in tiers %}
-            {% with tier_info.tier as tier %}
-            <li class="tier {% if tier_info.is_unlocked %}unlocked{% else %}locked{% endif %}">
-                <div>
-                    <h3>{{ tier.name }}</h3>
-                    <hr/>
-                    <p><strong>Capacity Boost:</strong> +{{ tier.capacity_boost }}</p>
-                    <p><strong>Ticket Price Multiplier:</strong> ×{{ tier.ticket_price }}</p>
-                    <p><strong>Popularity Bonus:</strong> +{{ tier.popularity_bonus }}</p>
-                    <p><strong>Upgrade Cost:</strong> ${{ tier.upgrade_cost }}</p>
-                    {% if tier_info.can_purchase %}
-                    <button class="buy-button" data-tier-id="{{ tier.id }}">Buy</button>
-                    {% endif %}
-                </div>
-            </li>
-            {% endwith %}
-            {% endfor %}
-        </ul>
+    <div class="slider-section">
+        <h2>Upgrade Options</h2>
+        <div class="slider">
+            <ul id="tier-list">
+                {% for tier_info in tiers %}
+                {% with tier_info.tier as tier %}
+                <li class="tier-item {% if tier_info.is_unlocked %}unlocked{% else %}locked{% endif %}"
+                    data-id="{{ tier.id }}"
+                    data-name="{{ tier.name }}"
+                    data-capacity="{{ tier.capacity_boost }}"
+                    data-ticket-price="{{ tier.ticket_price }}"
+                    data-popularity="{{ tier.popularity_bonus }}"
+                    data-cost="{{ tier.upgrade_cost }}"
+                    {% if tier_info.can_purchase %} data-purchasable="true" {% endif %}>
+                    {{ tier.name }}
+                </li>
+                {% endwith %}
+                {% endfor %}
+            </ul>
+        </div>
     </div>
+</div>
 
-    <script>
-        const getCSRFToken = () => {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    if (!token) {
-        console.error("CSRF token is missing!");
-    }
-    return token;
-};
-        document.querySelectorAll('.buy-button').forEach(button => {
-    button.addEventListener('click', () => {
-        const tierId = button.dataset.tierId;
-        console.log("Selected Tier ID:", tierId); // Дебъг лог
-        if (!tierId) {
-            alert('Tier ID is missing!');
-            return;
-        }
+<!-- Modal -->
+<div id="tier-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modal-tier-name">Tier Name</h2>
+        <p><strong>Capacity Boost:</strong> +<span id="modal-capacity"></span></p>
+        <p><strong>Ticket Price Multiplier:</strong> ×<span id="modal-price-multiplier"></span></p>
+        <p><strong>Popularity Bonus:</strong> +<span id="modal-bonus"></span></p>
+        <p><strong>Upgrade Cost:</strong> $<span id="modal-cost"></span></p>
+        <button id="buy-button" class="buy-button">Buy This Tier</button>
+    </div>
+</div>
 
-        fetch('/stadium/purchase_tier/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({ tier_id: tierId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload(); // Reload the page to update the stadium info
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+    const tierList = document.querySelectorAll(".tier-item");
+    const modal = document.getElementById("tier-modal");
+    const modalClose = document.querySelector(".close-modal");
+    const buyButton = document.getElementById("buy-button");
+
+    let selectedTierId = null;
+
+    tierList.forEach(item => {
+        item.addEventListener("click", () => {
+            const id = item.dataset.id;
+            const name = item.dataset.name;
+            const capacity = item.dataset.capacity;
+            const ticketPrice = item.dataset.ticketPrice;
+            const popularity = item.dataset.popularity;
+            const cost = item.dataset.cost;
+            const isPurchasable = item.dataset.purchasable === "true";
+
+            selectedTierId = id;
+
+            document.getElementById("modal-tier-name").textContent = name;
+            document.getElementById("modal-capacity").textContent = capacity;
+            document.getElementById("modal-price-multiplier").textContent = ticketPrice;
+            document.getElementById("modal-bonus").textContent = popularity;
+            document.getElementById("modal-cost").textContent = cost;
+
+            if (isPurchasable) {
+                buyButton.style.display = "block";
+                buyButton.textContent = `Buy Tier ${name}`;
             } else {
-                alert(`Error: ${data.error}`);
+                buyButton.style.display = "none";
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+
+            modal.classList.remove("hidden");
         });
     });
-});
 
-    </script>
-    {% endblock %}
+    modalClose.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        selectedTierId = null;
+    });
+
+    buyButton.addEventListener("click", () => {
+        if (selectedTierId) {
+            fetch("/stadium/purchase_tier/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken(),
+                },
+                body: JSON.stringify({ tier_id: selectedTierId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Success", data.message, "success").then(() => location.reload());
+                } else {
+                    Swal.fire("Error", data.error, "error");
+                }
+            })
+            .catch(error => console.error("Error purchasing tier:", error));
+        }
+    });
+
+    function getCSRFToken() {
+        return document.querySelector("[name=csrfmiddlewaretoken]").value;
+    }
+});
+</script>
+{% endblock %}

@@ -48,6 +48,18 @@ def get_user_today_match(user):
 
     return next_unplayed_match
 
+def get_user_last_match(user):
+    user_team = Team.objects.only('id').get(user=user)
+
+    last_played_match = Match.objects.filter(
+        (Q(home_team=user_team) | Q(away_team=user_team)),
+        is_played=True
+    ).select_related('home_team', 'away_team').only(
+        'home_team', 'away_team', 'match_date', 'match_time', 'is_played', 'home_goals', 'away_goals'
+    ).order_by('-match_date', '-match_time').first()
+
+    return last_played_match
+
 
 def get_match_status(match):
     current_time = timezone.now()

@@ -1,167 +1,76 @@
 {% extends 'base.html' %}
 
-{% block title %}League Results{% endblock %}
+{% block title %}Live Scores{% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" rel="stylesheet">
-<style>
-    .results-container {
-        margin: 10px auto;
-        padding: 10px;
-        background-color: var(--darkgreen-color);
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        width: 100%;
-    }
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/league_results.css' %}">
 
-    .round-navigation {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .nav-button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: bold;
-        transition: background-color 0.3s;
-    }
-
-    .nav-button:hover {
-        background-color: #0056b3;
-    }
-
-    .current-round {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-
-    .card-deck {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: space-evenly;
-    }
-
-    .league-card {
-        flex: 1 1 calc(50% - 20px);
-        max-width: calc(50% - 20px);
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        padding: 15px;
-    }
-
-    @media (max-width: 768px) {
-        .league-card {
-            flex: 1 1 calc(100% - 20px);
-            max-width: calc(100% - 20px);
-        }
-    }
-
-    .league-card h3 {
-        text-align: center;
-        margin-bottom: 15px;
-    }
-
-    .match-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-        padding: 10px;
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 5px;
-    }
-
-    .team-logo {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .team-name {
-        font-weight: bold;
-        color: white;
-        margin: 0 10px;
-        text-align: center;
-    }
-
-    .score {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin: 0 10px;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="results-container">
-    <div class="round-navigation">
-        <a href="?round={{ round_number|add:-1 }}" class="nav-button" {% if round_number <= 1 %}style="visibility: hidden;"{% endif %}>
-            ← Previous Round
-        </a>
-        <div class="current-round">Round {{ round_number }}</div>
-        <a href="?round={{ round_number|add:1 }}" class="nav-button">
-            Next Round →
-        </a>
-    </div>
+<div class="date-picker-container">
+    <input type="date" id="date-picker" class="date-picker" value="{{ current_date }}">
+</div>
 
+<div class="results-container">
     {% if league_data %}
-    <div class="card-deck">
         {% for league_name, fixtures in league_data.items %}
-        <div class="league-card">
-            <h3>{{ league_name }}</h3>
+        <div class="league-section">
+            <div class="league-header">{{ league_name }}</div>
             {% for fixture in fixtures %}
-            <div class="match-row">
-                <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="team-logo">
-                <span class="team-name">{{ fixture.home_team.name }}</span>
-                <div class="score">
-                    {% if fixture.is_finished %}
-                    {{ fixture.home_goals }} : {{ fixture.away_goals }}
-                    {% else %}
-                    TBA
-                    {% endif %}
+            <div class="match-row" data-fixture-id="{{ fixture.id }}">
+                <div class="team-container">
+                    <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="team-logo">
+                    <span class="team-name">{{ fixture.home_team.name }}</span>
+                    <div class="score">
+                        {% if fixture.is_finished %}
+                        {{ fixture.home_goals }} : {{ fixture.away_goals }}
+                        {% else %}
+                        0 : 0
+                        {% endif %}
+                    </div>
+                    <span class="team-name">{{ fixture.away_team.name }}</span>
+                    <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="team-logo">
                 </div>
-                <span class="team-name">{{ fixture.away_team.name }}</span>
-                <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="team-logo">
+                <span class="toggle-scorers">🔽 View Scorers</span>
+                <div class="goal-scorers">
+                    <!-- Placeholder for JavaScript-injected goal scorer data -->
+                </div>
             </div>
             {% endfor %}
         </div>
         {% endfor %}
-    </div>
     {% else %}
-    <div class="alert alert-warning text-center">No fixtures found for this round.</div>
+    <div class="alert alert-warning text-center">No fixtures found for the selected date.</div>
     {% endif %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $("table").DataTable({
-            paging: false,
-            searching: false,
-            ordering: false,
-            info: false,
-            language: {
-                search: "Filter results:",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                paginate: {
-                    previous: "Previous",
-                    next: "Next"
-                }
+    document.getElementById('date-picker').addEventListener('change', function () {
+        const selectedDate = this.value;
+        window.location.href = `?date=${selectedDate}`;
+    });
+
+    const goalScorerData = {
+        1: ["Player A (23')", "Player B (45')"],
+        2: ["Player C (12')", "Player D (67')"]
+    };
+
+    document.querySelectorAll('.match-row').forEach(row => {
+        const toggleScorersBtn = row.querySelector('.toggle-scorers');
+        const scorersContainer = row.querySelector('.goal-scorers');
+        const fixtureId = row.dataset.fixtureId;
+
+        toggleScorersBtn.addEventListener('click', () => {
+            if (scorersContainer.classList.contains('show')) {
+                scorersContainer.classList.remove('show');
+                toggleScorersBtn.textContent = '🔽 View Scorers';
+            } else {
+                const scorers = goalScorerData[fixtureId] || ["No scorers recorded"];
+                scorersContainer.innerHTML = scorers.join('<br>');
+                scorersContainer.classList.add('show');
+                toggleScorersBtn.textContent = '🔼 Hide Scorers';
             }
         });
     });

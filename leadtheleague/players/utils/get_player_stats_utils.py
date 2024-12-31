@@ -65,6 +65,7 @@ def format_player_data(player):
         'agent': f"{player.agent.first_name} {player.agent.last_name}" if player.agent else "No Agent",
         **attributes,
         'price': player.price,
+        'image_url': player.image
     }
 
 def get_player_attributes(player):

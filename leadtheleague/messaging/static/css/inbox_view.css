@@ -10,9 +10,9 @@
 }
 
     /* Sidebar Styling */
-    .sidebar {
+.sidebar {
     background-color: var(--darkgreen-color);
-    min-width:30%;
+    min-width:35%;
     max-width:30%;
     color: white;
     overflow-y: auto;

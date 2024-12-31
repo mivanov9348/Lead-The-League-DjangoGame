@@ -5,6 +5,7 @@ from itertools import chain
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from fixtures.models import LeagueFixture
+from leagues.models import LeagueTeams
 from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
     get_player_attributes, format_player_data
 from players.utils.update_player_stats_utils import update_player_price
@@ -187,7 +188,6 @@ def save_lineup(request):
         selected_players_ids = selected_players.split(",")  # Превърни в списък
 
         try:
-            # Увери се, че всички ID са валидни числа
             selected_players_ids = [int(player_id) for player_id in selected_players_ids if player_id.isdigit()]
 
             players = Player.objects.filter(id__in=selected_players_ids)
@@ -217,6 +217,7 @@ def save_lineup(request):
 
     return JsonResponse({"success": False, "message": "Invalid request."})
 
+
 @csrf_exempt
 def auto_lineup(request):
     if request.method == "POST":
@@ -227,6 +228,7 @@ def auto_lineup(request):
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)})
     return JsonResponse({"success": False, "message": "Invalid request method."})
+
 
 def training(request):
     user_team = Team.objects.filter(user=request.user).first()
@@ -250,6 +252,7 @@ def training(request):
 
     return render(request, 'teams/training.html', {'coaches': coaches, 'players': players_data, 'team': user_team,
                                                    })
+
 
 def train_team(request, team_id):
     if request.method == "POST":
@@ -325,6 +328,7 @@ def train_team(request, team_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method."})
 
+
 @login_required
 def schedule(request):
     user_team = Team.objects.filter(user=request.user).first()
@@ -367,3 +371,11 @@ def schedule(request):
     }
 
     return render(request, 'teams/schedule.html', context)
+
+
+def all_teams(request):
+    # Извличане на всички отбори, сортирани по точки и голова разлика
+    teams = LeagueTeams.objects.all().order_by('-points', '-goaldifference')
+
+    # Препращане на данните към шаблона
+    return render(request, 'all_teams.html', {'teams': teams})

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Top 10 Teams Statistics{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/all_teams.css' %}">
+<style>
+    .teams-container {
+        margin-top: 20px;
+        background-color: var(--darkgreen-color);
+        color:white;
+    }
+
+    .text-center {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .team-logo {
+        height: 40px;
+        width: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color:white;
+        border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+                color:white;
+
+    }
+
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+        cursor: pointer;
+                color:white;
+
+    }
+
+    .table tbody + tbody {
+        border-top: 2px solid #dee2e6;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+                color:white;
+
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #dee2e6;
+        color:white;
+
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="teams-container">
+    <table class="table table-bordered text-center" id="teams-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Logo</th>
+                <th>Team Name</th>
+                <th>League</th>
+                <th><a href="javascript:void(0)" onclick="sortTable('matches')">Matches</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('wins')">W</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('draws')">D</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('losses')">L</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('goalscored')">GS</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('goalconceded')">GC</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('goaldifference')">GD</a></th>
+                <th><a href="javascript:void(0)" onclick="sortTable('points')">Points</a></th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for team in teams %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><img src="{{ team.team.logo.url }}" alt="Logo" class="team-logo"></td>
+        <td>{{ team.team.name }}</td>
+        <td>{{ team.league_season.league.name }}</td>
+        <td data-value="{{ team.matches }}">{{ team.matches }}</td>
+        <td data-value="{{ team.wins }}">{{ team.wins }}</td>
+        <td data-value="{{ team.draws }}">{{ team.draws }}</td>
+        <td data-value="{{ team.losses }}">{{ team.losses }}</td>
+        <td data-value="{{ team.goalscored }}">{{ team.goalscored }}</td>
+        <td data-value="{{ team.goalconceded }}">{{ team.goalconceded }}</td>
+        <td data-value="{{ team.goaldifference }}">{{ team.goaldifference }}</td>
+        <td data-value="{{ team.points }}">{{ team.points }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+    </table>
+</div>
+<script>
+    let sortOrder = {};
+
+    function sortTable(column) {
+        const table = document.getElementById("teams-table");
+        const rows = Array.from(table.tBodies[0].rows);
+        const columnIndex = Array.from(table.tHead.rows[0].cells).findIndex(cell => cell.textContent.toLowerCase().includes(column));
+
+        if (!sortOrder[column]) {
+            sortOrder[column] = 'asc';
+        } else {
+            sortOrder[column] = sortOrder[column] === 'asc' ? 'desc' : 'asc';
+        }
+
+        const ascending = sortOrder[column] === 'asc';
+
+        rows.sort((a, b) => {
+            const aValue = parseInt(a.cells[columnIndex].getAttribute('data-value'));
+            const bValue = parseInt(b.cells[columnIndex].getAttribute('data-value'));
+            return ascending ? aValue - bValue : bValue - aValue;
+        });
+
+        rows.forEach(row => table.tBodies[0].appendChild(row));
+    }
+</script>
+{% endblock %}
+
+{% block extra_js %}
+
+{% endblock %}

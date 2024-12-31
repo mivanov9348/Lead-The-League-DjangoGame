@@ -6,8 +6,8 @@
 
 {% block content %}
 <div class="container main-content mt-4">
-    <div class="row team-next-match">
-        <div class="col-12">
+    <div class="row">
+        <div class="col-md-4">
             <div class="card next-match-card">
                 <div class="card-header text-center text-uppercase fw-bold">
                     <a href="#">Next Match</a>
@@ -23,7 +23,7 @@
                         </div>
                         <p class="highlight">{{ next_match.home_team.name }}</p>
                     </div>
-                    <div class="match-info text-center">
+                    <div class="match-info">
                         <p>{{ next_match.league }}</p>
                         <p>{{ next_match.match_date }} {{ next_match.match_time }}</p>
                         {% if next_match.stadium %}
@@ -43,29 +43,21 @@
                         <p class="highlight">{{ next_match.away_team.name }}</p>
                     </div>
                 </div>
-                <div class="match-button text-center">
-                    <a href="{% url 'match:user_match' %}" class="btn btn-primary">
-                        To Match
-                    </a>
-                </div>
             </div>
         </div>
-    </div>
-
-    <div class="row mt-4">
 
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <a href="#">Last Messages</a>
+            <div class="card last-messages-card">
+                <div class="card-header text-center text-uppercase fw-bold">
+                    <a href="{% url 'messaging:inbox_view' %}">Last Messages</a>
                 </div>
                 <div class="card-body table-container">
                     <table class="table table-sm">
                         <tbody>
                         {% for messages in latest_messages %}
                         <tr>
-                            <td>{{ messages.date_sent|date:"d M Y" }}</td>
-                            <td>{{ messages.preview }}</td>
+                            <td class="text-nowrap">{{ messages.date_sent|date:"d M Y" }}</td>
+                            <td class="text-truncate">{{ messages.preview }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -74,6 +66,47 @@
             </div>
         </div>
 
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header text-center text-uppercase fw-bold">
+                    <a href="#">Last Match</a>
+                </div>
+                <div class="card-body match-details">
+                    {% if last_match %}
+                    <div class="team-info text-center">
+                        <div class="team-logo">
+                            {% if last_match.home_team.logo %}
+                            <img src="{{ last_match.home_team.logo.url }}" alt="{{ last_match.home_team.name }} Logo">
+                            {% else %}
+                            <p>No logo available</p>
+                            {% endif %}
+                        </div>
+                        <p class="highlight">{{ last_match.home_team.name }}</p>
+                    </div>
+                    <div class="match-info text-center">
+                        <p>{{ last_match.league }}</p>
+                        <p>{{ last_match.match_date }}</p>
+                        <p class="score">{{ last_match.home_goals }} - {{ last_match.away_goals }}</p>
+                    </div>
+                    <div class="opponent-info text-center">
+                        <div class="team-logo">
+                            {% if last_match.away_team.logo %}
+                            <img src="{{ last_match.away_team.logo.url }}" alt="{{ last_match.away_team.name }} Logo">
+                            {% else %}
+                            <p>No logo available</p>
+                            {% endif %}
+                        </div>
+                        <p class="highlight">{{ last_match.away_team.name }}</p>
+                    </div>
+                    {% else %}
+                    <p>No match found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
 
         <div class="col-md-4">
             <div class="card">
@@ -133,9 +166,19 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <a href="#">Cup</a>
+                </div>
+                <div class="card-body">
+                    <!-- Content for Cup will be added later -->
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Трети ред: График, трансфери, финанси -->
     <div class="row mt-4">
         <div class="col-md-4">
             <div class="card">

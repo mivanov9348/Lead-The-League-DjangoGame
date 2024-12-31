@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3em;
+            color: #e74c3c;
+        }
+        p {
+            font-size: 1.2em;
+        }
+    </style>
+
+    <div>
+        <h1>We're Under Construction 🚧</h1>
+        <p>Thank you for your patience. Please check back later!</p>
+    </div>
+<script>
+    // Условие за активиране на "Under Construction" страницата
+    const isUnderConstruction = true; // Променете на false, когато сайтът е готов
+
+    if (isUnderConstruction) {
+        window.location.href = '/under_construction.html';
+    }
+</script>
+
+{% endblock %}

@@ -11,14 +11,13 @@
 .padding-common {
     padding: 10px;
 }
-.transparent-border {
-    border: 2px solid var(--white-transparent);
-}
+
 .common-card {
     border-radius: 10px;
     padding: 15px;
     color: var(--white-color);
     @extend .box-shadow-common;
+
 }
 .main-content {
     display: flex;
@@ -29,7 +28,8 @@
 .card {
     @extend .common-card;
     @extend .padding-common;
-    box-shadow: 0 8px 50px rgba(0, 0, 0, 0.9);
+    box-shadow: 50px 8px 50px rgba(0, 0, 0, 0.9);
+
 }
 .card-header {
     background-color: var(--darkgreen-color);
@@ -51,7 +51,6 @@
 .next-match-card {
     color: var(--blue-color);
     border-radius: 10px;
-    padding: 10px;
     background-color: var(--darkgreen-color);
     display: flex;
     flex-direction: column;
@@ -88,20 +87,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Центрира съдържанието вертикално */
+    justify-content: center;
     gap: 10px;
     text-align: center;
     width: 40%;
-    height: 150px; /* Фиксирана височина за по-добър външен вид */
-    margin: 0 auto; /* Центрира блокът хоризонтално */
-    background-color: var(--darkgreen-color); /* Примерен цвят за фонове */
-    border: 3px solid var(--black-color); /* Граница на постера */
-    border-radius: 15px; /* Заоблени ъгли на постера */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Лек сенчест ефект */
+    height: 150px;
+    margin: 0 auto;
+    background-color: var(--darkgreen-color);
+    border: 3px solid var(--black-color);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .match-info p {
-    font-size: 22px;
+    font-size: 14px;
     color: var(--white-color);
     margin: 5px 0;
 }
@@ -169,7 +168,6 @@ a.card-header:hover {
     border-collapse: collapse;
 }
 
-/* Стилове за таблици и подробности за отбора */
 .team-info .card {
     @extend .common-card;
     background-color: rgba(0,47,47,255);

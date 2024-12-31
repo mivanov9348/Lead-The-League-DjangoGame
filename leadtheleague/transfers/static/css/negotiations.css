@@ -23,7 +23,7 @@ h1 {
 .offers-section {
     flex: 1;
     min-width: 45%;
-    background-color: var(--darkergreen-color);
+    background-color: var(--darkgreen-color);
     color: var(--white-color);
     border: 1px solid #ddd;
     border-radius: 10px;

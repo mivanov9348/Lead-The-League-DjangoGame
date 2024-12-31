@@ -75,8 +75,7 @@
                             class="player-checkbox"
                             name="selected_players"
                             value="{{ player.id }}"
-                            {% if player.is_starting %}checked{% endif %}
-                    >
+                            {% if player.is_starting %}checked{% endif %}>
                 </td>
             </tr>
             {% endfor %}
@@ -90,6 +89,7 @@
 </div>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('lineup-form');
         const saveButton = document.getElementById('save-lineup-btn');
