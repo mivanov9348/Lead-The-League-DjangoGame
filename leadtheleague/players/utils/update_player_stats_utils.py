@@ -1,10 +1,12 @@
+from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from setuptools import logging
 from game.models import Settings
 from game.utils.get_season_stats_utils import get_current_season
-from players.models import PlayerMatchStatistic, PlayerMatchRating, Player
-from teams.models import TeamPlayer
+from players.models import PlayerMatchStatistic, PlayerMatchRating, Player, Statistic, PlayerSeasonStatistic
+from teams.models import TeamPlayer, TeamTactics
+
 
 def get_base_price(position_name):
     setting_name = f'{position_name}_base_price'
@@ -26,8 +28,6 @@ def get_age_factor(age):
     else:
         return 0.70
 
-
-# Фактор за позиция
 def get_position_factor(position_name):
     position_factors = {
         "Goalkeeper": 1.00,
@@ -38,7 +38,6 @@ def get_position_factor(position_name):
     return position_factors.get(position_name, 1.00)  # Стойност по подразбиране
 
 
-# Фактор за атрибути
 def get_attribute_factor(player):
     total_attributes = sum(player.playerattribute_set.values_list('value', flat=True))
     if total_attributes == 0:
@@ -47,7 +46,6 @@ def get_attribute_factor(player):
 
 
 def get_statistics_factor(player, season):
-    # Взема всички оценки на играча за сезона
     match_ratings = PlayerMatchRating.objects.filter(player=player, match__season=season).values_list('rating',
                                                                                                       flat=True)
     if not match_ratings:  # Ако няма оценки, връщаме базова стойност
@@ -134,3 +132,43 @@ def promoting_youth_players():
 
 def all_players_age_up():
     Player.objects.update(age=F('age') + 1)
+
+def update_season_stats_from_match(match):
+    home_tactics = TeamTactics.objects.filter(team=match.home_team).first()
+    away_tactics = TeamTactics.objects.filter(team=match.away_team).first()
+
+    if not home_tactics or not away_tactics:
+        raise ValueError("Не са намерени тактики за един от отборите.")
+
+    starting_players = list(home_tactics.starting_players.all()) + list(away_tactics.starting_players.all())
+
+    match_stats = PlayerMatchStatistic.objects.filter(match=match, player__in=starting_players)
+
+    statistics_map = {stat.name: stat for stat in Statistic.objects.all()}
+
+    missing_stats = set(statistics_map.keys()) - set(statistics_map.keys())
+    if missing_stats:
+        raise ValueError(f"Липсват следните статистики в базата: {', '.join(missing_stats)}")
+
+    season_stats_to_update = []
+    new_season_stats = []
+
+    with transaction.atomic():
+        for match_stat in match_stats:
+            season_stat, created = PlayerSeasonStatistic.objects.get_or_create(
+                player=match_stat.player,
+                statistic=match_stat.statistic,
+                season=match.season,
+                defaults={'value': 0}
+            )
+
+            if created:
+                new_season_stats.append(season_stat)
+            else:
+                season_stats_to_update.append((season_stat, match_stat.value))
+
+        for season_stat, match_value in season_stats_to_update:
+            season_stat.value = F('value') + match_value
+            season_stat.save()
+
+    print(f"Season stats updated for {len(starting_players)} players.")

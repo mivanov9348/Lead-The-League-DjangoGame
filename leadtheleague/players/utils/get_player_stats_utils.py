@@ -91,7 +91,6 @@ def get_player_season_stats(player, season=None):
 def get_player_season_stats_all_seasons(player):
     season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic')
 
-    # Групираме статистиките по сезони
     all_stats = {}
     for stat in season_stats:
         season_number = stat.season.season_number
@@ -250,3 +249,4 @@ def ensure_team_has_minimum_players(team):
             generate_random_player(team=team, position=random_position)
 
     return f"Team '{team.name}' now has at least 11 players with the required positions."
+

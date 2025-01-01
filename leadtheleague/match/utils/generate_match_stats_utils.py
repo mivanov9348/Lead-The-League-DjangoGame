@@ -4,8 +4,9 @@ from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
 from game.models import Season
 from game.utils.get_season_stats_utils import get_current_season
 from match.models import Match
-from players.models import Player, PlayerMatchStatistic
+from players.models import Player, PlayerMatchStatistic, Statistic
 from django.db import transaction
+from teams.models import TeamTactics
 
 
 def generate_matches_from_fixtures(fixtures, event_type, season):
@@ -83,51 +84,54 @@ def generate_euro_cup_matches(season=None):
     generate_matches_from_fixtures(euro_cup_fixtures, event_type='euro_cup', season=season)
 
 
-def generate_player_day_match_stats(players, today=None):
-    today = today or timezone.now().date()
-    current_season = get_current_season()
+def generate_players_match_stats(match):
+    home_tactics = TeamTactics.objects.filter(team=match.home_team).first()
+    away_tactics = TeamTactics.objects.filter(team=match.away_team).first()
 
-    if not current_season:
-        return "No active season found."
+    if not home_tactics or not away_tactics:
+        raise ValueError("Не са намерени тактики за един от отборите.")
 
-    matches = Match.objects.filter(season=current_season, match_date=today)
-    if not matches.exists():
-        return f"No matches found for {today}."
+    starting_players = list(home_tactics.starting_players.all()) + list(away_tactics.starting_players.all())
 
-    players_to_process = list(players)  # Уверяваме се, че играчите са списък
+    statistics = [
+        "Assists", "CleanSheets", "Conceded", "Dribbles", "Fouls", "Goals", "Matches",
+        "MinutesPlayed", "Passes", "RedCards", "Saves", "Shoots", "ShootsOnTarget",
+        "Tackles", "YellowCards"
+    ]
+    stats_objects = Statistic.objects.filter(name__in=statistics)
 
-    with transaction.atomic():
-        stats_created = 0  # Брояч за създадените статистики
+    missing_stats = set(statistics) - set(stats_objects.values_list('name', flat=True))
+    if missing_stats:
+        raise ValueError(f"Липсват следните статистики в базата: {', '.join(missing_stats)}")
 
-        for player in players_to_process:
-            player_teams = player.team_players.values_list('teams', flat=True)
-            player_matches = matches.filter(
-                home_team_id__in=player_teams
-            ) | matches.filter(
-                away_team_id__in=player_teams
+    player_match_stats = []
+    for player in starting_players:
+        for stat in stats_objects:
+            player_match_stats.append(
+                PlayerMatchStatistic(
+                    player=player,
+                    match=match,
+                    statistic=stat,
+                    value=0
+                )
             )
 
-            for match in player_matches:
-                # Проверяваме дали вече има статистика за този играч в конкретния мач
-                if not PlayerMatchStatistic.objects.filter(player=player, match=match).exists():
-                    PlayerMatchStatistic.objects.create(
-                        player=player,
-                        match=match,
-                        statistics={
-                            "Goals": 0,
-                            "Assists": 0,
-                            "Passes": 0,
-                            "Shoots": 0,
-                            "ShootsOnTarget": 0,
-                            "Tackles": 0,
-                            "YellowCards": 0,
-                            "RedCards": 0,
-                            "Saves": 0,
-                        }
-                    )
-                    stats_created += 1
+    with transaction.atomic():
+        existing_stats = PlayerMatchStatistic.objects.filter(
+            match=match,
+            player__in=starting_players,
+            statistic__in=stats_objects
+        ).values_list('player_id', 'statistic_id')
 
-    return f"Successfully generated {stats_created} player match statistics."
+        new_stats = [
+            stat for stat in player_match_stats
+            if (stat.player.id, stat.statistic.id) not in existing_stats
+        ]
+
+        PlayerMatchStatistic.objects.bulk_create(new_stats)
+
+    print(f"Generated Match Player Stats for {len(player_match_stats)} players.")
+
 
 
 def generate_all_player_day_match_stats():

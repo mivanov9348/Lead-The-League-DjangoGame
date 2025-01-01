@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 import random
 from django.db.models import Q
-from match.models import Match, Event, AttributeEventWeight, EventResult, EventTemplate
+from match.models import Match
 from teams.models import Team
 from teams.utils.team_finance_utils import team_match_profit
 
@@ -48,6 +48,7 @@ def get_user_today_match(user):
 
     return next_unplayed_match
 
+
 def get_user_last_match(user):
     user_team = Team.objects.only('id').get(user=user)
 
@@ -71,46 +72,6 @@ def get_match_status(match):
         return 'Upcoming'
     else:
         return 'LIVE'
-
-
-def get_random_match_event():
-    event = Event.objects.exclude(type='Team').only('id', 'type')
-    return random.choice(list(event))
-
-
-def get_match_event_attributes_weight(event, player_attributes):
-    weights = AttributeEventWeight.objects.filter(event=event).only('attribute', 'weight')
-
-    attributes_and_weights = [
-        (player_attributes.get(weight.attribute), weight.weight)
-        for weight in weights if weight.attribute in player_attributes
-    ]
-    return attributes_and_weights
-
-
-def get_event_success_rate(event, attributes_and_weights):
-    return round(
-        event.success_rate + sum(attribute_value * weight for attribute_value, weight in attributes_and_weights), 2
-    )
-
-
-def get_match_event_template(event_type, success):
-    event_results = EventResult.objects.filter(event_type__type=event_type).only('event_threshold')
-    for event_result in event_results:
-        if success <= event_result.event_threshold:
-            return EventTemplate.objects.filter(event_result=event_result).select_related('event_result').only(
-                'id').first()
-    return None
-
-
-def get_event_players(template, main_player, team):
-    players = [main_player]
-    if template.num_players == 2:
-        players.extend(
-            player for player in Team.objects.exclude(id=main_player.id)
-                                 .only('id').order_by('?')[:1]
-        )
-    return players
 
 
 def calculate_match_attendance(match):

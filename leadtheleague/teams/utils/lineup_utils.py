@@ -3,6 +3,7 @@ from django.db.models import Count
 from players.models import Player
 from teams.models import TeamTactics, Tactics
 
+
 def create_position_template(selected_tactic, starting_players):
     if not selected_tactic:
         return []
@@ -41,6 +42,7 @@ def create_position_template(selected_tactic, starting_players):
 
     return position_template
 
+
 def validate_lineup(players, selected_tactic):
     grouped_players = {
         'goalkeeper': 0,
@@ -71,6 +73,14 @@ def validate_lineup(players, selected_tactic):
         errors.append("Incorrect number of attackers selected.")
 
     return errors
+
+
+def ensure_team_tactics(match):
+    teams = [match.home_team, match.away_team]
+
+    for team in teams:
+        if not TeamTactics.objects.filter(team=team).exists():
+            auto_select_starting_lineup(team)
 
 
 def auto_select_starting_lineup(team):
@@ -122,7 +132,6 @@ def auto_select_starting_lineup(team):
 
     except Exception as e:
         raise ValueError(f"Failed to auto-select lineup: {str(e)}")
-
 
 
 def validate_team_minimums(team):

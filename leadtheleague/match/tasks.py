@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from fixtures.utils import match_to_fixture
 from teams.utils.generate_team_utils import update_team_stats
 from .models import Match, EventTemplate
-from .utils.processing_match_utils import log_match_event, finalize_match
+from .utils.match_day_processor import log_match_event, finalize_match
 from .views import next_event
 
 

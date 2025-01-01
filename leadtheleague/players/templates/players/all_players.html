@@ -1,72 +1,82 @@
 {% extends 'base.html' %}
-{% block title %}All Players{% endblock %}
+
+{% block title %}Player Rankings{% endblock %}
 
 {% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/all_players.css' %}">
+<style>
+
+    .player-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin: 20px;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .player-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .player-info {
+        padding: 15px;
+    }
+
+    .player-info h3 {
+        margin: 0 0 10px;
+        font-size: 22px;
+    }
+
+    .player-info p {
+        margin: 5px 0;
+        color: #555;
+    }
+
+    .player-stats {
+        padding: 15px;
+        background: #fafafa;
+        border-top: 1px solid #eee;
+    }
+
+    .player-stats p {
+        margin: 5px 0;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="filters">
-    <a href="?sort=goals" class="filter-button {% if current_sort == 'goals' %}active{% endif %}">Goals</a>
-    <a href="?sort=matches" class="filter-button {% if current_sort == 'matches' %}active{% endif %}">Matches</a>
-    <a href="?sort=assists" class="filter-button {% if current_sort == 'assists' %}active{% endif %}">Assists</a>
-    <a href="?sort=ratings" class="filter-button {% if current_sort == 'ratings' %}active{% endif %}">Ratings</a>
-    <a href="?sort=position" class="filter-button {% if current_sort == 'position' %}active{% endif %}">Position</a>
-    <a href="?sort=age" class="filter-button {% if current_sort == 'age' %}active{% endif %}">Age</a>
-    <a href="?sort=nationality" class="filter-button {% if current_sort == 'nationality_name' %}active{% endif %}">Nationality</a>
-    <a href="?sort=name" class="filter-button {% if current_sort == 'first_name' %}active{% endif %}">Name</a>
+<div id="player-container">
+    <!-- Player cards will be dynamically injected here -->
 </div>
 
-<div class="players-grid">
-    {% for player in players %}
-    <div class="player-card">
-        <img src="{{ player.personal_info.image_url }}" alt="{{ player.name }}" class="player-image">
-        <div class="player-info">
-            <h3 class="player-name">
-                <a href="{% url 'players:player_profile' player.personal_info.id %}">
-                    {{ player.personal_info.name }} ({{ player.personal_info.age }})
-                </a>
-            </h3>
-            <p class="player-team">
-                <a href="{% url 'teams:team_stats' player.team_info.id %}">
-                    <img src="{{ player.team_info.team_logo }}" alt="{{ player.name }}" class="icon">
-                    {{ player.team_info.team_name }}
-                </a>
-            </p>
-            <hr/>
-            <p class="player-position">{{ player.personal_info.position }}</p>
-            <hr/>
-            <div class="player-stats">
-                <small>Goals: {{ player.stats.season_stats.goals|default:0 }}</small><br>
-                <small>Matches: {{ player.stats.season_stats.matches|default:0 }}</small><br>
-                <small>Assists: {{ player.stats.season_stats.assists|default:0 }}</small><br>
-                <small>Rating: {{ player.stats.average_rating|default:0.0 }}</small>
+<script>
+    const players = {{ players|safe }};
+
+    const container = document.getElementById('player-container');
+
+    players.forEach(player => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+
+        card.innerHTML = `
+            <img src="${player.image}" alt="${player.name}" class="player-image">
+            <div class="player-info">
+                <h3>${player.name}</h3>
+                <p>${player.position}</p>
+                <p>Points: ${player.points}</p>
             </div>
-            <hr/>
-            <p class="player-nationality">{{ player.personal_info.nationality }}</p>
-        </div>
-    </div>
-    {% endfor %}
-</div>
+            <div class="player-stats">
+                <p>Goals: ${player.stats.goals}</p>
+                <p>Assists: ${player.stats.assists}</p>
+                <p>Matches: ${player.stats.matches}</p>
+                <p>Shoots: ${player.stats.shoots}</p>
+            </div>
+        `;
 
-
-
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-        <a href="?page=1{% if current_sort %}&sort={{ current_sort }}{% endif %}">First</a>
-        <a href="?page={{ page_obj.previous_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}">Previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </span>
-
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if current_sort %}&sort={{ current_sort }}{% endif %}">Next</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}{% if current_sort %}&sort={{ current_sort }}{% endif %}">Last</a>
-        {% endif %}
-    </span>
-</div>
+        container.appendChild(card);
+    });
+</script>
 {% endblock %}
