@@ -1,19 +1,17 @@
 import json
 from datetime import date
-from decimal import Decimal
 from itertools import chain
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from fixtures.models import LeagueFixture
+from game.utils.get_season_stats_utils import get_current_season
 from leagues.models import LeagueTeams
-from players.utils.get_player_stats_utils import get_player_season_stats, get_personal_player_data, \
-    get_player_attributes, format_player_data
+from players.utils.get_player_stats_utils import get_personal_player_data, get_player_attributes, get_player_stats
 from players.utils.update_player_stats_utils import update_player_price
 from staff.models import Coach
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance, TrainingImpact
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
@@ -48,6 +46,7 @@ def get_sort_field(sort_by):
 
 def squad(request):
     team = get_object_or_404(Team, user=request.user)
+    current_season = get_current_season()
 
     sort_by = request.GET.get('sort_by', 'name')
     order = request.GET.get('order', 'asc')
@@ -75,7 +74,7 @@ def squad(request):
             'personal_info': get_personal_player_data(player),
             'shirt_number': team_player.shirt_number,
             'attributes': get_player_attributes(player),
-            'stats': get_player_season_stats(player)
+            'stats': get_player_stats(player,current_season)
         })
 
     print(players_data)

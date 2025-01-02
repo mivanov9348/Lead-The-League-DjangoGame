@@ -154,52 +154,60 @@ def simulate_day_league_fixtures(match_day):
 
                 match_income(match, match.home_team)
 
-            update_league_standings(league_season, fixtures)
+            update_standings_from_fixtures(league_season, fixtures)
             create_league_matchday_message(league_season)
 
         check_and_mark_league_seasons_completed()
 
 
-def update_league_standings(league_season, fixtures):
+def update_standings_from_fixtures(fixtures):
+    print("Updating standings based on fixtures...")
     for fixture in fixtures:
-        home_team_record = LeagueTeams.objects.get(
-            league_season=league_season, team=fixture.home_team
-        )
-        away_team_record = LeagueTeams.objects.get(
-            league_season=league_season, team=fixture.away_team
-        )
+        if isinstance(fixture, LeagueFixture):  # Проверяваме дали фикстурата е от тип LeagueFixture
+            league_season = fixture.league_season
+            home_team_record = LeagueTeams.objects.get(
+                league_season=league_season, team=fixture.home_team
+            )
+            away_team_record = LeagueTeams.objects.get(
+                league_season=league_season, team=fixture.away_team
+            )
 
-        home_team_record.matches += 1
-        away_team_record.matches += 1
+            # Актуализация на статистики
+            home_team_record.matches += 1
+            away_team_record.matches += 1
 
-        home_team_record.goalscored += fixture.home_goals
-        home_team_record.goalconceded += fixture.away_goals
-        away_team_record.goalscored += fixture.away_goals
-        away_team_record.goalconceded += fixture.home_goals
+            home_team_record.goalscored += fixture.home_goals
+            home_team_record.goalconceded += fixture.away_goals
+            away_team_record.goalscored += fixture.away_goals
+            away_team_record.goalconceded += fixture.home_goals
 
-        if fixture.home_goals > fixture.away_goals:
-            home_team_record.wins += 1
-            away_team_record.losses += 1
-            home_team_record.points += 3
-        elif fixture.away_goals > fixture.home_goals:
-            away_team_record.wins += 1
-            home_team_record.losses += 1
-            away_team_record.points += 3
-        else:
-            home_team_record.draws += 1
-            away_team_record.draws += 1
-            home_team_record.points += 1
-            away_team_record.points += 1
+            if fixture.home_goals > fixture.away_goals:
+                home_team_record.wins += 1
+                away_team_record.losses += 1
+                home_team_record.points += 3
+            elif fixture.away_goals > fixture.home_goals:
+                away_team_record.wins += 1
+                home_team_record.losses += 1
+                away_team_record.points += 3
+            else:
+                home_team_record.draws += 1
+                away_team_record.draws += 1
+                home_team_record.points += 1
+                away_team_record.points += 1
 
-        home_team_record.goaldifference = (
+            home_team_record.goaldifference = (
                 home_team_record.goalscored - home_team_record.goalconceded
-        )
-        away_team_record.goaldifference = (
+            )
+            away_team_record.goaldifference = (
                 away_team_record.goalscored - away_team_record.goalconceded
-        )
+            )
 
-        home_team_record.save()
-        away_team_record.save()
+            # Запазваме промените
+            home_team_record.save()
+            away_team_record.save()
+
+    print("Standings update completed.")
+
 
 def assign_league_champions(season):
     if not season:

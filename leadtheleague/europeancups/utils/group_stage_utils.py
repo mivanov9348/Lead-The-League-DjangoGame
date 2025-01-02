@@ -6,6 +6,14 @@ from europeancups.utils.knockout_utils import create_knockout_team, create_knock
 from fixtures.models import EuropeanCupFixture
 from game.models import MatchSchedule
 
+def are_group_stage_matches_finished(european_cup_season):
+    group_stage_matches = EuropeanCupFixture.objects.filter(
+        group__european_cup_season=european_cup_season
+    )
+    if not group_stage_matches.exists():
+        raise ValueError("No group stage matches found for this European Cup Season.")
+    unfinished_matches = group_stage_matches.filter(is_finished=False)
+    return not unfinished_matches.exists()
 
 def create_groups_for_season(season):
     european_cup_season = EuropeanCupSeason.objects.get(season=season)

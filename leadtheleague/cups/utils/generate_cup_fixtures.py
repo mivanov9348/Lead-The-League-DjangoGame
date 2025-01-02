@@ -6,7 +6,7 @@ from cups.models import SeasonCup
 from cups.utils.get_cups_utils import determine_stage_by_teams_count
 from fixtures.models import CupFixture
 from game.models import MatchSchedule
-from match.utils.generate_match_stats_utils import generate_cup_matches
+from match.utils.generate_match_stats_utils import generate_cup_matches, generate_matches_from_fixtures
 from teams.models import Team
 
 def get_teams_for_cup(cup):
@@ -208,6 +208,7 @@ def generate_next_round_fixtures(season_cup, shared_match_date):
                 bulk_create_list.append(cup_fixture)
 
             CupFixture.objects.bulk_create(bulk_create_list)
+            generate_matches_from_fixtures(bulk_create_list, event_type='cup', season=season_cup.season)
 
         season_cup.current_stage = stage
         season_cup.save()

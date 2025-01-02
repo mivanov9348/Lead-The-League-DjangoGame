@@ -4,21 +4,45 @@
 
 {% block extra_css %}
 <style>
+    #player-container {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 20px;
+        justify-content: center;
+    }
 
     .player-card {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 300px;
-        margin: 20px;
+        background: linear-gradient(135deg, #ffffff, #f7f9fc);
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         text-align: center;
+        position: relative;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .player-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .player-rank {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #ff4757;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        padding: 5px 10px;
+        border-radius: 15px;
     }
 
     .player-image {
         width: 100%;
         height: 200px;
         object-fit: cover;
+        border-bottom: 2px solid #e0e4e8;
     }
 
     .player-info {
@@ -27,56 +51,96 @@
 
     .player-info h3 {
         margin: 0 0 10px;
-        font-size: 22px;
+        font-size: 18px;
+        color: #2d3436;
     }
 
     .player-info p {
         margin: 5px 0;
-        color: #555;
+        font-size: 14px;
+        color: #636e72;
     }
 
-    .player-stats {
-        padding: 15px;
-        background: #fafafa;
-        border-top: 1px solid #eee;
+    .player-points {
+        color: #3742fa;
+        font-size: 16px;
+        font-weight: bold;
     }
 
-    .player-stats p {
-        margin: 5px 0;
+    @media (max-width: 1200px) {
+        #player-container {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        #player-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        #player-container {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div id="player-container">
-    <!-- Player cards will be dynamically injected here -->
+    {% for player in players %}
+    <div class="player-card">
+        <a href="{% url 'players:player_profile' player.id %}" class="player-card">
+            <div class="player-rank">#{{ player.rank }}</div>
+            <img src="{{ player.image }}" alt="{{ player.name }}" class="player-image">
+            <div class="player-info">
+                <h3>{{ player.name }}</h3>
+                <p>{{ player.position }}</p>
+                <p class="player-points">{{ player.points }} Points</p>
+            </div>
+            <div class="player-stats">
+                <p>Goals: {{ player.stats.goals }}</p>
+                <p>Assists: {{ player.stats.assists }}</p>
+                <p>Matches: {{ player.stats.matches }}</p>
+                <p>Shoots: {{ player.stats.shoots }}</p>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
 </div>
 
 <script>
-    const players = {{ players|safe }};
+    document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.player-card');
 
-    const container = document.getElementById('player-container');
-
-    players.forEach(player => {
-        const card = document.createElement('div');
-        card.className = 'player-card';
-
-        card.innerHTML = `
-            <img src="${player.image}" alt="${player.name}" class="player-image">
-            <div class="player-info">
-                <h3>${player.name}</h3>
-                <p>${player.position}</p>
-                <p>Points: ${player.points}</p>
-            </div>
-            <div class="player-stats">
-                <p>Goals: ${player.stats.goals}</p>
-                <p>Assists: ${player.stats.assists}</p>
-                <p>Matches: ${player.stats.matches}</p>
-                <p>Shoots: ${player.stats.shoots}</p>
-            </div>
-        `;
-
-        container.appendChild(card);
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            const url = card.dataset.url;
+            if (url) {
+                window.location.href = url;
+            }
+        });
     });
+
+    const adjustGridColumns = () => {
+        const container = document.getElementById('player-container');
+        const width = window.innerWidth;
+
+        if (width <= 480) {
+            container.style.gridTemplateColumns = '1fr';
+        } else if (width <= 768) {
+            container.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        } else if (width <= 1200) {
+            container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        } else {
+            container.style.gridTemplateColumns = 'repeat(6, 1fr)';
+        }
+    };
+
+    window.addEventListener('resize', adjustGridColumns);
+    adjustGridColumns();
+});
+
 </script>
 {% endblock %}

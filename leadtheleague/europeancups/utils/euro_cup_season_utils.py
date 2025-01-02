@@ -5,9 +5,32 @@ from fixtures.models import EuropeanCupFixture
 from game.utils.get_season_stats_utils import get_current_season
 from leagues.models import League
 from leagues.utils import promote_league_teams_to_europe
+from match.models import Match
 from messaging.utils.category_messages_utils import create_european_cup_champion_message
 from teams.models import Team
 
+def get_current_european_cup_season():
+    current_season = get_current_season()
+    season = EuropeanCupSeason.objects.filter(season=current_season).first()
+    if not season:
+        raise ValueError("No European Cup Season found for the current season.")
+    return season
+
+def get_current_knockout_stage_order(euro_season):
+    current_stage = KnockoutStage.objects.filter(
+        european_cup_season=euro_season,
+        is_played=False
+    ).order_by('stage_order').first()
+
+    return current_stage.stage_order if current_stage else None
+
+def are_knockout_matches_finished(euro_season, stage_order):
+    unfinished_matches = Match.objects.filter(
+        european_cup_season=euro_season,
+        knockout_stage__stage_order=stage_order,
+        is_played=False
+    )
+    return not unfinished_matches.exists()
 
 def generate_european_cups_season(season):
     european_cups = EuropeanCup.objects.all()

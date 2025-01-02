@@ -1,137 +1,137 @@
 {% extends 'base.html' %}
-{% block title %}Top 10 Teams Statistics{% endblock %}
+
+{% block title %}Top 30 Teams{% endblock %}
 
 {% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/all_teams.css' %}">
 <style>
-    .teams-container {
-        margin-top: 20px;
-        background-color: var(--darkgreen-color);
-        color:white;
+    #team-container {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 20px;
+        justify-content: center;
     }
 
-    .text-center {
+    .team-card {
+        background: linear-gradient(135deg, #ffffff, #f7f9fc);
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
         text-align: center;
-        margin-bottom: 20px;
+        position: relative;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+
+    .team-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .team-rank {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #1e90ff;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        padding: 5px 10px;
+        border-radius: 15px;
     }
 
     .team-logo {
-        height: 40px;
-        width: 40px;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-
-    .table {
         width: 100%;
-        margin-bottom: 1rem;
-        color:white;
-        border-collapse: collapse;
+        height: 150px;
+        object-fit: contain; /* Центриране и мащабиране на логото */
+        background-color: #f0f0f0; /* Светъл фон за контраст */
+        border-bottom: 2px solid #e0e4e8;
+        border-radius: 0 0 12px 12px; /* Заоблени ъгли на долната част */
     }
 
-    .table th,
-    .table td {
-        padding: 0.75rem;
-        vertical-align: top;
-        border-top: 1px solid #dee2e6;
-                color:white;
-
+    .team-info {
+        padding: 15px;
     }
 
-    .table thead th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #dee2e6;
-        cursor: pointer;
-                color:white;
-
+    .team-info h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: #2d3436;
     }
 
-    .table tbody + tbody {
-        border-top: 2px solid #dee2e6;
+    .team-info p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #636e72;
     }
 
-    .table-bordered {
-        border: 1px solid #dee2e6;
-                color:white;
-
+    .team-points {
+        color: #3742fa;
+        font-size: 16px;
+        font-weight: bold;
     }
 
-    .table-bordered th,
-    .table-bordered td {
-        border: 1px solid #dee2e6;
-        color:white;
+    @media (max-width: 1200px) {
+        #team-container {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
 
+    @media (max-width: 768px) {
+        #team-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        #team-container {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="teams-container">
-    <table class="table table-bordered text-center" id="teams-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Logo</th>
-                <th>Team Name</th>
-                <th>League</th>
-                <th><a href="javascript:void(0)" onclick="sortTable('matches')">Matches</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('wins')">W</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('draws')">D</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('losses')">L</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('goalscored')">GS</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('goalconceded')">GC</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('goaldifference')">GD</a></th>
-                <th><a href="javascript:void(0)" onclick="sortTable('points')">Points</a></th>
-            </tr>
-        </thead>
-        <tbody>
-    {% for team in teams %}
-    <tr>
-        <td>{{ forloop.counter }}</td>
-        <td><img src="{{ team.team.logo.url }}" alt="Logo" class="team-logo"></td>
-        <td>{{ team.team.name }}</td>
-        <td>{{ team.league_season.league.name }}</td>
-        <td data-value="{{ team.matches }}">{{ team.matches }}</td>
-        <td data-value="{{ team.wins }}">{{ team.wins }}</td>
-        <td data-value="{{ team.draws }}">{{ team.draws }}</td>
-        <td data-value="{{ team.losses }}">{{ team.losses }}</td>
-        <td data-value="{{ team.goalscored }}">{{ team.goalscored }}</td>
-        <td data-value="{{ team.goalconceded }}">{{ team.goalconceded }}</td>
-        <td data-value="{{ team.goaldifference }}">{{ team.goaldifference }}</td>
-        <td data-value="{{ team.points }}">{{ team.points }}</td>
-    </tr>
+<div id="team-container">
+    {% for team in teams|slice:":30" %}
+    <div class="team-card" data-points="{{ team.points }}">
+        <div class="team-rank">#{{ forloop.counter }}</div>
+        <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }}" class="team-logo">
+        <div class="team-info">
+            <h3>{{ team.team.name }}</h3>
+            <p>League: {{ team.league_season.league.name }}</p>
+            <p class="team-points">Points: {{ team.points }}</p>
+            <p>GD: {{ team.goaldifference }}</p>
+        </div>
+    </div>
     {% endfor %}
-</tbody>
-    </table>
 </div>
+
 <script>
-    let sortOrder = {};
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.team-card');
 
-    function sortTable(column) {
-        const table = document.getElementById("teams-table");
-        const rows = Array.from(table.tBodies[0].rows);
-        const columnIndex = Array.from(table.tHead.rows[0].cells).findIndex(cell => cell.textContent.toLowerCase().includes(column));
-
-        if (!sortOrder[column]) {
-            sortOrder[column] = 'asc';
-        } else {
-            sortOrder[column] = sortOrder[column] === 'asc' ? 'desc' : 'asc';
-        }
-
-        const ascending = sortOrder[column] === 'asc';
-
-        rows.sort((a, b) => {
-            const aValue = parseInt(a.cells[columnIndex].getAttribute('data-value'));
-            const bValue = parseInt(b.cells[columnIndex].getAttribute('data-value'));
-            return ascending ? aValue - bValue : bValue - aValue;
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                alert(`Team Points: ${card.dataset.points}`);
+            });
         });
 
-        rows.forEach(row => table.tBodies[0].appendChild(row));
-    }
+        const adjustGridColumns = () => {
+            const container = document.getElementById('team-container');
+            const width = window.innerWidth;
+
+            if (width <= 480) {
+                container.style.gridTemplateColumns = '1fr';
+            } else if (width <= 768) {
+                container.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            } else if (width <= 1200) {
+                container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            } else {
+                container.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            }
+        };
+
+        window.addEventListener('resize', adjustGridColumns);
+        adjustGridColumns();
+    });
 </script>
-{% endblock %}
-
-{% block extra_js %}
-
 {% endblock %}
