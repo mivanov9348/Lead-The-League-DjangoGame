@@ -3,7 +3,7 @@ from django.utils import timezone
 from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
 from game.models import Season
 from game.utils.get_season_stats_utils import get_current_season
-from match.models import Match
+from match.models import Match, MatchPenalties
 from players.models import Player, PlayerMatchStatistic, Statistic
 from django.db import transaction
 from teams.models import TeamTactics
@@ -165,3 +165,10 @@ def generate_all_player_day_match_stats():
                                 "Saves": 0,
                             }
                         )
+
+def generate_match_penalties(match):
+    if not hasattr(match, 'penalties'):
+        match_penalties = MatchPenalties.objects.create(match=match)
+        print(f"Match penalties initialized for match {match.id}.")
+        return match_penalties
+    return match.penalties

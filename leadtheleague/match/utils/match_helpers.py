@@ -19,8 +19,10 @@ def update_match_minute(match):
     match.current_minute = min(match.current_minute + increment, 90)
     return match.current_minute
 
+
 def get_match_team_initiative(match):
     return match.home_team if match.is_home_initiative else match.away_team
+
 
 def finalize_match(match):
     with transaction.atomic():
@@ -174,8 +176,14 @@ def fill_template_with_players(template, players):
     return formatted_text
 
 
-def get_random_match_event():
-    return Event.objects.exclude(type='Team').only('id', 'type').order_by('?').first()
+def get_random_match_event(event_type=None):
+    events_query = Event.objects.exclude(type='Team').only('id', 'type')
+
+    if event_type:
+        events_query = events_query.filter(type=event_type)
+
+    return events_query.order_by('?').first()
+
 
 def get_match_event_attributes_weight(event, player_attributes):
     weights = AttributeEventWeight.objects.filter(event=event).only('attribute', 'weight')
@@ -186,17 +194,21 @@ def get_match_event_attributes_weight(event, player_attributes):
     ]
     return attributes_and_weights
 
+
 def get_event_success_rate(event, attributes_and_weights):
     return round(
         event.success_rate + sum(attribute_value * weight for attribute_value, weight in attributes_and_weights), 2
     )
 
+
 def get_match_event_template(event_type, success):
     event_results = EventResult.objects.filter(event_type__type=event_type).only('event_threshold')
     for event_result in event_results:
         if success <= event_result.event_threshold:
-            return EventTemplate.objects.filter(event_result=event_result).select_related('event_result').only('id').first()
+            return EventTemplate.objects.filter(event_result=event_result).select_related('event_result').only(
+                'id').first()
     return None
+
 
 def get_event_players(template, main_player, team):
     players = [main_player]
@@ -205,3 +217,57 @@ def get_event_players(template, main_player, team):
             team.players.exclude(id=main_player.id).only('id').order_by('?')[:1]
         )
     return players
+
+
+def handle_card_event(template, player, match, team):
+    current_minute = match.current_minute
+
+    if template.event_result.type == "Red Card":
+        player.has_red_card = True
+        remove_player_from_team(player, team)
+        log_card_event(match, current_minute, "Red Card", player)
+
+    elif template.event_result.type == "Yellow Card":
+        player.yellow_cards += 1
+        log_card_event(match, current_minute, "Yellow Card", player)
+
+        if player.yellow_cards >= 2:
+            player.has_red_card = True
+            remove_player_from_team(player, team)
+            log_card_event(match, current_minute, "Red Card", player)
+
+    player.save()
+
+def remove_player_from_team(player, team):
+    team_tactics = TeamTactics.objects.select_related('team').get(team=team)
+    starting_players = team_tactics.starting_players
+
+    if player in starting_players:
+        starting_players.remove(player)
+        team_tactics.save()
+
+def log_card_event(match, minute, card_type, player):
+    if card_type not in ["Yellow Card", "Red Card"]:
+        raise ValueError("Invalid card type. Must be 'Yellow Card' or 'Red Card'.")
+
+    try:
+        with transaction.atomic():
+            # Create a description for the card event
+            description = f"{card_type} for {player.name} in the {minute}' minute."
+
+            # Log the card event as a match event
+            match_event_data = {
+                "match": match,
+                "minute": minute,
+                "event_type": card_type,
+                "description": description,
+                "is_negative_event": True,
+                "possession_kept": False,
+            }
+
+            match_event = MatchEvent.objects.create(**match_event_data)
+            match_event.players.add(player)  # Associate the player with the event
+
+            print(f"{card_type} logged for {player.name} in match {match.id} at minute {minute}.")
+    except Exception as e:
+        print(f"Error logging {card_type} for {player.name}: {e}")

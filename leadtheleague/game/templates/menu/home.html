@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block content %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+
 <div class="container main-content mt-4">
     <div class="row">
         <div class="col-md-4">
@@ -274,5 +276,69 @@
         </div>
     </div>
 </div>
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const loadUnreadNotifications = async () => {
+        try {
+            const response = await fetch('/game/get_unread_notifications/');
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            const data = await response.json();
 
+            if (data.notifications.length > 0) {
+                showNotifications(data.notifications);
+            }
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    };
+
+    // Показване на известия едно по едно със скролбар
+    const showNotifications = (notifications) => {
+        if (notifications.length === 0) return;
+
+        const notification = notifications[0];
+
+        Swal.fire({
+            title: "Notification",
+            html: `<div style="max-height: 200px; overflow-y: auto; text-align: left;">
+                      ${notification.content.replace(/\n/g, '<br>')}
+                   </div>`,
+            icon: "info",
+            confirmButtonText: "OK",
+            showCancelButton: true,
+            cancelButtonText: "Dismiss",
+        }).then(async (result) => {
+            if (result.isConfirmed || result.isDismissed) {
+                await markNotificationAsViewed(notification.id);
+                showNotifications(notifications.slice(1));
+            }
+        });
+    };
+
+    const markNotificationAsViewed = async (notificationId) => {
+        try {
+            const response = await fetch('/game/mark_notifications_as_viewed/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notification_id: notificationId }),
+            });
+
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            const data = await response.json();
+            if (!data.success) {
+                console.error("Error marking notification as viewed:", data.message);
+            }
+        } catch (error) {
+            console.error("Failed to mark notification as viewed:", error);
+        }
+    };
+
+    loadUnreadNotifications();
+});
+</script>
 {% endblock %}
