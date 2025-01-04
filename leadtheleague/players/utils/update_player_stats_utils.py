@@ -1,7 +1,5 @@
-from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404
-from setuptools import logging
 from game.models import Settings
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import PlayerMatchStatistic, PlayerMatchRating, Player, Statistic, PlayerSeasonStatistic
@@ -11,6 +9,7 @@ from teams.models import TeamPlayer, TeamTactics
 def get_base_price(position_name):
     setting_name = f'{position_name}_base_price'
     return Settings.objects.filter(key=setting_name).values_list('value', flat=True).first() or 100000
+
 
 def get_age_factor(age):
     age_factors = {
@@ -24,6 +23,7 @@ def get_age_factor(age):
             return factor
     return 0.70
 
+
 def get_position_factor(position_name):
     return {
         "Goalkeeper": 1.00,
@@ -32,29 +32,34 @@ def get_position_factor(position_name):
         "Attacker": 3.00,
     }.get(position_name, 1.00)
 
+
 def get_attribute_factor(player):
     total_attributes = player.playerattribute_set.aggregate(total=Sum('value'))['total'] or 0
     return 1 + total_attributes / 300 if total_attributes else 1.0
 
+
 def get_statistics_factor(player, season):
-    match_ratings = PlayerMatchRating.objects.filter(player=player, match__season=season).values_list('rating', flat=True)
+    match_ratings = PlayerMatchRating.objects.filter(player=player, match__season=season).values_list('rating',
+                                                                                                      flat=True)
     if not match_ratings:
         return 5.0
     average_rating = sum(match_ratings) / len(match_ratings)
     return 1 + average_rating / 10
 
+
 def update_player_price(player):
     season = get_current_season()
     final_price = (
-        get_base_price(player.position.name) *
-        get_age_factor(player.age) *
-        get_position_factor(player.position.name) *
-        get_attribute_factor(player) *
-        get_statistics_factor(player, season)
+            get_base_price(player.position.name) *
+            get_age_factor(player.age) *
+            get_position_factor(player.position.name) *
+            get_attribute_factor(player) *
+            get_statistics_factor(player, season)
     )
     player.price = final_price
     player.save()
     return int(final_price)
+
 
 def update_player_rating(player, match):
     stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
@@ -80,41 +85,47 @@ def update_player_rating(player, match):
     )
     return rating
 
+
 def release_player_from_team(user_team, player):
     team_player = get_object_or_404(TeamPlayer, team=user_team, player=player)
     team_player.delete()
     player.is_free_agent = True
     player.save()
 
+
 def promoting_youth_players():
     Player.objects.filter(is_youth=True, age__gte=18).update(is_youth=False)
+
 
 def all_players_age_up():
     Player.objects.update(age=F('age') + 1)
 
-def update_season_stats_from_match(match):
-    home_tactics = TeamTactics.objects.filter(team=match.home_team).first()
-    away_tactics = TeamTactics.objects.filter(team=match.away_team).first()
 
-    if not home_tactics or not away_tactics:
-        raise ValueError("Не са намерени тактики за един от отборите.")
+def update_season_statistics_for_match(match):
+    # Retrieve all players for the home and away teams using the TeamPlayer model
+    home_team_players = match.home_team.team_players.values_list('player', flat=True)
+    away_team_players = match.away_team.team_players.values_list('player', flat=True)
 
-    starting_players = list(home_tactics.starting_players.all()) + list(away_tactics.starting_players.all())
+    all_players = Player.objects.filter(id__in=home_team_players.union(away_team_players))
 
-    match_stats = PlayerMatchStatistic.objects.filter(match=match, player__in=starting_players)
+    # Iterate through all players
+    for player in all_players:
+        # Get PlayerMatchStatistics for the player in the match
+        match_stats = PlayerMatchStatistic.objects.filter(player=player, match=match)
 
-    statistics_map = {stat.name: stat for stat in Statistic.objects.all()}
-
-    with transaction.atomic():
         for match_stat in match_stats:
-            season_stat, created = PlayerSeasonStatistic.objects.get_or_create(
-                player=match_stat.player,
-                statistic=match_stat.statistic,
-                season=match.season,
-                defaults={'value': 0}
-            )
-            if not created:
-                season_stat.value = F('value') + match_stat.value
-                season_stat.save()
+            # Ensure the statistics from PlayerMatchStatistic is added to PlayerSeasonStatistic
+            for stat_name, value in match_stat.statistics.items():
+                statistic, _ = Statistic.objects.get_or_create(name=stat_name)
 
-    print(f"Season stats updated for {len(starting_players)} players.")
+                # Get or create the PlayerSeasonStatistic for the player, season, and statistic
+                season_stat, created = PlayerSeasonStatistic.objects.get_or_create(
+                    player=player,
+                    season=match.season,
+                    statistic=statistic,
+                    defaults={'value': 0}
+                )
+
+                # Update the season statistic value
+                season_stat.value += value
+                season_stat.save()

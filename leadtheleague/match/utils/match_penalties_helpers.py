@@ -59,9 +59,9 @@ def check_penalties_completion(match_penalties):
     return False
 
 
-def log_penalty_event(match, formatted_template, players, is_goal):
-    if not isinstance(players, list) or not all(isinstance(player, Player) for player in players):
-        raise ValueError("Всички елементи в 'players' трябва да бъдат обекти от типа 'Player'.")
+def log_penalty_event(match, formatted_template, penalty_taker, is_goal):
+    if not isinstance(penalty_taker, Player):
+        raise ValueError("penalty_taker трябва да бъде обект от типа 'Player'.")
 
     try:
         with transaction.atomic():
@@ -78,7 +78,7 @@ def log_penalty_event(match, formatted_template, players, is_goal):
 
             match_event = MatchEvent.objects.create(**match_event_data)
 
-            match_event.players.set(players)
+            match_event.players.set([penalty_taker])
 
             print(f"Успешно логирано събитие: {formatted_template}")
     except Exception as e:

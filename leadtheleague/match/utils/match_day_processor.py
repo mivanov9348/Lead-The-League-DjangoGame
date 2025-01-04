@@ -1,5 +1,3 @@
-from datetime import date
-from django.db import transaction
 from cups.models import SeasonCup
 from cups.utils.generate_cup_fixtures import generate_next_round_fixtures
 from cups.utils.update_cup_season import populate_progressing_team
@@ -8,24 +6,28 @@ from europeancups.utils.euro_cup_season_utils import get_current_european_cup_se
 from europeancups.utils.group_stage_utils import update_euro_cup_standings, are_group_stage_matches_finished, \
     advance_teams_from_groups
 from europeancups.utils.knockout_utils import generate_euro_cup_knockout
+from fixtures.utils import transfer_match_to_fixture
 from game.models import MatchSchedule
 from leagues.utils import update_standings_from_fixtures
 from match.models import Match, PenaltyAttempt
 from match.utils.generate_match_stats_utils import generate_players_match_stats, generate_match_penalties
 from match.utils.match_helpers import update_match_minute, get_match_team_initiative, choose_event_random_player, \
-    get_match_event_attributes_weight, get_event_success_rate, get_match_event_template, get_event_players, \
-    get_random_match_event, fill_template_with_players, update_player_stats_from_template, log_match_event, \
-    finalize_match, check_initiative, update_match_score, handle_card_event
+    get_match_event_attributes_weight, get_event_success_rate, get_random_match_event, log_match_event, finalize_match, \
+    check_initiative, \
+    update_match_score, handle_card_event, update_player_stats_from_template, fill_template_with_player, \
+    get_event_result, get_event_template
 from match.utils.match_penalties_helpers import get_penalty_taker, update_penalty_score, check_penalties_completion, \
     update_penalty_initiative, log_penalty_event, check_rotation_violations
 from messaging.utils.notifications_utils import create_match_notifications
 from players.utils.get_player_stats_utils import get_player_attributes
 from players.utils.player_analytics_utils import update_season_analytics
-from players.utils.update_player_stats_utils import update_season_stats_from_match
+from players.utils.update_player_stats_utils import update_season_statistics_for_match
 from teams.utils.lineup_utils import ensure_team_tactics
+from django.db import transaction
 
-def match_day_processor():
-    today = date.today()
+
+def match_day_processor(date=None):
+    today = date if date else date.today()
     match_date = MatchSchedule.objects.filter(date=today).first()
 
     if not match_date:
@@ -34,8 +36,8 @@ def match_day_processor():
 
     print(f"Processing match day for {today}: {match_date.event_type}")
 
-    with transaction.atomic():
-        try:
+    try:
+        with transaction.atomic():
             if match_date.event_type == 'league':
                 process_league_day(match_date)
             elif match_date.event_type == 'cup':
@@ -51,9 +53,9 @@ def match_day_processor():
             create_match_notifications(match_date)
             update_season_analytics()
 
-        except Exception as e:
-            print(f"Error processing match day: {e}")
-            return
+    except Exception as e:
+        print(f"Error processing match day: {e}")
+        return
 
     print(f"Match day processing completed for {today}.")
 
@@ -69,13 +71,12 @@ def process_league_day(match_date):
 
     fixtures = []
     for match in matches:
-        process_match(match)  # Обработваме мача
-        if match.fixture:
-            fixtures.append(match.fixture)
+        process_match(match)
+        update_season_statistics_for_match(match)
+        finalize_match(match)
 
     if fixtures:
         update_standings_from_fixtures(fixtures)
-
 
 def process_cup_day(match_date):
     print("Processing cup matches...")
@@ -92,13 +93,13 @@ def process_cup_day(match_date):
             process_penalties(match)
         else:
             finalize_match(match)
-            update_season_stats_from_match(match)
+            update_season_statistics_for_match(match)
 
     next_available_date = MatchSchedule.objects.filter(
         season=match_date.season,
         event_type='cup',
         is_cup_day_assigned=False,
-        date__gt=match_date.date  # Уверяваме се, че е бъдеща дата
+        date__gt=match_date.date
     ).order_by('date').first()
 
     if not next_available_date:
@@ -135,9 +136,8 @@ def process_euro_day(match_date):
                 process_penalties(match)
         else:
             finalize_match(match)
-            update_season_stats_from_match(match)
+            update_season_statistics_for_match(match)
 
-    # Handle group stage
     if current_euro_season.current_phase == 'group':
         if not are_group_stage_matches_finished(current_euro_season):
             update_euro_cup_standings(match_date)
@@ -162,7 +162,6 @@ def process_euro_day(match_date):
             free_date.is_euro_cup_day_assigned = True
             free_date.save()
 
-    # Handle knockout stage
     elif current_euro_season.current_phase == 'knockout':
         current_stage_order = get_current_knockout_stage_order(current_euro_season)
         if not are_knockout_matches_finished(current_euro_season, current_stage_order):
@@ -187,47 +186,77 @@ def process_euro_day(match_date):
 
 
 def process_match(match):
+    print(f"Starting to process match ID: {match.id}")
     with transaction.atomic():
         try:
+            print("Ensuring team tactics...")
             ensure_team_tactics(match)
+
+            print("Generating player match stats...")
             generate_players_match_stats(match)
 
             total_minutes = 90
             current_minute = match.current_minute
 
             while current_minute < total_minutes:
-                current_minute = update_match_minute(match, current_minute)
+                print(f"Updating match minute: {current_minute}")
+                current_minute = update_match_minute(match)
+
+                print("Determining team with initiative...")
                 team_with_initiative = get_match_team_initiative(match)
+
+                print("Choosing random player for event...")
                 random_player = choose_event_random_player(team_with_initiative)
 
+                print(f"Getting attributes for player ID: {random_player.id}")
                 player_attributes = get_player_attributes(random_player)
+
+                print("Getting random match event...")
                 event = get_random_match_event()
+                print(f'Event: {event}')
+
+                print(f"Calculating success rate for event: {event.type}")
                 attributes_and_weights = get_match_event_attributes_weight(event, player_attributes)
                 success = get_event_success_rate(event, attributes_and_weights)
+                print(f'Success: {success}')
 
-                template = get_match_event_template(event.id, success)
+                print("Fetching EventResult...")
+                event_result = get_event_result(event, success)
 
-                players_to_update = [random_player]
-                if getattr(template.event_result, 'yellowCards', 0) > 0 or getattr(template.event_result, 'redCards',
-                                                                                   0) > 0:
-                    handle_card_event(template, random_player, match, team_with_initiative)
+                if event_result.event_result in ["YellowCard", "RedCard"]:
+                    print(f"Handling card event: {event_result.event_result}")
+                    handle_card_event(event_result, random_player, match, team_with_initiative)
                 else:
-                    players_to_update = get_event_players(template, random_player, team_with_initiative)
+                    print("Updating player stats...")
+                    update_player_stats_from_template(match, event_result, random_player)
 
-                update_player_stats_from_template(match, template, players_to_update)
+                    print("Fetching EventTemplate...")
+                    template = get_event_template(event_result)
 
-                if template.event_result.event_result not in ["YellowCard", "RedCard"]:
-                    formatted_template = fill_template_with_players(template, players_to_update)
-                    log_match_event(match, current_minute, template, formatted_template, players_to_update)
-                    update_match_score(template, match, team_with_initiative)
+                    if not template:
+                        print("No Template found. Skipping template-related processing.")
+                        continue
+
+                    print("Formatting event template...")
+                    formatted_template = fill_template_with_player(template, random_player)
+
+                    print("Logging match event...")
+                    log_match_event(match, current_minute, template, formatted_template, random_player)
+
+                    print("Updating match score...")
+                    update_match_score(event_result, match, team_with_initiative)
+
+                    print("Checking initiative...")
                     check_initiative(template, match)
 
+                print(f"Saving match state at minute: {current_minute}")
                 match.current_minute = current_minute
                 match.save()
 
         except Exception as e:
-            print(f"Error processing match {match.id}: {e}")
+            print(f"Error processing match ID {match.id}: {e}")
             raise
+
 
 def process_penalties(match):
     # Initialize the penalty shootout
@@ -271,13 +300,11 @@ def process_penalties(match):
         attributes_and_weights = get_match_event_attributes_weight(event, player_attributes)
         success = get_event_success_rate(event, attributes_and_weights)
 
-        # Generate a descriptive template for the penalty event
-        template = get_match_event_template(event.id, success)
-        event_players = get_event_players(template, penalty_taker, current_team)
-        formatted_template = fill_template_with_players(template, event_players)
+        event_result = get_event_result(event, success)
+        template = get_event_template(event_result)
 
-        # Log the penalty event
-        log_penalty_event(match, formatted_template, event_players, success)
+        formatted_template = fill_template_with_player(template, penalty_taker)
+        log_penalty_event(match, formatted_template, penalty_taker, success)
 
         # Update the penalty shootout score
         update_penalty_score(match_penalties, success, current_team)

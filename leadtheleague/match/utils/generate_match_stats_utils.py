@@ -83,13 +83,12 @@ def generate_euro_cup_matches(season=None):
     euro_cup_fixtures = EuropeanCupFixture.objects.filter(european_cup_season__season=season)
     generate_matches_from_fixtures(euro_cup_fixtures, event_type='euro_cup', season=season)
 
-
 def generate_players_match_stats(match):
     home_tactics = TeamTactics.objects.filter(team=match.home_team).first()
     away_tactics = TeamTactics.objects.filter(team=match.away_team).first()
 
     if not home_tactics or not away_tactics:
-        raise ValueError("Не са намерени тактики за един от отборите.")
+        raise ValueError("Team tactics not found for one of the teams.")
 
     starting_players = list(home_tactics.starting_players.all()) + list(away_tactics.starting_players.all())
 
@@ -98,40 +97,25 @@ def generate_players_match_stats(match):
         "MinutesPlayed", "Passes", "RedCards", "Saves", "Shoots", "ShootsOnTarget",
         "Tackles", "YellowCards"
     ]
-    stats_objects = Statistic.objects.filter(name__in=statistics)
-
-    missing_stats = set(statistics) - set(stats_objects.values_list('name', flat=True))
-    if missing_stats:
-        raise ValueError(f"Липсват следните статистики в базата: {', '.join(missing_stats)}")
-
-    player_match_stats = []
-    for player in starting_players:
-        for stat in stats_objects:
-            player_match_stats.append(
-                PlayerMatchStatistic(
-                    player=player,
-                    match=match,
-                    statistic=stat,
-                    value=0
-                )
-            )
 
     with transaction.atomic():
-        existing_stats = PlayerMatchStatistic.objects.filter(
-            match=match,
-            player__in=starting_players,
-            statistic__in=stats_objects
-        ).values_list('player_id', 'statistic_id')
+        existing_stats = PlayerMatchStatistic.objects.filter(match=match).values_list('player_id', flat=True)
 
-        new_stats = [
-            stat for stat in player_match_stats
-            if (stat.player.id, stat.statistic.id) not in existing_stats
-        ]
+        new_stats = []
+        for player in starting_players:
+            if player.id not in existing_stats:
+                stats_data = {stat: 0 for stat in statistics}
+                new_stats.append(
+                    PlayerMatchStatistic(
+                        player=player,
+                        match=match,
+                        statistics=stats_data
+                    )
+                )
 
         PlayerMatchStatistic.objects.bulk_create(new_stats)
 
-    print(f"Generated Match Player Stats for {len(player_match_stats)} players.")
-
+    print(f"Generated Match Player Stats for {len(new_stats)} players.")
 
 
 def generate_all_player_day_match_stats():

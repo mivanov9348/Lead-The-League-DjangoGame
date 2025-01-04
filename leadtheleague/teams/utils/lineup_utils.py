@@ -79,9 +79,8 @@ def ensure_team_tactics(match):
     teams = [match.home_team, match.away_team]
 
     for team in teams:
-        if not TeamTactics.objects.filter(team=team).exists():
-            auto_select_starting_lineup(team)
-
+        TeamTactics.objects.filter(team=team).delete()
+        auto_select_starting_lineup(team)
 
 def auto_select_starting_lineup(team):
     try:
@@ -89,7 +88,10 @@ def auto_select_starting_lineup(team):
         if not selected_tactic:
             raise ValueError("No tactics available to assign.")
 
-        all_players = Player.objects.filter(team_players__team=team)
+        all_players = Player.objects.filter(
+            team_players__team=team,
+            is_youth=False,
+            is_free_agent=False)
 
         grouped_players = {
             'goalkeeper': [],

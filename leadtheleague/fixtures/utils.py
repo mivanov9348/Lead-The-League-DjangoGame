@@ -206,3 +206,30 @@ def format_fixtures(fixtures, team):
 
     return formatted_fixtures
 
+def transfer_match_to_fixture(match):
+    try:
+        if match.fixture_content_type and match.fixture_object_id:
+            fixture_model = match.fixture_content_type.model_class()
+            fixture = fixture_model.objects.get(pk=match.fixture_object_id)
+
+            fixture.home_goals = match.home_goals
+            fixture.away_goals = match.away_goals
+
+            if match.home_goals > match.away_goals:
+                fixture.winner = match.home_team
+            elif match.home_goals < match.away_goals:
+                fixture.winner = match.away_team
+            else:
+                fixture.winner = None  # Равенство
+
+            fixture.is_finished = match.is_played
+
+            fixture.save()
+
+            print(f"Fixture updated: {fixture}")
+        else:
+            print("No fixture linked to the match.")
+
+    except Exception as e:
+        print(f"Error while transferring match data to fixture: {e}")
+
