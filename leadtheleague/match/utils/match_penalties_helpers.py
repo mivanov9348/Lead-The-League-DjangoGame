@@ -1,19 +1,22 @@
 from django.db import transaction
-from django.db.models import F
-
-from match.models import MatchEvent
+from django.db.models import F, Q, Sum, Value as V, Case, When, FloatField
+from match.models import MatchEvent, Event
 from players.models import Player
-from teams.models import TeamTactics
+from teams.models import TeamTactics, TeamPlayer
+
 
 def check_rotation_violations(team, taken_penalty_players):
-    player_ids = [attempt.player_id for attempt in taken_penalty_players]
-    unique_players = set(player_ids)
+    unique_players = set(taken_penalty_players)
 
-    if len(unique_players) == team.player_set.count():
-        return True
-    return False
+    total_players = TeamPlayer.objects.filter(team=team).count()
+
+    return len(unique_players) == total_players
+
 
 def update_penalty_initiative(match_penalties):
+    if not match_penalties.current_initiative:
+        raise ValueError("Current initiative is not set.")
+
     match_penalties.current_initiative = (
         match_penalties.match.away_team if match_penalties.current_initiative == match_penalties.match.home_team
         else match_penalties.match.home_team
@@ -23,11 +26,41 @@ def update_penalty_initiative(match_penalties):
 def get_penalty_taker(team, taken_penalty_players):
     team_tactics = TeamTactics.objects.select_related('team').get(team=team)
 
-    sorted_players = team_tactics.starting_players.exclude(id__in=taken_penalty_players).annotate(
-        total_score=F('shooting') * 0.5 + F('finishing') * 0.3 + F('determination') * 0.2
+    available_players = team_tactics.starting_players.exclude(id__in=taken_penalty_players)
+
+    # Annotate scores for each attribute separately
+    sorted_players = available_players.annotate(
+        shooting_score=Case(
+            When(playerattribute__attribute__name="Shooting", then=F('playerattribute__value') * 0.5),
+            default=V(0),
+            output_field=FloatField()
+        ),
+        finishing_score=Case(
+            When(playerattribute__attribute__name="Finishing", then=F('playerattribute__value') * 0.3),
+            default=V(0),
+            output_field=FloatField()
+        ),
+        determination_score=Case(
+            When(playerattribute__attribute__name="Determination", then=F('playerattribute__value') * 0.2),
+            default=V(0),
+            output_field=FloatField()
+        )
+    ).annotate(
+        total_score=F('shooting_score') + F('finishing_score') + F('determination_score')
     ).order_by('-total_score')
 
     return sorted_players.first()
+
+
+def get_penalty_match_event():
+    event = Event.objects.filter(type='Penalty').first()
+
+    if event:
+        print(f"Random event generated: {event.type} with success rate {event.success_rate}")
+    else:
+        print(f"No event found.")
+    return event
+
 
 def update_penalty_score(match_penalties, is_goal, team):
     if is_goal:
@@ -37,11 +70,20 @@ def update_penalty_score(match_penalties, is_goal, team):
             match_penalties.away_score += 1
     match_penalties.save()
 
+
+def calculate_penalty_success(success_rate, threshold):
+    if success_rate >= threshold:
+        print("It's a Goal!")
+        return True
+    print('Miss')
+    return False
+
+
 def check_penalties_completion(match_penalties):
     home_attempts = match_penalties.attempts.filter(team=match_penalties.match.home_team).count()
     away_attempts = match_penalties.attempts.filter(team=match_penalties.match.away_team).count()
 
-    if home_attempts >= 5 or away_attempts >= 5:
+    if home_attempts >= 5 and away_attempts >= 5:
         max_possible_home_score = match_penalties.home_score + (5 - home_attempts)
         max_possible_away_score = match_penalties.away_score + (5 - away_attempts)
 

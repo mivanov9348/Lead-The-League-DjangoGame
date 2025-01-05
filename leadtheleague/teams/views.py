@@ -77,8 +77,6 @@ def squad(request):
             'stats': get_player_stats(player,current_season)
         })
 
-    print(players_data)
-
     context = {
         'team': team,
         'players_data': players_data,

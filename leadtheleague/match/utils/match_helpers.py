@@ -4,7 +4,9 @@ from django.db import transaction
 from django.db.models import Q
 from match.models import MatchEvent, Event, AttributeEventWeight, EventResult, EventTemplate
 from players.models import Player, Position, Statistic, PlayerMatchStatistic
+from players.utils.get_player_stats_utils import get_player_attributes
 from teams.models import TeamTactics, Team, TeamPlayer
+
 
 def choose_event_random_player(team):
     try:
@@ -13,6 +15,7 @@ def choose_event_random_player(team):
         return starting_player
     except TeamTactics.DoesNotExist:
         return None
+
 
 def update_match_minute(match):
     increment = random.randint(1, 7)
@@ -27,8 +30,28 @@ def get_match_team_initiative(match):
 def finalize_match(match):
     with transaction.atomic():
         match.is_played = True
+
+        if hasattr(match, 'penalties') and match.penalties.is_completed:
+            penalties = match.penalties
+            print(f"Match went to penalties: Home {penalties.home_score} - Away {penalties.away_score}")
+
+            if penalties.home_score > penalties.away_score:
+                match.winner = match.home_team
+            elif penalties.away_score > penalties.home_score:
+                match.winner = match.away_team
+            else:
+                raise ValueError("Invalid state: Penalties completed but no winner determined.")
+        else:
+            if match.home_goals > match.away_goals:
+                match.winner = match.home_team
+            elif match.away_goals > match.home_goals:
+                match.winner = match.away_team
+            else:
+                match.winner = None  # Равен резултат
+
         match.save()
 
+        # Актуализиране на fixture
         fixture = match.fixture
         if not fixture:
             raise ValueError("Мачът няма свързан fixture.")
@@ -37,21 +60,16 @@ def finalize_match(match):
         fixture.away_goals = match.away_goals
         fixture.is_finished = True
 
-        if match.home_goals > match.away_goals:
-            fixture.winner = match.home_team
-        elif match.away_goals > match.home_goals:
-            fixture.winner = match.away_team
-        else:
-            fixture.winner = None  # Равен резултат
-
+        # Победител в fixture
+        fixture.winner = match.winner
         fixture.save()
 
     print(f"Match finalized: {match}. Fixture updated.")
 
 
-def update_player_stats_from_template(match, template, player):
+def update_player_stats_from_template(match, event_result, player):
     if not player:
-        raise ValueError("No player provided for statistics update.")
+        print("No player provided for statistics update.")
 
     event_fields_to_stats = {
         "goals": "Goals",
@@ -74,16 +92,27 @@ def update_player_stats_from_template(match, template, player):
             match=match,
             defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
         )
+        if created:
+            print(
+                f"Created new PlayerMatchStatistic for player {player.first_name} {player.last_name} in match {match.id}.")
+        else:
+            print(
+                f"Found existing PlayerMatchStatistic for player {player.first_name} {player.last_name} in match {match.id}.")
 
         updated_stats = player_stat.statistics
+        print(f"Current statistics: {updated_stats}")
+
         for field, stat_name in event_fields_to_stats.items():
-            stat_value = getattr(template.event_result, field, 0)
+            stat_value = getattr(event_result, field, 0)
+            print(f"Processing field: {field}, stat_name: {stat_name}, stat_value: {stat_value}")
             if stat_value > 0:
                 updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
+                print(f"Updated {stat_name}: {updated_stats[stat_name]}")
 
         player_stat.statistics = updated_stats
         player_stat.save()
 
+        print(f"Final updated statistics for player {player.first_name} {player.last_name}: {updated_stats}")
         print(f"Updated statistics for player {player.first_name} {player.last_name}.")
 
 
@@ -157,33 +186,58 @@ def fill_template_with_player(template, player):
 
     player_name = f"{player.first_name} {player.last_name} ({get_team_name(player)})"
 
-    formatted_text = template.template_text.format(player_1=player_name, player_2="")
+    formatted_text = template.template_text.format(player_1=player_name)
     return formatted_text
 
 
-def get_random_match_event(event_type=None):
-    events_query = Event.objects.exclude(type='Team').exclude(type='Penalty').only('id', 'type')
+def get_random_match_event():
+    events_query = Event.objects.exclude(type__in=['Team', 'Penalty']).only('id', 'type', 'success_rate')
 
-    if event_type:
-        events_query = events_query.filter(type=event_type)
+    event = events_query.order_by('?').first()
 
-    return events_query.order_by('?').first()
+    if event:
+        print(f"Random event generated: {event.type} with success rate {event.success_rate}")
+    else:
+        print("No events found matching the criteria.")
+
+    return event
 
 
-def get_match_event_attributes_weight(event, player_attributes):
-    weights = AttributeEventWeight.objects.filter(event=event).only('attribute', 'weight')
+def get_event_weights(event):
+    weights = AttributeEventWeight.objects.filter(event=event).select_related('attribute')
+    if not weights.exists():
+        print(f"No AttributeEventWeight entries found for event {event}.")
+        return {}
 
+    return {
+        weight.attribute.name: weight.weight for weight in weights
+    }
+
+
+def calculate_event_success_rate(event, player):
+    # Get player attributes and event weights
+    player_attributes = get_player_attributes(player)
+    print(player_attributes)
+    event_weights = get_event_weights(event)
+    print(f'eventweig : {event_weights}')
+
+    # Calculate the weighted sum
     attributes_and_weights = [
-        (player_attributes.get(weight.attribute), weight.weight)
-        for weight in weights if weight.attribute in player_attributes
+        (player_attributes.get(attr_name, 0), weight)
+        for attr_name, weight in event_weights.items()
     ]
-    return attributes_and_weights
 
+    weighted_sum = sum(attribute_value * weight for attribute_value, weight in attributes_and_weights)
+    print(f'weighted sum: {weighted_sum}')
 
-def get_event_success_rate(event, attributes_and_weights):
-    return round(
-        event.success_rate + sum(attribute_value * weight for attribute_value, weight in attributes_and_weights), 2
-    )
+    luck_factor = random.uniform(-3.0, 3.0)
+    print(f"Luck factor: {luck_factor}")
+
+    final_success_rate = round(event.success_rate + weighted_sum + luck_factor, 2)
+    final_success_rate = min(100.0, final_success_rate)
+    print(f"Final success rate: {final_success_rate}")
+
+    return final_success_rate
 
 
 def get_event_template(event_result):
@@ -212,17 +266,28 @@ def get_event_result(event, success):
     print(f"Searching for EventResults for event type: {event.type} with success: {success}")
 
     event_results = EventResult.objects.filter(
-        Q(event_type__type=event.type) & Q(event_threshold__gte=success)
-    ).order_by('event_threshold')
+        event_type__type=event.type
+    ).order_by('-event_threshold')
 
     if not event_results.exists():
         print(f"No EventResults found for event type: {event.type}")
         return None
 
     print(f"Found {event_results.count()} matching EventResults.")
-    selected_result = random.choice(list(event_results))
-    print(f"Selected EventResult: {selected_result.event_result} with threshold {selected_result.event_threshold}")
-    return selected_result
+
+    last_valid_result = None
+
+    for event_result in event_results:
+        print(f"Checking if success {success} <= threshold {event_result.event_threshold}")
+        if success <= event_result.event_threshold:
+            last_valid_result = event_result
+            print(f"Selected EventResult: {event_result.event_result} with threshold {event_result.event_threshold}")
+
+    if last_valid_result:
+        return last_valid_result
+
+    print("No valid EventResult found.")
+    return None
 
 
 def get_event_players(template, main_player, team):

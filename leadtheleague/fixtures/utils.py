@@ -1,12 +1,28 @@
 from collections import defaultdict
+from datetime import date
 from itertools import chain
 from django.db.models import Prefetch, Max, Q
-from fixtures.models import LeagueFixture, CupFixture
+from fixtures.models import LeagueFixture, CupFixture, EuropeanCupFixture
 import random
 from game.models import MatchSchedule, Season
 from leagues.models import LeagueSeason
 from teams.models import Team
 from django.db import transaction
+
+
+def get_fixtures_by_date(target_date=None):
+    if target_date is None:
+        target_date = date.today()  # Default to today's date if no date is provided
+
+    if not isinstance(target_date, date):
+        raise ValueError(f"Invalid target_date: {target_date}. Expected datetime.date object.")
+
+    league_fixtures = LeagueFixture.objects.filter(date=target_date)
+    cup_fixtures = CupFixture.objects.filter(date=target_date)
+    european_cup_fixtures = EuropeanCupFixture.objects.filter(date=target_date)
+
+    all_fixtures = list(league_fixtures) + list(cup_fixtures) + list(european_cup_fixtures)
+    return all_fixtures
 
 def generate_all_league_fixtures(season):
     print(f"Starting fixture generation for season: {season}")  # Дебъг: вход
@@ -36,6 +52,7 @@ def generate_all_league_fixtures(season):
     print("Successfully completed fixture generation for all league seasons.")
     return f"Fixtures successfully generated for all LeagueSeasons in season: {season}."
 
+
 def generate_league_fixtures_for_season(league_season):
     league_teams = list(league_season.teams.select_related('team'))
     teams = [lt.team for lt in league_teams]
@@ -64,7 +81,7 @@ def generate_league_fixtures_for_season(league_season):
     full_schedule = schedule + return_legs
 
     last_fixture_number = (
-        LeagueFixture.objects.aggregate(Max('fixture_number')).get('fixture_number__max') or 0
+            LeagueFixture.objects.aggregate(Max('fixture_number')).get('fixture_number__max') or 0
     )
     fixture_number = last_fixture_number + 1
 
@@ -113,6 +130,7 @@ def print_match_schedule(match_schedule):
     for match_date in match_schedule:
         print(f"Match Date: {match_date.date}, Match Time: {match_date.match_time}")
 
+
 def create_fixtures(fixture_round, league_season, match_date, fixture_number):
     fixtures = []
     for home_team, away_team in fixture_round:
@@ -130,8 +148,6 @@ def create_fixtures(fixture_round, league_season, match_date, fixture_number):
     return fixtures
 
 
-
-
 def get_team_fixtures_for_current_season(team):
     active_season = Season.objects.filter(is_active=True).first()
     if not active_season:
@@ -146,6 +162,7 @@ def get_team_fixtures_for_current_season(team):
     ).select_related('season_cup', 'season_cup__cup').order_by('date', 'match_time')
 
     return chain(league_fixtures, cup_fixtures)
+
 
 def get_fixtures_by_round(round_number):
     # Fetch all fixtures for the specified round
@@ -206,6 +223,7 @@ def format_fixtures(fixtures, team):
 
     return formatted_fixtures
 
+
 def transfer_match_to_fixture(match):
     try:
         if match.fixture_content_type and match.fixture_object_id:
@@ -232,4 +250,3 @@ def transfer_match_to_fixture(match):
 
     except Exception as e:
         print(f"Error while transferring match data to fixture: {e}")
-

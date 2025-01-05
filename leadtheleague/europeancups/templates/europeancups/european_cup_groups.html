@@ -34,7 +34,7 @@
                 {% for team in group_data.teams %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ team.team.name }}</td>
+                    <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }} </a></td>
                     <td>{{ team.matches }}</td>
                     <td>{{ team.wins }}</td>
                     <td>{{ team.draws }}</td>

@@ -49,14 +49,14 @@
             <td>{{ player.personal_info.age }}</td>
             <td>{{ player.personal_info.positionabbr|default:"-" }}</td>
             <td>{{ player.personal_info.nationality|default:"-" }}</td>
-            <td>{{ player.stats.Matches|default:"-" }}</td>
-            <td>{{ player.stats.Goals|default:"-" }}</td>
-            <td>{{ player.stats.Assists|default:"-" }}</td>
-            <td>{{ player.stats.Shoots|default:"-" }}</td>
-            <td>{{ player.stats.Saves|default:"-" }}</td>
-            <td>{{ player.stats.CleanSheets|default:"-" }}</td>
-            <td>{{ player.stats.YellowCards|default:"-" }}</td>
-            <td>{{ player.stats.RedCards|default:"-" }}</td>
+            <td>{{ player.stats.Matches }}</td>
+            <td>{{ player.stats.Goals }}</td>
+            <td>{{ player.stats.Assists }}</td>
+            <td>{{ player.stats.Shoots }}</td>
+            <td>{{ player.stats.Saves }}</td>
+            <td>{{ player.stats.CleanSheets }}</td>
+            <td>{{ player.stats.YellowCards }}</td>
+            <td>{{ player.stats.RedCards }}</td>
         </tr>
         {% endfor %}
         </tbody>

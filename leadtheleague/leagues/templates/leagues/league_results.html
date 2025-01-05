@@ -15,34 +15,39 @@
 
 <div class="results-container">
     {% if league_data %}
-        {% for league_name, fixtures in league_data.items %}
+        {% for league_name, matches in league_data.items %}
         <div class="league-section">
             <div class="league-header">{{ league_name }}</div>
-            {% for fixture in fixtures %}
-            <div class="match-row" data-fixture-id="{{ fixture.id }}">
-                <div class="team-container">
-                    <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="team-logo">
-                    <span class="team-name">{{ fixture.home_team.name }}</span>
-                    <div class="score">
-                        {% if fixture.is_finished %}
-                        {{ fixture.home_goals }} : {{ fixture.away_goals }}
-                        {% else %}
-                        0 : 0
-                        {% endif %}
-                    </div>
-                    <span class="team-name">{{ fixture.away_team.name }}</span>
-                    <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="team-logo">
-                </div>
-                <span class="toggle-scorers">🔽 View Scorers</span>
-                <div class="goal-scorers">
-                    <!-- Placeholder for JavaScript-injected goal scorer data -->
-                </div>
-            </div>
+            {% for match in matches %}
+            <div class="match-row" data-match-id="{{ match.id }}">
+    <div class="team-container">
+        <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="team-logo">
+        <span class="team-name">
+            <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+        </span>
+        <div class="score">
+            {% if match.is_played %}
+            <a href="{% url 'match:match_stats' match.id %}">
+                {{ match.home_goals }} : {{ match.away_goals }}
+            </a>
+            {% else %}
+            <a href="{% url 'match_stats' match.id %}">- : -</a>
+            {% endif %}
+        </div>
+        <span class="team-name">
+            <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+        </span>
+        <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="team-logo">
+    </div>
+    <span class="toggle-scorers">🔽 View Scorers</span>
+    <div class="goal-scorers">
+    </div>
+</div>
             {% endfor %}
         </div>
         {% endfor %}
     {% else %}
-    <div class="alert alert-warning text-center">No fixtures found for the selected date.</div>
+    <div class="alert alert-warning text-center">No matches found for the selected date.</div>
     {% endif %}
 </div>
 

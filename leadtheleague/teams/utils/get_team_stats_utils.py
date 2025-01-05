@@ -13,7 +13,6 @@ def get_team_balance(user_team):
     return team_finance.balance if team_finance else 0
 
 def get_poster_schedule(league, user_team):
-    # Retrieve fixtures by type (league, cup, euro) for the user's teams
     fixtures_by_type = get_fixtures_by_team_and_type(user_team)
 
     # Combine all fixtures into one iterable
@@ -46,8 +45,9 @@ def get_poster_schedule(league, user_team):
             'competition': competition_type,
         })
 
-    return schedule_data
+    schedule_data_sorted = sorted(schedule_data, key=lambda x: x['date'])
 
+    return schedule_data_sorted
 
 def get_fixtures_by_team_and_type(team):
     active_season = Season.objects.filter(is_active=True).first()

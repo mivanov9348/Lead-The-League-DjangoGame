@@ -67,6 +67,9 @@ def update_season_analytics():
             )
         )
 
+        print(f"Aggregating stats for season: {season}")
+        print(f"Aggregated stats: {list(aggregated_stats)}")
+
         analytics = []
         for stats in aggregated_stats:
             player_id = stats.pop('player_id')

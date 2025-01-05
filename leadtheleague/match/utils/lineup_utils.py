@@ -5,11 +5,12 @@ from teams.models import TeamTactics
 
 def get_starting_lineup(team):
     try:
-        team_tactics = TeamTactics.objects.select_related('teams').get(team=team)
-        starting_players = team_tactics.starting_players.all().order_by('position_id')
+        tactics = TeamTactics.objects.get(team=team)
+        starting_players = [player.id for player in tactics.starting_players.all()]
         return starting_players
     except TeamTactics.DoesNotExist:
-        return Player.objects.none()
+        print(f"No tactics found for team {team.name}. Returning an empty list.")
+        return []
 
 def get_lineup_data(players, match):
     lineup_data = []
@@ -24,3 +25,4 @@ def get_lineup_data(players, match):
 
         })
     return lineup_data
+

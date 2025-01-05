@@ -83,6 +83,7 @@ def generate_euro_cup_matches(season=None):
     euro_cup_fixtures = EuropeanCupFixture.objects.filter(european_cup_season__season=season)
     generate_matches_from_fixtures(euro_cup_fixtures, event_type='euro_cup', season=season)
 
+
 def generate_players_match_stats(match):
     home_tactics = TeamTactics.objects.filter(team=match.home_team).first()
     away_tactics = TeamTactics.objects.filter(team=match.away_team).first()
@@ -150,9 +151,20 @@ def generate_all_player_day_match_stats():
                             }
                         )
 
+
 def generate_match_penalties(match):
     if not hasattr(match, 'penalties'):
-        match_penalties = MatchPenalties.objects.create(match=match)
-        print(f"Match penalties initialized for match {match.id}.")
+        match_penalties, created = MatchPenalties.objects.get_or_create(
+            match=match,
+            defaults={
+                "home_score": 0,
+                "away_score": 0,
+                "is_completed": False,
+                "current_initiative": match.home_team,
+            }
+        )
+        if created:
+            print(f"Initialized penalties for match {match.id} with home team initiative.")
+        else:
+            print(f"Penalties already exist for match {match.id}.")
         return match_penalties
-    return match.penalties

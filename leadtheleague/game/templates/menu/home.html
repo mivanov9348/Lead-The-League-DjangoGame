@@ -158,8 +158,8 @@
                         {% for player_id, player_data in players.items %}
                         <tr>
                             <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{ player_data.personal_info.name|default:"-" }}</a></td>
-                            <td>{{ player_data.season_stats.goals.value}}</td>
-                            <td>{{ player_data.season_stats.assists.value}}</td>
+                            <td>{{ player_data.season_stats.goals }}</td>
+                            <td>{{ player_data.season_stats.assists}}</td>
                             <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>
                         </tr>
                         {% endfor %}
@@ -175,7 +175,16 @@
                     <a href="#">Cup</a>
                 </div>
                 <div class="card-body">
-                    <!-- Content for Cup will be added later -->
+                    {% if team_stage_status %}
+                    <p>Current Stage: {{ team_stage_status.stage }}</p>
+                    {% if team_stage_status.status == "progressing" %}
+                    <p>Status: <span style="color: green;">🟢 Continuing</span></p>
+                    {% else %}
+                    <p>Status: <span style="color: red;">🔴 Eliminated</span></p>
+                    {% endif %}
+                    {% else %}
+                    <p>Your team is not participating in any cup currently.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -279,66 +288,66 @@
 {% load static %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const loadUnreadNotifications = async () => {
-        try {
-            const response = await fetch('/game/get_unread_notifications/');
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-            const data = await response.json();
+    document.addEventListener("DOMContentLoaded", () => {
+        const loadUnreadNotifications = async () => {
+            try {
+                const response = await fetch('/game/get_unread_notifications/');
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                const data = await response.json();
 
-            if (data.notifications.length > 0) {
-                showNotifications(data.notifications);
+                if (data.notifications.length > 0) {
+                    showNotifications(data.notifications);
+                }
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
             }
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-        }
-    };
+        };
 
-    // Показване на известия едно по едно със скролбар
-    const showNotifications = (notifications) => {
-        if (notifications.length === 0) return;
+        // Показване на известия едно по едно със скролбар
+        const showNotifications = (notifications) => {
+            if (notifications.length === 0) return;
 
-        const notification = notifications[0];
+            const notification = notifications[0];
 
-        Swal.fire({
-            title: "Notification",
-            html: `<div style="max-height: 200px; overflow-y: auto; text-align: left;">
-                      ${notification.content.replace(/\n/g, '<br>')}
-                   </div>`,
-            icon: "info",
-            confirmButtonText: "OK",
-            showCancelButton: true,
-            cancelButtonText: "Dismiss",
-        }).then(async (result) => {
-            if (result.isConfirmed || result.isDismissed) {
-                await markNotificationAsViewed(notification.id);
-                showNotifications(notifications.slice(1));
-            }
-        });
-    };
-
-    const markNotificationAsViewed = async (notificationId) => {
-        try {
-            const response = await fetch('/game/mark_notifications_as_viewed/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ notification_id: notificationId }),
+            Swal.fire({
+                title: "Notification",
+                html: `<div style="max-height: 200px; overflow-y: auto; text-align: left;">
+                          ${notification.content.replace(/\n/g, '<br>')}
+                       </div>`,
+                icon: "info",
+                confirmButtonText: "OK",
+                showCancelButton: true,
+                cancelButtonText: "Dismiss",
+            }).then(async (result) => {
+                if (result.isConfirmed || result.isDismissed) {
+                    await markNotificationAsViewed(notification.id);
+                    showNotifications(notifications.slice(1));
+                }
             });
+        };
 
-            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-            const data = await response.json();
-            if (!data.success) {
-                console.error("Error marking notification as viewed:", data.message);
+        const markNotificationAsViewed = async (notificationId) => {
+            try {
+                const response = await fetch('/game/mark_notifications_as_viewed/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ notification_id: notificationId }),
+                });
+
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                const data = await response.json();
+                if (!data.success) {
+                    console.error("Error marking notification as viewed:", data.message);
+                }
+            } catch (error) {
+                console.error("Failed to mark notification as viewed:", error);
             }
-        } catch (error) {
-            console.error("Failed to mark notification as viewed:", error);
-        }
-    };
+        };
 
-    loadUnreadNotifications();
-});
+        loadUnreadNotifications();
+    });
 </script>
 {% endblock %}

@@ -38,7 +38,7 @@
             <div class="fixture">
                 <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="icon">
                 <div class="fixture-content">
-                    <span class="team">{{ fixture.home_team.name }}</span>
+        <a href="{% url 'teams:team_stats' fixture.home_team.id %}">{{ fixture.home_team.name }}</a>
                     <span class="score">
                         {% if fixture.is_finished %}
                             {{ fixture.home_goals }} : {{ fixture.away_goals }}
@@ -46,7 +46,7 @@
                             TBA
                         {% endif %}
                     </span>
-                    <span class="team">{{ fixture.away_team.name }}</span>
+        <a href="{% url 'teams:team_stats' fixture.away_team.id %}">{{ fixture.away_team.name }}</a>
                 </div>
                 <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="icon">
             </div>

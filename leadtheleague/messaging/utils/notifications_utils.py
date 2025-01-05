@@ -1,11 +1,13 @@
-from django.contrib.auth.models import User
-
 from accounts.models import CustomUser
 from match.models import Match
 from django.utils.timezone import now
 from messaging.models import Notification
 
 def create_match_notifications(match_date):
+    print(f"Processing match date: {match_date}")
+    if not hasattr(match_date, 'date'):
+        raise ValueError(f"Invalid match_date: {match_date}. Expected datetime.date or datetime.datetime.")
+
     played_matches = Match.objects.filter(match_date=match_date.date, is_played=True)
 
     if not played_matches.exists():

@@ -53,14 +53,9 @@ def get_personal_player_data(player):
 
 def get_player_attributes(player):
     attributes = PlayerAttribute.objects.filter(player=player).select_related('attribute')
-    return [
-        {
-            'name': attr.attribute.name,
-            'value': attr.value,
-            'progress': attr.progress,
-        }
-        for attr in attributes
-    ]
+    return {
+        attr.attribute.name: attr.value for attr in attributes
+    }
 
 def get_player_season_stats_all_seasons(player):
     season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic')
@@ -152,27 +147,29 @@ def get_all_free_agents():
         )
     )
 
+
 def get_all_youth_players_by_team(team):
     youth_players = team.team_players.filter(player__is_youth=True).select_related(
-        'player__position', 'player__nationality', 'team'
+        'player__position', 'player__nationality'
     )
+
     return [
         {
-            'id': player.id,
-            'name': player.name,
-            'first_name': player.first_name,
-            'last_name': player.last_name,
-            'position': player.position.name if player.position else 'Unknown',
-            'positionabbr': player.position.abbreviation if player.position else 'Unknown',
-            'nationality': player.nationality.name if player.nationality else 'Unknown',
-            'nationalityabbr': player.nationality.abbreviation if player.nationality else 'Unknown',
-            'age': player.age,
-            'price': player.price,
-            'image': player.image.url if player.image else None,
-            'potential': player.potential_rating,
-            'attributes': get_player_attributes(player),
+            'id': team_player.player.id,
+            'name': f"{team_player.player.first_name} {team_player.player.last_name}",
+            'first_name': team_player.player.first_name,
+            'last_name': team_player.player.last_name,
+            'position': team_player.player.position.name if team_player.player.position else 'Unknown',
+            'positionabbr': team_player.player.position.abbreviation if team_player.player.position else 'Unknown',
+            'nationality': team_player.player.nationality.name if team_player.player.nationality else 'Unknown',
+            'nationalityabbr': team_player.player.nationality.abbreviation if team_player.player.nationality else 'Unknown',
+            'age': team_player.player.age,
+            'price': team_player.player.price,
+            'image': team_player.player.image.url if team_player.player.image else None,
+            'potential': team_player.player.potential_rating,
+            'attributes': get_player_attributes(team_player.player),
         }
-        for player in youth_players.values_list('player', flat=True)
+        for team_player in youth_players
     ]
 
 def ensure_team_has_minimum_players(team):
