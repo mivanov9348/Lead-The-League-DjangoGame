@@ -31,7 +31,7 @@
                 {{ match.home_goals }} : {{ match.away_goals }}
             </a>
             {% else %}
-            <a href="{% url 'match_stats' match.id %}">- : -</a>
+            <a href="{% url 'match:match_stats' match.id %}">- : -</a>
             {% endif %}
         </div>
         <span class="team-name">

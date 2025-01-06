@@ -92,16 +92,17 @@
 {% block content %}
 <div id="team-container">
     {% for team in teams|slice:":30" %}
-    <div class="team-card" data-points="{{ team.points }}">
-        <div class="team-rank">#{{ forloop.counter }}</div>
-        <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }}" class="team-logo">
-        <div class="team-info">
-            <h3>{{ team.team.name }}</h3>
-            <p>League: {{ team.league_season.league.name }}</p>
-            <p class="team-points">Points: {{ team.points }}</p>
-            <p>GD: {{ team.goaldifference }}</p>
-        </div>
+    <a href="{% url 'teams:team_stats' team.team.id %}" class="team-card" data-points="{{ team.points }}">
+    <div class="team-rank">#{{ forloop.counter }}</div>
+    <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }}" class="team-logo">
+    <div class="team-info">
+        <h3>{{ team.team.name }}</h3>
+        <p>League: {{ team.league_season.league.name }}</p>
+        <p class="team-points">Points: {{ team.points }}</p>
+        <p>GD: {{ team.goaldifference }}</p>
     </div>
+</a>
+
     {% endfor %}
 </div>
 
@@ -109,11 +110,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         const cards = document.querySelectorAll('.team-card');
 
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                alert(`Team Points: ${card.dataset.points}`);
-            });
-        });
 
         const adjustGridColumns = () => {
             const container = document.getElementById('team-container');

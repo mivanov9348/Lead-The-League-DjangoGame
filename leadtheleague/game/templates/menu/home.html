@@ -154,16 +154,21 @@
                             <th>Rating</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {% for player_id, player_data in players.items %}
-                        <tr>
-                            <td><a href="{% url 'players:player_profile' player_data.personal_info.id %}">{{ player_data.personal_info.name|default:"-" }}</a></td>
-                            <td>{{ player_data.season_stats.goals }}</td>
-                            <td>{{ player_data.season_stats.assists}}</td>
-                            <td>{{ player_data.rating|floatformat:2|default:"-" }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
+                       <tbody>
+    {% for player_id, player_data in players.items %}
+    <tr>
+        <td>
+            <a href="{% url 'players:player_profile' player_data.personal_info.id %}">
+                <img src="{{ player_data.personal_info.image_url }}" alt="{{ player_data.personal_info.name }}" class="icon">
+                {{ player_data.personal_info.name|default:"-" }}
+            </a>
+        </td>
+        <td>{{ player_data.season_stats.Goals|default:"0" }}</td>
+        <td>{{ player_data.season_stats.Assists|default:"0" }}</td>
+        <td>{{ player_data.season_stats.Rating|default:"-" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
                     </table>
                 </div>
             </div>

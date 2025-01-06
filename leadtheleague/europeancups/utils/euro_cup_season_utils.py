@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from cups.utils.get_cups_utils import promote_cup_champions_to_europe
 from europeancups.models import EuropeanCupSeason, EuropeanCupTeam, KnockoutStage, EuropeanCup
@@ -9,12 +10,14 @@ from match.models import Match
 from messaging.utils.category_messages_utils import create_european_cup_champion_message
 from teams.models import Team
 
+
 def get_current_european_cup_season():
     current_season = get_current_season()
     season = EuropeanCupSeason.objects.filter(season=current_season).first()
     if not season:
         raise ValueError("No European Cup Season found for the current season.")
     return season
+
 
 def get_current_knockout_stage_order(euro_season):
     current_stage = KnockoutStage.objects.filter(
@@ -24,13 +27,23 @@ def get_current_knockout_stage_order(euro_season):
 
     return current_stage.stage_order if current_stage else None
 
-def are_knockout_matches_finished(euro_season, stage_order):
-    unfinished_matches = Match.objects.filter(
-        european_cup_season=euro_season,
-        knockout_stage__stage_order=stage_order,
+
+def are_knockout_stage_matches_finished(euro_season, stage_order):
+    try:
+        knockout_stage = euro_season.knockout_stages.get(stage_order=stage_order)
+    except KnockoutStage.DoesNotExist:
+        return True
+
+    european_cup_fixture_type = ContentType.objects.get_for_model(EuropeanCupFixture)
+
+    matches = Match.objects.filter(
+        fixture_content_type=european_cup_fixture_type,
+        fixture_object_id__in=EuropeanCupFixture.objects.filter(knockout_stage=knockout_stage).values_list('id', flat=True),
         is_played=False
     )
-    return not unfinished_matches.exists()
+
+    return not matches.exists()
+
 
 def generate_european_cups_season(season):
     european_cups = EuropeanCup.objects.all()

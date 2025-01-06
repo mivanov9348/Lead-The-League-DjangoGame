@@ -2,10 +2,10 @@ from cups.models import SeasonCup
 from cups.utils.generate_cup_fixtures import generate_next_round_fixtures
 from cups.utils.update_cup_season import populate_progressing_team
 from europeancups.utils.euro_cup_season_utils import get_current_european_cup_season, get_current_knockout_stage_order, \
-    are_knockout_matches_finished
-from europeancups.utils.group_stage_utils import update_euro_cup_standings, are_group_stage_matches_finished, \
-    advance_teams_from_groups
-from europeancups.utils.knockout_utils import generate_euro_cup_knockout
+    are_knockout_stage_matches_finished
+from europeancups.utils.group_stage_utils import update_euro_cup_standings, advance_teams_from_groups, \
+    update_group_stage_status_if_finished, are_group_stage_matches_finished
+from europeancups.utils.knockout_utils import generate_euro_cup_knockout, finish_current_knockout_stage
 from fixtures.utils import transfer_match_to_fixture, get_fixtures_by_date
 from game.models import MatchSchedule
 from leagues.utils import update_standings_from_fixtures
@@ -21,7 +21,6 @@ from match.utils.match_penalties_helpers import get_penalty_taker, update_penalt
     update_penalty_initiative, log_penalty_event, check_rotation_violations, get_penalty_match_event, \
     calculate_penalty_success
 from messaging.utils.notifications_utils import create_match_notifications
-from players.utils.get_player_stats_utils import get_player_attributes
 from players.utils.player_analytics_utils import update_season_analytics
 from players.utils.update_player_stats_utils import update_season_statistics_for_match
 from teams.utils.lineup_utils import ensure_team_tactics
@@ -33,6 +32,10 @@ def match_day_processor(date=None):
 
     if not match_date:
         print(f"No schedule found for today ({today}).")
+        return
+
+    if match_date.is_played:
+        print(f"Match day for {today} has already been processed.")
         return
 
     print(f"Processing match day for {today}: {match_date.event_type}")
@@ -77,6 +80,7 @@ def process_league_day(match_date):
 
     fixtures = get_fixtures_by_date(match_date.date)
     update_standings_from_fixtures(fixtures)
+
 
 def process_cup_day(match_date):
     print("Processing cup matches...")
@@ -139,28 +143,43 @@ def process_euro_day(match_date):
         process_match(match)
         print(f"Match processed. Score: {match.home_goals}-{match.away_goals}")
 
-        if match.home_goals == match.away_goals:
-            print(f"Match {match.id} is a draw. Checking phase for penalties...")
-            if current_euro_season.current_phase == 'knockout':
-                print(f"Knockout phase detected. Processing penalties for match {match.id}.")
-                process_penalties(match)
+        if match.home_goals == match.away_goals and current_euro_season.current_phase == 'knockout':
+            print(f"Match {match.id} is a draw in the knockout phase. Processing penalties...")
+            process_penalties(match)
         else:
-            print(f"Match {match.id} has a winner. Finalizing...")
-            finalize_match(match)
             print(f"Match {match.id} finalized. Updating season statistics...")
             update_season_statistics_for_match(match)
+
+        finalize_match(match)
 
     if current_euro_season.current_phase == 'group':
         print("Group phase detected. Checking if group stage matches are finished...")
         if not are_group_stage_matches_finished(current_euro_season):
             print("Group stage matches are not finished. Updating standings...")
             update_euro_cup_standings(match_date.date)
+
+            if update_group_stage_status_if_finished(current_euro_season):
+                print("Group stage matches are now finished. Advancing teams from groups...")
+                advance_teams_from_groups(current_euro_season)
+
+                free_date = MatchSchedule.objects.filter(
+                    season=current_euro_season.season,
+                    event_type='euro',
+                    is_euro_cup_day_assigned=False,
+                    is_played=False
+                ).order_by('date').first()
+
+                if not free_date:
+                    print(f"No available date for EuropeanCupSeason {current_euro_season}.")
+                    return
+
+                print(f"Generating knockout matches on date {free_date.date}.")
+                generate_euro_cup_knockout(current_euro_season, free_date.date)
+                free_date.is_euro_cup_day_assigned = True
+                free_date.save()
         else:
             print("Group stage matches are finished. Advancing teams from groups...")
             advance_teams_from_groups(current_euro_season)
-            current_euro_season.current_phase = 'knockout'
-            current_euro_season.save()
-            print("Phase changed to knockout. Generating knockout matches...")
 
             free_date = MatchSchedule.objects.filter(
                 season=current_euro_season.season,
@@ -178,32 +197,60 @@ def process_euro_day(match_date):
             free_date.is_euro_cup_day_assigned = True
             free_date.save()
 
-    elif current_euro_season.current_phase == 'knockout':
-        print("Knockout phase detected. Checking current knockout stage...")
-        current_stage_order = get_current_knockout_stage_order(current_euro_season)
-        print(f"Current stage order: {current_stage_order}")
 
-        if not are_knockout_matches_finished(current_euro_season, current_stage_order):
-            print(f"Knockout matches for stage {current_stage_order} are still ongoing.")
+    elif current_euro_season.current_phase == 'knockout':
+
+        print("Knockout phase detected. Checking current knockout stage...")
+
+        # 1. Get current stage
+
+        current_stage_order = get_current_knockout_stage_order(current_euro_season)
+
+        print(f'Current stage: {current_stage_order}')
+
+        # 2. Finish current knockout stage
+
+        finish_current_knockout_stage(current_stage_order)
+
+        print(f"Knockout matches for stage {current_stage_order} are completed. Proceeding to next stage...")
+
+        # 3. Get free date
+
+        free_date = MatchSchedule.objects.filter(
+
+            season=current_euro_season.season,
+
+            event_type='euro',
+
+            is_euro_cup_day_assigned=False,
+
+            is_played=False
+
+        ).order_by('date').first()
+
+        print(f'Free date: {free_date}')
+
+        if not free_date:
+            print(f"No available date for next knockout stage in {current_euro_season}.")
+
             return
 
-        else:
-            print(f"Knockout matches for stage {current_stage_order} are completed. Proceeding to next stage...")
-            free_date = MatchSchedule.objects.filter(
-                season=current_euro_season.season,
-                event_type='euro',
-                is_euro_cup_day_assigned=False,
-                is_played=False
-            ).order_by('date').first()
+        # 4. Generate next knockout
 
-            if not free_date:
-                print(f"No available date for next knockout stage in {current_euro_season}.")
-                return
+        print(f"Generating next knockout stage matches on date {free_date.date}.")
 
-            print(f"Generating next knockout stage matches on date {free_date.date}.")
-            generate_euro_cup_knockout(current_euro_season, free_date.date)
-            free_date.is_euro_cup_day_assigned = True
-            free_date.save()
+        generate_euro_cup_knockout(current_euro_season, free_date.date)
+
+        print(f'Finished generating Euro Cup knockout matches.')
+
+        # Update free date
+
+        free_date.is_euro_cup_day_assigned = True
+
+        free_date.save()
+
+        print("Updated free_date to is_euro_cup_day_assigned = True.")
+
 
 def process_match(match):
     print(f"Starting to process match ID: {match.id}")

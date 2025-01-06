@@ -44,19 +44,20 @@
                 {% endif %}
             </td>
             <td>
-                <a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name|default:"-" }}</a>
+                <a href="{% url 'players:player_profile' player.personal_info.id %}">{{
+                    player.personal_info.name|default:"-" }}</a>
             </td>
             <td>{{ player.personal_info.age }}</td>
             <td>{{ player.personal_info.positionabbr|default:"-" }}</td>
             <td>{{ player.personal_info.nationality|default:"-" }}</td>
-            <td>{{ player.stats.Matches }}</td>
-            <td>{{ player.stats.Goals }}</td>
-            <td>{{ player.stats.Assists }}</td>
-            <td>{{ player.stats.Shoots }}</td>
-            <td>{{ player.stats.Saves }}</td>
-            <td>{{ player.stats.CleanSheets }}</td>
-            <td>{{ player.stats.YellowCards }}</td>
-            <td>{{ player.stats.RedCards }}</td>
+            <td>{{ player.stats.season_stats.Matches }}</td>
+            <td>{{ player.stats.season_stats.Goals }}</td>
+            <td>{{ player.stats.season_stats.Assists }}</td>
+            <td>{{ player.stats.season_stats.Shoots }}</td>
+            <td>{{ player.stats.season_stats.Saves }}</td>
+            <td>{{ player.stats.season_stats.CleanSheets }}</td>
+            <td>{{ player.stats.season_stats.YellowCards }}</td>
+            <td>{{ player.stats.season_stats.RedCards }}</td>
         </tr>
         {% endfor %}
         </tbody>

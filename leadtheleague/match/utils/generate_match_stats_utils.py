@@ -116,9 +116,6 @@ def generate_players_match_stats(match):
 
         PlayerMatchStatistic.objects.bulk_create(new_stats)
 
-    print(f"Generated Match Player Stats for {len(new_stats)} players.")
-
-
 def generate_all_player_day_match_stats():
     today = timezone.now().date()
     current_season = Season.objects.filter(is_ended=False).first()

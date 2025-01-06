@@ -92,57 +92,28 @@ def update_player_stats_from_template(match, event_result, player):
             match=match,
             defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
         )
-        if created:
-            print(
-                f"Created new PlayerMatchStatistic for player {player.first_name} {player.last_name} in match {match.id}.")
-        else:
-            print(
-                f"Found existing PlayerMatchStatistic for player {player.first_name} {player.last_name} in match {match.id}.")
 
         updated_stats = player_stat.statistics
-        print(f"Current statistics: {updated_stats}")
 
         for field, stat_name in event_fields_to_stats.items():
             stat_value = getattr(event_result, field, 0)
-            print(f"Processing field: {field}, stat_name: {stat_name}, stat_value: {stat_value}")
             if stat_value > 0:
                 updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
-                print(f"Updated {stat_name}: {updated_stats[stat_name]}")
 
         player_stat.statistics = updated_stats
         player_stat.save()
 
-        print(f"Final updated statistics for player {player.first_name} {player.last_name}: {updated_stats}")
-        print(f"Updated statistics for player {player.first_name} {player.last_name}.")
-
 
 def update_match_score(event_result, match, team_with_initiative):
-    import logging
-
-    logging.basicConfig(
-        filename='match_update.log',
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-
-    logging.info(f"Processing Event Result: {event_result.event_type} with result '{event_result.event_result}'")
-
     goal_events = {"ShotGoal", "CornerGoal", "FreeKickGoal", "PenaltyGoal"}
 
     if event_result.event_result in goal_events:
-        logging.info(f'ev: ev.ev: {event_result} ---- {event_result.event_result}')
         if team_with_initiative == match.home_team:
             match.home_goals += 1
-            logging.info(f"Goal for home team: {match.home_team}. New score: {match.home_goals}-{match.away_goals}")
         else:
             match.away_goals += 1
-            logging.info(f"Goal for away team: {match.away_team}. New score: {match.home_goals}-{match.away_goals}")
 
         match.save()
-        logging.info(f"Match score updated and saved. Match ID: {match.id}")
-    else:
-        logging.warning(f"No goal scored. Event: {event_result.event_result}")
-
 
 def log_match_event(match, minute, template, formatted_text, player=None):
     if not player:
@@ -177,7 +148,6 @@ def check_initiative(template, match):
     else:
         match.is_home_initiative = not match.is_home_initiative
         match.save()
-
 
 def fill_template_with_player(template, player):
     def get_team_name(player):
@@ -217,7 +187,6 @@ def get_event_weights(event):
 def calculate_event_success_rate(event, player):
     # Get player attributes and event weights
     player_attributes = get_player_attributes(player)
-    print(player_attributes)
     event_weights = get_event_weights(event)
     print(f'eventweig : {event_weights}')
 
@@ -296,11 +265,11 @@ def get_event_players(template, main_player, team):
         additional_player = (
             TeamPlayer.objects
             .filter(team=team)
-            .exclude(player=main_player)  # Изключва главния играч
-            .select_related('player')  # Заявява свързаните Player обекти
-            .order_by('?')[:1]  # Избира случаен играч
+            .exclude(player=main_player)
+            .select_related('player')
+            .order_by('?')[:1]
         )
-        players.extend(tp.player for tp in additional_player)  # Добавя Player обекта
+        players.extend(tp.player for tp in additional_player)
     return players
 
 

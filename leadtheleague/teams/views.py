@@ -76,7 +76,7 @@ def squad(request):
             'attributes': get_player_attributes(player),
             'stats': get_player_stats(player,current_season)
         })
-
+    print(players_data)
     context = {
         'team': team,
         'players_data': players_data,
@@ -371,8 +371,6 @@ def schedule(request):
 
 
 def all_teams(request):
-    # Извличане на всички отбори, сортирани по точки и голова разлика
     teams = LeagueTeams.objects.all().order_by('-points', '-goaldifference')
 
-    # Препращане на данните към шаблона
     return render(request, 'all_teams.html', {'teams': teams})

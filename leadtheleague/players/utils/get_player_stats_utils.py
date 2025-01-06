@@ -111,18 +111,18 @@ def format_player_data(player):
         'image_url': player.image
     }
 
-def get_players_season_stats_by_team(team):
+def get_players_season_stats_by_team(team, season):
     players = team.team_players.select_related('player').prefetch_related(
         Prefetch(
             'player__season_stats',
-            queryset=PlayerSeasonStatistic.objects.select_related('statistic')
+            queryset=PlayerSeasonStatistic.objects.filter(season=season).select_related('statistic')
         )
     )
     player_data = {}
     for team_player in players:
         player = team_player.player
         season_stats = {
-            stat.statistic.name: stat.value for stat in player.season_stats.all()
+            stat.statistic.name: stat.value for stat in player.season_stats.filter(season=season)
         }
         player_data[player.id] = {
             'personal_info': get_personal_player_data(player),

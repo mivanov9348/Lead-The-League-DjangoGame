@@ -6,14 +6,31 @@ from europeancups.utils.knockout_utils import create_knockout_team, create_knock
 from fixtures.models import EuropeanCupFixture
 from game.models import MatchSchedule
 
-def are_group_stage_matches_finished(european_cup_season):
-    group_stage_matches = EuropeanCupFixture.objects.filter(
-        group__european_cup_season=european_cup_season
+
+def mark_group_stage_as_finished(european_cup_season):
+    european_cup_season.is_group_stage_finished = True
+    european_cup_season.current_phase = 'knockout'
+    european_cup_season.save()
+
+
+def update_group_stage_status_if_finished(european_cup_season):
+    group_matches = EuropeanCupFixture.objects.filter(
+        european_cup_season=european_cup_season,
+        group__isnull=False,
     )
-    if not group_stage_matches.exists():
-        raise ValueError("No group stage matches found for this European Cup Season.")
-    unfinished_matches = group_stage_matches.filter(is_finished=False)
-    return not unfinished_matches.exists()
+    all_finished = group_matches.filter(is_finished=False).count() == 0
+
+    if all_finished:
+        mark_group_stage_as_finished(european_cup_season)
+        return True
+    return False
+
+def are_group_stage_matches_finished(european_cup_season):
+    if not isinstance(european_cup_season, EuropeanCupSeason):
+        raise ValueError("Invalid European Cup Season provided.")
+
+    return european_cup_season.is_group_stage_finished
+
 
 def create_groups_for_season(season):
     european_cup_season = EuropeanCupSeason.objects.get(season=season)
@@ -153,6 +170,7 @@ def generate_group_fixtures(season):
         generate_fixtures_for_group(group, shared_dates)
 
     return f"Successfully generated fixtures for all groups in season {season}!"
+
 
 def simulate_matchday_matches(euro_cup_match_day):
     fixtures = EuropeanCupFixture.objects.filter(
