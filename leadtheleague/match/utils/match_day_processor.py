@@ -1,16 +1,16 @@
 from cups.models import SeasonCup
 from cups.utils.generate_cup_fixtures import generate_next_round_fixtures
 from cups.utils.update_cup_season import populate_progressing_team
-from europeancups.utils.euro_cup_season_utils import get_current_european_cup_season, get_current_knockout_stage_order, \
-    are_knockout_stage_matches_finished
+from europeancups.utils.euro_cup_season_utils import get_current_european_cup_season, get_current_knockout_stage_order
 from europeancups.utils.group_stage_utils import update_euro_cup_standings, advance_teams_from_groups, \
     update_group_stage_status_if_finished, are_group_stage_matches_finished
 from europeancups.utils.knockout_utils import generate_euro_cup_knockout, finish_current_knockout_stage
 from fixtures.utils import transfer_match_to_fixture, get_fixtures_by_date
-from game.models import MatchSchedule
+from game.models import MatchSchedule, GameState
 from leagues.utils import update_standings_from_fixtures
 from match.models import Match, PenaltyAttempt
 from match.utils.generate_match_stats_utils import generate_players_match_stats, generate_match_penalties
+from match.utils.get_match_stats import calculate_match_attendance
 from match.utils.lineup_utils import get_starting_lineup
 from match.utils.match_helpers import update_match_minute, get_match_team_initiative, choose_event_random_player, \
     get_random_match_event, log_match_event, finalize_match, \
@@ -22,9 +22,10 @@ from match.utils.match_penalties_helpers import get_penalty_taker, update_penalt
     calculate_penalty_success
 from messaging.utils.notifications_utils import create_match_notifications
 from players.utils.player_analytics_utils import update_season_analytics
-from players.utils.update_player_stats_utils import update_season_statistics_for_match
+from players.utils.update_player_stats_utils import update_season_statistics_for_match, update_match_player_ratings
 from teams.utils.lineup_utils import ensure_team_tactics
 from django.db import transaction
+
 
 def match_day_processor(date=None):
     today = date if date else date.today()
@@ -41,6 +42,9 @@ def match_day_processor(date=None):
     print(f"Processing match day for {today}: {match_date.event_type}")
 
     try:
+        game_state, created = GameState.objects.get_or_create(id=1)
+        game_state.is_playing_matches = True
+        game_state.save()
         with transaction.atomic():
             if match_date.event_type == 'league':
                 process_league_day(match_date)
@@ -56,7 +60,8 @@ def match_day_processor(date=None):
             match_date.save()
             create_match_notifications(match_date)
             update_season_analytics()
-
+        game_state.is_playing_matches = False
+        game_state.save()
     except Exception as e:
         print(f"Error processing match day: {e}")
         return
@@ -76,6 +81,8 @@ def process_league_day(match_date):
     for match in matches:
         process_match(match)
         update_season_statistics_for_match(match)
+        update_match_player_ratings(match)
+
         finalize_match(match)
 
     fixtures = get_fixtures_by_date(match_date.date)
@@ -97,6 +104,7 @@ def process_cup_day(match_date):
             process_penalties(match)
         else:
             update_season_statistics_for_match(match)
+            update_match_player_ratings(match)
 
         finalize_match(match)
 
@@ -149,7 +157,9 @@ def process_euro_day(match_date):
         else:
             print(f"Match {match.id} finalized. Updating season statistics...")
             update_season_statistics_for_match(match)
+            update_match_player_ratings(match)
 
+        calculate_match_attendance(match)
         finalize_match(match)
 
     if current_euro_season.current_phase == 'group':
@@ -306,7 +316,7 @@ def process_match(match):
                     log_match_event(match, current_minute, template, formatted_template, random_player)
 
                     print("Updating match score...")
-                    update_match_score(event_result, match, team_with_initiative)
+                    update_match_score(event_result, match, team_with_initiative, random_player)
 
                     print("Checking initiative...")
                     check_initiative(template, match)

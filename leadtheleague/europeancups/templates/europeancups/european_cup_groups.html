@@ -50,12 +50,15 @@
             <div class="fixtures">
                 <h6>Fixtures</h6>
                 <ul class="fixtures-list">
-                    {% for fixture in group_data.fixtures %}
-                    <li>{{ fixture.home_team.name }} - {{ fixture.away_team.name }}
-                        {% if fixture.is_finished %}
-                        <span class="result">{{ fixture.home_goals }} : {{ fixture.away_goals }}</span>
+                    {% for match in group_data.matches %}
+                    <li>
+                        {{ match.home_team.name }} - {{ match.away_team.name }}
+                        {% if match.is_played %}
+                        <a href="{% url 'match:match' match.id %}" class="result">
+                            {{ match.home_goals }} : {{ match.away_goals }}
+                        </a>
                         {% else %}
-                        <span class="upcoming">{{ fixture.date }} at {{ fixture.match_time }}</span>
+                        <span class="upcoming">{{ match.date }} at {{ match.match_time }}</span>
                         {% endif %}
                     </li>
                     {% endfor %}

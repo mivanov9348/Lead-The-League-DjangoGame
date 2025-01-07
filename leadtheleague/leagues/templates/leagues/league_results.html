@@ -27,11 +27,11 @@
         </span>
         <div class="score">
             {% if match.is_played %}
-            <a href="{% url 'match:match_stats' match.id %}">
+            <a href="{% url 'match:match' match.id %}">
                 {{ match.home_goals }} : {{ match.away_goals }}
             </a>
             {% else %}
-            <a href="{% url 'match:match_stats' match.id %}">- : -</a>
+            <a href="{% url 'match:match' match.id %}">- : -</a>
             {% endif %}
         </div>
         <span class="team-name">
@@ -41,7 +41,23 @@
     </div>
     <span class="toggle-scorers">🔽 View Scorers</span>
     <div class="goal-scorers">
+    <div class="home-scorers">
+        <strong>{{ match.home_team.name }}</strong>:
+        <ul>
+            {% for scorer in match.home_scorers %}
+            <li>{{ scorer }}</li>
+            {% endfor %}
+        </ul>
     </div>
+    <div class="away-scorers">
+        <strong>{{ match.away_team.name }}</strong>:
+        <ul>
+            {% for scorer in match.away_scorers %}
+            <li>{{ scorer }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 </div>
             {% endfor %}
         </div>
@@ -52,30 +68,25 @@
 </div>
 
 <script>
+    // Логика за избора на дата
     document.getElementById('date-picker').addEventListener('change', function () {
         const selectedDate = this.value;
         window.location.href = `?date=${selectedDate}`;
     });
 
-    const goalScorerData = {
-        1: ["Player A (23')", "Player B (45')"],
-        2: ["Player C (12')", "Player D (67')"]
-    };
+    // Логика за показване/скриване на голмайсторите
+    document.querySelectorAll('.toggle-scorers').forEach(toggleScorersBtn => {
+        toggleScorersBtn.addEventListener('click', function () {
+            const scorersContainer = this.nextElementSibling;
 
-    document.querySelectorAll('.match-row').forEach(row => {
-        const toggleScorersBtn = row.querySelector('.toggle-scorers');
-        const scorersContainer = row.querySelector('.goal-scorers');
-        const fixtureId = row.dataset.fixtureId;
-
-        toggleScorersBtn.addEventListener('click', () => {
             if (scorersContainer.classList.contains('show')) {
+                // Скриваме голмайсторите
                 scorersContainer.classList.remove('show');
-                toggleScorersBtn.textContent = '🔽 View Scorers';
+                this.textContent = '🔽 View Scorers';
             } else {
-                const scorers = goalScorerData[fixtureId] || ["No scorers recorded"];
-                scorersContainer.innerHTML = scorers.join('<br>');
+                // Показваме голмайсторите
                 scorersContainer.classList.add('show');
-                toggleScorersBtn.textContent = '🔼 Hide Scorers';
+                this.textContent = '🔼 Hide Scorers';
             }
         });
     });

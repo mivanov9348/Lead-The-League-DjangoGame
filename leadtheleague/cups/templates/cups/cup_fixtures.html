@@ -23,21 +23,27 @@
         </select>
     </div>
     <div class="fixtures">
-        {% for fixture in fixtures %}
+        {% for match in matches %}
         <div class="fixture">
-            <img src="{{ fixture.home_team.logo.url }}" alt="{{ fixture.home_team.name }}" class="icon">
+            <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
 
             <div class="fixture-content">
     <span class="team">
-        <a href="{% url 'teams:team_stats' fixture.home_team.id %}">{{ fixture.home_team.name }}</a>
+        <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
     </span>
-    <span class="score">{{ fixture.home_goals }} : {{ fixture.away_goals }}</span>
-    <span class="team">
-        <a href="{% url 'teams:team_stats' fixture.away_team.id %}">{{ fixture.away_team.name }}</a>
+                <span class="score"> <a href="{% url 'match:match' match.id %}">
+            {% if match.is_played %}
+                {{ match.home_goals }} : {{ match.away_goals }}
+            {% else %}
+                TBA
+            {% endif %}
+        </a></span>
+                <span class="team">
+        <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
     </span>
-</div>
+            </div>
 
-            <img src="{{ fixture.away_team.logo.url }}" alt="{{ fixture.away_team.name }}" class="icon">
+            <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
         </div>
         {% endfor %}
     </div>

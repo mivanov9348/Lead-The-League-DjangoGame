@@ -1,8 +1,8 @@
 from django.urls import path
-from match.views import match_stats
+from match.views import match
 
 app_name = 'match'
 
 urlpatterns = [
-    path('match_stats/<int:id>/', match_stats, name='match_stats'),
+    path('match/<int:id>/', match, name='match'),
 ]

@@ -1,11 +1,11 @@
 import random
-
 from django.db import transaction
-from django.db.models import Q
 from match.models import MatchEvent, Event, AttributeEventWeight, EventResult, EventTemplate
-from players.models import Player, Position, Statistic, PlayerMatchStatistic
+from match.utils.get_match_stats import calculate_match_attendance, match_income
+from match.utils.match_goalscorers_utils import log_goalscorer
+from players.models import PlayerMatchStatistic
 from players.utils.get_player_stats_utils import get_player_attributes
-from teams.models import TeamTactics, Team, TeamPlayer
+from teams.models import TeamTactics, TeamPlayer
 
 
 def choose_event_random_player(team):
@@ -49,9 +49,10 @@ def finalize_match(match):
             else:
                 match.winner = None  # Равен резултат
 
+        calculate_match_attendance(match)
+        match_income(match, match.home_team)
         match.save()
 
-        # Актуализиране на fixture
         fixture = match.fixture
         if not fixture:
             raise ValueError("Мачът няма свързан fixture.")
@@ -60,7 +61,6 @@ def finalize_match(match):
         fixture.away_goals = match.away_goals
         fixture.is_finished = True
 
-        # Победител в fixture
         fixture.winner = match.winner
         fixture.save()
 
@@ -104,10 +104,11 @@ def update_player_stats_from_template(match, event_result, player):
         player_stat.save()
 
 
-def update_match_score(event_result, match, team_with_initiative):
+def update_match_score(event_result, match, team_with_initiative, player):
     goal_events = {"ShotGoal", "CornerGoal", "FreeKickGoal", "PenaltyGoal"}
 
     if event_result.event_result in goal_events:
+        log_goalscorer(match, player, team_with_initiative)
         if team_with_initiative == match.home_team:
             match.home_goals += 1
         else:
@@ -115,22 +116,21 @@ def update_match_score(event_result, match, team_with_initiative):
 
         match.save()
 
+
 def log_match_event(match, minute, template, formatted_text, player=None):
     if not player:
         raise ValueError("No player provided!")
 
     try:
         with transaction.atomic():
-            match_event_data = {
-                "match": match,
-                "minute": minute,
-                "event_type": template.event_result.event_type.type,
-                "description": formatted_text,
-                "is_negative_event": template.event_result.is_negative_event,
-                "possession_kept": template.event_result.possession_kept,
-            }
-
-            match_event = MatchEvent.objects.create(**match_event_data)
+            match_event = MatchEvent.objects.create(
+                match=match,
+                minute=minute,
+                event_type=template.event_result,
+                description=formatted_text,
+                is_negative_event=template.event_result.is_negative_event,
+                possession_kept=template.event_result.possession_kept
+            )
 
             if player:
                 match_event.players.add(player)
@@ -148,6 +148,7 @@ def check_initiative(template, match):
     else:
         match.is_home_initiative = not match.is_home_initiative
         match.save()
+
 
 def fill_template_with_player(template, player):
     def get_team_name(player):

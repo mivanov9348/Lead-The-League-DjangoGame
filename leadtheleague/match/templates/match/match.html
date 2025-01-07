@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block title %}Match Stats{% endblock %}
+
+{% block extra_css %}
+
+<style>
+    .match-container {
+        display: grid;
+        gap: 20px;
+        padding: 30px;
+        background-color: var(--darkgreen-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+                font-family: 'Scoreboard';
+    }
+
+    .match-score {
+        text-align: center;
+        font-size: 30px;
+        font-weight: bold;
+        color: #222;
+        padding: 15px;
+        background-color: var(--darkergreen-color);
+        color: white;
+        border-radius: 8px;
+        max-height:300px;
+        overflow-y: auto;
+    }
+
+    .grid-sections {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    gap: 5px;
+}
+
+
+    .section {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    max-height: 700px;
+}
+
+    .section h2 {
+    font-size: 22px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size:12px;
+        font-weight: 900;
+    }
+
+    table th, table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+        white-space: nowrap;
+    }
+
+    table th {
+        background-color: var(--darkergreen-color);
+        color: white;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .event-list p {
+            font-weight: 900;
+
+        font-size: 14px;
+        margin: 10px 0;
+        color: #555;
+        padding: 10px;
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+            text-align: center; /* Центрираме събитията */
+
+    }
+
+    .attendance {
+        font-size: 14px;
+        color: #e2e2e2;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    .goalscorers-section {
+        margin-top: 10px;
+        text-align: center;
+        color: #fff;
+    }
+
+    .goalscorers-section ul {
+        list-style: none;
+        padding: 0;
+        font-size: 14px;
+    }
+
+    .goalscorers-section li {
+        margin: 5px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="match-container">
+    <!-- Match Details Header -->
+    <div class="match-score">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <!-- Home Team Logo -->
+            <div style="flex: 1; text-align: center;">
+                <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}"
+                     style="width: 80px; height: 80px; border-radius: 50%;">
+                <p>{{ match.home_team.name }}</p>
+            </div>
+
+            <!-- Match Score -->
+            <div style="flex: 1; text-align: center;">
+                <h1 style="margin: 0;">{{ match.home_goals }} : {{ match.away_goals }}</h1>
+                <p>{{ match.stadium.name }}</p>
+                <p class="attendance">Attendance: {{ match.attendance }}</p>
+                <hr/>
+                <div class="goalscorers-section">
+                    <ul>
+                        {% for scorer in goalscorers %}
+                        <li>{{ scorer.minute }}' - {{ scorer.player_name }} ({{ scorer.team_name }})</li>
+                        {% empty %}
+                        <li>No goals scored in this match.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Away Team Logo -->
+            <div style="flex: 1; text-align: center;">
+                <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}"
+                     style="width: 80px; height: 80px; border-radius: 50%;">
+                <p>{{ match.away_team.name }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Sections for Player Stats and Match Events -->
+    <div class="grid-sections">
+        <!-- Home Team Stats -->
+        <div class="section">
+            <h2>{{ match.home_team.name }} Stats</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>Player</th>
+                    <th title="Assists">A</th>
+                    <th title="Clean Sheets">CS</th>
+                    <th title="Goals Conceded">GC</th>
+                    <th title="Dribbles">D</th>
+                    <th title="Fouls">F</th>
+                    <th title="Goals">G</th>
+                    <th title="Passes">P</th>
+                    <th title="Red Cards">RC</th>
+                    <th title="Saves">S</th>
+                    <th title="Shots">SH</th>
+                    <th title="Shots On Target">SOT</th>
+                    <th title="Tackles">T</th>
+                    <th title="Yellow Cards">YC</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for stat in home_players_stats %}
+                <tr>
+                    <td>{{ stat.player.first_name }} {{ stat.player.last_name }}</td>
+                    <td>{{ stat.assists }}</td>
+                    <td>{{ stat.clean_sheets }}</td>
+                    <td>{{ stat.conceded }}</td>
+                    <td>{{ stat.dribbles }}</td>
+                    <td>{{ stat.fouls }}</td>
+                    <td>{{ stat.goals }}</td>
+                    <td>{{ stat.passes }}</td>
+                    <td>{{ stat.red_cards }}</td>
+                    <td>{{ stat.saves }}</td>
+                    <td>{{ stat.shoots }}</td>
+                    <td>{{ stat.shoots_on_target }}</td>
+                    <td>{{ stat.tackles }}</td>
+                    <td>{{ stat.yellow_cards }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Match Events -->
+        <div class="section event-list">
+            <h2>Match Events</h2>
+            {% for event in match_events %}
+            <p style="color: {% if event.event_result == 'FreeKickGoal' %}red{% elif event.event_type == 'ShotGoal' %}blue{% elif event.event_type == 'CornerGoal' %}green{% else %}#555{% endif %};">
+                {{ event.minute }}' - {{ event.description }}
+            </p>
+
+            {% endfor %}
+        </div>
+
+        <!-- Away Team Stats -->
+        <div class="section">
+            <h2>{{ match.away_team.name }} Stats</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>Player</th>
+                    <th title="Assists">A</th>
+                    <th title="Clean Sheets">CS</th>
+                    <th title="Goals Conceded">GC</th>
+                    <th title="Dribbles">D</th>
+                    <th title="Fouls">F</th>
+                    <th title="Goals">G</th>
+                    <th title="Passes">P</th>
+                    <th title="Red Cards">RC</th>
+                    <th title="Saves">S</th>
+                    <th title="Shots">SH</th>
+                    <th title="Shots On Target">SOT</th>
+                    <th title="Tackles">T</th>
+                    <th title="Yellow Cards">YC</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for stat in away_players_stats %}
+                <tr>
+                    <td>{{ stat.player.first_name }} {{ stat.player.last_name }}</td>
+                    <td>{{ stat.assists }}</td>
+                    <td>{{ stat.clean_sheets }}</td>
+                    <td>{{ stat.conceded }}</td>
+                    <td>{{ stat.dribbles }}</td>
+                    <td>{{ stat.fouls }}</td>
+                    <td>{{ stat.goals }}</td>
+                    <td>{{ stat.passes }}</td>
+                    <td>{{ stat.red_cards }}</td>
+                    <td>{{ stat.saves }}</td>
+                    <td>{{ stat.shoots }}</td>
+                    <td>{{ stat.shoots_on_target }}</td>
+                    <td>{{ stat.tackles }}</td>
+                    <td>{{ stat.yellow_cards }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

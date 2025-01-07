@@ -61,21 +61,45 @@ def update_player_price(player):
     return int(final_price)
 
 
+def update_match_player_ratings(match):
+    try:
+        home_team_tactics = TeamTactics.objects.get(team=match.home_team)
+        away_team_tactics = TeamTactics.objects.get(team=match.away_team)
+
+        home_players = home_team_tactics.starting_players.all()
+        away_players = away_team_tactics.starting_players.all()
+
+    except TeamTactics.DoesNotExist:
+        print("Missing tactics for one or both teams")
+        return
+
+    all_players = list(home_players) + list(away_players)
+
+    for player in all_players:
+        update_player_rating(player, match)
+
 def update_player_rating(player, match):
-    stats = PlayerMatchStatistic.objects.filter(player=player, match=match).select_related('statistic')
+    stats = PlayerMatchStatistic.objects.filter(player=player, match=match)
 
     weights = {
-        'assists': 1.0, 'cleanSheets': 1.5, 'conceded': -1.0, 'dribbles': 0.5,
-        'fouls': -0.5, 'goals': 2.0, 'matches': 0.1, 'minutesPlayed': 0.01,
-        'passes': 0.2, 'redCards': -2.0, 'saves': 1.0, 'shoots': 0.3,
-        'shootsOnTarget': 0.5, 'tackles': 0.3, 'yellowCards': -0.5,
+        'Assists': 1.0, 'CleanSheets': 1.5, 'Conceded': -1.0, 'Dribbles': 0.5,
+        'Fouls': -0.2, 'Goals': 2.0, 'Matches': 0.1, 'MinutesPlayed': 0.1,
+        'Passes': 0.3, 'RedCards': -1.0, 'Saves': 1.0, 'Shoots': 0.3,
+        'ShootsOnTarget': 0.5, 'Tackles': 0.3, 'YellowCards': -0.5,
     }
 
-    base_rating = 5.0
-    total_weighted_score = sum(stat.value * weights.get(stat.statistic.name, 0) for stat in stats)
-    stats_count = len(stats)
+    base_rating = 7.0
+    total_weighted_score = 0
+    stats_count = 0
+
+    for stat in stats:
+        for key, value in stat.statistics.items():
+            weight = weights.get(key, 0)
+            total_weighted_score += value * weight
+        stats_count += 1
 
     rating = base_rating + (total_weighted_score / (1 + stats_count)) if stats_count > 0 else base_rating
+    print(f'{player.first_name} {player.last_name} - Rating: {rating}')
     rating = max(1.0, min(10.0, rating))
 
     PlayerMatchRating.objects.update_or_create(
@@ -83,6 +107,7 @@ def update_player_rating(player, match):
         match=match,
         defaults={'rating': rating}
     )
+
     return rating
 
 

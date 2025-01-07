@@ -42,8 +42,11 @@
                             <p>No logo available</p>
                             {% endif %}
                         </div>
-                        <p class="highlight">{{ next_match.away_team.name }}</p>
+                        <p class="highlight">
+                            {{ next_match.away_team.name }}
+                        </p>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -86,10 +89,13 @@
                         <p class="highlight">{{ last_match.home_team.name }}</p>
                     </div>
                     <div class="match-info text-center">
-                        <p>{{ last_match.league }}</p>
-                        <p>{{ last_match.match_date }}</p>
-                        <p class="score">{{ last_match.home_goals }} - {{ last_match.away_goals }}</p>
-                    </div>
+    <a href="{% url 'match:match' last_match.id %}" class="match-link">
+        <p>{{ last_match.league }}</p>
+        <p>{{ last_match.match_date|date:"d M Y" }}</p>
+        <p class="score">{{ last_match.home_goals }} - {{ last_match.away_goals }}</p>
+    </a>
+</div>
+
                     <div class="opponent-info text-center">
                         <div class="team-logo">
                             {% if last_match.away_team.logo %}
@@ -122,13 +128,13 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>
-                                <a href="{% url 'teams:team_stats' team.team.id %}">
+                                <a href="{% url 'teams:team_stats' team.id %}">
                                     <img src="/media/{{ team.team.logo }}" class="icon"
                                          alt="{{ team.team.name }} Logo"/>
                                 </a>
                             </td>
                             <td>
-                                <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
+                                <a href="{% url 'teams:team_stats' team.id %}">{{ team.team.name }}</a>
                             </td>
                             <td>{{ team.points }}</td>
                         </tr>
@@ -154,21 +160,22 @@
                             <th>Rating</th>
                         </tr>
                         </thead>
-                       <tbody>
-    {% for player_id, player_data in players.items %}
-    <tr>
-        <td>
-            <a href="{% url 'players:player_profile' player_data.personal_info.id %}">
-                <img src="{{ player_data.personal_info.image_url }}" alt="{{ player_data.personal_info.name }}" class="icon">
-                {{ player_data.personal_info.name|default:"-" }}
-            </a>
-        </td>
-        <td>{{ player_data.season_stats.Goals|default:"0" }}</td>
-        <td>{{ player_data.season_stats.Assists|default:"0" }}</td>
-        <td>{{ player_data.season_stats.Rating|default:"-" }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
+                        <tbody>
+                        {% for player_id, player_data in players.items %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'players:player_profile' player_data.personal_info.id %}">
+                                    <img src="{{ player_data.personal_info.image_url }}"
+                                         alt="{{ player_data.personal_info.name }}" class="icon">
+                                    {{ player_data.personal_info.name|default:"-" }}
+                                </a>
+                            </td>
+                            <td>{{ player_data.season_stats.Goals|default:"0" }}</td>
+                            <td>{{ player_data.season_stats.Assists|default:"0" }}</td>
+                            <td>{{ player_data.season_rating|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -210,23 +217,41 @@
                             <th>A/H</th>
                             <th>Result</th>
                             <th>Type</th>
-
                         </tr>
                         </thead>
                         <tbody>
                         {% for match in schedule %}
                         <tr>
-                            <td>{{ match.date }}</td>
+                            <!-- Дата на мача -->
+                            <td>{{ match.date|date:"d M Y" }}</td>
+
+                            <!-- Опонент -->
                             <td>
                                 <a href="{% url 'teams:team_stats' match.opponent.id %}">
+                                    {% if match.opponent.logo %}
                                     <img src="{{ match.opponent.logo.url }}" class="icon"
                                          alt="{{ match.opponent.name }} Logo"/>
+                                    {% else %}
+                                    <span class="text-muted">No logo</span>
+                                    {% endif %}
                                 </a>
                                 <a href="{% url 'teams:team_stats' match.opponent.id %}">{{ match.opponent.name }}</a>
                             </td>
+
+                            <!-- Локация -->
                             <td>{{ match.location }}</td>
-                            <td>{{ match.result }}</td>
-                            <td>{{ match.competition }}</td> <!-- Тип състезание -->
+
+                            <!-- Резултат -->
+                            <td>
+                                {% if match.result != "TBD" %}
+                                <a href="{% url 'match:match' match.match.id %}">{{ match.result }}</a>
+                                {% else %}
+                                <span class="text-muted">TBD</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Тип състезание -->
+                            <td>{{ match.competition }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -234,6 +259,7 @@
                 </div>
             </div>
         </div>
+
 
         <div class="col-md-4">
             <div class="card">

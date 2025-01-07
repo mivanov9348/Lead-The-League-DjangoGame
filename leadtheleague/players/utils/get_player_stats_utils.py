@@ -2,9 +2,10 @@ from django.db.models import Avg, Prefetch
 import random
 
 from game.utils.get_season_stats_utils import get_current_season
-from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player
+from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player, \
+    PlayerMatchStatistic, Statistic
 from players.utils.generate_player_utils import generate_random_player
-from teams.models import TeamPlayer, Team
+from teams.models import TeamPlayer, Team, TeamTactics
 
 
 def get_all_positions():
@@ -56,6 +57,38 @@ def get_player_attributes(player):
     return {
         attr.attribute.name: attr.value for attr in attributes
     }
+
+
+def get_player_match_stats(match, team):
+    try:
+        team_tactics = TeamTactics.objects.get(team=team)
+        starting_players = team_tactics.starting_players.all()
+    except TeamTactics.DoesNotExist:
+        return []
+
+    player_stats = PlayerMatchStatistic.objects.filter(match=match, player__in=starting_players)
+
+    stats_list = []
+    for stat in player_stats:
+        stats = {
+            'player': stat.player,
+            'assists': stat.statistics.get('assists', 0),
+            'clean_sheets': stat.statistics.get('clean_sheets', 0),
+            'conceded': stat.statistics.get('conceded', 0),
+            'dribbles': stat.statistics.get('dribbles', 0),
+            'fouls': stat.statistics.get('fouls', 0),
+            'goals': stat.statistics.get('goals', 0),
+            'passes': stat.statistics.get('passes', 0),
+            'red_cards': stat.statistics.get('red_cards', 0),
+            'saves': stat.statistics.get('saves', 0),
+            'shoots': stat.statistics.get('shoots', 0),
+            'shoots_on_target': stat.statistics.get('shoots_on_target', 0),
+            'tackles': stat.statistics.get('tackles', 0),
+            'yellow_cards': stat.statistics.get('yellow_cards', 0),
+        }
+        stats_list.append(stats)
+
+    return stats_list
 
 def get_player_season_stats_all_seasons(player):
     season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic')
@@ -124,11 +157,20 @@ def get_players_season_stats_by_team(team, season):
         season_stats = {
             stat.statistic.name: stat.value for stat in player.season_stats.filter(season=season)
         }
+
+        # Добавяме среден рейтинг за сезона
+        season_rating = PlayerMatchRating.objects.filter(
+            player=player,
+            match__season=season
+        ).aggregate(Avg('rating')).get('rating__avg', 0.0) or 0.0
+
         player_data[player.id] = {
             'personal_info': get_personal_player_data(player),
             'season_stats': season_stats,
+            'season_rating': round(season_rating, 2),  # Закръгляме до 2 знака след десетичната запетая
         }
     return player_data
+
 
 def get_all_free_agents():
     return Player.objects.filter(is_free_agent=True).select_related(

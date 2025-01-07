@@ -84,6 +84,8 @@ def calculate_match_attendance(match):
 
     raw_attendance = (base_popularity + stadium_boost) * random.uniform(1.8, 2.2)
     attendance = min(int(raw_attendance), max_capacity)
+    match.attendance = attendance
+    match.save()
     return attendance
 
 
