@@ -1,24 +1,24 @@
+/* General Layout */
 .youth-container {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    width: 100%;
     gap: 20px;
+    padding: 20px;
     background-color: var(--darkgreen-color);
-    border:2px solid white;
+    border: 2px solid white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    width: 100%;
 }
-
 .academy-grid {
-    flex: 2;
+    flex: 3; /* Увеличаваме ширината на academy-grid */
     display: flex;
     flex-direction: column;
+    padding: 20px;
     background-color: var(--white-color);
     border-radius: 8px;
-    padding: 20px;
 }
+
 
 .academy-grid h2 {
     margin-bottom: 20px;
@@ -33,15 +33,16 @@
     justify-content: space-between;
 }
 
+/* Player Card Styles */
 .player-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--darkgreen-color) ;
-    color:white;
-    border-radius: 8px;
-    padding: 15px;
     width: calc(33% - 20px); /* Three cards per row */
+    padding: 15px;
+    background-color: var(--darkgreen-color);
+    color: white;
+    border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
 }
@@ -49,19 +50,14 @@
 .player-card img {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
     margin-bottom: 10px;
+    object-fit: cover;
+    border-radius: 50%;
     border: 2px solid #ccc;
 }
 
-.player-card h3 {
-    font-size: 1.1em;
-    margin-bottom: 5px;
-}
-
+.player-card h3,
 .player-card p {
-    font-size: 0.9em;
     margin-bottom: 5px;
 }
 
@@ -70,21 +66,74 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-
 .attributes-panel {
-    flex: 1;
+    flex: 1; /* Намаляваме ширината на attributes-panel */
     display: flex;
     flex-direction: column;
-    background-color: var(--lightgray-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: 20px;
     padding: 20px;
-    overflow-x: auto; /* Активира хоризонтален скрол */
-    max-width: 100%; /* Ограничаваме панела в контейнера */
+    background-color: var(--darkgreen-color);
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    max-height: 500px; /* Ограничете височината */
+    overflow-x: auto; /* Вертикално превъртане */
+    width: 100%; /* Разтегнете до ширината на контейнера */
 }
 
+.attributes-grid {
+    display: flex;
+    flex-direction: row; /* Подредете колоните една до друга */
+    gap: 10px;
+}
+
+.player-attributes-column {
+    min-width: 250px;
+    max-width: 300px;
+    flex: 1;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.player-attributes-column h4 {
+    margin-bottom: 10px;
+    text-align: center;
+    color: white;
+    font-family: 'OLD SPORT 02 ATHLETIC NCV';
+}
+
+.attribute {
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid white;
+    border-radius: 4px;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    margin-top: 5px;
+    background-color: rgba(211, 211, 211, 1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.3s ease-in-out;
+}
+
+/* Attributes Table */
 .attributes-table {
-    min-width: 100%; /* Минимална ширина, за да не се свива прекалено */
+    width: 100%;
     border-collapse: collapse;
     font-size: 0.9em;
     text-align: center;
@@ -95,17 +144,27 @@
     color: var(--white-color);
 }
 
-.attributes-table th, .attributes-table td {
-    border: 1px solid var(--lightgray-color);
+.attributes-table th,
+.attributes-table td {
     padding: 10px;
-    color:white;
+    border: 1px solid var(--lightgray-color);
+    color: white;
 }
 
+.attributes-table tbody tr {
+    border-bottom: 2px solid white;
+}
+
+.attributes-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Player Actions */
 .player-actions {
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     gap: 10px;
+    margin-top: 10px;
     width: 100%;
 }
 
@@ -120,7 +179,7 @@ button {
 
 .release-btn {
     background-color: #e74c3c;
-    color: #fff;
+    color: white;
 }
 
 .release-btn:hover {
@@ -129,48 +188,19 @@ button {
 
 .sign-btn {
     background-color: #27ae60;
-    color: #fff;
+    color: white;
 }
 
 .sign-btn:hover {
     background-color: #1e8449;
 }
 
-.progress-bar {
-    width: 100%;
-    height: 10px;
-    background-color: white;
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-    margin-top: 5px;
-}
-
-.progress-fill {
-    height: 100%;
-    background-color: green;
-    transition: width 0.3s ease-in-out;
-}
-
-.attributes-table td span {
-    font-size: 0.8em;
-    color: white;
-    display: block;
-    margin-top: 5px;
-}
-
-.attributes-table tbody tr {
-    border-bottom: 2px solid white; /* Бяла лента между редовете */
-}
-
-.attributes-table tbody tr:last-child {
-    border-bottom: none; /* Премахване на бялата лента след последния ред */
-}
+/* Stars Rating */
 .stars-container {
     position: relative;
-    width: 100px; /* Ширина на контейнера за 5 звезди */
-    height: 20px; /* Височина на звездите */
-    background: url('/path/to/empty-stars.png') repeat-x; /* Изображение на празни звезди */
+    width: 100px;
+    height: 20px;
+    background: url('/path/to/empty-stars.png') repeat-x;
     background-size: contain;
 }
 
@@ -179,7 +209,7 @@ button {
     top: 0;
     left: 0;
     height: 100%;
-    background: url('/path/to/full-stars.png') repeat-x; /* Изображение на пълни звезди */
+    width: 0;
+    background: url('/path/to/full-stars.png') repeat-x;
     background-size: contain;
-    width: 0; /* Ширината ще се задава динамично */
 }

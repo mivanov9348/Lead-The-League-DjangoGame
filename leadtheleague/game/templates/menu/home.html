@@ -128,13 +128,13 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>
-                                <a href="{% url 'teams:team_stats' team.id %}">
+                                <a href="{% url 'teams:team_stats' team.team.id %}">
                                     <img src="/media/{{ team.team.logo }}" class="icon"
                                          alt="{{ team.team.name }} Logo"/>
                                 </a>
                             </td>
                             <td>
-                                <a href="{% url 'teams:team_stats' team.id %}">{{ team.team.name }}</a>
+                                <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
                             </td>
                             <td>{{ team.points }}</td>
                         </tr>

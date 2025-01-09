@@ -4,7 +4,7 @@ from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
 from game.models import Season
 from game.utils.get_season_stats_utils import get_current_season
 from match.models import Match, MatchPenalties
-from players.models import Player, PlayerMatchStatistic, Statistic
+from players.models import Player, PlayerMatchStatistic
 from django.db import transaction
 from teams.models import TeamTactics
 
@@ -145,6 +145,7 @@ def generate_all_player_day_match_stats():
                                 "YellowCards": 0,
                                 "RedCards": 0,
                                 "Saves": 0,
+                                "Matches": 0
                             }
                         )
 

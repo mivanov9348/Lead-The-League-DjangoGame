@@ -25,7 +25,8 @@
         <div class="player-info">
             <ul>
                 <li> {{ player.first_name }} {{ player.last_name }}</li>
-                <li> {{ player.position.name }}</li>
+                <li> {{ player_team.team_name }}</li>
+                <li> {{ player.position }}</li>
                 <hr/>
                 <li> {{ player_team.name }}</li>
                 <li> {{ player.nationality.name }}</li>
@@ -51,19 +52,19 @@
     </div>
 
     <div class="player-attributes">
-        <h2>Attributes</h2>
-        <hr/>
-        <div class="attributes-grid">
-            {% for attribute in attributes %}
-            <div class="attribute
+    <h2>Attributes</h2>
+    <hr/>
+    <div class="attributes-grid">
+        {% for attribute in attributes %}
+        <div class="attribute
         {% if attribute.value <= 10 %}attribute-low
         {% elif attribute.value <= 15 %}attribute-medium
         {% else %}attribute-high{% endif %}">
-                {{ attribute.name }}: {{ attribute.value }}
-            </div>
-            {% endfor %}
+            {{ attribute.name }}: {{ attribute.value }}
         </div>
+        {% endfor %}
     </div>
+</div>
 
     <div class="player-stats">
         <h2>Season Statistics</h2>
@@ -93,21 +94,21 @@
             {% for stat in season_stats %}
             <tr>
                 <td>{{ stat.season }}</td>
-                <td>{{ stat.matches }}</td>
-                <td>{{ stat.goals }}</td>
-                <td>{{ stat.assists }}</td>
-                <td>{{ stat.shoots }}</td>
-                <td>{{ stat.shootsOnTarget }}</td>
-                <td>{{ stat.passes }}</td>
-                <td>{{ stat.dribbles }}</td>
-                <td>{{ stat.tackles }}</td>
-                <td>{{ stat.fouls }}</td>
-                <td>{{ stat.yellowCards }}</td>
-                <td>{{ stat.redCards }}</td>
-                <td>{{ stat.cleanSheets }}</td>
-                <td>{{ stat.conceded }}</td>
-                <td>{{ stat.saves }}</td>
-                <td>{{ stat.minutesPlayed }}</td>
+                <td>{{ stat.Matches }}</td>
+                <td>{{ stat.Goals }}</td>
+                <td>{{ stat.Assists }}</td>
+                <td>{{ stat.Shoots }}</td>
+                <td>{{ stat.ShootsOnTarget }}</td>
+                <td>{{ stat.Passes }}</td>
+                <td>{{ stat.Dribbles }}</td>
+                <td>{{ stat.Tackles }}</td>
+                <td>{{ stat.Fouls }}</td>
+                <td>{{ stat.YellowCards }}</td>
+                <td>{{ stat.RedCards }}</td>
+                <td>{{ stat.CleanSheets }}</td>
+                <td>{{ stat.Conceded }}</td>
+                <td>{{ stat.Saves }}</td>
+                <td>{{ stat.MinutesPlayed }}</td>
             </tr>
             {% endfor %}
             {% if not season_stats %}

@@ -21,6 +21,15 @@ def get_match_by_fixture(fixture):
         raise ValueError(f"No match found for fixture: {fixture}")
 
 
+def get_opposing_team(match, team):
+    if team == match.home_team:
+        return match.away_team
+    elif team == match.away_team:
+        return match.home_team
+    else:
+        raise ValueError(f"Team {team} is not part of this match.")
+
+
 def get_matches_by_stadium(stadium, start_date=None, end_date=None):
     matches = Match.objects.filter(stadium=stadium)
 

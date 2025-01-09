@@ -52,11 +52,19 @@ def get_personal_player_data(player):
         'image_url': player.image.url if player.image else None,
     }
 
+
+
 def get_player_attributes(player):
     attributes = PlayerAttribute.objects.filter(player=player).select_related('attribute')
-    return {
-        attr.attribute.name: attr.value for attr in attributes
-    }
+    return [
+        {
+            'name': attr.attribute.name,
+            'value': attr.value,
+            'progress': attr.progress,
+            'progress_percent': (attr.progress / 10.0) * 100,  # Прогрес в проценти за визуализация
+        }
+        for attr in attributes
+    ]
 
 
 def get_player_match_stats(match, team):
@@ -72,19 +80,20 @@ def get_player_match_stats(match, team):
     for stat in player_stats:
         stats = {
             'player': stat.player,
-            'assists': stat.statistics.get('assists', 0),
-            'clean_sheets': stat.statistics.get('clean_sheets', 0),
-            'conceded': stat.statistics.get('conceded', 0),
-            'dribbles': stat.statistics.get('dribbles', 0),
-            'fouls': stat.statistics.get('fouls', 0),
-            'goals': stat.statistics.get('goals', 0),
-            'passes': stat.statistics.get('passes', 0),
-            'red_cards': stat.statistics.get('red_cards', 0),
-            'saves': stat.statistics.get('saves', 0),
-            'shoots': stat.statistics.get('shoots', 0),
-            'shoots_on_target': stat.statistics.get('shoots_on_target', 0),
-            'tackles': stat.statistics.get('tackles', 0),
-            'yellow_cards': stat.statistics.get('yellow_cards', 0),
+            'matches':stat.statistics.get('Matches',0),
+            'assists': stat.statistics.get('Assists', 0),
+            'clean_sheets': stat.statistics.get('CleanSheets', 0),
+            'conceded': stat.statistics.get('Conceded', 0),
+            'dribbles': stat.statistics.get('Dribbles', 0),
+            'fouls': stat.statistics.get('Fouls', 0),
+            'goals': stat.statistics.get('Goals', 0),
+            'passes': stat.statistics.get('Passes', 0),
+            'red_cards': stat.statistics.get('RedCards', 0),
+            'saves': stat.statistics.get('Saves', 0),
+            'shoots': stat.statistics.get('Shoots', 0),
+            'shoots_on_target': stat.statistics.get('ShootsOnTarget', 0),
+            'tackles': stat.statistics.get('Tackles', 0),
+            'yellow_cards': stat.statistics.get('YellowCards', 0),
         }
         stats_list.append(stats)
 

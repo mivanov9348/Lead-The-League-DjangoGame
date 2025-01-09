@@ -7,8 +7,10 @@ from teams.models import TeamTactics, TeamPlayer
 
 def check_rotation_violations(team, taken_penalty_players):
     unique_players = set(taken_penalty_players)
-
     total_players = TeamPlayer.objects.filter(team=team).count()
+
+    print(f"Taken penalty players: {unique_players}")
+    print(f"Total players in team: {total_players}")
 
     return len(unique_players) == total_players
 
@@ -17,11 +19,14 @@ def update_penalty_initiative(match_penalties):
     if not match_penalties.current_initiative:
         raise ValueError("Current initiative is not set.")
 
+    print(f"Before Update: {match_penalties.current_initiative.name}")
     match_penalties.current_initiative = (
         match_penalties.match.away_team if match_penalties.current_initiative == match_penalties.match.home_team
         else match_penalties.match.home_team
     )
     match_penalties.save()
+    print(f"After Update: {match_penalties.current_initiative.name}")
+
 
 def get_penalty_taker(team, taken_penalty_players):
     team_tactics = TeamTactics.objects.select_related('team').get(team=team)
@@ -71,29 +76,54 @@ def update_penalty_score(match_penalties, is_goal, team):
     match_penalties.save()
 
 
-def calculate_penalty_success(success_rate, threshold):
-    if success_rate >= threshold:
-        print("It's a Goal!")
+def calculate_penalty_success(event_result):
+    if event_result == "PenaltyMiss":
+        print("Miss")
+        return False
+    elif event_result == "PenaltyGoal":
+        print("Goal")
         return True
-    print('Miss')
-    return False
-
+    else:
+        print("Invalid event result")
+        return "Invalid event result"
 
 def check_penalties_completion(match_penalties):
     home_attempts = match_penalties.attempts.filter(team=match_penalties.match.home_team).count()
     away_attempts = match_penalties.attempts.filter(team=match_penalties.match.away_team).count()
 
-    if home_attempts >= 5 and away_attempts >= 5:
-        max_possible_home_score = match_penalties.home_score + (5 - home_attempts)
-        max_possible_away_score = match_penalties.away_score + (5 - away_attempts)
+    home_score = match_penalties.attempts.filter(team=match_penalties.match.home_team, is_goal=True).count()
+    away_score = match_penalties.attempts.filter(team=match_penalties.match.away_team, is_goal=True).count()
 
-        if match_penalties.home_score > max_possible_away_score or match_penalties.away_score > max_possible_home_score:
+    remaining_home_attempts = 5 - home_attempts
+    remaining_away_attempts = 5 - away_attempts
+
+    if home_score > away_score + remaining_away_attempts:
+        match_penalties.is_completed = True
+        match_penalties.save()
+        return True
+
+    if away_score > home_score + remaining_home_attempts:
+        match_penalties.is_completed = True
+        match_penalties.save()
+        return True
+
+    if home_attempts == 5 and away_attempts == 5:
+        if home_score != away_score:
             match_penalties.is_completed = True
             match_penalties.save()
             return True
 
+    return False
+
+def check_sudden_death_completion(match_penalties):
+    home_attempts = match_penalties.attempts.filter(team=match_penalties.match.home_team).count()
+    away_attempts = match_penalties.attempts.filter(team=match_penalties.match.away_team).count()
+
     if home_attempts > 5 and away_attempts > 5 and abs(home_attempts - away_attempts) <= 1:
-        if match_penalties.home_score != match_penalties.away_score:
+        home_score = match_penalties.attempts.filter(team=match_penalties.match.home_team, is_goal=True).count()
+        away_score = match_penalties.attempts.filter(team=match_penalties.match.away_team, is_goal=True).count()
+
+        if abs(home_score - away_score) == 1:  # One team leads by one goal
             match_penalties.is_completed = True
             match_penalties.save()
             return True
@@ -107,7 +137,7 @@ def log_penalty_event(match, formatted_template, penalty_taker, is_goal):
 
     try:
         with transaction.atomic():
-            event_type = "Penalty Goal" if is_goal else "Penalty Miss"
+            event_type = "PenaltyGoal" if is_goal else "PenaltyMiss"
 
             match_event_data = {
                 "match": match,

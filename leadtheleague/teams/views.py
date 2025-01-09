@@ -10,7 +10,7 @@ from players.utils.get_player_stats_utils import get_personal_player_data, get_p
 from players.utils.update_player_stats_utils import update_player_price
 from staff.models import Coach
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
-from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance, TrainingImpact
+from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance, TrainingImpact, TeamSeasonAnalytics
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -76,7 +76,6 @@ def squad(request):
             'attributes': get_player_attributes(player),
             'stats': get_player_stats(player,current_season)
         })
-    print(players_data)
     context = {
         'team': team,
         'players_data': players_data,
@@ -371,6 +370,6 @@ def schedule(request):
 
 
 def all_teams(request):
-    teams = LeagueTeams.objects.all().order_by('-points', '-goaldifference')
+    teams = TeamSeasonAnalytics.objects.select_related('team').all().order_by('-points', '-goalscored', '-goalconceded')
 
-    return render(request, 'all_teams.html', {'teams': teams})
+    return render(request, 'teams/all_teams.html', {'teams': teams})

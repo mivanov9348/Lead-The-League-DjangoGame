@@ -88,6 +88,16 @@
 {% endblock %}
 
 {% block content %}
+<form id="league-form">
+    <select name="league_id" id="league-selector">
+        {% for league in leagues %}
+        <option value="{{ league.id }}" {% if league.id == selected_league_id %}selected{% endif %}>
+            {{ league.league.name }}
+        </option>
+        {% endfor %}
+    </select>
+</form>
+
 <div id="player-container">
     {% for player in players %}
     <div class="player-card">
@@ -100,10 +110,10 @@
                 <p class="player-points">{{ player.points }} Points</p>
             </div>
             <div class="player-stats">
-                <p>Goals: {{ player.stats.Goals }}</p>
-                <p>Assists: {{ player.stats.Assists }}</p>
-                <p>Matches: {{ player.stats.Matches }}</p>
-                <p>Shoots: {{ player.stats.Shoots }}</p>
+                <p>Goals: {{ player.stats.goals }}</p>
+                <p>Assists: {{ player.stats.assists }}</p>
+                <p>Matches: {{ player.stats.matches }}</p>
+                <p>Shoots: {{ player.stats.shoots }}</p>
             </div>
         </a>
     </div>
@@ -112,35 +122,34 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-    const cards = document.querySelectorAll('.player-card');
+        const leagueSelector = document.getElementById('league-selector');
+        const playerContainer = document.getElementById('player-container');
 
-    cards.forEach(card => {
-        card.addEventListener('click', () => {
-            const url = card.dataset.url;
-            if (url) {
-                window.location.href = url;
-            }
-        });
-    });
-
-    const adjustGridColumns = () => {
-        const container = document.getElementById('player-container');
-        const width = window.innerWidth;
-
-        if (width <= 480) {
-            container.style.gridTemplateColumns = '1fr';
-        } else if (width <= 768) {
-            container.style.gridTemplateColumns = 'repeat(2, 1fr)';
-        } else if (width <= 1200) {
-            container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        if (leagueSelector && playerContainer) {
+            leagueSelector.addEventListener('change', function() {
+                const leagueId = this.value;
+                fetch(`/players/top_league_players/${leagueId}/`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch data');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContainer = doc.querySelector('#player-container');
+                    playerContainer.innerHTML = newContainer ? newContainer.innerHTML : '';
+                })
+                .catch(error => console.error('Error:', error));
+            });
         } else {
-            container.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            console.error('Element not found: leagueSelector or playerContainer');
         }
-    };
-
-    window.addEventListener('resize', adjustGridColumns);
-    adjustGridColumns();
-});
-
+    });
 </script>
 {% endblock %}

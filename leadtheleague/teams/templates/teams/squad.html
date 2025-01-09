@@ -44,8 +44,7 @@
                 {% endif %}
             </td>
             <td>
-                <a href="{% url 'players:player_profile' player.personal_info.id %}">{{
-                    player.personal_info.name|default:"-" }}</a>
+                <a href="{% url 'players:player_profile' player.personal_info.id %}">{{ player.personal_info.name|default:"-" }}</a>
             </td>
             <td>{{ player.personal_info.age }}</td>
             <td>{{ player.personal_info.positionabbr|default:"-" }}</td>

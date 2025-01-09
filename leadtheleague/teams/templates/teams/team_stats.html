@@ -32,19 +32,21 @@
         {% if players %}
         <div class="players-grid">
             {% for player in players %}
-            <div class="player-card">
-                {% if player.image_url %}
-                <img src="{{ player.image_url }}" alt="{{ player.first_name }} {{ player.last_name }}"
-                     class="player-image">
-                {% else %}
-                <img src="{% static 'images/default_player.png' %}" alt="Default Player" class="player-image">
-                {% endif %}
-                <p><strong>{{ player.first_name }} {{ player.last_name }}</strong> (#{{ player.shirt_number }})</p>
-                <p><strong>Position:</strong> {{ player.position }} </p>
-                <p><strong>Nationality:</strong> {{ player.nationality }}</p>
-                <p><strong>Age:</strong> {{ player.age }}</p>
-                <p><strong>Price:</strong> {{ player.price|floatformat:2 }} $</p>
-            </div>
+            <a href="{% url 'players:player_profile' player.id %}" class="player-card">
+                <div class="player-card">
+                    {% if player.image_url %}
+                    <img src="{{ player.image_url }}" alt="{{ player.first_name }} {{ player.last_name }}"
+                         class="player-image">
+                    {% else %}
+                    <img src="{% static 'images/default_player.png' %}" alt="Default Player" class="player-image">
+                    {% endif %}
+                    <p><strong>{{ player.first_name }} {{ player.last_name }}</strong></p>
+                    <p><strong>Position:</strong> {{ player.position }} </p>
+                    <p><strong>Nationality:</strong> {{ player.nationality }}</p>
+                    <p><strong>Age:</strong> {{ player.age }}</p>
+                    <p><strong>Price:</strong> {{ player.price|floatformat:2 }} $</p>
+                </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}

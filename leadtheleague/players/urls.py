@@ -1,12 +1,14 @@
 from django.urls import path
 from .views import player_profile, youth_academy, sign_player, free_agents, \
     submit_offer, \
-    get_free_agent_info, release_player, all_players
+    get_free_agent_info, release_player, all_players, top_league_players
 
 app_name = 'players'
 
 urlpatterns = [
     path('all_players/', all_players, name='all_players'),
+    path('top_league_players/', top_league_players, name='top_league_players'),  # Без параметър
+    path('top_league_players/<int:league_id>/', top_league_players, name='top_league_players_with_id'),
     path('youth_academy/', youth_academy, name='youth_academy'),
     path('player_profile/<int:player_id>', player_profile, name='player_profile'),
     path('sign/<int:player_id>/', sign_player, name='sign_player'),

@@ -1,10 +1,10 @@
 import random
 from django.db import transaction
-from match.models import MatchEvent, Event, AttributeEventWeight, EventResult, EventTemplate
-from match.utils.get_match_stats import calculate_match_attendance, match_income
+from django.db.models import Q
+from match.utils.get_match_stats import calculate_match_attendance, match_income, get_opposing_team
 from match.utils.match_goalscorers_utils import log_goalscorer
+from models import MatchEvent
 from players.models import PlayerMatchStatistic
-from players.utils.get_player_stats_utils import get_player_attributes
 from teams.models import TeamTactics, TeamPlayer
 
 
@@ -70,6 +70,7 @@ def finalize_match(match):
 def update_player_stats_from_template(match, event_result, player):
     if not player:
         print("No player provided for statistics update.")
+        return
 
     event_fields_to_stats = {
         "goals": "Goals",
@@ -86,20 +87,64 @@ def update_player_stats_from_template(match, event_result, player):
         "conceded": "Conceded",
     }
 
-    with transaction.atomic():
-        player_stat, created = PlayerMatchStatistic.objects.get_or_create(
-            player=player,
-            match=match,
-            defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
-        )
+    player_stat, created = PlayerMatchStatistic.objects.get_or_create(
+        player=player,
+        match=match,
+        defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
+    )
 
-        updated_stats = player_stat.statistics
+    updated_stats = player_stat.statistics
 
-        for field, stat_name in event_fields_to_stats.items():
-            stat_value = getattr(event_result, field, 0)
-            if stat_value > 0:
-                updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
+    for field, stat_name in event_fields_to_stats.items():
+        stat_value = getattr(event_result, field, 0)
+        if stat_value > 0:
+            updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
 
+    player_team = TeamPlayer.objects.filter(player=player).first()
+    opposing_team = get_opposing_team(match, player_team.team)
+
+    if event_result.event_result == "ShotOnTarget":
+        print(f'{opposing_team}; {opposing_team.teamtactics.starting_players}')
+        opposing_goalkeeper = opposing_team.teamtactics.starting_players.filter(position__name="Goalkeeper").first()
+        if opposing_goalkeeper:
+            gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
+                player=opposing_goalkeeper,
+                match=match,
+                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
+            )
+            gk_stats = gk_stat.statistics
+            gk_stats["Saves"] = gk_stats.get("Saves", 0) + 1
+            gk_stat.statistics = gk_stats
+            gk_stat.save()
+
+    if event_result.event_result == "Goal":
+        opposing_goalkeeper = opposing_team.teamtactics.starting_players.filter(position="Goalkeeper").first()
+        if opposing_goalkeeper:
+            gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
+                player=opposing_goalkeeper,
+                match=match,
+                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
+            )
+            gk_stats = gk_stat.statistics
+            gk_stats["Conceded"] = gk_stats.get("Conceded", 0) + 1
+            gk_stat.statistics = gk_stats
+            gk_stat.save()
+
+    if event_result.event_result == "Goal":
+        teammates = player.team.teamtactics.starting_players.exclude(id=player.id)
+        if teammates.exists():
+            random_teammate = random.choice(teammates)
+            teammate_stat, _ = PlayerMatchStatistic.objects.get_or_create(
+                player=random_teammate,
+                match=match,
+                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
+            )
+            teammate_stats = teammate_stat.statistics
+            teammate_stats["Assists"] = teammate_stats.get("Assists", 0) + 1
+            teammate_stat.statistics = teammate_stats
+            teammate_stat.save()
+
+    if not created:
         player_stat.statistics = updated_stats
         player_stat.save()
 
@@ -117,29 +162,6 @@ def update_match_score(event_result, match, team_with_initiative, player):
         match.save()
 
 
-def log_match_event(match, minute, template, formatted_text, player=None):
-    if not player:
-        raise ValueError("No player provided!")
-
-    try:
-        with transaction.atomic():
-            match_event = MatchEvent.objects.create(
-                match=match,
-                minute=minute,
-                event_type=template.event_result,
-                description=formatted_text,
-                is_negative_event=template.event_result.is_negative_event,
-                possession_kept=template.event_result.possession_kept
-            )
-
-            if player:
-                match_event.players.add(player)
-
-            print(f"Event successfully logged: {formatted_text} at minute {minute}.")
-    except AttributeError as e:
-        raise ValueError(f"Invalid template or event result: {e}")
-    except Exception as e:
-        print(f"Error logging event: {e}")
 
 
 def check_initiative(template, match):
@@ -159,120 +181,6 @@ def fill_template_with_player(template, player):
 
     formatted_text = template.template_text.format(player_1=player_name)
     return formatted_text
-
-
-def get_random_match_event():
-    events_query = Event.objects.exclude(type__in=['Team', 'Penalty']).only('id', 'type', 'success_rate')
-
-    event = events_query.order_by('?').first()
-
-    if event:
-        print(f"Random event generated: {event.type} with success rate {event.success_rate}")
-    else:
-        print("No events found matching the criteria.")
-
-    return event
-
-
-def get_event_weights(event):
-    weights = AttributeEventWeight.objects.filter(event=event).select_related('attribute')
-    if not weights.exists():
-        print(f"No AttributeEventWeight entries found for event {event}.")
-        return {}
-
-    return {
-        weight.attribute.name: weight.weight for weight in weights
-    }
-
-
-def calculate_event_success_rate(event, player):
-    # Get player attributes and event weights
-    player_attributes = get_player_attributes(player)
-    event_weights = get_event_weights(event)
-    print(f'eventweig : {event_weights}')
-
-    # Calculate the weighted sum
-    attributes_and_weights = [
-        (player_attributes.get(attr_name, 0), weight)
-        for attr_name, weight in event_weights.items()
-    ]
-
-    weighted_sum = sum(attribute_value * weight for attribute_value, weight in attributes_and_weights)
-    print(f'weighted sum: {weighted_sum}')
-
-    luck_factor = random.uniform(-3.0, 3.0)
-    print(f"Luck factor: {luck_factor}")
-
-    final_success_rate = round(event.success_rate + weighted_sum + luck_factor, 2)
-    final_success_rate = min(100.0, final_success_rate)
-    print(f"Final success rate: {final_success_rate}")
-
-    return final_success_rate
-
-
-def get_event_template(event_result):
-    if not event_result:
-        print("No EventResult provided.")
-        return None
-
-    print(f"Searching for EventTemplates for EventResult: {event_result.event_result}")
-
-    templates = EventTemplate.objects.filter(event_result=event_result)
-
-    if not templates.exists():
-        print(f"No EventTemplates found for EventResult: {event_result.event_result}")
-        return None
-
-    selected_template = random.choice(list(templates))
-    print(f"Selected Template: {selected_template.template_text}")
-    return selected_template
-
-
-def get_event_result(event, success):
-    if not event:
-        print("No event provided.")
-        return None
-
-    print(f"Searching for EventResults for event type: {event.type} with success: {success}")
-
-    event_results = EventResult.objects.filter(
-        event_type__type=event.type
-    ).order_by('-event_threshold')
-
-    if not event_results.exists():
-        print(f"No EventResults found for event type: {event.type}")
-        return None
-
-    print(f"Found {event_results.count()} matching EventResults.")
-
-    last_valid_result = None
-
-    for event_result in event_results:
-        print(f"Checking if success {success} <= threshold {event_result.event_threshold}")
-        if success <= event_result.event_threshold:
-            last_valid_result = event_result
-            print(f"Selected EventResult: {event_result.event_result} with threshold {event_result.event_threshold}")
-
-    if last_valid_result:
-        return last_valid_result
-
-    print("No valid EventResult found.")
-    return None
-
-
-def get_event_players(template, main_player, team):
-    players = [main_player]
-    if template.num_players == 2:
-        additional_player = (
-            TeamPlayer.objects
-            .filter(team=team)
-            .exclude(player=main_player)
-            .select_related('player')
-            .order_by('?')[:1]
-        )
-        players.extend(tp.player for tp in additional_player)
-    return players
-
 
 def handle_card_event(event_result, player, match, team):
     current_minute = match.current_minute
@@ -351,3 +259,76 @@ def log_card_event(match, minute, card_type, player):
             print(f"{card_type} logged for {player.name} in match {match.id} at minute {minute}.")
     except Exception as e:
         print(f"Error logging {card_type} for {player.name}: {e}")
+
+
+def log_match_participate(match):
+    try:
+        home_team_tactics = TeamTactics.objects.select_related('team').prefetch_related('starting_players').get(
+            team=match.home_team
+        )
+        print(f"Loaded home_team_tactics: {home_team_tactics}")
+
+        away_team_tactics = TeamTactics.objects.select_related('team').prefetch_related('starting_players').get(
+            team=match.away_team
+        )
+        print(f"Loaded away_team_tactics: {away_team_tactics}")
+
+    except TeamTactics.DoesNotExist as e:
+        print(f"Error: TeamTactics not found for one of the teams in match {match}. Details: {e}")
+        return  # Спиране на изпълнението, ако няма тактика за някой от отборите
+
+    all_players = list(home_team_tactics.starting_players.all()) + list(away_team_tactics.starting_players.all())
+    print(f"All players for match: {[player.id for player in all_players]}")
+
+    if not all_players:
+        print(f"No players found for match {match}.")
+        return  # Спиране, ако няма играчи
+
+    existing_stats = PlayerMatchStatistic.objects.filter(
+        Q(match=match) & Q(player__in=all_players)
+    ).select_related('player')
+    print(f"Loaded existing stats: {existing_stats}")
+
+    for stat in existing_stats:
+        print(f"Existing stat: Player ID={stat.player.id}, Match={stat.match.id}, Statistics={stat.statistics}")
+
+    if not existing_stats.exists():
+        print(f"No existing statistics found for match {match}. Creating new ones.")
+    else:
+        print(f'Existing stats count: {existing_stats.count()}')
+
+    existing_players = {stat.player_id for stat in existing_stats}
+    print(f'Existing player IDs: {existing_players}')
+
+    new_players = [player for player in all_players if player.id not in existing_players]
+    print(f"New players for statistics: {[player.id for player in new_players]}")
+
+    new_stats = [
+        PlayerMatchStatistic(
+            player=player,
+            match=match,
+            statistics={"Matches": 1}
+        )
+        for player in new_players
+    ]
+
+    if new_stats:
+        print(f"Creating new statistics objects for players: {[stat.player.id for stat in new_stats]}")
+        PlayerMatchStatistic.objects.bulk_create(new_stats)
+    else:
+        print("No new statistics to create.")
+
+    with transaction.atomic():
+        for stat in existing_stats:
+            try:
+                print(f"Processing existing stat for Player ID={stat.player.id}, Match ID={stat.match.id}")
+                if stat.statistics.get("Matches", 0) == 0:
+                    print(f"Updating 'Matches' field from 0 to 1 for Player ID={stat.player.id}")
+                    stat.statistics["Matches"] = 1
+                    stat.save()
+                    print(f"Statistics updated: {stat.statistics}")
+                else:
+                    print(f"'Matches' field is already updated for Player ID={stat.player.id}, value={stat.statistics['Matches']}")
+            except Exception as e:
+                print(f"Error updating statistics for Player ID={stat.player.id}. Details: {e}")
+

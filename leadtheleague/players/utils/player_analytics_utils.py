@@ -8,40 +8,39 @@ from django.db.models import Sum
 
 def calculate_player_points(stats, weights):
     points = 0
-    matches = stats.get('matches', 1) or 1  # Избягване на деление на нула
+    matches = stats.get('Matches', 1) or 1
 
     for stat, value in stats.items():
         weight = weights.get(stat.lower(), 0)
         points += value * weight
 
-    points += stats.get('goals', 0) / matches * 10
-    points += stats.get('assists', 0) / matches * 7
-    points -= stats.get('yellowcards', 0) * 3
-    points -= stats.get('redcards', 0) * 5
+    points += stats.get('Goals', 0) / matches * 10
+    points += stats.get('Assists', 0) / matches * 7
+    points -= stats.get('YellowCards', 0) * 3
+    points -= stats.get('RedCards', 0) * 5
 
     return round(points, 2)
 
 def update_season_analytics():
     """Актуализира статистиките на играчите за активния сезон."""
     weights = {
-        'assists': 3,
-        'cleansheets': 5,
-        'conceded': -2,
-        'dribbles': 2,
-        'fouls': -1,
-        'goals': 4,
-        'matches': 1,
-        'minutesplayed': 0.5,
-        'passes': 1,
-        'redcards': -5,
-        'saves': 4,
-        'shoots': 2,
-        'shootsontarget': 2.5,
-        'tackles': 2,
-        'yellowcards': -3,
+        'Assists': 3,
+        'CleanSheets': 5,
+        'Conceded': -2,
+        'Dribbles': 2,
+        'Fouls': -1,
+        'Goals': 4,
+        'Matches': 1,
+        'MinutesPlayed': 0.5,
+        'Passes': 1,
+        'RedCards': -5,
+        'Saves': 4,
+        'Shoots': 2,
+        'ShootsOnTarget': 2.5,
+        'Tackles': 2,
+        'YellowCards': -3,
     }
 
-    # Получаване на текущия активен сезон
     active_seasons = Season.objects.filter(is_active=True)
 
     for season in active_seasons:
@@ -49,21 +48,21 @@ def update_season_analytics():
             PlayerSeasonStatistic.objects.filter(season=season)
             .values('player_id')
             .annotate(
-                assists=Sum('value', filter=models.Q(statistic__name='Assists')),
-                cleansheets=Sum('value', filter=models.Q(statistic__name='CleanSheets')),
-                conceded=Sum('value', filter=models.Q(statistic__name='Conceded')),
-                dribbles=Sum('value', filter=models.Q(statistic__name='Dribbles')),
-                fouls=Sum('value', filter=models.Q(statistic__name='Fouls')),
-                goals=Sum('value', filter=models.Q(statistic__name='Goals')),
-                matches=Sum('value', filter=models.Q(statistic__name='Matches')),
-                minutesplayed=Sum('value', filter=models.Q(statistic__name='MinutesPlayed')),
-                passes=Sum('value', filter=models.Q(statistic__name='Passes')),
-                redcards=Sum('value', filter=models.Q(statistic__name='RedCards')),
-                saves=Sum('value', filter=models.Q(statistic__name='Saves')),
-                shoots=Sum('value', filter=models.Q(statistic__name='Shoots')),
-                shootsontarget=Sum('value', filter=models.Q(statistic__name='ShootsOnTarget')),
-                tackles=Sum('value', filter=models.Q(statistic__name='Tackles')),
-                yellowcards=Sum('value', filter=models.Q(statistic__name='YellowCards')),
+                Assists=Sum('value', filter=models.Q(statistic__name='Assists')),
+                CleanSheets=Sum('value', filter=models.Q(statistic__name='CleanSheets')),
+                Conceded=Sum('value', filter=models.Q(statistic__name='Conceded')),
+                Dribbles=Sum('value', filter=models.Q(statistic__name='Dribbles')),
+                Fouls=Sum('value', filter=models.Q(statistic__name='Fouls')),
+                Goals=Sum('value', filter=models.Q(statistic__name='Goals')),
+                Matches=Sum('value', filter=models.Q(statistic__name='Matches')),
+                MinutesPlayed=Sum('value', filter=models.Q(statistic__name='MinutesPlayed')),
+                Passes=Sum('value', filter=models.Q(statistic__name='Passes')),
+                RedCards=Sum('value', filter=models.Q(statistic__name='RedCards')),
+                Saves=Sum('value', filter=models.Q(statistic__name='Saves')),
+                Shoots=Sum('value', filter=models.Q(statistic__name='Shoots')),
+                ShootsOnTarget=Sum('value', filter=models.Q(statistic__name='ShootsOnTarget')),
+                Tackles=Sum('value', filter=models.Q(statistic__name='Tackles')),
+                YellowCards=Sum('value', filter=models.Q(statistic__name='YellowCards')),
             )
         )
 
@@ -76,11 +75,12 @@ def update_season_analytics():
                 player_id=player_id,
                 season=season,
                 points=points,
-                statistics=stats  # Запис на агрегирани статистики в JSON поле
+                statistics=stats
             ))
 
         PlayerSeasonAnalytics.objects.filter(season=season).delete()
         PlayerSeasonAnalytics.objects.bulk_create(analytics)
+
 
 def export_to_csv():
     analytics = PlayerSeasonAnalytics.objects.all()
