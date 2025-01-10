@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
 from .utils.lineup_utils import validate_lineup, auto_select_starting_lineup
+from .utils.team_analytics_utils import get_team_analytics
 
 
 def get_sort_field(sort_by):
@@ -74,7 +75,7 @@ def squad(request):
             'personal_info': get_personal_player_data(player),
             'shirt_number': team_player.shirt_number,
             'attributes': get_player_attributes(player),
-            'stats': get_player_stats(player,current_season)
+            'stats': get_player_stats(player, current_season)
         })
     context = {
         'team': team,
@@ -370,6 +371,10 @@ def schedule(request):
 
 
 def all_teams(request):
-    teams = TeamSeasonAnalytics.objects.select_related('team').all().order_by('-points', '-goalscored', '-goalconceded')
+    # Зареждане на данни с връзка към лигата
+    the_top_30 = get_team_analytics(
+        limit=30,
+        order_by=['-points', '-goalscored', 'goalconceded', '-wins']
+    ).select_related('team__league_teams__league_season__league')
 
-    return render(request, 'teams/all_teams.html', {'teams': teams})
+    return render(request, 'teams/all_teams.html', {'teams': the_top_30})

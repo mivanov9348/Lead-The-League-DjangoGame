@@ -16,14 +16,14 @@
             <div class="calendar-day">
                 <div class="calendar-header">
                     <strong>{{ fixture.date }}</strong>
-                    <hr/>
+                    <hr />
                 </div>
                 <div class="calendar-matches">
                     {% for match in fixture.matches %}
                     <div class="calendar-match">
                         <div class="match-teams">
                             {% if match.opponent.logo %}
-                            <img src="{{ match.opponent.logo.url }}" alt="{{ match.opponent.name }} Logo">
+                            <img src="{{ match.opponent.logo.url }}" alt="{{ match.opponent.name }} Logo" />
                             {% endif %}
                             <div class="opponent">{{ match.opponent.name }}</div>
                             <div class="match-time">{{ match.time }}</div>

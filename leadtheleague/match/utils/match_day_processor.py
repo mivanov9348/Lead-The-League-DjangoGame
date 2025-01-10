@@ -17,7 +17,7 @@ from match.utils.match_events_utils import create_kickoff_match_event, create_ma
     get_event_template, log_match_event
 from match.utils.match_helpers import log_match_participate, finalize_match, update_match_minute, \
     get_match_team_initiative, choose_event_random_player, update_player_stats_from_template, handle_card_event, \
-    fill_template_with_player, check_initiative, update_match_score
+    fill_template_with_player, check_initiative, update_match_score, log_clean_sheets
 from match.utils.match_penalties_helpers import get_penalty_taker, update_penalty_score, check_penalties_completion, log_penalty_event, check_rotation_violations, get_penalty_match_event, \
     calculate_penalty_success, check_sudden_death_completion
 from messaging.utils.notifications_utils import create_match_notifications
@@ -84,9 +84,10 @@ def process_league_day(match_date):
         update_season_statistics_for_match(match)
         update_match_player_ratings(match)
         log_match_participate(match)
+        log_clean_sheets(match)
         finalize_match(match)
-        bulk_update_team_statistics(matches, match_date)
 
+    bulk_update_team_statistics(matches, match_date)
     fixtures = get_fixtures_by_date(match_date.date)
     update_standings_from_fixtures(fixtures)
 
@@ -144,6 +145,7 @@ def process_cup_day(match_date):
 
         try:
             log_match_participate(match)
+            log_clean_sheets(match)
             print(f"Match participation logged for match {match.id}.")
         except Exception as e:
             print(f"Error logging match participation for match {match.id}: {e}")
@@ -216,6 +218,7 @@ def process_euro_day(match_date):
         calculate_match_attendance(match)
         print(f'log_match_participate')
         log_match_participate(match)
+        log_clean_sheets(match)
         print(f'finalize_matc')
         finalize_match(match)
         bulk_update_team_statistics(matches, match_date)
@@ -330,6 +333,7 @@ def process_match(match):
 
                 print("Fetching EventResult...")
                 event_result = get_event_result(event, success)
+                print(f'event result 1: {event_result}')
 
                 if event_result.event_result in ["YellowCard", "RedCard"]:
                     print(f"Handling card event: {event_result.event_result}")

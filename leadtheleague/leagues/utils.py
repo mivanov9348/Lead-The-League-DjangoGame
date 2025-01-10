@@ -245,72 +245,24 @@ def assign_league_champions(season):
             print(f"Неуспешно определяне на шампиона за лига {league_season.league.name}.")
 
 
-def process_relegation_promotion(new_season):
-    leagues = League.objects.order_by('level')
+def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):
+    leagues = League.objects.all()
+    added_teams = []
 
     for league in leagues:
         previous_league_season = league.seasons.filter(is_completed=True).order_by('-season__year').first()
-        current_league_season = league.seasons.filter(season=new_season, is_completed=False).first()
-
         if not previous_league_season:
             continue
 
-        league_teams = previous_league_season.teams.order_by('-points', '-goaldifference', '-goalscored')
-
-        if not league.is_top_league:
-            promoted_teams = league_teams[:league.promoted]
-            upper_league = League.objects.filter(level=league.level - 1, nationality=league.nationality).first()
-
-            if upper_league:
-                upper_league_season, created = LeagueSeason.objects.get_or_create(
-                    league=upper_league, season=new_season
-                )
-
-                for team in promoted_teams:
-                    if team.team.nationality == league.nationality:  # Проверка за националност
-                        LeagueTeams.objects.create(
-                            league_season=upper_league_season,
-                            team=team.team
-                        )
-
-        if not league.is_bottom_league:
-            relegated_teams = league_teams.reverse()[:league.relegated]  # Последните X отбора
-            lower_league = League.objects.filter(level=league.level + 1, nationality=league.nationality).first()
-
-            if lower_league:
-                lower_league_season, created = LeagueSeason.objects.get_or_create(
-                    league=lower_league, season=new_season
-                )
-
-                for team in relegated_teams:
-                    if team.team.nationality == league.nationality:  # Проверка за националност
-                        LeagueTeams.objects.create(
-                            league_season=lower_league_season,
-                            team=team.team
-                        )
-
-        remaining_teams = league_teams[league.promoted:len(league_teams) - league.relegated]
-        for team in remaining_teams:
-            LeagueTeams.objects.create(
-                league_season=current_league_season,
-                team=team.team
-            )
-
-
-def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):
-    top_leagues = League.objects.filter(is_top_league=True)
-    added_teams = []
-
-    for league in top_leagues:
-        previous_league_season = league.seasons.filter(is_completed=True).order_by('-season__year').first()
-        if not previous_league_season:
+        qualifiers_count = league.euro_qualifiers
+        if qualifiers_count <= 0:
             continue
 
-        top_teams = previous_league_season.teams.order_by('-points', '-goaldifference', '-goalscored')[:3]
+        top_teams = previous_league_season.teams.order_by('-points', '-goaldifference', '-goalscored')[:qualifiers_count]
         qualified_teams = []
 
         for team in top_teams:
-            if len(qualified_teams) >= 2:
+            if len(qualified_teams) >= qualifiers_count:
                 break
             if team.team not in cup_champions and team.team not in qualified_teams:
                 qualified_teams.append(team.team)
@@ -326,3 +278,4 @@ def promote_league_teams_to_europe(new_season, new_european_cup_season, european
             print(f"Added {', '.join([team.name for team in qualified_teams])} from {league.name} to {cup.name}.")
 
     return added_teams
+

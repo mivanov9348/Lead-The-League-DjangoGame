@@ -66,7 +66,6 @@ def add_team_to_european_cup(team, european_cup_season):
 
 def europe_promotion(new_season):
     european_cups = EuropeanCup.objects.all()
-    top_leagues = League.objects.filter(is_top_league=True)
     new_euro_cup_season = EuropeanCupSeason.objects.filter(season=new_season).first()
     if not new_euro_cup_season:
         raise ValueError(f"No European Cup Season found for season {new_season}.")
@@ -81,7 +80,6 @@ def europe_promotion(new_season):
         total_added_teams += len(league_teams)
 
         fill_remaining_spots(new_euro_cup_season, total_added_teams)
-
 
 def fill_remaining_spots(new_european_cup_season, total_added_teams):
     total_teams_needed = new_european_cup_season.total_teams

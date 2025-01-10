@@ -1,5 +1,4 @@
 import random
-from datetime import datetime, timezone
 from django.utils.timezone import now
 from accounts.models import CustomUser
 from messaging.models import UserMessageStatus, SystemMessage, MessageTemplate
@@ -7,8 +6,6 @@ from messaging.utils.placeholders_utils import get_free_agent_transfer_placehold
     get_league_matchday_placeholders, \
     get_cup_matchday_placeholders, get_european_cup_champion_placeholder, get_league_champion_placeholder, \
     get_cup_champion_placeholder, get_team_to_team_transfer_placeholder, get_release_player_placeholders
-from transfers.models import Transfer
-
 
 def create_message_for_new_season(category, placeholders, is_global=True):
     templates = MessageTemplate.objects.filter(category=category)

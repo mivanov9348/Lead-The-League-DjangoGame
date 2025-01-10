@@ -119,6 +119,7 @@ class TeamTactics(models.Model):
             models.Index(fields=['tactic']),
         ]
 
+
 class TrainingImpact(models.Model):
     player = models.ForeignKey('players.Player', on_delete=models.CASCADE, related_name='trainings')
     coach = models.ForeignKey('staff.Coach', on_delete=models.CASCADE, related_name='trainings')
@@ -126,9 +127,16 @@ class TrainingImpact(models.Model):
     training_impact = models.DecimalField(max_digits=4, decimal_places=2)
     notes = models.TextField(null=True, blank=True)
 
+
 class TeamSeasonAnalytics(models.Model):
     team = models.ForeignKey(Team, related_name='season_analytics', on_delete=models.CASCADE)
     season = models.ForeignKey('game.Season', on_delete=models.CASCADE)
+    league_season = models.ForeignKey(
+        'leagues.LeagueSeason',
+        related_name="league_teams",
+        on_delete=models.CASCADE,
+        null=True
+    )
     matches = models.PositiveIntegerField(default=0)
     wins = models.PositiveIntegerField(default=0)
     draws = models.PositiveIntegerField(default=0)
@@ -136,7 +144,6 @@ class TeamSeasonAnalytics(models.Model):
     goalscored = models.PositiveIntegerField(default=0)
     goalconceded = models.PositiveIntegerField(default=0)
     points = models.FloatField(default=0.0)
-    average_points = models.FloatField(default=0.0)
 
     def calculate_average(self):
         self.average_points = self.points / self.matches if self.matches > 0 else 0

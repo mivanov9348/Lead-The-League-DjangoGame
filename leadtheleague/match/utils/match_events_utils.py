@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from match.models import MatchEvent, EventResult, EventTemplate, Event
+from match.models import MatchEvent, EventResult, EventTemplate, Event, AttributeEventWeight
 import random
 
 from players.utils.get_player_stats_utils import get_player_attributes
@@ -128,33 +128,44 @@ def get_event_template(event_result):
 
 
 def get_event_result(event, success):
+    import logging
+
+    logger = logging.getLogger(__name__)
+
     if not event:
+        logger.error("No event provided.")
         print("No event provided.")
         return None
 
-    print(f"Searching for EventResults for event type: {event.type} with success: {success}")
+    logger.info(f"Searching for EventResults for event type: {event.type} with success: {success}")
 
     event_results = EventResult.objects.filter(
         event_type__type=event.type
     ).order_by('-event_threshold')
 
     if not event_results.exists():
+        logger.warning(f"No EventResults found for event type: {event.type}")
         print(f"No EventResults found for event type: {event.type}")
         return None
 
+    logger.info(f"Found {event_results.count()} matching EventResults.")
     print(f"Found {event_results.count()} matching EventResults.")
 
     last_valid_result = None
 
     for event_result in event_results:
+        logger.debug(f"Checking if success {success} <= threshold {event_result.event_threshold}")
         print(f"Checking if success {success} <= threshold {event_result.event_threshold}")
         if success <= event_result.event_threshold:
             last_valid_result = event_result
+            logger.info(f"Selected EventResult: {event_result.event_result} with threshold {event_result.event_threshold}")
             print(f"Selected EventResult: {event_result.event_result} with threshold {event_result.event_threshold}")
 
     if last_valid_result:
+        logger.info(f"Returning last valid EventResult: {last_valid_result.event_result}")
         return last_valid_result
 
+    logger.warning("No valid EventResult found.")
     print("No valid EventResult found.")
     return None
 

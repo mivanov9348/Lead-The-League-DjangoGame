@@ -13,8 +13,17 @@ STATISTIC_WEIGHTS = {
 }
 
 
-def get_team_rankings(season):
-    return TeamSeasonAnalytics.objects.filter(season=season).order_by('-average_points')
+def get_team_analytics(limit=None, order_by=None):
+    analytics = TeamSeasonAnalytics.objects.all()
+
+    if order_by:
+        analytics = analytics.order_by(*order_by)
+
+    if limit:
+        analytics = analytics[:limit]
+
+    return analytics
+
 
 
 def update_team_statistics(match, match_date):
@@ -145,3 +154,4 @@ def bulk_update_team_statistics(matches, match_date):
             to_update,
             ['matches', 'goalscored', 'goalconceded', 'points', 'wins', 'draws', 'losses']
         )
+

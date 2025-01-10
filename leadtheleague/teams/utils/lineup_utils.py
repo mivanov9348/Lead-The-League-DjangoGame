@@ -1,6 +1,9 @@
+import random
 from collections import defaultdict
 from django.db.models import Count
-from players.models import Player
+
+from match.utils.lineup_utils import select_best_starting_players_by_position
+from players.models import Player, Position
 from teams.models import TeamTactics, Tactics
 
 
@@ -84,14 +87,16 @@ def ensure_team_tactics(match):
 
 def auto_select_starting_lineup(team):
     try:
-        selected_tactic = Tactics.objects.order_by('?').first()
-        if not selected_tactic:
-            raise ValueError("No tactics available to assign.")
+        tactics = Tactics.objects.all()
+
+        if not tactics.exists():
+            raise ValueError("No tactics available in the database.")
 
         all_players = Player.objects.filter(
             team_players__team=team,
             is_youth=False,
-            is_free_agent=False)
+            is_free_agent=False
+        )
 
         grouped_players = {
             'goalkeeper': [],
@@ -110,14 +115,25 @@ def auto_select_starting_lineup(team):
             elif player.position.abbreviation == 'ATT':
                 grouped_players['attacker'].append(player)
 
-        selected_players = []
-        try:
-            selected_players += grouped_players['goalkeeper'][:selected_tactic.num_goalkeepers]
-            selected_players += grouped_players['defender'][:selected_tactic.num_defenders]
-            selected_players += grouped_players['midfielder'][:selected_tactic.num_midfielders]
-            selected_players += grouped_players['attacker'][:selected_tactic.num_attackers]
-        except IndexError:
-            raise ValueError("Not enough players to fill the lineup for the selected tactic.")
+        valid_tactics = [
+            tactic for tactic in tactics if
+            len(grouped_players['goalkeeper']) >= tactic.num_goalkeepers and
+            len(grouped_players['defender']) >= tactic.num_defenders and
+            len(grouped_players['midfielder']) >= tactic.num_midfielders and
+            len(grouped_players['attacker']) >= tactic.num_attackers
+        ]
+
+        if not valid_tactics:
+            raise ValueError("No valid tactics available based on the current squad.")
+
+        selected_tactic = random.choice(valid_tactics)
+
+        selected_players = (
+            select_best_starting_players_by_position(grouped_players['goalkeeper'], selected_tactic.num_goalkeepers, Position.objects.get(abbreviation='GK')) +
+            select_best_starting_players_by_position(grouped_players['defender'], selected_tactic.num_defenders, Position.objects.get(abbreviation='DF')) +
+            select_best_starting_players_by_position(grouped_players['midfielder'], selected_tactic.num_midfielders, Position.objects.get(abbreviation='MF')) +
+            select_best_starting_players_by_position(grouped_players['attacker'], selected_tactic.num_attackers, Position.objects.get(abbreviation='ATT'))
+        )
 
         errors = validate_lineup(selected_players, selected_tactic)
         if errors:

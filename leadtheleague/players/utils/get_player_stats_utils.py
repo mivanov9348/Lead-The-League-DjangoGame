@@ -1,9 +1,8 @@
 from django.db.models import Avg, Prefetch
 import random
-
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player, \
-    PlayerMatchStatistic, Statistic
+    PlayerMatchStatistic
 from players.utils.generate_player_utils import generate_random_player
 from teams.models import TeamPlayer, Team, TeamTactics
 
@@ -259,3 +258,4 @@ def ensure_team_has_minimum_players(team):
 def ensure_all_teams_has_minimum_players():
     for team in Team.objects.all():
         ensure_team_has_minimum_players(team)
+

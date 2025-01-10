@@ -1,21 +1,22 @@
 import random
 from django.db import transaction
 from django.db.models import Q
+
+from match.models import MatchEvent
 from match.utils.get_match_stats import calculate_match_attendance, match_income, get_opposing_team
 from match.utils.match_goalscorers_utils import log_goalscorer
-from models import MatchEvent
 from players.models import PlayerMatchStatistic
 from teams.models import TeamTactics, TeamPlayer
-
 
 def choose_event_random_player(team):
     try:
         team_tactics = TeamTactics.objects.select_related('team').get(team=team)
-        starting_player = team_tactics.starting_players.order_by('?').first()
+
+        starting_player = team_tactics.starting_players.exclude(position__name='Goalkeeper').order_by('?').first()
+
         return starting_player
     except TeamTactics.DoesNotExist:
         return None
-
 
 def update_match_minute(match):
     increment = random.randint(1, 7)
@@ -104,7 +105,6 @@ def update_player_stats_from_template(match, event_result, player):
     opposing_team = get_opposing_team(match, player_team.team)
 
     if event_result.event_result == "ShotOnTarget":
-        print(f'{opposing_team}; {opposing_team.teamtactics.starting_players}')
         opposing_goalkeeper = opposing_team.teamtactics.starting_players.filter(position__name="Goalkeeper").first()
         if opposing_goalkeeper:
             gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
@@ -162,8 +162,6 @@ def update_match_score(event_result, match, team_with_initiative, player):
         match.save()
 
 
-
-
 def check_initiative(template, match):
     if template.event_result.possession_kept:
         print("The initiative saved")
@@ -181,6 +179,7 @@ def fill_template_with_player(template, player):
 
     formatted_text = template.template_text.format(player_1=player_name)
     return formatted_text
+
 
 def handle_card_event(event_result, player, match, team):
     current_minute = match.current_minute
@@ -287,10 +286,6 @@ def log_match_participate(match):
     existing_stats = PlayerMatchStatistic.objects.filter(
         Q(match=match) & Q(player__in=all_players)
     ).select_related('player')
-    print(f"Loaded existing stats: {existing_stats}")
-
-    for stat in existing_stats:
-        print(f"Existing stat: Player ID={stat.player.id}, Match={stat.match.id}, Statistics={stat.statistics}")
 
     if not existing_stats.exists():
         print(f"No existing statistics found for match {match}. Creating new ones.")
@@ -313,7 +308,6 @@ def log_match_participate(match):
     ]
 
     if new_stats:
-        print(f"Creating new statistics objects for players: {[stat.player.id for stat in new_stats]}")
         PlayerMatchStatistic.objects.bulk_create(new_stats)
     else:
         print("No new statistics to create.")
@@ -328,7 +322,84 @@ def log_match_participate(match):
                     stat.save()
                     print(f"Statistics updated: {stat.statistics}")
                 else:
-                    print(f"'Matches' field is already updated for Player ID={stat.player.id}, value={stat.statistics['Matches']}")
+                    print(
+                        f"'Matches' field is already updated for Player ID={stat.player.id}, value={stat.statistics['Matches']}")
             except Exception as e:
                 print(f"Error updating statistics for Player ID={stat.player.id}. Details: {e}")
 
+
+def log_clean_sheets(match):
+    try:
+        home_team_tactics = TeamTactics.objects.select_related('team').prefetch_related('starting_players').get(
+            team=match.home_team
+        )
+        print(f"Loaded home_team_tactics: {home_team_tactics}")
+
+        away_team_tactics = TeamTactics.objects.select_related('team').prefetch_related('starting_players').get(
+            team=match.away_team
+        )
+        print(f"Loaded away_team_tactics: {away_team_tactics}")
+
+    except TeamTactics.DoesNotExist as e:
+        print(f"Error: TeamTactics not found for one of the teams in match {match}. Details: {e}")
+        return  # Stop execution if no tactics found for a team
+
+    # Check if either team conceded goals
+    home_team_goals_conceded = match.away_goals > 0
+    away_team_goals_conceded = match.home_goals > 0
+
+    print(f"Goals conceded: Home Team={home_team_goals_conceded}, Away Team={away_team_goals_conceded}")
+
+    goalkeepers = {}
+
+    try:
+        home_goalkeeper = home_team_tactics.starting_players.filter(position="Goalkeeper").first()
+        away_goalkeeper = away_team_tactics.starting_players.filter(position="Goalkeeper").first()
+
+        if home_goalkeeper:
+            goalkeepers[home_goalkeeper.id] = home_goalkeeper
+        if away_goalkeeper:
+            goalkeepers[away_goalkeeper.id] = away_goalkeeper
+
+        print(f"Identified goalkeepers: {goalkeepers}")
+
+    except Exception as e:
+        print(f"Error retrieving goalkeepers. Details: {e}")
+        return
+
+    with transaction.atomic():
+        # Update or create CleanSheets for home goalkeeper
+        if not home_team_goals_conceded and home_goalkeeper:
+            stat, created = PlayerMatchStatistic.objects.get_or_create(
+                player=home_goalkeeper,
+                match=match,
+                defaults={"statistics": {"CleanSheets": 1}},
+            )
+
+            if not created:
+                clean_sheets = stat.statistics.get("CleanSheets", 0)
+                stat.statistics["CleanSheets"] = clean_sheets + 1
+                stat.save()
+                print(f"Updated CleanSheets for Home Goalkeeper ID={home_goalkeeper.id}: {stat.statistics}")
+            else:
+                print(
+                    f"Created new CleanSheets statistic for Home Goalkeeper ID={home_goalkeeper.id}: {stat.statistics}")
+
+        # Update or create CleanSheets for away goalkeeper
+        if not away_team_goals_conceded and away_goalkeeper:
+            stat, created = PlayerMatchStatistic.objects.get_or_create(
+                player=away_goalkeeper,
+                match=match,
+                defaults={"statistics": {"CleanSheets": 1}},
+            )
+
+            if not created:
+                clean_sheets = stat.statistics.get("CleanSheets", 0)
+                stat.statistics["CleanSheets"] = clean_sheets + 1
+                stat.save()
+                print(f"Updated CleanSheets for Away Goalkeeper ID={away_goalkeeper.id}: {stat.statistics}")
+            else:
+                print(
+                    f"Created new CleanSheets statistic for Away Goalkeeper ID={away_goalkeeper.id}: {stat.statistics}")
+
+    print("CleanSheets logging completed.")

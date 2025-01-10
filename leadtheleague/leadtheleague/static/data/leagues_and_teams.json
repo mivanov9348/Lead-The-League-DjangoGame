@@ -1,5 +1,5 @@
 {
-  "First Bulgarian League": [
+  "Bulgarian League": [
     {
       "name": "Ludogorets Razgrad",
       "reputation": 1000
@@ -45,10 +45,6 @@
       "reputation": 720
     },
     {
-      "name": "Hebar",
-      "reputation": 700
-    },
-    {
       "name": "Etar",
       "reputation": 680
     },
@@ -63,48 +59,14 @@
     {
       "name": "Minyor Pernik",
       "reputation": 600
-    }
-  ],
-  "Second Bulgarian League": [
+    },
     {
       "name": "Lokomotiv Sofia",
       "reputation": 580
     },
     {
-      "name": "Septemvri Sofia",
-      "reputation": 560
-    },
-    {
-      "name": "Strumska Slava",
-      "reputation": 540
-    },
-    {
-      "name": "Vitosha Bistritsa",
-      "reputation": 520
-    },
-    {
       "name": "Dobrudzha Dobrich",
       "reputation": 500
-    },
-    {
-      "name": "Nesebar",
-      "reputation": 480
-    },
-    {
-      "name": "Marek Dupnitsa",
-      "reputation": 460
-    },
-    {
-      "name": "Sozopol",
-      "reputation": 440
-    },
-    {
-      "name": "Bansko",
-      "reputation": 420
-    },
-    {
-      "name": "Tsarsko Selo",
-      "reputation": 400
     },
     {
       "name": "Neftochimic Burgas",
@@ -113,6 +75,22 @@
     {
       "name": "Chernomorets Burgas",
       "reputation": 360
+    },
+    {
+      "name": "Yambol",
+      "reputation": 200
+    },
+    {
+      "name": "Sliven",
+      "reputation": 100
+    },
+    {
+      "name": "Bdin Vidin",
+      "reputation": 130
+    },
+    {
+      "name": "Marek Dupnitsa",
+      "reputation": 460
     },
     {
       "name": "Rodopa Smolyan",
@@ -129,75 +107,21 @@
     {
       "name": "Rilski Sportist",
       "reputation": 280
-    }
-  ],
-  "Third Bulgarian League": [
-    {
-      "name": "Septemvri Simitli",
-      "reputation": 260
-    },
-    {
-      "name": "Lokomotiv Gorna Oryahovitsa",
-      "reputation": 240
-    },
-    {
-      "name": "Yantra Gabrovo",
-      "reputation": 220
-    },
-    {
-      "name": "Yambol",
-      "reputation": 200
-    },
-    {
-      "name": "Haskovo",
-      "reputation": 190
     },
     {
       "name": "Dunav Ruse",
       "reputation": 180
     },
     {
-      "name": "Botev Galabovo",
-      "reputation": 170
-    },
-    {
-      "name": "Kaliakra Kavarna",
-      "reputation": 160
-    },
-    {
-      "name": "Levski Karlovo",
-      "reputation": 150
-    },
-    {
-      "name": "Chavdar Etropole",
-      "reputation": 140
-    },
-    {
-      "name": "Bdin Vidin",
-      "reputation": 130
+      "name": "Yantra Gabrovo",
+      "reputation": 220
     },
     {
       "name": "Litex Lovech",
       "reputation": 120
-    },
-    {
-      "name": "Spartak Plovdiv",
-      "reputation": 110
-    },
-    {
-      "name": "Pomorie",
-      "reputation": 100
-    },
-    {
-      "name": "Lokomotiv Mezdra",
-      "reputation": 100
-    },
-    {
-      "name": "Sliven",
-      "reputation": 100
     }
   ],
-  "Premier League": [
+  "English League": [
     {
       "name": "Manchester United",
       "reputation": 1000
@@ -275,38 +199,28 @@
       "reputation": 640
     },
     {
-      "name": "Brentford",
-      "reputation": 620
-    }
-  ],
-  "Championship": [
-    {
       "name": "Blackburn Rovers",
       "reputation": 600
-    },
-    {
-      "name": "Sheffield Wednesday",
-      "reputation": 580
-    },
-    {
-      "name": "Burnley",
-      "reputation": 560
     },
     {
       "name": "Sunderland",
       "reputation": 540
     },
     {
+      "name": "Middlesbrough",
+      "reputation": 480
+    },
+    {
       "name": "Stoke City",
       "reputation": 520
     },
     {
-      "name": "Norwich City",
-      "reputation": 500
+      "name": "Birmingham City",
+      "reputation": 380
     },
     {
-      "name": "Middlesbrough",
-      "reputation": 480
+      "name": "Wigan Athletic",
+      "reputation": 220
     },
     {
       "name": "Derby County",
@@ -317,133 +231,19 @@
       "reputation": 440
     },
     {
-      "name": "Cardiff City",
-      "reputation": 420
-    },
-    {
-      "name": "Charlton Athletic",
-      "reputation": 400
-    },
-    {
-      "name": "Birmingham City",
-      "reputation": 380
-    },
-    {
-      "name": "Reading",
-      "reputation": 360
-    },
-    {
-      "name": "Luton Town",
-      "reputation": 340
-    },
-    {
-      "name": "Millwall",
-      "reputation": 320
-    },
-    {
-      "name": "Huddersfield Town",
-      "reputation": 300
-    },
-    {
-      "name": "Swansea City",
-      "reputation": 280
-    },
-    {
-      "name": "Coventry City",
-      "reputation": 260
-    },
-    {
-      "name": "Bristol City",
-      "reputation": 240
-    },
-    {
-      "name": "Wigan Athletic",
-      "reputation": 220
-    }
-  ],
-  "English League One": [
-    {
-      "name": "Ipswich Town",
-      "reputation": 200
-    },
-    {
-      "name": "QPR",
-      "reputation": 190
-    },
-    {
-      "name": "Plymouth Argyle",
-      "reputation": 180
-    },
-    {
-      "name": "Barnsley",
-      "reputation": 170
-    },
-    {
-      "name": "Oldham Athletic",
-      "reputation": 160
-    },
-    {
-      "name": "Preston North End",
-      "reputation": 150
-    },
-    {
-      "name": "Bristol Rovers",
-      "reputation": 140
-    },
-    {
-      "name": "Blackpool",
-      "reputation": 130
-    },
-    {
-      "name": "Oxford United",
-      "reputation": 120
-    },
-    {
-      "name": "Shrewsbury Town",
-      "reputation": 110
+      "name": "Norwich City",
+      "reputation": 500
     },
     {
       "name": "Wimbledon",
       "reputation": 100
     },
     {
-      "name": "MK Dons",
-      "reputation": 100
-    },
-    {
-      "name": "Rochdale",
-      "reputation": 100
-    },
-    {
-      "name": "Grimsby Town",
-      "reputation": 100
-    },
-    {
-      "name": "Scarborough",
-      "reputation": 100
-    },
-    {
-      "name": "York City",
-      "reputation": 100
-    },
-    {
-      "name": "Bury",
-      "reputation": 100
-    },
-    {
-      "name": "Chesterfield",
-      "reputation": 100
-    },
-    {
-      "name": "Accrington Stanley",
-      "reputation": 100
-    },
-    {
-      "name": "Tranmere Rovers",
-      "reputation": 100
+      "name": "Ipswich Town",
+      "reputation": 200
     }
   ],
-  "Bundesliga": [
+  "German League": [
     {
       "name": "Bayern Munich",
       "reputation": 1000
@@ -515,126 +315,14 @@
     {
       "name": "Nurnberg",
       "reputation": 640
-    }
-  ],
-  "2. Bundesliga": [
-    {
-      "name": "Arminia Bielefeld",
-      "reputation": 620
-    },
-    {
-      "name": "Darmstadt 98",
-      "reputation": 600
-    },
-    {
-      "name": "Hansa Rostock",
-      "reputation": 580
-    },
-    {
-      "name": "Greuther Furth",
-      "reputation": 560
-    },
-    {
-      "name": "St. Pauli",
-      "reputation": 540
-    },
-    {
-      "name": "Kaiserslautern",
-      "reputation": 520
-    },
-    {
-      "name": "1860 Munich",
-      "reputation": 500
-    },
-    {
-      "name": "Paderborn 07",
-      "reputation": 480
-    },
-    {
-      "name": "Ingolstadt 04",
-      "reputation": 460
-    },
-    {
-      "name": "Augsburg",
-      "reputation": 440
-    },
-    {
-      "name": "Erzgebirge Aue",
-      "reputation": 420
-    },
-    {
-      "name": "Duisburg",
-      "reputation": 400
-    },
-    {
-      "name": "Regensburg",
-      "reputation": 380
-    },
-    {
-      "name": "Karlsruhe",
-      "reputation": 360
-    },
-    {
-      "name": "Osnabruck",
-      "reputation": 320
     },
     {
       "name": "Energie Cottbus",
       "reputation": 280
     },
     {
-      "name": "Unterhaching",
-      "reputation": 260
-    },
-    {
       "name": "Fortuna Dusseldorf",
       "reputation": 660
-    }
-  ],
-  "3. Liga": [
-    {
-      "name": "Magdeburg",
-      "reputation": 240
-    },
-    {
-      "name": "Rot-Weiss Erfurt",
-      "reputation": 220
-    },
-    {
-      "name": "Viktoria Koln",
-      "reputation": 200
-    },
-    {
-      "name": "Hallescher FC",
-      "reputation": 180
-    },
-    {
-      "name": "Saarbrucken",
-      "reputation": 160
-    },
-    {
-      "name": "Meppen",
-      "reputation": 140
-    },
-    {
-      "name": "Mannheim",
-      "reputation": 120
-    },
-    {
-      "name": "Dynamo Dresden",
-      "reputation": 100
-    },
-    {
-      "name": "Wacker Burghausen",
-      "reputation": 100
-    },
-    {
-      "name": "Rot-Weiss Oberhausen",
-      "reputation": 100
-    },
-    {
-      "name": "Chemnitzer FC",
-      "reputation": 100
     },
     {
       "name": "Alemannia Aachen",
@@ -645,27 +333,39 @@
       "reputation": 100
     },
     {
-      "name": "Heidenheim",
-      "reputation": 100
+      "name": "1860 Munich",
+      "reputation": 500
     },
     {
-      "name": "Wormatia Worms",
-      "reputation": 100
+      "name": "Darmstadt 98",
+      "reputation": 600
     },
     {
-      "name": "Sandhausen",
-      "reputation": 100
+      "name": "Arminia Bielefeld",
+      "reputation": 620
     },
     {
-      "name": "Holstein Kiel",
-      "reputation": 100
+      "name": "St. Pauli",
+      "reputation": 540
     },
     {
-      "name": "Lokomotiv Leipzig",
-      "reputation": 100
+      "name": "Kaiserslautern",
+      "reputation": 520
+    },
+    {
+      "name": "Ingolstadt 04",
+      "reputation": 460
+    },
+    {
+      "name": "Augsburg",
+      "reputation": 440
+    },
+    {
+      "name": "Duisburg",
+      "reputation": 400
     }
   ],
-  "Serie A": [
+  "Italian League": [
     {
       "name": "Juventus",
       "reputation": 1000
@@ -719,10 +419,6 @@
       "reputation": 780
     },
     {
-      "name": "Hellas Verona",
-      "reputation": 760
-    },
-    {
       "name": "Udinese",
       "reputation": 740
     },
@@ -735,19 +431,17 @@
       "reputation": 700
     },
     {
-      "name": "Salernitana",
-      "reputation": 680
-    },
-    {
       "name": "Lecce",
       "reputation": 660
     },
     {
-      "name": "Spezia",
-      "reputation": 640
-    }
-  ],
-  "Serie B": [
+      "name": "Pro Vercelli",
+      "reputation": 180
+    },
+    {
+      "name": "Como",
+      "reputation": 100
+    },
     {
       "name": "Parma",
       "reputation": 600
@@ -757,161 +451,43 @@
       "reputation": 580
     },
     {
-      "name": "Monza",
-      "reputation": 560
+      "name": "Bari",
+      "reputation": 300
     },
     {
-      "name": "Venezia",
-      "reputation": 540
-    },
-    {
-      "name": "Brescia",
-      "reputation": 520
-    },
-    {
-      "name": "Frosinone",
-      "reputation": 500
-    },
-    {
-      "name": "Cremonese",
-      "reputation": 480
-    },
-    {
-      "name": "Pescara",
-      "reputation": 460
-    },
-    {
-      "name": "Siena",
-      "reputation": 440
-    },
-    {
-      "name": "Vicenza",
-      "reputation": 420
+      "name": "Chievo Verona",
+      "reputation": 220
     },
     {
       "name": "Reggina",
       "reputation": 400
     },
     {
-      "name": "Catania",
-      "reputation": 380
-    },
-    {
       "name": "Perugia",
       "reputation": 360
     },
     {
-      "name": "Ascoli Calcio",
-      "reputation": 340
+      "name": "Brescia",
+      "reputation": 520
     },
     {
-      "name": "Novara",
-      "reputation": 320
+      "name": "Pescara",
+      "reputation": 460
     },
     {
-      "name": "Bari",
-      "reputation": 300
+      "name": "Monza",
+      "reputation": 560
     },
     {
-      "name": "Trapani",
-      "reputation": 280
+      "name": "Frosinone",
+      "reputation": 500
     },
     {
-      "name": "Modena",
-      "reputation": 260
-    },
-    {
-      "name": "Livorno",
-      "reputation": 240
-    },
-    {
-      "name": "Chievo Verona",
-      "reputation": 220
+      "name": "Venezia",
+      "reputation": 540
     }
   ],
-  "Serie C": [
-    {
-      "name": "Padova",
-      "reputation": 200
-    },
-    {
-      "name": "Teramo",
-      "reputation": 190
-    },
-    {
-      "name": "Pro Vercelli",
-      "reputation": 180
-    },
-    {
-      "name": "AlbinoLeffe",
-      "reputation": 170
-    },
-    {
-      "name": "Carpi",
-      "reputation": 160
-    },
-    {
-      "name": "Cosenza",
-      "reputation": 150
-    },
-    {
-      "name": "Crotone",
-      "reputation": 140
-    },
-    {
-      "name": "Pisa",
-      "reputation": 130
-    },
-    {
-      "name": "Piacenza",
-      "reputation": 120
-    },
-    {
-      "name": "Gubbio",
-      "reputation": 110
-    },
-    {
-      "name": "Ternana",
-      "reputation": 100
-    },
-    {
-      "name": "Trento",
-      "reputation": 100
-    },
-    {
-      "name": "Varese",
-      "reputation": 100
-    },
-    {
-      "name": "Como",
-      "reputation": 100
-    },
-    {
-      "name": "Casale",
-      "reputation": 100
-    },
-    {
-      "name": "Mantova",
-      "reputation": 100
-    },
-    {
-      "name": "Arezzo",
-      "reputation": 100
-    },
-    {
-      "name": "Fermana",
-      "reputation": 100
-    },
-    {
-      "name": "Pontedera",
-      "reputation": 100
-    },
-    {
-      "name": "Sudtirol",
-      "reputation": 100
-    }
-  ],
-  "La Liga": [
+  "Spanish League": [
     {
       "name": "Real Madrid",
       "reputation": 1000
@@ -985,22 +561,8 @@
       "reputation": 660
     },
     {
-      "name": "Elche",
-      "reputation": 640
-    },
-    {
       "name": "Levante",
       "reputation": 620
-    }
-  ],
-  "Segunda Division": [
-    {
-      "name": "Las Palmas",
-      "reputation": 600
-    },
-    {
-      "name": "Deportivo La Coruna",
-      "reputation": 580
     },
     {
       "name": "Real Zaragoza",
@@ -1019,34 +581,6 @@
       "reputation": 500
     },
     {
-      "name": "Girona",
-      "reputation": 480
-    },
-    {
-      "name": "Eibar",
-      "reputation": 460
-    },
-    {
-      "name": "Huesca",
-      "reputation": 440
-    },
-    {
-      "name": "Lugo",
-      "reputation": 420
-    },
-    {
-      "name": "Real Oviedo",
-      "reputation": 400
-    },
-    {
-      "name": "Mirandes",
-      "reputation": 380
-    },
-    {
-      "name": "Burgos",
-      "reputation": 360
-    },
-    {
       "name": "Albacete",
       "reputation": 340
     },
@@ -1063,98 +597,16 @@
       "reputation": 280
     },
     {
-      "name": "Numancia",
-      "reputation": 260
-    },
-    {
-      "name": "Logrones",
-      "reputation": 240
-    },
-    {
       "name": "Hercules",
       "reputation": 220
-    }
-  ],
-  "Tercera Division": [
-    {
-      "name": "Racing Ferrol",
-      "reputation": 200
     },
     {
-      "name": "Recreativo Huelva",
-      "reputation": 190
+      "name": "Deportivo La Coruna",
+      "reputation": 580
     },
     {
-      "name": "Cordoba",
-      "reputation": 180
-    },
-    {
-      "name": "Badajoz",
-      "reputation": 170
-    },
-    {
-      "name": "Merida",
-      "reputation": 160
-    },
-    {
-      "name": "San Fernando",
-      "reputation": 150
-    },
-    {
-      "name": "Barakaldo",
-      "reputation": 140
-    },
-    {
-      "name": "UD Ibiza",
-      "reputation": 130
-    },
-    {
-      "name": "Racing Santander",
-      "reputation": 120
-    },
-    {
-      "name": "Sevilla Atletico",
-      "reputation": 110
-    },
-    {
-      "name": "Amorebieta",
-      "reputation": 100
-    },
-    {
-      "name": "UCAM Murcia",
-      "reputation": 100
-    },
-    {
-      "name": "Andorra",
-      "reputation": 100
-    },
-    {
-      "name": "Cuenca",
-      "reputation": 100
-    },
-    {
-      "name": "Ponferradina",
-      "reputation": 100
-    },
-    {
-      "name": "Reus Deportiu",
-      "reputation": 100
-    },
-    {
-      "name": "Cultural Leonesa",
-      "reputation": 100
-    },
-    {
-      "name": "Valladolid Promesas",
-      "reputation": 100
-    },
-    {
-      "name": "Villanovense",
-      "reputation": 100
-    },
-    {
-      "name": "Zamora",
-      "reputation": 100
+      "name": "Las Palmas",
+      "reputation": 600
     }
   ]
 }

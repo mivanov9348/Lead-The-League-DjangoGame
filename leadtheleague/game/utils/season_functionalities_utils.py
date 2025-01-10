@@ -8,7 +8,7 @@ from europeancups.utils.group_stage_utils import create_groups_for_season, gener
 from fixtures.utils import  generate_all_league_fixtures
 from game.models import Season
 from game.utils.get_season_stats_utils import check_are_all_competition_completed
-from leagues.utils import generate_leagues_season, process_relegation_promotion, populate_teams_for_season
+from leagues.utils import generate_leagues_season, populate_teams_for_season
 from match.utils.generate_match_stats_utils import generate_league_matches, generate_cup_matches, \
     generate_euro_cup_matches
 from messaging.utils.category_messages_utils import create_message_for_new_season
@@ -113,9 +113,6 @@ def prepare_first_season(season):
 def prepare_new_season(new_season):
     try:
         with transaction.atomic():
-            # relegated/promoted
-            process_relegation_promotion(new_season)
-            print(f'Relegation/Promotion process finished successfully!')
             # eurocup participants
             europe_promotion(new_season)
             print(f'European teams found!')

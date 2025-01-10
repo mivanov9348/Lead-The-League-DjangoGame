@@ -61,7 +61,7 @@
     }
 
     .team-points {
-        color: #3742fa;
+        color: black;
         font-size: 16px;
         font-weight: bold;
     }
@@ -90,15 +90,20 @@
 <div class="team-container">
     {% for team in teams|slice:":30" %}
     <a href="{% url 'teams:team_stats' team.team.id %}" class="team-card" data-points="{{ team.points }}">
-    <div class="team-rank">#{{ forloop.counter }}</div>
-    <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }}" class="team-logo">
-    <div class="team-info">
-        <h3>{{ team.team.name }}</h3>
-        <p>League: {{ team.league_season.league.name }}</p>
-        <p class="team-points">Points: {{ team.points|floatformat:2 }}</p>
-        <p>GS: {{ team.goalScored }}</p>
-    </div>
-</a>
+        <div class="team-rank">#{{ forloop.counter }}</div>
+        <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }}" class="team-logo">
+        <div class="team-info">
+            <h3>{{ team.team.name }}</h3>
+            <p>{{ team.team.league_teams.first.league_season.league.name }}</p>
+            <p class="team-points" style="color:black">Points: {{ team.points|floatformat:2 }}</p>
+            <p>W: {{ team.wins }}</p>
+            <p>D: {{ team.draws }}</p>
+            <p>L: {{ team.losses }}</p>
+            <p>GS: {{ team.goalscored }}</p>
+            <p>GC: {{ team.goalconceded }}</p>
+
+        </div>
+    </a>
 
     {% endfor %}
 </div>

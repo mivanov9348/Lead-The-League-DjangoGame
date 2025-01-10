@@ -53,7 +53,10 @@
                 <td>
                     <img src="{{ player.image_url }}" class="icon" alt="Player">
                 </td>
-                <td>{{ player.name }}</td>
+
+                <td>
+                    <a href="{% url 'players:player_profile' player.id %}">{{ player.name }}</a>
+                </td>
                 <td>{{ player.position_abbr }}</td>
                 <td>{{ player.nationality_abbr }}</td>
                 <td>{{ player.season_stats.Matches }}</td>
