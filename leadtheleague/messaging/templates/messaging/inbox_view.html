@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/inbox_view.css' %}">
+<!--<link rel="stylesheet" href="{% static 'css/inbox_view.css' %}">-->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
 
@@ -12,18 +12,20 @@
         display: flex;
         height: 100vh;
         width: 100%;
+        background-color: var(--bg-color);
         overflow: hidden;
-        background-color: var(--darkgreen-color);
     }
 
+    /* Sidebar Styling */
     .sidebar {
-        background-color: var(--darkgreen-color);
         width: 30%;
-        color: white;
-        overflow-y: auto;
-        padding: 20px;
+        background-color: #ffffff;
+        color: var(--text-light-color);
         display: flex;
         flex-direction: column;
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        border-radius:8px;
     }
 
     .sidebar h2 {
@@ -33,56 +35,58 @@
     }
 
     #search-bar {
-        width: 100%;
-        padding: 10px;
+        padding: 12px;
         margin-bottom: 20px;
-        border-radius: 4px;
+        border-radius: 5px;
         border: none;
-        font-size: 16px;
         outline: none;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        font-size: 16px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: lightgray;
     }
 
     .message-list {
         list-style: none;
         padding: 0;
         margin: 0;
+        overflow-y: auto;
     }
 
     .message-item {
         display: flex;
         align-items: center;
-        padding: 12px;
+        padding: 15px;
         margin-bottom: 10px;
-        border-radius: 4px;
-        cursor: pointer;
         background-color: var(--darkgreen-color);
+        border-radius: 8px;
+        cursor: pointer;
         transition: background-color 0.3s, transform 0.2s;
+        color:white;
     }
 
     .message-item:hover {
         background-color: black;
-        transform: translateX(5px);
     }
 
     .message-item.active {
-
-    color: black; /* Светъл текст */
-        }
+        background-color: var(--darkgreen-color);
+        color:white;
+    }
 
     .message-item .status-indicator {
-        font-size: 12px;
+        font-size: 14px;
         margin-right: 10px;
     }
 
     .message-item .preview-text {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        flex-grow: 1;
         font-size: 16px;
+        color: var(--text-light-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
+    /* Main Content */
     .content {
         flex-grow: 1;
         padding: 20px;
@@ -91,36 +95,35 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: white;
     }
 
     .message-detail {
         width: 100%;
-        border: 1px solid #ddd;
+        max-width: 800px;
+        background-color: #ffffff;
         border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         padding: 20px;
-        background-color: var(--darkgreen-color);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        margin-top: 0;
-        align-self: flex-start;
+        margin-top: 20px;
     }
 
     .message-detail h3 {
+        color: var(--text-dark-color);
         margin-bottom: 10px;
     }
 
     .no-message {
-        text-align: center;
         font-size: 18px;
-        color: yellow;
+        text-align: center;
+        color: var(--darkgreen-color);
     }
 
     .no-message i {
         font-size: 40px;
-        color: green;
         margin-bottom: 10px;
     }
 
+    /* Scrollbar Styling */
     .sidebar::-webkit-scrollbar, .content::-webkit-scrollbar {
         width: 8px;
     }
@@ -131,7 +134,7 @@
     }
 
     .sidebar::-webkit-scrollbar-track, .content::-webkit-scrollbar-track {
-        background-color: #444;
+        background-color: #cccccc;
     }
 </style>
 {% endblock %}
@@ -141,12 +144,12 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h2><i class="fas fa-envelope"></i> Game Messages</h2>
-        <input type="text" id="search-bar" placeholder="Search messages..."/>
+        <input type="text" id="search-bar" placeholder="Search messages...">
         <ul class="message-list">
             {% for item in context %}
-            <li class="message-item {{ item.is_read|yesno:"active," }}" data-id="{{ item.message.id }}">
+            <li class="message-item {{ item.is_read|yesno:'active,' }}" data-id="{{ item.message.id }}">
                 <a href="?notification_id={{ item.message.id }}" class="message-link">
-                    <span class="status-indicator">{{ item.is_read|yesno:"🟢,🔴" }}</span>
+                    <span class="status-indicator">{{ item.is_read|yesno:'🟢,🔴' }}</span>
                     <span class="preview-text">{{ item.message.title }}</span>
                 </a>
             </li>
@@ -160,11 +163,12 @@
         <div class="message-detail">
             <h3>{{ message.title }}</h3>
             <p><strong>Date:</strong> {{ message.date|date:"Y-m-d H:i" }}</p>
-            <hr/>
+            <hr>
             <p>{{ message.content }}</p>
         </div>
         {% else %}
         <div class="no-message">
+            <i class="fas fa-info-circle"></i>
             <p>Select a message to view details</p>
         </div>
         {% endif %}
@@ -176,6 +180,7 @@
         const searchBar = document.getElementById("search-bar");
         const messageItems = document.querySelectorAll(".message-item");
 
+        // Filter messages in real-time
         searchBar.addEventListener("input", () => {
             const query = searchBar.value.toLowerCase();
             messageItems.forEach(item => {
@@ -184,28 +189,29 @@
             });
         });
 
+        // Add click event to message items
         messageItems.forEach(item => {
             item.addEventListener("click", async () => {
-                // Премахване на "active" от всички елементи
                 messageItems.forEach(i => i.classList.remove("active"));
                 item.classList.add("active");
 
                 const messageId = item.getAttribute("data-id");
 
-                // Маркиране на съобщението като прочетено в бекенда
+                // Mark message as read (AJAX request)
                 try {
                     const response = await fetch(`/mark-as-read/${messageId}/`, {
-                        method: 'POST',
+                        method: "POST",
                         headers: {
-                            'X-CSRFToken': '{{ csrf_token }}', // Защитен токен за CSRF
-                            'Content-Type': 'application/json'
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "Content-Type": "application/json"
                         }
                     });
+
                     if (!response.ok) {
-                        console.error('Error marking message as read');
+                        console.error("Error marking message as read");
                     }
                 } catch (error) {
-                    console.error('Network error:', error);
+                    console.error("Network error:", error);
                 }
             });
         });

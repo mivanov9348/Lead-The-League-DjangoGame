@@ -35,3 +35,4 @@ def get_success_url(self):
     if not Team.objects.filter(user=self.request.user).exists():
         return reverse_lazy('teams:create_team')
     return reverse_lazy('game:home')
+

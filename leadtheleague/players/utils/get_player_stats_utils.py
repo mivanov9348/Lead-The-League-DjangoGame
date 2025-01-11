@@ -149,6 +149,8 @@ def format_player_data(player):
         'agent': f"{player.agent.first_name} {player.agent.last_name}" if player.agent else "No Agent",
         **attributes,
         'price': player.price,
+        'potential_rating': player.potential_rating,
+        'potential_percentage': (player.potential_rating / 10) * 100,
         'image_url': player.image
     }
 

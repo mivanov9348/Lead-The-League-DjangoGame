@@ -14,7 +14,6 @@ urlpatterns = [
     path('players/', include('players.urls', namespace='players')),
     path('leagues/', include('leagues.urls', namespace='leagues')),
     path('messaging/', include('messaging.urls', namespace='messaging')),
-
     path('match/', include('match.urls', namespace='match')),
     path('transfers/', include('transfers.urls', namespace='transfers')),
     path('finance/', include('finance.urls', namespace='finance')),

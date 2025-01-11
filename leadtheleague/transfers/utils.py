@@ -1,12 +1,16 @@
 import random
+from datetime import date
 from decimal import Decimal
 from django.db.models import Prefetch
-from messaging.utils.category_messages_utils import create_free_agent_transfer_message, \
-    create_team_to_team_transfer_message
+from game.models import MatchSchedule
+from messaging.utils.category_messages_utils import create_team_to_team_transfer_message
 from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import sell_player_income, buy_player_expense
 from transfers.models import Transfer, TransferOffer
 
+def is_transfer_day():
+    today = date.today()
+    return MatchSchedule.objects.filter(date=today, event_type='transfer').exists()
 
 def get_all_transfers():
     return Transfer.objects.all()

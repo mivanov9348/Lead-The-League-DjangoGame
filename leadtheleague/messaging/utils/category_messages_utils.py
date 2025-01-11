@@ -178,6 +178,7 @@ def create_new_coach_message(coach, team):
     )
 
     create_user_message_status(system_message, is_global=False, recipient=team.user)
+    print(f'system message: {system_message}')
 
     return system_message
 

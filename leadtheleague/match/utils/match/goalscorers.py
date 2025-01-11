@@ -1,7 +1,5 @@
 from django.db import transaction
-
 from match.models import MatchGoalScorer
-
 
 def get_goalscorers_for_match(match):
     goal_scorers = MatchGoalScorer.objects.filter(match=match).select_related('player', 'team')

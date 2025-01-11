@@ -53,22 +53,20 @@
 
         <div class="col-md-4">
             <div class="card last-messages-card">
-                <div class="card-header text-center text-uppercase fw-bold">
-                    <a href="{% url 'messaging:inbox_view' %}">Last Messages</a>
-                </div>
-                <div class="card-body table-container">
-                    <table class="table table-sm">
-                        <tbody>
-                        {% for messages in latest_messages %}
-                        <tr>
-                            <td class="text-nowrap">{{ messages.date_sent|date:"d M Y" }}</td>
-                            <td class="text-truncate">{{ messages.preview }}</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="card-header text-center text-uppercase fw-bold">
+        <a href="{% url 'messaging:inbox_view' %}">Last Messages</a>
+    </div>
+    <div class="card-body">
+        {% for message in latest_messages %}
+        <div class="message-item">
+            <span class="message-status-dot {% if message.is_read %}read{% else %}unread{% endif %}"></span>
+            <p class="message-date">{{ message.date_sent }}</p>
+            <p class="message-title text-truncate">{{ message.title }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
         </div>
 
         <div class="col-md-4">
@@ -89,12 +87,12 @@
                         <p class="highlight">{{ last_match.home_team.name }}</p>
                     </div>
                     <div class="match-info text-center">
-    <a href="{% url 'match:match' last_match.id %}" class="match-link">
-        <p>{{ last_match.league }}</p>
-        <p>{{ last_match.match_date|date:"d M Y" }}</p>
-        <p class="score">{{ last_match.home_goals }} - {{ last_match.away_goals }}</p>
-    </a>
-</div>
+                        <a href="{% url 'match:match' last_match.id %}" class="match-link">
+                            <p>{{ last_match.league }}</p>
+                            <p>{{ last_match.match_date|date:"d M Y" }}</p>
+                            <p class="score">{{ last_match.home_goals }} - {{ last_match.away_goals }}</p>
+                        </a>
+                    </div>
 
                     <div class="opponent-info text-center">
                         <div class="team-logo">

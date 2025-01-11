@@ -40,6 +40,7 @@
                 <th>Age</th>
                 <th>Nat</th>
                 <th>Pos</th>
+                <th>Potential</th>
                 <th>Agent</th>
                 <th title="Handling">H</th>
                 <th title="Reflexes">R</th>
@@ -70,6 +71,11 @@
                 <td>{{ player.age }}</td>
                 <td title={{player.nationality}}>{{ player.nationalityabbr }}</td>
                 <td>{{ player.positionabbr }}</td>
+                <td>
+                    <div class="stars-container" title="{{ player.potential_rating }}">
+                        <span class="filled-stars" style="width: {{ player.potential_percentage }}%;"></span>
+                    </div>
+                </td>
                 <td>{{ player.agent }}</td>
                 <td>{{ player.handling }}</td>
                 <td>{{ player.reflexes }}</td>

@@ -2,7 +2,7 @@ import random
 from collections import defaultdict
 from django.db.models import Count
 
-from match.utils.lineup_utils import select_best_starting_players_by_position
+from match.utils.match.lineup import select_best_starting_players_by_position
 from players.models import Player, Position
 from teams.models import TeamTactics, Tactics
 

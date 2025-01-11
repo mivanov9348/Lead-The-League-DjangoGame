@@ -83,8 +83,7 @@ def update_player_rating(player, match):
 
     weights = {
         'Assists': 1.0, 'CleanSheets': 1.5, 'Conceded': -1.0, 'Dribbles': 0.5,
-        'Fouls': -0.2, 'Goals': 2.0, 'Matches': 0.1, 'MinutesPlayed': 0.1,
-        'Passes': 0.3, 'RedCards': -1.0, 'Saves': 1.0, 'Shoots': 0.3,
+        'Fouls': -0.2, 'Goals': 2.0, 'Matches': 0.1,'Passes': 0.3, 'RedCards': -1.0, 'Saves': 1.0, 'Shoots': 0.3,
         'ShootsOnTarget': 0.5, 'Tackles': 0.3, 'YellowCards': -0.5,
     }
 

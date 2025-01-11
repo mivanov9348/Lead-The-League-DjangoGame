@@ -62,6 +62,51 @@
     function getCSRFToken() {
         return '{{ csrf_token }}';
     }
+    function fireCoach(coachId, coachName) {
+    Swal.fire({
+        title: `Are you sure you want to fire ${coachName}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, fire them!',
+        cancelButtonText: 'Cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/teams/fire_coach/${coachId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Coach Fired',
+                        text: data.message,
+                    });
+                    // Optionally remove the coach card from the UI
+                    const coachCard = document.querySelector(`.card button.fire-button[onclick*="${coachId}"]`).closest('.card');
+                    coachCard.remove();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred: ' + error.message,
+                });
+            });
+        }
+    });
+}
 
     function trainCoach(teamId) {
         const players = document.querySelectorAll('.players-grid .card');

@@ -4,10 +4,11 @@ import random
 from django.db import transaction
 from europeancups.models import EuropeanCupTeam
 from fixtures.models import LeagueFixture
-from game.models import Season, MatchSchedule
+from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
-from match.utils.get_match_stats import get_match_by_fixture, calculate_match_attendance, match_income
+from match.utils.match.attendance import calculate_match_attendance, match_income
+from match.utils.match.retrieval import get_match_by_fixture
 from messaging.utils.category_messages_utils import create_league_matchday_message, create_league_champion_message
 from teams.models import Team
 from .models import League, LeagueSeason, LeagueTeams

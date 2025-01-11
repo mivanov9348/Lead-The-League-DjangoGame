@@ -5,21 +5,19 @@ from europeancups.utils.euro_cup_season_utils import get_current_european_cup_se
 from europeancups.utils.group_stage_utils import update_euro_cup_standings, advance_teams_from_groups, \
     update_group_stage_status_if_finished, are_group_stage_matches_finished
 from europeancups.utils.knockout_utils import generate_euro_cup_knockout, finish_current_knockout_stage
-from fixtures.utils import transfer_match_to_fixture, get_fixtures_by_date
+from fixtures.utils import get_fixtures_by_date
 from game.models import MatchSchedule, GameState
 from leagues.utils import update_standings_from_fixtures
-from match.models import Match, PenaltyAttempt
-from match.utils.generate_match_stats_utils import generate_players_match_stats, generate_match_penalties
-from match.utils.get_match_stats import calculate_match_attendance
-from match.utils.lineup_utils import get_starting_lineup
-from match.utils.match_events_utils import create_kickoff_match_event, create_match_end_match_event, \
-    create_penalty_start_match_event, get_random_match_event, calculate_event_success_rate, get_event_result, \
-    get_event_template, log_match_event
-from match.utils.match_helpers import log_match_participate, finalize_match, update_match_minute, \
-    get_match_team_initiative, choose_event_random_player, update_player_stats_from_template, handle_card_event, \
-    fill_template_with_player, check_initiative, update_match_score, log_clean_sheets
-from match.utils.match_penalties_helpers import get_penalty_taker, update_penalty_score, check_penalties_completion, log_penalty_event, check_rotation_violations, get_penalty_match_event, \
-    calculate_penalty_success, check_sudden_death_completion
+from match.models import Match
+from match.utils.match.attendance import calculate_match_attendance
+from match.utils.match.events import create_match_end_match_event, create_penalty_start_match_event, \
+    create_kickoff_match_event, get_random_match_event, calculate_event_success_rate, get_event_result, log_match_event, \
+    get_event_template
+from match.utils.match.penalties import process_penalties
+from match.utils.match.processing_logic import log_match_participate, finalize_match, log_clean_sheets, \
+    choose_event_random_player, get_match_team_initiative, update_match_minute, update_player_stats_from_template, \
+    handle_card_event, fill_template_with_player, update_match_score, check_initiative
+from match.utils.match.stats import generate_players_match_stats
 from messaging.utils.notifications_utils import create_match_notifications
 from players.utils.player_analytics_utils import update_season_analytics
 from players.utils.update_player_stats_utils import update_season_statistics_for_match, update_match_player_ratings
@@ -81,15 +79,16 @@ def process_league_day(match_date):
 
     for match in matches:
         process_match(match)
-        update_season_statistics_for_match(match)
         update_match_player_ratings(match)
         log_match_participate(match)
         log_clean_sheets(match)
+        update_season_statistics_for_match(match)
         finalize_match(match)
 
     bulk_update_team_statistics(matches, match_date)
     fixtures = get_fixtures_by_date(match_date.date)
     update_standings_from_fixtures(fixtures)
+
 
 def process_cup_day(match_date):
     print("Processing cup matches...")
@@ -131,7 +130,6 @@ def process_cup_day(match_date):
                 print(f"Penalties processed for match {match.id}.")
             else:
                 print(f"Updating statistics for match {match.id}.")
-                update_season_statistics_for_match(match)
                 update_match_player_ratings(match)
                 print(f"Statistics updated for match {match.id}.")
         except Exception as e:
@@ -146,6 +144,7 @@ def process_cup_day(match_date):
         try:
             log_match_participate(match)
             log_clean_sheets(match)
+            update_season_statistics_for_match(match)
             print(f"Match participation logged for match {match.id}.")
         except Exception as e:
             print(f"Error logging match participation for match {match.id}: {e}")
@@ -185,7 +184,6 @@ def process_cup_day(match_date):
             print(f"Error processing {season_cup.cup.name}: {e}")
 
 
-
 def process_euro_day(match_date):
     print("Starting processing of European cup matches...")
 
@@ -210,7 +208,6 @@ def process_euro_day(match_date):
             process_penalties(match)
         else:
             print(f"Match {match.id} finalized. Updating season statistics...")
-            update_season_statistics_for_match(match)
             print(f'update match ratings')
             update_match_player_ratings(match)
 
@@ -219,6 +216,7 @@ def process_euro_day(match_date):
         print(f'log_match_participate')
         log_match_participate(match)
         log_clean_sheets(match)
+        update_season_statistics_for_match(match)
         print(f'finalize_matc')
         finalize_match(match)
         bulk_update_team_statistics(matches, match_date)
@@ -368,131 +366,3 @@ def process_match(match):
         except Exception as e:
             print(f"Error processing match ID {match.id}: {e}")
             raise
-
-
-def process_penalties(match):
-    print("Initializing penalty shootout...")
-    # Initialize the penalty shootout
-    match_penalties = generate_match_penalties(match)
-    print(match_penalties)
-    print("Setting up team data...")
-
-    # Initialize tracking for each team
-    team_data = {
-        match.home_team: {
-            "taken_penalty_players": [],
-            "execution_order": get_starting_lineup(match.home_team)
-        },
-        match.away_team: {
-            "taken_penalty_players": [],
-            "execution_order": get_starting_lineup(match.away_team)
-        }
-    }
-
-    print("Determining team with initiative...")
-    # Determine which team starts the penalty shootout
-    match_penalties.current_initiative = match.home_team
-    team_with_initiative = match_penalties.current_initiative
-
-    # Process first 5 penalties per team
-    print("Processing first 5 penalties per team...")
-    process_initial_penalties(match, match_penalties, team_data)
-
-    if not match_penalties.is_completed:
-        print("Processing sudden death penalties...")
-        process_sudden_death(match, match_penalties, team_data)
-
-
-def process_initial_penalties(match, match_penalties, team_data):
-    home_team = match.home_team
-    away_team = match.away_team
-
-    for round_number in range(5):
-        if match_penalties.is_completed:
-            print("Penalty shootout completed during initial round.")
-            break
-
-        print(f"Round {round_number + 1}: {home_team.name} is taking a penalty.")
-        handle_penalty_attempt(match, match_penalties, team_data, home_team)
-
-        if check_penalties_completion(match_penalties):
-            print("Penalty shootout completed! Home team wins!")
-            break
-
-        print(f"Round {round_number + 1}: {away_team.name} is taking a penalty.")
-        handle_penalty_attempt(match, match_penalties, team_data, away_team)
-
-        if check_penalties_completion(match_penalties):
-            print("Penalty shootout completed! Away team wins!")
-            break
-
-
-def process_sudden_death(match, match_penalties, team_data):
-    home_team = match.home_team
-    away_team = match.away_team
-
-    while not match_penalties.is_completed:
-        # Home team attempts
-        print(f"Sudden death - {home_team.name} is taking a penalty.")
-        handle_penalty_attempt(match, match_penalties, team_data, home_team)
-
-        # Away team attempts
-        print(f"Sudden death - {away_team.name} is taking a penalty.")
-        handle_penalty_attempt(match, match_penalties, team_data, away_team)
-
-        if check_sudden_death_completion(match_penalties):
-            print("Sudden death completed! Away team wins!")
-            break
-
-
-def handle_penalty_attempt(match, match_penalties, team_data, team_with_initiative):
-    with transaction.atomic():
-        current_team = team_with_initiative
-        current_data = team_data[current_team]
-
-        print(f"Checking rotation violations for team {current_team.name}...")
-        if check_rotation_violations(current_team, current_data["taken_penalty_players"]):
-            print(f"Rotation complete for team {current_team.name}. Restarting lineup.")
-            current_data["execution_order"] = get_starting_lineup(current_team)
-            current_data["taken_penalty_players"] = []
-
-        if not current_data["execution_order"]:
-            print(f"Execution order for team {current_team.name} is empty. Restarting lineup.")
-            current_data["execution_order"] = get_starting_lineup(current_team)
-            current_data["taken_penalty_players"] = []
-
-        print(f"Current execution order for team {current_team.name}: {current_data['execution_order']}")
-        print(f"Players who took penalties: {current_data['taken_penalty_players']}")
-
-        penalty_taker_id = current_data["execution_order"].pop(0)
-        penalty_taker = get_penalty_taker(current_team, current_data["taken_penalty_players"])
-
-        print(f"Player {penalty_taker.name} from team {current_team.name} is taking the penalty.")
-        event = get_penalty_match_event()
-        success = calculate_event_success_rate(event, penalty_taker)
-        event_result = get_event_result(event, success)
-        print(f'Event result: {event_result.event_result}')
-        is_goal = calculate_penalty_success(event_result.event_result)
-
-        template = get_event_template(event_result)
-        formatted_template = fill_template_with_player(template, penalty_taker)
-
-        print(f"Penalty Result: {formatted_template}")
-        log_penalty_event(match, formatted_template, penalty_taker, success)
-
-        print("Updating penalty shootout score...")
-        update_penalty_score(match_penalties, is_goal, current_team)
-
-        print("Saving penalty attempt...")
-        attempt_order = len(match_penalties.attempts.all()) + 1
-
-        PenaltyAttempt.objects.create(
-            match_penalty=match_penalties,
-            player=penalty_taker,
-            is_goal=is_goal,
-            attempt_order=attempt_order,
-            team=current_team
-        )
-
-        print(f"Tracking player {penalty_taker.name} who took the penalty...")
-        current_data["taken_penalty_players"].append(penalty_taker.id)

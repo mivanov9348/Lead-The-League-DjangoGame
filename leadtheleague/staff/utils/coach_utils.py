@@ -96,17 +96,3 @@ def generate_coach():
 
     return coach
 
-def buy_coach(team, coach_id):
-    coach = Coach.objects.filter(id=coach_id, team__isnull=True).first()
-    if not coach:
-        return "Coach is not available."
-
-    if team.balance < coach.price:
-        return "Not enough balance."
-
-    team.coach = coach
-    team.balance -= coach.price
-    team_expense(team, team.balance, f"{team.name} hired {coach.first_name} {coach.last_name} as coach!")
-    create_new_coach_message(coach, team)
-
-    return f"Coach {coach} has been hired by team {team.name}!"

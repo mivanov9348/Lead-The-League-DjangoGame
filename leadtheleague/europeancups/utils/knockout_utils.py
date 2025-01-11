@@ -7,7 +7,7 @@ from europeancups.models import KnockoutTeam, KnockoutStage
 from fixtures.models import EuropeanCupFixture
 from game.models import MatchSchedule
 from match.models import Match
-from match.utils.generate_match_stats_utils import generate_matches_from_fixtures
+from match.utils.match.generator import generate_matches_from_fixtures
 
 
 def get_knockout_stage_name(team_count):

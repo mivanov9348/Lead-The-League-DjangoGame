@@ -1,6 +1,5 @@
 import datetime
 from django.db import transaction, IntegrityError
-
 from cups.utils.generate_cup_fixtures import process_all_season_cups, populate_season_cups_with_teams
 from cups.utils.update_cup_season import generate_cups_season
 from europeancups.utils.euro_cup_season_utils import generate_european_cups_season, europe_promotion
@@ -9,8 +8,7 @@ from fixtures.utils import  generate_all_league_fixtures
 from game.models import Season
 from game.utils.get_season_stats_utils import check_are_all_competition_completed
 from leagues.utils import generate_leagues_season, populate_teams_for_season
-from match.utils.generate_match_stats_utils import generate_league_matches, generate_cup_matches, \
-    generate_euro_cup_matches
+from match.utils.match.generator import generate_league_matches, generate_euro_cup_matches, generate_cup_matches
 from messaging.utils.category_messages_utils import create_message_for_new_season
 from messaging.utils.placeholders_utils import get_new_season_placeholders
 from players.utils.generate_player_utils import generate_youth_players, process_retirement_players, \

@@ -1,10 +1,10 @@
 import random
 from django.db import transaction
 from django.db.models import Q
-
 from match.models import MatchEvent
-from match.utils.get_match_stats import calculate_match_attendance, match_income, get_opposing_team
-from match.utils.match_goalscorers_utils import log_goalscorer
+from match.utils.match.attendance import calculate_match_attendance, match_income
+from match.utils.match.goalscorers import log_goalscorer
+from match.utils.match.retrieval import get_opposing_team
 from players.models import PlayerMatchStatistic
 from teams.models import TeamTactics, TeamPlayer
 

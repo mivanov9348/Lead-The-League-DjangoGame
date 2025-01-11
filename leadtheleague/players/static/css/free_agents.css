@@ -221,3 +221,25 @@ dataTables_paginate .paginate_button {
     font-weight: bold;
     margin-bottom: 0.5rem;
 }
+
+.stars-container {
+    display: inline-block;
+    position: relative;
+    font-size: 1rem;
+    line-height: 1;
+    color: #ccc; /* Unfilled stars color */
+    width: 5em; /* Adjust depending on design */
+    background: url('/path/to/star-outline.png') repeat-x;
+    background-size: contain;
+}
+
+.filled-stars {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: url('/path/to/star-filled.png') repeat-x;
+    background-size: contain;
+}

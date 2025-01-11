@@ -6,7 +6,7 @@ from cups.models import SeasonCup
 from cups.utils.get_cups_utils import determine_stage_by_teams_count
 from fixtures.models import CupFixture
 from game.models import MatchSchedule
-from match.utils.generate_match_stats_utils import generate_cup_matches, generate_matches_from_fixtures
+from match.utils.match.generator import generate_matches_from_fixtures, generate_cup_matches
 from teams.models import Team
 
 def get_teams_for_cup(cup):

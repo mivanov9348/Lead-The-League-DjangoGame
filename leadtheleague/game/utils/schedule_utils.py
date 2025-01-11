@@ -4,6 +4,7 @@ from math import ceil, log2
 from europeancups.models import EuropeanCupSeason
 from game.models import MatchSchedule
 
+
 def get_next_euro_match_day():
     next_schedule = MatchSchedule.objects.filter(
         event_type='euro',
@@ -12,10 +13,12 @@ def get_next_euro_match_day():
     ).order_by('date').first()
     return next_schedule.date if next_schedule else None
 
+
 def get_max_league_rounds(season):
     league_seasons = season.league_seasons.select_related('league')
     max_teams = max((ls.league.teams_count for ls in league_seasons), default=0)
     return (max_teams - 1) * 2 if max_teams >= 2 else 0
+
 
 def get_max_cup_rounds(season):
     try:
@@ -51,38 +54,58 @@ def get_max_euro_rounds(season):
 
     return total_rounds
 
-
 def generate_season_schedule(season):
     max_league_rounds = get_max_league_rounds(season)
+    print(f'max_league_rounds: {max_league_rounds}')
+
     max_cup_rounds = get_max_cup_rounds(season)
     print(f'max_cup_rounds: {max_cup_rounds}')
 
     max_euro_rounds = get_max_euro_rounds(season)
+    print(f'max_euro_rounds: {max_euro_rounds}')
 
+    # Общо мачове
     total_matches = (
-            ['league'] * max_league_rounds +
-            ['cup'] * max_cup_rounds +
-            ['euro'] * max_euro_rounds
+        ['league'] * max_league_rounds +
+        ['cup'] * max_cup_rounds +
+        ['euro'] * max_euro_rounds
     )
 
-    total_days = len(total_matches)
+    # Добавяне на трансферните дни към общите дни
+    num_transfer_days = 7  # Определяме броя на трансферните дни
+    total_days = len(total_matches) + num_transfer_days
     print(f'total_days: {total_days}')
 
     current_date = season.start_date
 
+    # Празен график
     schedule = [None] * total_days
 
+    # Последни два дни за купа и евро
     schedule[-2] = 'cup'
     schedule[-1] = 'euro'
 
-    remaining_matches = (
-            ['league'] * max_league_rounds +
-            ['cup'] * (max_cup_rounds - 1) +
-            ['euro'] * (max_euro_rounds - 1)
-    )
+    # Разпределение на трансферните дни
+    transfer_days = [0]
+    interval = total_days // num_transfer_days
+    for i in range(1, num_transfer_days):
+        transfer_day = i * interval
+        if transfer_day >= total_days - 2:
+            transfer_day = total_days - 3
+        transfer_days.append(transfer_day)
 
+    for i in transfer_days:
+        schedule[i] = 'transfer'
+
+    # Оставащи мачове
+    remaining_matches = (
+        ['league'] * max_league_rounds +
+        ['cup'] * (max_cup_rounds - 1) +
+        ['euro'] * (max_euro_rounds - 1)
+    )
     random.shuffle(remaining_matches)
 
+    # Разпределение на мачове
     for i in range(total_days - 2):
         if schedule[i] is None:
             for match in remaining_matches:
@@ -94,16 +117,20 @@ def generate_season_schedule(season):
                 remaining_matches.remove(match)
                 break
 
+    # Запълване на празните дни
     for i in range(total_days):
         if schedule[i] is None:
             schedule[i] = 'league'
 
+    # Създаване на обекти за събития
     match_schedules = []
     for i, event_type in enumerate(schedule):
         match_date = current_date + timedelta(days=i)
         match_schedules.append(MatchSchedule(date=match_date, season=season, event_type=event_type))
 
+    # Запис в базата данни
     MatchSchedule.objects.bulk_create(match_schedules)
 
+    # Обновяване на крайната дата на сезона
     season.end_date = current_date + timedelta(days=total_days - 1)
     season.save()

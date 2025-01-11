@@ -5,7 +5,6 @@ from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from fixtures.models import LeagueFixture
 from game.utils.get_season_stats_utils import get_current_season
-from leagues.models import LeagueTeams
 from players.utils.get_player_stats_utils import get_personal_player_data, get_player_attributes, get_player_stats
 from players.utils.update_player_stats_utils import update_player_price
 from staff.models import Coach
@@ -325,6 +324,24 @@ def train_team(request, team_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method."})
 
+def fire_coach(request, coach_id):
+    if request.method == 'POST':
+        coach = get_object_or_404(Coach, id=coach_id)
+
+        if coach.team is not None and coach.team.user == request.user:
+            coach.team = None
+            coach.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': f"{coach.first_name} {coach.last_name} has been fired."
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'You are not authorized to fire this coach.'
+            })
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 @login_required
 def schedule(request):
@@ -375,6 +392,8 @@ def all_teams(request):
     the_top_30 = get_team_analytics(
         limit=30,
         order_by=['-points', '-goalscored', 'goalconceded', '-wins']
-    ).select_related('team__league_teams__league_season__league')
+    )
+
 
     return render(request, 'teams/all_teams.html', {'teams': the_top_30})
+

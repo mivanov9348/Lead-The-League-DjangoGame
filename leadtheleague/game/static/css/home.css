@@ -227,3 +227,47 @@ a.card-header:hover {
     background-color: #0056b3;
     border-color: #0056b3;
 }
+.card.last-messages-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.message-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.message-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.message-status-dot.read {
+    background-color: green;
+}
+
+.message-status-dot.unread {
+    background-color: red;
+}
+
+.message-date {
+    font-size: 12px;
+    color: white;
+    margin-right: 15px;
+}
+
+.message-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+    flex-grow: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

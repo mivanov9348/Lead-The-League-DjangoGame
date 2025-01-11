@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from match.utils.match_day_processor import match_day_processor
+from match.utils.match.processing import match_day_processor
 
 class Command(BaseCommand):
     help = 'Processes today\'s match day.'
@@ -7,11 +7,12 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting match day processing...")
         try:
-            match_day_processor('2025-01-23')
-            match_day_processor('2025-01-25')
-            match_day_processor('2025-01-28')
-            match_day_processor('2025-01-30')
-            match_day_processor('2025-01-31')
+            match_day_processor('2025-01-11')
+            match_day_processor('2025-01-12')
+            match_day_processor('2025-01-13')
+            match_day_processor('2025-01-14')
+            match_day_processor('2025-01-15')
+            match_day_processor('2025-01-16')
 
 
         except Exception as e:
