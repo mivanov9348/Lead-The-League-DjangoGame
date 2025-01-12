@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Match Stats{% endblock %}
+{% block title %}{{match.home_team.name}} - {{match.away_team.name}} {% endblock %}
 
 {% block extra_css %}
 
@@ -217,12 +217,12 @@
                 <thead>
                 <tr>
                     <th>Player</th>
+                    <th title="Goals">G</th>
                     <th title="Assists">A</th>
                     <th title="Clean Sheets">CS</th>
                     <th title="Goals Conceded">GC</th>
                     <th title="Dribbles">D</th>
                     <th title="Fouls">F</th>
-                    <th title="Goals">G</th>
                     <th title="Passes">P</th>
                     <th title="Red Cards">RC</th>
                     <th title="Saves">S</th>
@@ -236,12 +236,12 @@
                 {% for stat in away_players_stats %}
                 <tr>
                     <td>{{ stat.player.first_name }} {{ stat.player.last_name }}</td>
+                    <td>{{ stat.goals }}</td>
                     <td>{{ stat.assists }}</td>
                     <td>{{ stat.clean_sheets }}</td>
                     <td>{{ stat.conceded }}</td>
                     <td>{{ stat.dribbles }}</td>
                     <td>{{ stat.fouls }}</td>
-                    <td>{{ stat.goals }}</td>
                     <td>{{ stat.passes }}</td>
                     <td>{{ stat.red_cards }}</td>
                     <td>{{ stat.saves }}</td>

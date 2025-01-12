@@ -1,76 +1,71 @@
-
-.image {
-    height:160px;
-    width: 150px;
-}
-.sort-container {
-    text-align: center;
-    margin-top:50px;
-}
-
-.sort-dropdown {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
-
-.coach-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
-    padding: 2rem;
-    justify-content: center;
-}
-
-.coach-card h2 {
-    margin: 0.5rem 0;
-    color: var(--white-color);
-}
-
 .coach-card {
-    background-color: var(--darkergreen-color);
-    border: 3px solid white;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
+        background-color: var(--darkgreen-color);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        color: white;
+        font-family: 'Arial', sans-serif;
+        width: 250px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
 
-.coach-card p {
-    margin: 0.3rem 0;
-    color: white;
-}
+.coach-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
 
 .hire-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 1px;
-}
+        background: white;
+        color: #4caf50;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
 
 .hire-button:hover {
-    background-color: #45a049;
-}
-
-@media (max-width: 1200px) {
-    .coach-grid {
-        grid-template-columns: repeat(3, 1fr); /* 3 колони на по-малки екрани */
+        background: #45a049;
+        color: white;
     }
-}
 
-@media (max-width: 768px) {
-    .coach-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 колони на таблет */
+.sort-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        border-radius: 10px;
     }
-}
 
-@media (max-width: 576px) {
-    .coach-grid {
-        grid-template-columns: 1fr; /* 1 колона на мобилни устройства */
+.sort-dropdown {
+        padding: 5px 15px;
+        font-size: 1rem;
+        border-radius: 5px;
+        border: 1px solid #fff;
+        background: white;
+        color: var(--darkergreen-color);
+        font-weight: bold;
+        transition: background 0.3s ease;
     }
+
+.sort-dropdown:hover {
+        background: #f1f1f1;
+    }
+
+.coach-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: center;
+    }
+
+  
+.coach-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
 }

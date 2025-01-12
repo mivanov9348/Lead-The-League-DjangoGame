@@ -22,7 +22,24 @@ def get_team_analytics(limit=None, order_by=None):
     if limit:
         analytics = analytics[:limit]
 
-    return analytics
+    # Създаване на списък от речници
+    analytics_data = [
+        {
+            'id':entry.team.id,
+            'name': entry.team.name,
+            'matches': entry.matches,
+            'wins': entry.wins,
+            'draws': entry.draws,
+            'losses': entry.losses,
+            'goalscored': entry.goalscored,
+            'goalconceded': entry.goalconceded,
+            'points': entry.points,
+            'logo': entry.team.logo.url
+        }
+        for entry in analytics
+    ]
+
+    return analytics_data
 
 
 

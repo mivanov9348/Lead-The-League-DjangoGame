@@ -18,12 +18,20 @@
             <hr>
             <div class="offers-list">
                 {% for offer in sended_offers %}
-                <div class="offer-card">
-                    <h3>{{ offer.player.name }}</h3>
+                <div class="offer-card offer-status-{{ offer.status|lower }}">
+                    <div class="offer-header">
+                        <img src="{{ offer.player.image.url }}" alt="{{ offer.player.name }}" class="player-logo">
+                        <a href="{% url 'players:player_profile' offer.player.id %}" class="player-link">
+                            <h3>{{ offer.player.name }}</h3>
+                        </a>
+                    </div>
+                    <div class="team-logo">
+                        <img src="{{ offer.player.team_players.first.team.logo.url }}" alt="{{ offer.player.team_players.first.team.name }}">
+                        <span>{{ offer.player.team_players.first.team.name }}</span>
+                    </div>
                     <hr>
-                    <p><strong>Team:</strong> {{ offer.player.team_players.first.team.name }}</p>
                     <p><strong>Amount:</strong> ${{ offer.offer_amount|intcomma }}</p>
-                    <p style="color:red"><strong>Status:</strong> {{ offer.status }}</p>
+                    <p><strong>Status:</strong> {{ offer.status }}</p>
                     <p><strong>Date:</strong> {{ offer.offer_date }}</p>
                 </div>
                 {% empty %}
@@ -38,16 +46,25 @@
             <hr>
             <div class="offers-list">
                 {% for offer in received_offers %}
-                <div class="offer-card">
-                    <h3>{{ offer.player.name }}</h3>
-                    <p><strong>Team:</strong> {{ offer.offering_team.name }}</p>
+                <div class="offer-card offer-status-{{ offer.status|lower }}">
+                    <div class="offer-header">
+                        <img src="{{ offer.player.image.url }}" alt="{{ offer.player.name }}" class="player-logo">
+                        <a href="{% url 'players:player_profile' offer.player.id %}" class="player-link">
+                            <h3>{{ offer.player.name }}</h3>
+                        </a>
+                    </div>
+                    <div class="team-logo">
+                        <img src="{{ offer.offering_team.logo.url }}" alt="{{ offer.offering_team.name }}">
+                        <span>{{ offer.offering_team.name }}</span>
+                    </div>
+                    <hr>
                     <p><strong>Amount:</strong> ${{ offer.offer_amount|intcomma }}</p>
                     <p><strong>Status:</strong> {{ offer.status }}</p>
                     <p><strong>Date:</strong> {{ offer.offer_date }}</p>
                     {% if offer.status == 'Pending' %}
                     <div class="offer-actions">
-                        <button onclick="submitOffer({{ offer.id }}, 'Accepted')">Accept</button>
-                        <button onclick="submitOffer({{ offer.id }}, 'Rejected')">Reject</button>
+                        <button onclick="handleOffer({{ offer.id }}, 'Accepted')">Accept</button>
+                        <button onclick="handleOffer({{ offer.id }}, 'Rejected')">Reject</button>
                     </div>
                     {% endif %}
                 </div>
@@ -59,47 +76,49 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function submitOffer(offerId, status) {
-        // Избор на правилния URL спрямо действието
-        let url = status === 'Accepted'
-            ? "{% url 'transfers:accept_transfer' %}"
-            : "{% url 'transfers:reject_transfer' %}";
+    function handleOffer(offerId, status) {
+        const url = status === 'Accepted' ? "{% url 'transfers:accept_transfer' %}" : "{% url 'transfers:reject_transfer' %}";
 
-        // Извеждане на данни за дебъг
-        console.log(`Submitting Offer ID: ${offerId}, Action: ${status}`);
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ offer_id: offerId })
-        })
-        .then(response => {
-            console.log(`HTTP Status: ${response.status}`); // Показва HTTP статус
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+        Swal.fire({
+            title: `Are you sure you want to ${status.toLowerCase()} this offer?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            confirmButtonColor: status === 'Accepted' ? '#28a745' : '#dc3545',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ offer_id: offerId })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('Success', `Offer ${status} successfully!`, 'success').then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'An unexpected error occurred.', 'error');
+                });
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Server Response:', data);
-            if (data.status === 'success') {
-                alert('Offer ' + status + ' successfully!');
-                location.reload(); // Презареждане след успех
-            } else {
-                alert('Failed to process the offer: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Fetch Error:', error);
-            alert('An unexpected error occurred. Please try again.');
         });
     }
 </script>
-
-
 
 {% endblock %}

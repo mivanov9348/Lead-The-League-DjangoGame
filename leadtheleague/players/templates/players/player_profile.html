@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Player Profile{% endblock %}
+{% block title %}{{ player.first_name }} {{ player.last_name }}{% endblock %}
 
 {% block extra_css %}
 {% load static %}
@@ -39,7 +39,7 @@
                 {% if is_player_in_user_team %}
                 <button id="release-button" style="background-color:red" onclick="releasePlayer()">Release Player
                 </button>
-                {% else %}
+                {% elif not player.is_free_agent %}
                 <button id="offer-button" onclick="toggleOfferInput()">Send Offer</button>
                 <div id="offer-input" style="display: none;">
                     <input type="number" id="offerAmount" value="{{ player.price }}" min="0"
@@ -52,19 +52,19 @@
     </div>
 
     <div class="player-attributes">
-    <h2>Attributes</h2>
-    <hr/>
-    <div class="attributes-grid">
-        {% for attribute in attributes %}
-        <div class="attribute
+        <h2>Attributes</h2>
+        <hr/>
+        <div class="attributes-grid">
+            {% for attribute in attributes %}
+            <div class="attribute
         {% if attribute.value <= 10 %}attribute-low
         {% elif attribute.value <= 15 %}attribute-medium
         {% else %}attribute-high{% endif %}">
-            {{ attribute.name }}: {{ attribute.value }}
+                {{ attribute.name }}: {{ attribute.value }}
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-</div>
 
     <div class="player-stats">
         <h2>Season Statistics</h2>

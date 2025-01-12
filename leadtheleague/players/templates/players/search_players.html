@@ -21,10 +21,10 @@
         <div class="col-md-3">
             <select id="filterPosition" class="form-control">
                 <option value="">Filter by Position</option>
-                <option value="Goalkeeper">Goalkeeper</option>
-                <option value="Defender">Defender</option>
-                <option value="Midfielder">Midfielder</option>
-                <option value="Attacker">Attacker</option>
+                <option value="GK">Goalkeeper</option>
+                <option value="DF">Defender</option>
+                <option value="MF">Midfielder</option>
+                <option value="ATT">Attacker</option>
             </select>
         </div>
         <div class="col-md-3">
@@ -62,7 +62,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for player in free_agents %}
+            {% for player in all_players %}
             <tr>
                 <td><a href="{% url 'players:player_profile' player.id %}">
                     {{ player.name }}
@@ -71,11 +71,7 @@
                 <td>{{ player.age }}</td>
                 <td title={{player.nationality}}>{{ player.nationalityabbr }}</td>
                 <td>{{ player.positionabbr }}</td>
-                <td>
-                    <div class="stars-container" title="{{ player.potential_rating }}">
-                        <span class="filled-stars" style="width: {{ player.potential_percentage }}%;"></span>
-                    </div>
-                </td>
+                <td>{{ player.potential_rating|floatformat:2 }}/5</td>
                 <td>{{ player.agent }}</td>
                 <td>{{ player.handling }}</td>
                 <td>{{ player.reflexes }}</td>

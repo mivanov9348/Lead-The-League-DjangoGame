@@ -89,11 +89,11 @@
 {% block content %}
 <div class="team-container">
     {% for team in teams|slice:":30" %}
-    <a href="{% url 'teams:team_stats' team.team.id %}" class="team-card" data-points="{{ team.points }}">
+    <a href="{% url 'teams:team_stats' team.id %}" class="team-card" data-points="{{ team.points }}">
         <div class="team-rank">#{{ forloop.counter }}</div>
-        <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }}" class="team-logo">
+        <img src="{{ team.logo }}" alt="{{ team.name }}" class="team-logo">
         <div class="team-info">
-            <h3>{{ team.team.name }}</h3>
+            <h3>{{ team.name }}</h3>
             <p></p>
             <p class="team-points" style="color:black">Points: {{ team.points|floatformat:2 }}</p>
             <p>W: {{ team.wins }}</p>

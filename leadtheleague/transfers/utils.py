@@ -8,9 +8,11 @@ from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import sell_player_income, buy_player_expense
 from transfers.models import Transfer, TransferOffer
 
+
 def is_transfer_day():
     today = date.today()
     return MatchSchedule.objects.filter(date=today, event_type='transfer').exists()
+
 
 def get_all_transfers():
     return Transfer.objects.all()
@@ -28,10 +30,15 @@ def transfer_history_by_team(team_id):
 
 
 def create_transfer(team, player, is_free_agent):
+    selling_team = None
+    if not is_free_agent:
+        current_team_player = player.team_players.first()
+        selling_team = current_team_player.team if current_team_player else None
+
     Transfer.objects.create(
         player=player,
         buying_team=team,
-        selling_team=None if is_free_agent else player.team,
+        selling_team=selling_team,
         amount=player.price,
         is_free_agent=is_free_agent
     )
@@ -47,7 +54,6 @@ def find_transfer_offer_by_id(offer_id):
 
 
 def COM_receive_transfer_offer(transfer_offer):
-
     team_player = transfer_offer.player.team_players.first()
     player_team = team_player.team if team_player else None
 

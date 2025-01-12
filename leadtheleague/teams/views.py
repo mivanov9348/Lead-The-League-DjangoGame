@@ -8,7 +8,7 @@ from game.utils.get_season_stats_utils import get_current_season
 from players.utils.get_player_stats_utils import get_personal_player_data, get_player_attributes, get_player_stats
 from players.utils.update_player_stats_utils import update_player_price
 from staff.models import Coach
-from players.models import Player, PlayerSeasonStatistic, PlayerAttribute
+from players.models import Player, PlayerSeasonStatistic, PlayerAttribute, Position, PositionAttribute
 from teams.models import Team, TeamTactics, Tactics, TeamPlayer, TeamFinance, TrainingImpact, TeamSeasonAnalytics
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -250,6 +250,20 @@ def training(request):
                                                    })
 
 
+def get_position_attributes(request):
+    if request.method == 'GET':
+        position_attributes = {}
+        all_positions = Position.objects.all()
+
+        for position in all_positions:
+            attributes = PositionAttribute.objects.filter(position=position).order_by('-importance')
+            if attributes.exists():
+                position_attributes[position.name] = attributes.first().attribute.name
+
+        return JsonResponse({'success': True, 'position_attributes': position_attributes})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+
 def train_team(request, team_id):
     if request.method == "POST":
         try:
@@ -269,6 +283,12 @@ def train_team(request, team_id):
             players = [team_player.player for team_player in team_players]
             changes = []
             today = date.today()
+
+            if TrainingImpact.objects.filter(coach=coach, date__date=today).exists():
+                return JsonResponse({
+                    "success": False,
+                    "error": "Training has already been performed for the team today.",
+                })
 
             for player in players:
                 selected_attribute = selected_attributes.get(str(player.id))
@@ -324,6 +344,7 @@ def train_team(request, team_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method."})
 
+
 def fire_coach(request, coach_id):
     if request.method == 'POST':
         coach = get_object_or_404(Coach, id=coach_id)
@@ -342,6 +363,7 @@ def fire_coach(request, coach_id):
                 'error': 'You are not authorized to fire this coach.'
             })
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
 
 @login_required
 def schedule(request):
@@ -388,12 +410,9 @@ def schedule(request):
 
 
 def all_teams(request):
-    # Зареждане на данни с връзка към лигата
     the_top_30 = get_team_analytics(
         limit=30,
         order_by=['-points', '-goalscored', 'goalconceded', '-wins']
     )
 
-
     return render(request, 'teams/all_teams.html', {'teams': the_top_30})
-

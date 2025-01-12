@@ -52,6 +52,14 @@ def get_team_to_team_transfer_placeholder(player, from_team, to_team, transfer_f
         'transfer_fee': f"${transfer_fee:,}"
     }
 
+def get_send_offer_placeholder(player, from_team, to_team, offer_amount):
+    offer_amount = Decimal(offer_amount).quantize(Decimal("0.01"))
+    return {
+        'player_name': f'{player.first_name} {player.last_name}',
+        'from_team_name': from_team.name,
+        'to_team_name': to_team.name,
+        'offer_amount': f"${offer_amount:,}"
+    }
 
 def get_free_agent_transfer_placeholders(player, team):
     return {

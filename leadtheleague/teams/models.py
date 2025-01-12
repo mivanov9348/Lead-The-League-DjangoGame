@@ -23,7 +23,7 @@ class Team(models.Model):
 
 class TeamFinance(models.Model):
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=Decimal('0.00'))
     total_income = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     total_expenses = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 

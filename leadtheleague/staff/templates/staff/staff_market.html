@@ -5,87 +5,16 @@
 {% load static %}
 {% load humanize %}
 <link rel="stylesheet" href="{% static 'css/staff_market.css' %}">
-<style>
 
-    .coach-card {
-        background-color: var(--darkgreen-color);
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 10px;
-        color: white;
-        font-family: 'Arial', sans-serif;
-        width: 250px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        position: relative;
-    }
-
-    .coach-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    }
-
-    .hire-button {
-        background: white;
-        color: #4caf50;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: bold;
-        transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .hire-button:hover {
-        background: #45a049;
-        color: white;
-    }
-
-    .sort-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        border-radius: 10px;
-    }
-
-    .sort-dropdown {
-        padding: 5px 15px;
-        font-size: 1rem;
-        border-radius: 5px;
-        border: 1px solid #fff;
-        background: white;
-        color: var(--darkergreen-color);
-        font-weight: bold;
-        transition: background 0.3s ease;
-    }
-
-    .sort-dropdown:hover {
-        background: #f1f1f1;
-    }
-
-    .coach-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        justify-content: center;
-    }
-
-    .messages {
-        margin: 20px auto;
-        text-align: center;
-    }
-    .coach-image {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-bottom: 15px;
-}
-
-</style>
 {% endblock %}
 
 {% block content %}
+<div id="alert-messages" style="display: none;">
+    {% for message in messages %}
+    <div class="alert {{ message.tags }}" data-message="{{ message }}"></div>
+    {% endfor %}
+</div>
+
 <div class="sort-container">
     <select id="sort-dropdown" class="sort-dropdown" onchange="filterCoaches()">
         <option value="rating-desc">Rating: High to Low</option>
@@ -98,7 +27,7 @@
 <div class="coach-grid" id="coach-grid">
     {% for coach in coaches %}
     <div class="coach-card" data-rating="{{ coach.rating|default:0 }}" data-price="{{ coach.price }}">
-        <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}" class="image" />
+        <img src="{{ coach.image.url }}" alt="{{ coach.first_name }}" class="coach-image" />
         <h2>{{ coach.first_name }} {{ coach.last_name }}</h2>
         <p>Age: {{ coach.age }}</p>
         <p>Rating: {{ coach.rating }}</p>
@@ -118,9 +47,41 @@
     {% endfor %}
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const hireForms = document.querySelectorAll('.hire-form');
+
+    hireForms.forEach(form => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': form.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                },
+            });
+
+            const data = await response.json();
+
+            Swal.fire({
+                icon: data.status === 'success' ? 'success' : 'error',
+                title: data.status === 'success' ? 'Success' : 'Error',
+                text: data.message,
+            });
+
+            if (data.status === 'success') {
+                // Можеш да обновиш изгледа динамично (например да премахнеш бутона за наемане)
+                form.querySelector('button[type="submit"]').disabled = true;
+                form.innerHTML = `<p class="hired-message">Hired by ${formData.get('team_name')}</p>`;
+            }
+        });
+    });
+});
+
     function filterCoaches() {
         const grid = document.getElementById('coach-grid');
         const cards = Array.from(grid.getElementsByClassName('coach-card'));
@@ -133,41 +94,18 @@
             const priceB = parseFloat(b.getAttribute('data-price')) || 0;
 
             if (sortValue === 'rating-desc') {
-                return ratingB - ratingA; // Highest to Lowest Rating
+                return ratingB - ratingA;
             } else if (sortValue === 'rating-asc') {
-                return ratingA - ratingB; // Lowest to Highest Rating
+                return ratingA - ratingB;
             } else if (sortValue === 'price-desc') {
-                return priceB - priceA; // Highest to Lowest Price
+                return priceB - priceA;
             } else if (sortValue === 'price-asc') {
-                return priceA - priceB; // Lowest to Highest Price
+                return priceA - priceB;
             }
         });
 
         grid.innerHTML = '';
         cards.forEach(card => grid.appendChild(card));
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-    const messages = document.querySelectorAll('.alert');
-    if (messages.length > 0) {
-        messages.forEach(message => {
-            const messageText = message.getAttribute('data-message') || 'Unknown error';
-            if (message.classList.contains('success')) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: messageText,
-                });
-            } else if (message.classList.contains('error')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: messageText,
-                });
-            }
-        });
-    }
-});
-    });
 </script>
 {% endblock %}

@@ -28,11 +28,12 @@
             {% else %}
             <p class="no-coach-message">No selected coach for the team. <a href="{% url 'staff:staff_market' %}">Assign
                 one!</a></p>
-
-
             {% endif %}
         </div>
     </section>
+<div class="auto-select-container">
+    <button id="auto-select-button" class="auto-select-btn">Auto-Select</button>
+</div>
 
     <!-- Players Section -->
     <section class="panel-section">
@@ -161,5 +162,51 @@
             });
         });
     }
+    document.getElementById('auto-select-button').addEventListener('click', () => {
+    fetch('/teams/get_position_attributes/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const positionAttributes = data.position_attributes;
+                const playerCards = document.querySelectorAll('.players-grid .card');
+
+                playerCards.forEach(card => {
+                    const position = card.querySelector('p').textContent;
+                    const select = card.querySelector('select');
+
+                    if (positionAttributes[position]) {
+                        const attributeToSelect = positionAttributes[position];
+
+                        for (const option of select.options) {
+                            if (option.value === attributeToSelect) {
+                                option.selected = true;
+                                break;
+                            }
+                        }
+                    }
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Attributes Selected',
+                    text: 'Attributes have been auto-selected based on player positions.',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.error,
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred: ' + error.message,
+            });
+        });
+});
 </script>
 {% endblock %}
