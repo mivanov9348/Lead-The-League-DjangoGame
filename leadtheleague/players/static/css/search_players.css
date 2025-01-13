@@ -1,75 +1,64 @@
 .table-container {
     background-color: var(--darkgreen-color);
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     color: white;
-    width: 100%;
-    justify-content: center;
-     align-items: center;
-    flex-direction: column;
+    margin: auto;
+    width:100%;
+}
+
+.table-responsive{
+    overflow:hidden;
 }
 
 h1 {
     font-weight: bold;
     text-align: center;
     margin-bottom: 20px;
+    font-size: 24px;
+    color: white;
 }
 
 .table {
     color: white;
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     border-radius: 10px;
 }
 
 .table thead th {
-    background-color: var(--darkgreen-color);
+    background-color: var(--darkergreen-color);
     font-weight: bold;
     text-align: center;
     padding: 10px;
-    font-size:16px;
-    color: grey;
+    font-size: 16px;
+    color: white;
     border-bottom: 2px solid black;
-
 }
 
 .table tbody tr {
-    background-color: var(--darkgreen-color); /* Уеднаквява всички редове */
+    background-color: var(--darkgreen-color);
     font-size: 14px;
-
+    color: white;
 }
 
-.table tbody tr:nth-child(even) {
-    background-color: var(--darkgreen-color) !important; /* Изчиства различни цветове */
-    color: white !important; /* Уеднаквява текста */
-}
-
-.table tbody tr:nth-child(odd) {
-    background-color: var(--darkgreen-color) !important; /* Изчиства различни цветове */
-    color: white !important; /* Уеднаквява текста */
-}
 
 .table tbody tr:hover {
-    background-color: rgba(0, 100, 0, 0.2);
+    background-color: rgba(0, 100, 0, 0.5);
     transition: background-color 0.3s ease;
 }
 
 .table tbody td {
     text-align: center;
-    padding: 8px;
-    color: white;
-        font-size: 14px;
-    border-bottom: 2px solid black;
-
+    padding: 10px;
+    border-bottom: 1px solid black;
 }
 
 .make-offer-btn {
-    font-size: 12px;
-    padding: 5px 10px;
-        background-color: var(--darkergreen-color);
-
+    font-size: 14px;
+    padding: 8px 12px;
+    background-color: var(--darkergreen-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -84,23 +73,19 @@ h1 {
 .row.mb-3 input,
 .row.mb-3 select {
     border-radius: 5px;
-    padding: 5px;
+    padding: 8px;
+    margin-bottom: 10px;
 }
 
 .row.mb-3 input:focus,
 .row.mb-3 select:focus {
     outline: none;
+    border: 2px solid white;
 }
 
-/* Footer стил за DataTables */
-.dataTables_wrapper  {
-    color: white;
-}
-
+/* DataTables Footer */
 .dataTables_wrapper {
-    background-color: var(--darkgreen-color) !important;
-    color: white !important;
-    border-radius: 5px;
+    color: white;
 }
 
 .dataTables_wrapper .dataTables_filter input {
@@ -109,31 +94,32 @@ h1 {
     padding: 5px;
 }
 
-dataTables_paginate .paginate_button {
-    cursor: pointer; /* Променя курсора на pointer */
-    background-color: #f8f9fa; /* Светъл фон */
-    border: 1px solid #ddd;
+.dataTables_paginate .paginate_button {
+    background-color: rgba(0, 100, 0, 0.8);
+    color: white;
+    border: 1px solid white;
     padding: 5px 10px;
     margin: 0 3px;
     border-radius: 3px;
-    transition: background-color 0.2s ease, color 0.2s ease; /* Плавна анимация */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dataTables_paginate .paginate_button:hover {
-    color: green;
-    cursor:pointer;
+    background-color: black;
+    color: white;
 }
 
 .dataTables_paginate .paginate_button.current {
+    background-color: white;
     color: green;
-    font-weight:bolder;
+    font-weight: bold;
 }
 
 .modal-content {
     border-radius: 10px;
     background-color: var(--darkgreen-color);
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .modal-header {
@@ -142,7 +128,7 @@ dataTables_paginate .paginate_button {
 }
 
 .modal-title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     text-align: center;
     color: white;
@@ -166,11 +152,11 @@ dataTables_paginate .paginate_button {
 
 .modal-body .player-info p {
     margin: 5px 0;
-    font-size: 14px;
+    font-size: 16px;
+    color: white;
 }
 
 .modal-footer {
-    border-top: 1px solid #ccc;
     padding: 15px;
     justify-content: center;
 }
@@ -211,35 +197,6 @@ dataTables_paginate .paginate_button {
 .btn-secondary:hover {
     background-color: black;
 }
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.stars-container {
-    display: inline-block;
-    position: relative;
-    font-size: 1rem;
-    line-height: 1;
-    color: #ccc; /* Unfilled stars color */
-    width: 5em; /* Adjust depending on design */
-    background: url('/path/to/star-outline.png') repeat-x;
-    background-size: contain;
-}
-
-.filled-stars {
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0;
-    background: url('/path/to/star-filled.png') repeat-x;
-    background-size: contain;
+table.dataTable thead th {
+    cursor: pointer;
 }

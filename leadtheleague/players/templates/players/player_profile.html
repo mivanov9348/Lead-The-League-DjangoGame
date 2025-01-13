@@ -136,8 +136,12 @@
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         if (!offerAmount || parseFloat(offerAmount) <= 0) {
-            alert('Please enter a valid offer amount.');
-            return;
+            Swal.fire({
+            icon: 'warning',
+            title: 'Invalid Offer Amount',
+            text: 'Please enter a valid offer amount.',
+        });
+        return;
         }
 
         fetch("{% url 'transfers:send_offer' player.id %}", {
@@ -147,10 +151,30 @@
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message || 'Offer sent successfully!');
-            if (data.status === 'success') window.location.reload();
-        })
-        .catch(error => console.error('Error:', error));
+        if (data.status === 'error') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: data.message || 'Something went wrong.',
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message || 'Offer sent successfully!',
+            }).then(() => {
+                window.location.reload();
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Something went wrong.',
+        });
+    });
     }
 
     function releasePlayer() {

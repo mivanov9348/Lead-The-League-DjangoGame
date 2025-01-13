@@ -3,6 +3,7 @@
 {% block title %}Player Rankings{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <style>
     #filter-container {
         display: flex;
@@ -25,85 +26,25 @@
         border-color: #3742fa;
     }
 
-    #player-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        justify-content: center;
-    }
-
-    .player-card {
-        background: linear-gradient(135deg, #f1f2f6, #ffffff);
-        border-radius: 12px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        text-align: center;
-        position: relative;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
-    }
-
-    .player-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .player-rank {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: #ff4757;
+    table.dataTable thead th {
+        background-color: var(--darkgreen-color);
         color: white;
-        font-weight: bold;
+    }
+
+    table.dataTable {
+        background-color: var(--darkgreen-color);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
         font-size: 14px;
-        padding: 5px 10px;
-        border-radius: 15px;
     }
 
-    .player-image {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-        border-bottom: 2px solid #dfe6e9;
+    table.dataTable tbody tr {
+        background: linear-gradient(135deg, #f1f2f6, #ffffff);
     }
 
-    .player-info {
-        padding: 10px;
-    }
-
-    .player-info h3 {
-        margin: 0 0 8px;
-        font-size: 16px;
-        color: #2f3542;
-        font-weight: bold;
-    }
-
-    .player-info p {
-        margin: 5px 0;
-        font-size: 14px;
-        color: #57606f;
-    }
-
-    .player-points {
-        color: #1e90ff;
-        font-size: 15px;
-        font-weight: bold;
-    }
-
-    .player-stats {
-        font-size: 12px;
-        color: #636e72;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        padding: 10px;
-        text-align: left;
-    }
-
-    @media (max-width: 768px) {
-        .player-stats {
-            grid-template-columns: 1fr;
-        }
+    table.dataTable tbody tr:hover {
+        background-color: #dfe6e9;
     }
 </style>
 {% endblock %}
@@ -120,62 +61,87 @@
     </select>
 </div>
 
-<div id="player-container">
-    {% for player in players %}
-    <div class="player-card">
-        <a href="{% url 'players:player_profile' player.id %}">
-            <div class="player-rank">#{{ player.rank }}</div>
-            <img src="{{ player.image }}" alt="{{ player.name }}" class="player-image">
-            <div class="player-info">
-                <h3>{{ player.name }}</h3>
-                <p>{{ player.position }}</p>
-                <p>{{ player.team.team_name }}</p>
-                <p class="player-points">{{ player.points }} Points</p>
-            </div>
-            <div class="player-stats">
-                <p>Matches: {{ player.stats.Matches }}</p>
-                <p>Goals: {{ player.stats.Goals }}</p>
-                <p>Assists: {{ player.stats.Assists }}</p>
-                <p>Passes: {{ player.stats.Passes }}</p>
-                <p>Shoots: {{ player.stats.Shoots }}</p>
-                <p>Fouls: {{ player.stats.Fouls }}</p>
-                <p>Tackles: {{ player.stats.Tackles }}</p>
-                <p>Yellow Cards: {{ player.stats.YellowCards }}</p>
-                <p>Red Cards: {{ player.stats.RedCards }}</p>
-                <p>Saves: {{ player.stats.Saves }}</p>
-                <p>Conceded: {{ player.stats.Conceded }}</p>
-                <p>Clean Sheets: {{ player.stats.CleanSheets }}</p>
-            </div>
-        </a>
-    </div>
-    {% endfor %}
-</div>
+<table id="players-table" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Position</th>
+            <th>Team</th>
+            <th>Nationality</th>
+            <th>Matches</th>
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for player in players %}
+        <tr>
+            <td>{{ player.rank }}</td>
+            <td><a href="{% url 'players:player_profile' player.id %}">{{ player.name }}</a></td>
+            <td>{{ player.age }}</td>
+            <td>{{ player.position }}</td>
+            <td> <img src="{{ player.team.team_logo }}" alt="{{ player.team.name }}" title = "{{ player.team.team_name }}" class="icon"></td>
+            <td>{{ player.nationality }}</td>
+            <td>{{ player.stats.Matches }}</td>
+            <td>{{ player.stats.Goals }}</td>
+            <td>{{ player.stats.Assists }}</td>
+            <td>{{ player.points }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const leagueSelector = document.getElementById('league-selector');
-        const playerContainer = document.getElementById('player-container');
+    $(document).ready(function() {
+        const table = $('#players-table').DataTable({
+    order: [[9, 'desc']],
+    columns: [
+        { data: 'rank' },
+        { data: 'name' },
+        { data: 'age' },
+        { data: 'position' },
+        { data: 'team' },
+        { data: 'nationality' },
+        { data: 'matches' },
+        { data: 'goals' },
+        { data: 'assists' },
+        { data: 'points' },
+    ],
+});
 
-        leagueSelector.addEventListener('change', function () {
-            const leagueId = this.value;
-            fetch(`/players/top_league_players/${leagueId}/`, {
+        $('#league-selector').on('change', function () {
+            const leagueId = $(this).val();
+            $.ajax({
+                url: `/players/top_league_players/${leagueId}/`,
+                type: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                return response.text();
-            })
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newContainer = doc.querySelector('#player-container');
-                playerContainer.innerHTML = newContainer ? newContainer.innerHTML : '';
-            })
-            .catch(error => console.error('Error:', error));
+                },
+                success: function(data) {
+    const players = data.players.map(player => ({
+        rank: player.rank,
+        name: `<a href="/players/player_profile/${player.id}/">${player.name}</a>`,
+        age: player.age,
+        position: player.position,
+        team: `<img src="${player.team.team_logo || '/static/default.jpg'}" alt="${player.team.team_name}" title="${player.team.team_name}" class="icon">`,
+        nationality: player.nationality,
+        matches: player.stats.Matches,
+        goals: player.stats.Goals,
+        assists: player.stats.Assists,
+        points: player.points,
+    }));
+
+    table.clear().rows.add(players).draw();
+},
+            error: function() {
+                console.error('Failed to fetch data');
+            }
+            });
         });
     });
 </script>

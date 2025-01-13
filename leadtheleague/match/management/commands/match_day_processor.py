@@ -7,11 +7,8 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting match day processing...")
         try:
-            match_day_processor('2025-02-04')
-            match_day_processor('2025-02-05')
-            match_day_processor('2025-02-06')
-            match_day_processor('2025-02-07')
-            match_day_processor('2025-02-08')
-            match_day_processor('2025-02-09')
+            match_day_processor('2025-03-23')
+            match_day_processor('2025-03-24')
+
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"An error occurred: {e}"))

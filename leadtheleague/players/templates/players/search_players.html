@@ -5,8 +5,8 @@
 {% block extra_css %}
 {% load static %}
 {% load humanize %}
-<link rel="stylesheet" href="{% static 'css/free_agents.css' %}">
 
+<link rel="stylesheet" href="{% static 'css/search_players.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -21,18 +21,37 @@
         <div class="col-md-3">
             <select id="filterPosition" class="form-control">
                 <option value="">Filter by Position</option>
-                <option value="GK">Goalkeeper</option>
-                <option value="DF">Defender</option>
-                <option value="MF">Midfielder</option>
-                <option value="ATT">Attacker</option>
+                <option value="Goalkeeper">Goalkeeper</option>
+                <option value="Defender">Defender</option>
+                <option value="Midfielder">Midfielder</option>
+                <option value="Attacker">Attacker</option>
             </select>
         </div>
         <div class="col-md-3">
             <input type="number" id="filterAge" class="form-control" placeholder="Filter by Age">
         </div>
+        <div class="col-md-3">
+            <select id="filterLeague" class="form-control">
+                <option value="">Filter by League</option>
+                <option value="Bulgarian League">Bulgarian League</option>
+                <option value="English League">English League</option>
+                <option value="German League">German League</option>
+                <option value="italian League">italian League</option>
+                <option value="Spanish League">Spanish League</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="filterTeam" class="form-control" placeholder="Filter by Team">
+        </div>
+        <div class="col-md-3">
+            <div class="form-check">
+                <input type="checkbox" id="filterFreeAgents" class="form-check-input">
+                <label class="form-check-label" for="filterFreeAgents">Free Agents</label>
+            </div>
+        </div>
     </div>
-
     <div class="table-responsive">
+
         <table id="freeAgentsTable" class="display table table-bordered" style="width: 100%;">
             <thead>
             <tr>
@@ -41,6 +60,7 @@
                 <th>Nat</th>
                 <th>Pos</th>
                 <th>Potential</th>
+                <th>Team</th>
                 <th>Agent</th>
                 <th title="Handling">H</th>
                 <th title="Reflexes">R</th>
@@ -61,43 +81,10 @@
                 <th></th>
             </tr>
             </thead>
-            <tbody>
-            {% for player in all_players %}
-            <tr>
-                <td><a href="{% url 'players:player_profile' player.id %}">
-                    {{ player.name }}
-                </a></td>
-
-                <td>{{ player.age }}</td>
-                <td title={{player.nationality}}>{{ player.nationalityabbr }}</td>
-                <td>{{ player.positionabbr }}</td>
-                <td>{{ player.potential_rating|floatformat:2 }}/5</td>
-                <td>{{ player.agent }}</td>
-                <td>{{ player.handling }}</td>
-                <td>{{ player.reflexes }}</td>
-                <td>{{ player.finishing }}</td>
-                <td>{{ player.shooting }}</td>
-                <td>{{ player.technique }}</td>
-                <td>{{ player.passing }}</td>
-                <td>{{ player.crossing }}</td>
-                <td>{{ player.tackling }}</td>
-                <td>{{ player.strength }}</td>
-                <td>{{ player.determination }}</td>
-                <td>{{ player.ballcontrol }}</td>
-                <td>{{ player.dribbling }}</td>
-                <td>{{ player.speed }}</td>
-                <td>{{ player.vision }}</td>
-                <td>{{ player.workrate }}</td>
-                <td>${{ player.price|intcomma }}</td>
-                <td>
-                    <button class="btn btn-primary make-offer-btn" data-player-id="{{ player.id }}">Sign</button>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
         </table>
     </div>
 </div>
+
 <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -109,7 +96,6 @@
                 <div id="playerInfo" class="player-info">
                     <!-- Player information will be dynamically added here -->
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -125,114 +111,165 @@
 
 <script>
     $(document).ready(function () {
-       const table = $('#freeAgentsTable').DataTable({
-           dom: '<"top"l>rt<"bottom"ip>',
-           paging: true,
-           pageLength: 10
-       });
+        let selectedPlayerId;
+        let playerPrice;
+        // Инициализация на таблицата
+        const table = $('#freeAgentsTable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: '{% url "players:api_search_players" %}',
+                type: 'GET',
+                data: function (d) {
+    d.filterName = $('#filterName').val();
+    d.filterNationality = $('#filterNationality').val();
+    d.filterPosition = $('#filterPosition').val();
+    d.filterAge = $('#filterAge').val();
+    d.filterLeague = $('#filterLeague').val();
+    d.filterTeam = $('#filterTeam').val();
+    d.filterFreeAgents = $('#filterFreeAgents').is(':checked');
+}
 
-       let selectedPlayerId;
-       let playerPrice;
+            },
+            order: [[1, 'asc']],
+             dom: 't<"bottom"lp>',
+            columns: [
+                {
+        data: 'name',
+        render: function (data, type, row) {
+return `<a href="/players/player_profile/${row.id}" target="_blank">${data}</a>`;
+        },
+        orderable: true
+    },
+                { data: 'age', orderable: true },
+                { data: 'nationality', orderable: true },
+                { data: 'position', orderable: true },
+                { data: 'potential_rating', orderable: true },
+                { data: 'team', orderable: true },
+                { data: 'agent', orderable: false },
+                { data: 'handling', orderable: true },
+                { data: 'reflexes', orderable: true },
+                { data: 'finishing', orderable: true },
+                { data: 'shooting', orderable: true },
+                { data: 'technique', orderable: true },
+                { data: 'passing', orderable: true },
+                { data: 'crossing', orderable: true },
+                { data: 'tackling', orderable: true },
+                { data: 'strength', orderable: true },
+                { data: 'determination', orderable: true },
+                { data: 'ballcontrol', orderable: true },
+                { data: 'dribbling', orderable: true },
+                { data: 'speed', orderable: true },
+                { data: 'vision', orderable: true },
+                { data: 'workrate', orderable: true },
+               {
+    data: 'price',
+    render: function (data, type, row) {
+        if (type === 'display' && data) {
+            return data.toLocaleString(); // Форматиране на числата с хиляди
+        }
+        return data;
+    },
+    orderable: true
+},
+                {
+        data: 'id',
+        render: function (data, type, row) {
+            if (row.is_free_agent) {
+                return `<button class="btn btn-primary make-offer-btn" data-player-id="${data}">Sign</button>`;
+            } else {
+                return '';
+            }
+        },
+        orderable: false
+    }
+            ]
+        });
 
-       // Delegate event for "Make Offer" button
-       $('#freeAgentsTable').on('click', '.make-offer-btn', function () {
-           selectedPlayerId = $(this).data('player-id');
-           console.log("Selected Player ID:", selectedPlayerId);
+        // Презареждане на таблицата при промяна на който и да е филтър
+        $('#filterName, #filterNationality, #filterPosition, #filterAge, #filterLeague, #filterTeam, #filterFreeAgents').on('input change', function () {
+            table.ajax.reload();
+        });
 
-           if (!selectedPlayerId) {
-               alert("Player ID is missing!");
-               return;
-           }
+        // Обработване на бутона "Make Offer"
+        $('#freeAgentsTable').on('click', '.make-offer-btn', function () {
+            selectedPlayerId = $(this).data('player-id');
 
-           // Fetch player information
-           $.ajax({
-               url: `/players/${selectedPlayerId}/info/`,
-               type: 'GET',
-               success: function (data) {
-                   playerPrice = data.price; // Store player price
-                   $('#playerInfo').html(`
-                       <img src="${data.image_url}" alt="Player Image" style="max-width: 100%; height: auto; margin-bottom: 15px;">
-                       <p><strong>Name:</strong> ${data.name}</p>
-                       <p><strong>Age:</strong> ${data.age}</p>
-                       <p><strong>Nationality:</strong> ${data.nationality}</p>
-                       <p><strong>Position:</strong> ${data.position}</p>
-                       <p><strong>Price:</strong> $${data.price}</p>
-                   `);
-                   $('#offerModal').modal('show');
-               },
-               error: function (xhr) {
-                   console.error(xhr);
-                   alert('Failed to fetch player info.');
-               }
-           });
-       });
+            if (!selectedPlayerId) {
+                alert("Player ID is missing!");
+                return;
+            }
 
-       // Submit offer
-       $('#submitOffer').on('click', function () {
-           if (!playerPrice || playerPrice <= 0) {
-               alert("Invalid player price.");
-               return;
-           }
+            // Извличане на информация за играча
+            $.ajax({
+                url: `/players/${selectedPlayerId}/info/`,
+                type: 'GET',
+                success: function (data) {
+                    playerPrice = data.price;
+                    $('#playerInfo').html(`
+                        <img src="${data.image_url}" alt="Player Image" style="max-width: 100%; height: auto; margin-bottom: 15px;">
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Age:</strong> ${data.age}</p>
+                        <p><strong>Nationality:</strong> ${data.nationality}</p>
+                        <p><strong>Position:</strong> ${data.position}</p>
+                        <p><strong>Price:</strong> $${{ data.price|intcomma }}</p>
+                    `);
+                    $('#offerModal').modal('show');
+                },
+                error: function (xhr) {
+                    console.error(xhr);
+                    alert('Failed to fetch player info.');
+                }
+            });
+        });
 
-           $.ajax({
-               url: `/players/${selectedPlayerId}/offer/`,
-               type: 'POST',
-               contentType: 'application/json',
-               data: JSON.stringify({ offer_amount: playerPrice }),
-               headers: { 'X-CSRFToken': getCookie('csrftoken') },
-               success: function (response) {
-                   if (response.status === 'success') {
-                       Swal.fire('Success', response.message, 'success').then(() => {
-                           $('#offerModal').modal('hide');
-                           location.reload();
-                       });
-                   } else {
-                       Swal.fire('Error', response.message, 'error');
-                   }
-               },
-               error: function (xhr) {
-                   alert(xhr.responseJSON?.message || 'Error submitting offer.');
-               }
-           });
-       });
+        // Изпращане на офертата
+        $('#submitOffer').on('click', function () {
+            if (!selectedPlayerId || !playerPrice || playerPrice <= 0) {
+                Swal.fire('Error', 'Invalid player or price data.', 'error');
+                return;
+            }
 
-       function getCookie(name) {
-           let cookieValue = null;
-           if (document.cookie && document.cookie !== '') {
-               const cookies = document.cookie.split(';');
-               for (let i = 0; i < cookies.length; i++) {
-                   const cookie = cookies[i].trim();
-                   if (cookie.substring(0, name.length + 1) === name + '=') {
-                       cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                       break;
-                   }
-               }
-           }
-           return cookieValue;
-       }
+            $.ajax({
+                url: `/players/${selectedPlayerId}/offer/`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ offer_amount: playerPrice }),
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                success: function (response) {
+                    if (response.status === 'success') {
+                        Swal.fire('Success', response.message, 'success').then(() => {
+                            $('#offerModal').modal('hide');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire('Error', xhr.responseJSON?.message || 'Failed to submit the offer.', 'error');
+                }
+            });
+        });
 
-       // Add event listeners for filtering
-       $('#filterName').on('keyup', function () {
-           table.column(0).search(this.value).draw(); // Filter by Name (column 0)
-       });
+        // Функция за извличане на CSRF токена
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === name + '=') {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
-       $('#filterNationality').on('keyup', function () {
-           table.column(2).search(this.value).draw(); // Filter by Nationality (column 2)
-       });
-
-       $('#filterPosition').on('change', function () {
-           table.column(3).search(this.value).draw(); // Filter by Position (column 3)
-       });
-
-       $('#filterAge').on('keyup change', function () {
-           const ageFilter = this.value;
-           table.column(1).search(ageFilter).draw(); // Filter by Age (column 1)
-       });
-   });
+    });
 </script>
 
-{% endblock %}
-
-{% block extra_js %}
 
 {% endblock %}

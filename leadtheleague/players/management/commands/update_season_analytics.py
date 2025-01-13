@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from players.utils.player_analytics_utils import update_season_analytics, export_to_csv, panda_analyze
+from players.utils.player_analytics_utils import update_season_analytics
 
 
 class Command(BaseCommand):

@@ -1,8 +1,5 @@
 from django.db.models import Avg, Prefetch
 import random
-
-from numpy.f2py.crackfortran import is_free_format
-
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player, \
     PlayerMatchStatistic
@@ -12,7 +9,6 @@ from teams.models import TeamPlayer, Team, TeamTactics
 
 def get_all_positions():
     return Position.objects.all()
-
 
 def get_average_player_rating_for_current_season(player):
     current_season = get_current_season()
@@ -37,6 +33,7 @@ def get_player_team(player):
         'shirt_number': None,
         'team_logo': None,
     }
+
 
 
 def get_personal_player_data(player):
@@ -141,9 +138,8 @@ def get_player_data(player, season=None, match=None):
         'stats': get_player_stats(player, season=season, match=match),
     }
 
-
 def format_player_data(player):
-    """Format a single player's data for frontend usage."""
+    """Format a single player's data for DataTables."""
     attributes = {
         attr.attribute.name.lower(): attr.value for attr in player.relevant_attributes
     }
@@ -153,16 +149,16 @@ def format_player_data(player):
         'age': player.age,
         'nationality': player.nationality.name if player.nationality else "-",
         'nationalityabbr': player.nationality.abbreviation if player.nationality else "-",
-        'position': player.position.name if player.position else "-",
-        'positionabbr': player.position.abbreviation if player.position else "-",
+        'team': player.team_players.first().team.name if player.team_players.exists() else "Free Agent",
+        'position': player.position.abbreviation if player.position else "-",
         'agent': f"{player.agent.first_name} {player.agent.last_name}" if player.agent else "No Agent",
         **attributes,
         'price': player.price,
-        'potential_rating': player.potential_rating,
-        'potential_percentage': (player.potential_rating / 10) * 100,
-        'image_url': player.image,
-        'is_free_agent': '1' if player.is_free_agent else '0',
+        'potential_rating': round(player.potential_rating, 2),
+        'is_free_agent': player.is_free_agent,
+
     }
+
 
 
 def get_players_season_stats_by_team(team, season):
@@ -194,8 +190,8 @@ def get_players_season_stats_by_team(team, season):
 
 
 def get_all_players():
-    """Fetch all players, including their attributes."""
-    all_players = Player.objects.select_related(
+    """Fetch all players, including their relevant attributes."""
+    return Player.objects.select_related(
         'nationality', 'position', 'agent'
     ).prefetch_related(
         Prefetch(
@@ -210,8 +206,6 @@ def get_all_players():
             to_attr='relevant_attributes'
         )
     )
-
-    return all_players
 
 
 def get_all_free_agents():
