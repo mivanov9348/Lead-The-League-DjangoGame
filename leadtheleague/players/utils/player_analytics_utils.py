@@ -24,20 +24,16 @@ def calculate_player_points(stats, weights):
     yellow_cards = stats.get('YellowCards', 0)
     red_cards = stats.get('RedCards', 0)
 
-    # Голове и асистенции на мач
     points += (goals / matches) * 8
     points += (assists / matches) * 6
 
-    # Шутове с малка ефективност
     if shoots > 0:
         shooting_efficiency = goals / shoots
         if shooting_efficiency < 0.2:  # По-малко от 20% ефективност
             points -= (1 - shooting_efficiency) * 5
 
-    # Шутове в целта като позитивен показател
     points += (shoots_on_target / matches) * 2
 
-    # Наказания за картони
     points -= yellow_cards * 3
     points -= red_cards * 6
 

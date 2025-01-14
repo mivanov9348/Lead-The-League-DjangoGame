@@ -1,6 +1,6 @@
 import random
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, F
 from match.models import MatchEvent
 from match.utils.match.attendance import calculate_match_attendance, match_income
 from match.utils.match.goalscorers import log_goalscorer
@@ -88,56 +88,50 @@ def update_player_stats_from_template(match, event_result, player):
         "conceded": "Conceded",
     }
 
+    # Зареждаме или създаваме статистика за играча
     player_stat, created = PlayerMatchStatistic.objects.get_or_create(
         player=player,
         match=match,
-        defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
+        defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}},
     )
-
     updated_stats = player_stat.statistics
 
+    # Обновяване на статистиките на играча
     for field, stat_name in event_fields_to_stats.items():
         stat_value = getattr(event_result, field, 0)
         if stat_value > 0:
             updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
 
-    player_team = TeamPlayer.objects.filter(player=player).first()
+    # Оптимизирано: Зареждаме само необходимите данни за вратаря на противниковия отбор
+    player_team = TeamPlayer.objects.select_related("team").filter(player=player).first()
     opposing_team = get_opposing_team(match, player_team.team)
+    opposing_goalkeeper = (
+        opposing_team.teamtactics.starting_players.filter(position__name="Goalkeeper").only("id").first()
+    )
 
-    if event_result.event_result == "ShotOnTarget":
-        opposing_goalkeeper = opposing_team.teamtactics.starting_players.filter(position__name="Goalkeeper").first()
-        if opposing_goalkeeper:
-            gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
-                player=opposing_goalkeeper,
-                match=match,
-                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
-            )
-            gk_stats = gk_stat.statistics
+    if event_result.event_result in {"ShotOnTarget", "Goal"} and opposing_goalkeeper:
+        gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
+            player=opposing_goalkeeper,
+            match=match,
+            defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}},
+        )
+        gk_stats = gk_stat.statistics
+        if event_result.event_result == "ShotOnTarget":
             gk_stats["Saves"] = gk_stats.get("Saves", 0) + 1
-            gk_stat.statistics = gk_stats
-            gk_stat.save()
-
-    if event_result.event_result == "Goal":
-        opposing_goalkeeper = opposing_team.teamtactics.starting_players.filter(position="Goalkeeper").first()
-        if opposing_goalkeeper:
-            gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
-                player=opposing_goalkeeper,
-                match=match,
-                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
-            )
-            gk_stats = gk_stat.statistics
+        elif event_result.event_result == "Goal":
             gk_stats["Conceded"] = gk_stats.get("Conceded", 0) + 1
-            gk_stat.statistics = gk_stats
-            gk_stat.save()
+        gk_stat.statistics = gk_stats
+        gk_stat.save()
 
+    # Оптимизирано: Актуализираме случайно съотборник само ако е нужно
     if event_result.event_result == "Goal":
-        teammates = player.team.teamtactics.starting_players.exclude(id=player.id)
+        teammates = player.team.teamtactics.starting_players.exclude(id=player.id).only("id")
         if teammates.exists():
-            random_teammate = random.choice(teammates)
+            random_teammate = random.choice(list(teammates))
             teammate_stat, _ = PlayerMatchStatistic.objects.get_or_create(
                 player=random_teammate,
                 match=match,
-                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}}
+                defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}},
             )
             teammate_stats = teammate_stat.statistics
             teammate_stats["Assists"] = teammate_stats.get("Assists", 0) + 1
@@ -149,25 +143,29 @@ def update_player_stats_from_template(match, event_result, player):
         player_stat.save()
 
 
+
 def update_match_score(event_result, match, team_with_initiative, player):
     goal_events = {"ShotGoal", "CornerGoal", "FreeKickGoal", "PenaltyGoal"}
 
     if event_result.event_result in goal_events:
         log_goalscorer(match, player, team_with_initiative)
+
         if team_with_initiative == match.home_team:
-            match.home_goals += 1
+            match.home_goals = F("home_goals") + 1
         else:
-            match.away_goals += 1
+            match.away_goals = F("away_goals") + 1
 
-        match.save()
+        match.save(update_fields=["home_goals", "away_goals"])
 
+        match.refresh_from_db(fields=["home_goals", "away_goals"])
 
 def check_initiative(template, match):
-    if template.event_result.possession_kept:
-        print("The initiative saved")
-    else:
+    if not template.event_result.possession_kept:
         match.is_home_initiative = not match.is_home_initiative
-        match.save()
+
+        match.save(update_fields=["is_home_initiative"])
+    else:
+        print("The initiative saved")
 
 
 def fill_template_with_player(template, player):

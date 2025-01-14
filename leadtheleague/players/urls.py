@@ -12,7 +12,7 @@ urlpatterns = [
     path('top_league_players/<int:league_id>/', top_league_players, name='top_league_players_with_id'),
     path('api/players/', players_list_api, name='players_list_api'),
     path('youth_academy/', youth_academy, name='youth_academy'),
-    path('player_profile/<int:player_id>', player_profile, name='player_profile'),
+    path('player_profile/<int:player_id>/', player_profile, name='player_profile'),
     path('sign/<int:player_id>/', sign_player, name='sign_player'),
     path('<int:player_id>/release/',release_player, name='release_player'),
 

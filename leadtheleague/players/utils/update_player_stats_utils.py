@@ -18,10 +18,7 @@ def get_age_factor(age):
         (22, 28): 1.20,
         (29, 33): 1.00,
     }
-    for (min_age, max_age), factor in age_factors.items():
-        if min_age <= age <= max_age:
-            return factor
-    return 0.70
+    return next((factor for (min_age, max_age), factor in age_factors.items() if min_age <= age <= max_age), 0.70)
 
 
 def get_position_factor(position_name):
@@ -50,11 +47,11 @@ def get_statistics_factor(player, season):
 def update_player_price(player):
     season = get_current_season()
     final_price = (
-            get_base_price(player.position.name) *
-            get_age_factor(player.age) *
-            get_position_factor(player.position.name) *
-            get_attribute_factor(player) *
-            get_statistics_factor(player, season)
+        get_base_price(player.position.name)
+        * get_age_factor(player.age)
+        * get_position_factor(player.position.name)
+        * get_attribute_factor(player)
+        * get_statistics_factor(player, season)
     )
     player.price = final_price
     player.save()
@@ -80,25 +77,21 @@ def update_match_player_ratings(match):
 
 def update_player_rating(player, match):
     stats = PlayerMatchStatistic.objects.filter(player=player, match=match)
-
     weights = {
         'Assists': 1.0, 'CleanSheets': 1.5, 'Conceded': -1.0, 'Dribbles': 0.5,
-        'Fouls': -0.2, 'Goals': 2.0, 'Matches': 0.1,'Passes': 0.3, 'RedCards': -1.0, 'Saves': 1.0, 'Shoots': 0.3,
+        'Fouls': -0.2, 'Goals': 2.0, 'Matches': 0.1, 'Passes': 0.3,
+        'RedCards': -1.0, 'Saves': 1.0, 'Shoots': 0.3,
         'ShootsOnTarget': 0.5, 'Tackles': 0.3, 'YellowCards': -0.5,
     }
 
     base_rating = 7.0
-    total_weighted_score = 0
-    stats_count = 0
-
-    for stat in stats:
-        for key, value in stat.statistics.items():
-            weight = weights.get(key, 0)
-            total_weighted_score += value * weight
-        stats_count += 1
+    total_weighted_score = sum(
+        sum(stat.statistics.get(key, 0) * weights.get(key, 0) for key in stat.statistics)
+        for stat in stats
+    )
+    stats_count = stats.count()
 
     rating = base_rating + (total_weighted_score / (1 + stats_count)) if stats_count > 0 else base_rating
-    print(f'{player.first_name} {player.last_name} - Rating: {rating}')
     rating = max(1.0, min(10.0, rating))
 
     PlayerMatchRating.objects.update_or_create(
@@ -106,7 +99,6 @@ def update_player_rating(player, match):
         match=match,
         defaults={'rating': rating}
     )
-
     return rating
 
 

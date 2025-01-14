@@ -111,12 +111,16 @@ def prepare_first_season(season):
 def prepare_new_season(new_season):
     try:
         with transaction.atomic():
-            # eurocup participants
+            # TODO: да сложим чек дали всичи имат шампиони и са завършили??
+            # TODO: ако имат ->
+            #eurocup participants
             europe_promotion(new_season)
             print(f'European teams found!')
+            # TODO: Age+1
             # retired players
             process_retirement_players()
             print(f'Players over 35 years successfully retired!')
+            # TODO: Calculate new prices??
             # league season fixtures
             generate_all_league_fixtures(new_season)
             print(f'League Fixtures Successfully Created!')
