@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 from decimal import Decimal
 
+from dateutil.utils import today
+
 from cups.models import SeasonCup
 from europeancups.models import EuropeanCupSeason
 from fixtures.models import LeagueFixture, CupFixture
@@ -116,7 +118,7 @@ def get_cup_matchday_placeholders(season_cup):
     ).select_related('home_team', 'away_team')
 
     if not fixtures.exists():
-        raise ValueError(f"No finished matches found for {season_cup.name} on {today}.")
+        raise ValueError(f"No finished matches found for {season_cup.cup.name} on {today}.")
 
     match_results = "\n".join([
         f"{fixture.home_team.name} {fixture.home_goals} - {fixture.away_goals} {fixture.away_team.name}"

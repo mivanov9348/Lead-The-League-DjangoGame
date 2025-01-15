@@ -2,12 +2,15 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils import timezone
+
+from europeancups.models import KnockoutStage
 from match.models import Match
 from teams.models import Team
 
 
 def get_match_by_id(match_id):
     return Match.objects.filter(id=match_id).only('id', 'home_team', 'away_team', 'match_date').first()
+
 
 
 def get_match_by_fixture(fixture):

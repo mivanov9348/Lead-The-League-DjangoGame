@@ -1,10 +1,13 @@
 from cups.models import SeasonCup
 from cups.utils.generate_cup_fixtures import generate_next_round_fixtures
-from cups.utils.update_cup_season import populate_progressing_team
-from europeancups.utils.euro_cup_season_utils import get_current_european_cup_season, get_current_knockout_stage_order
+from cups.utils.update_cup_season import populate_progressing_team, set_champion
+from europeancups.models import KnockoutStage
+from europeancups.utils.euro_cup_season_utils import get_current_european_cup_season, get_current_knockout_stage_order, \
+    check_and_update_euro_cup_season_status, finalize_euro_cup
 from europeancups.utils.group_stage_utils import update_euro_cup_standings, advance_teams_from_groups, \
     update_group_stage_status_if_finished, are_group_stage_matches_finished
 from europeancups.utils.knockout_utils import generate_euro_cup_knockout, finish_current_knockout_stage
+from fixtures.models import CupFixture
 from fixtures.utils import get_fixtures_by_date
 from game.models import MatchSchedule, GameState
 from leagues.utils import update_standings_from_fixtures
@@ -155,33 +158,45 @@ def process_cup_day(match_date):
     except Exception as e:
         print(f"Error updating team statistics: {e}")
 
-    try:
-        next_available_date = MatchSchedule.objects.filter(
-            season=match_date.season,
-            event_type='cup',
-            is_cup_day_assigned=False,
-            date__gt=match_date.date
-        ).order_by('date').first()
-    except Exception as e:
-        print(f"Error fetching the next available cup day: {e}")
-        return
+        season_cups = SeasonCup.objects.filter(season=match_date.season)
+        for season_cup in season_cups:
+            try:
+                final_fixture = CupFixture.objects.filter(season_cup=season_cup, is_final=True,
+                                                          is_finished=True).first()
+                if final_fixture:
+                    print(f"Final match detected for {season_cup.cup.name}. Setting champion...")
+                    set_champion(season_cup)
+                    print(f"Champion set for {season_cup.cup.name}.")
+            except Exception as e:
+                print(f"Error processing final for {season_cup.cup.name}: {e}")
 
-    if not next_available_date:
-        print("No available date for the next cup round.")
-        return
-
-    season_cups = SeasonCup.objects.filter(season=match_date.season)
-    for season_cup in season_cups:
         try:
-            print(f"Processing {season_cup.cup.name} ({season_cup.season.year})...")
-            populate_progressing_team(season_cup)
-            generate_next_round_fixtures(season_cup, next_available_date)
-
-            next_available_date.is_cup_day_assigned = True
-            next_available_date.save()
-            print(f"{season_cup.cup.name} fixtures generated successfully.")
+            next_available_date = MatchSchedule.objects.filter(
+                season=match_date.season,
+                event_type='cup',
+                is_cup_day_assigned=False,
+                date__gt=match_date.date
+            ).order_by('date').first()
+            print(f'Next Cup Date: {next_available_date}')
         except Exception as e:
-            print(f"Error processing {season_cup.cup.name}: {e}")
+            print(f"Error fetching the next available cup day: {e}")
+            return
+
+        if not next_available_date:
+            print("No available date for the next cup round.")
+            return
+
+        for season_cup in season_cups:
+            try:
+                print(f"Processing {season_cup.cup.name} ({season_cup.season.year})...")
+                populate_progressing_team(season_cup)
+                generate_next_round_fixtures(season_cup, next_available_date)
+
+                next_available_date.is_cup_day_assigned = True
+                next_available_date.save()
+                print(f"{season_cup.cup.name} fixtures generated successfully.")
+            except Exception as e:
+                print(f"Error processing {season_cup.cup.name}: {e}")
 
 
 def process_euro_day(match_date):
@@ -217,9 +232,15 @@ def process_euro_day(match_date):
         log_match_participate(match)
         log_clean_sheets(match)
         update_season_statistics_for_match(match)
-        print(f'finalize_matc')
+        print(f'finalize_match')
         finalize_match(match)
         bulk_update_team_statistics(matches, match_date)
+
+    current_stage_order = get_current_knockout_stage_order(current_euro_season)
+
+    if current_stage_order.is_final:
+        finalize_euro_cup(current_euro_season, match)
+
 
     if current_euro_season.current_phase == 'group':
         print("Group phase detected. Checking if group stage matches are finished...")
@@ -283,6 +304,7 @@ def process_euro_day(match_date):
 
         if not free_date:
             print(f"No available date for next knockout stage in {current_euro_season}.")
+            check_and_update_euro_cup_season_status(current_euro_season)
             return
 
         # 4. Generate next knockout

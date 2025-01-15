@@ -253,6 +253,11 @@ def get_all_youth_players_by_team(team):
     ]
 
 
+def ensure_all_teams_has_minimum_players():
+    for team in Team.objects.all():
+        ensure_team_has_minimum_players(team)
+
+
 def ensure_team_has_minimum_players(team):
     required_positions = {
         "Goalkeeper": 1,
@@ -285,8 +290,3 @@ def ensure_team_has_minimum_players(team):
             generate_random_player(team=team, position=random_position)
 
     return f"Team '{team.name}' now has at least 11 players with the required positions."
-
-
-def ensure_all_teams_has_minimum_players():
-    for team in Team.objects.all():
-        ensure_team_has_minimum_players(team)

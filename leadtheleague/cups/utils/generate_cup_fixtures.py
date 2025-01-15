@@ -9,6 +9,7 @@ from game.models import MatchSchedule
 from match.utils.match.generator import generate_matches_from_fixtures, generate_cup_matches
 from teams.models import Team
 
+
 def get_teams_for_cup(cup):
     teams_count = cup.teams_count
     nationality = cup.nationality
@@ -48,6 +49,7 @@ def create_season_cup(cup, season):
         print(f"Грешка при създаване на SeasonCup за купа '{cup.name}': {e}")
         return None
 
+
 def populate_season_cups_with_teams(season):
     try:
         season_cups = SeasonCup.objects.filter(season=season)
@@ -71,6 +73,7 @@ def get_first_available_cup_schedule(season):
         is_cup_day_assigned=False
     ).order_by('date').first()
 
+
 def process_all_season_cups(season):
     print(f"Processing all SeasonCups for season: {season}")
     season_cups = SeasonCup.objects.filter(season=season)
@@ -84,6 +87,7 @@ def process_all_season_cups(season):
         if not first_available_schedule:
             raise ValueError(f"No available match schedule for season {season}.")
         generate_cup_fixtures(season_cup, first_available_schedule)
+
 
 def generate_cup_fixtures(season_cup, first_available_schedule):
     try:
@@ -163,13 +167,17 @@ def generate_cup_fixtures(season_cup, first_available_schedule):
 
 
 def generate_next_round_fixtures(season_cup, shared_match_date):
+    print(f"Generating next round fixtures for {season_cup.cup.name}, current stage: {season_cup.current_stage}")
     try:
         with transaction.atomic():
             progressing_teams = list(season_cup.progressing_teams.all())
+            print(f"Found {len(progressing_teams)} progressing teams: {[team.name for team in progressing_teams]}")
+
             if len(progressing_teams) < 2:
                 raise ValueError(f"Not enough teams to generate the next round for {season_cup.cup.name}.")
 
             if len(progressing_teams) % 2 != 0:
+                print("Odd number of teams, adding a placeholder 'Bye Team'")
                 placeholder_team = Team.objects.create(
                     name="Bye Team",
                     is_active=False,
@@ -178,7 +186,10 @@ def generate_next_round_fixtures(season_cup, shared_match_date):
                 progressing_teams.append(placeholder_team)
 
             random.shuffle(progressing_teams)
+            print(f"Shuffled teams: {[team.name for team in progressing_teams]}")
+
             stage = determine_stage_by_teams_count(len(progressing_teams))
+            print(f"Next stage determined: {stage}")
             season_cup.current_stage = stage
             season_cup.save()
 
@@ -186,34 +197,46 @@ def generate_next_round_fixtures(season_cup, shared_match_date):
             while len(progressing_teams) > 1:
                 home_team = progressing_teams.pop(random.randint(0, len(progressing_teams) - 1))
                 away_team = progressing_teams.pop(random.randint(0, len(progressing_teams) - 1))
+                print(f"Fixture created: {home_team.name} vs {away_team.name}")
                 fixtures.append((home_team, away_team))
 
             max_fixture_number = CupFixture.objects.aggregate(Max('fixture_number'))['fixture_number__max'] or 0
+            print(f"Max fixture number so far: {max_fixture_number}")
 
             bulk_create_list = []
             for index, (home_team, away_team) in enumerate(fixtures):
                 new_fixture_number = max_fixture_number + index + 1
+                round_number = (season_cup.cup_fixtures.aggregate(Max('round_number'))['round_number__max'] or 0) + 1
+                print(f"Creating fixture #{new_fixture_number}: {home_team.name} vs {away_team.name}")
 
                 cup_fixture = CupFixture(
                     fixture_number=new_fixture_number,
                     home_team=home_team,
                     away_team=away_team,
-                    round_number=(season_cup.cup_fixtures.aggregate(Max('round_number'))['round_number__max'] or 0) + 1,
+                    round_number=round_number,
                     date=shared_match_date.date,
                     match_time=shared_match_date.season.match_time,
                     season=season_cup.season,
                     season_cup=season_cup,
-                    round_stage=stage,
+                    round_stage=(stage == "Final"),
                 )
                 bulk_create_list.append(cup_fixture)
 
             CupFixture.objects.bulk_create(bulk_create_list)
+            print(f"{len(bulk_create_list)} fixtures created successfully.")
+
             generate_matches_from_fixtures(bulk_create_list, event_type='cup', season=season_cup.season)
 
         season_cup.current_stage = stage
         season_cup.save()
+        print(f"Season cup stage updated to: {stage}")
+
         generate_cup_matches(season=None)
+        print("Cup matches generation triggered successfully.")
+
     except IntegrityError as e:
+        print(f"IntegrityError: {e}")
         raise ValueError(f"Error generating next round fixtures for {season_cup.cup.name}: {e}")
     except Exception as e:
+        print(f"Unexpected error: {e}")
         raise ValueError(f"Unexpected error: {e}")

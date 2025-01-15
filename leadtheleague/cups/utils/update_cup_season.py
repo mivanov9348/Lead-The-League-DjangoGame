@@ -3,7 +3,6 @@ from cups.utils.generate_cup_fixtures import create_season_cup
 from fixtures.models import CupFixture
 from messaging.utils.category_messages_utils import create_cup_champion_message
 
-
 def generate_cups_season(season):
     cups = Cup.objects.all()
     for cup in cups:
@@ -33,45 +32,52 @@ def update_winner(fixture):
     fixture.is_finished = True
     fixture.save()
 
+
 def populate_progressing_team(season_cup):
+    print(f"Populating progressing teams for season cup: {season_cup.cup.name}, current stage: {season_cup.current_stage}")
+
     round_fixtures = CupFixture.objects.filter(season_cup=season_cup, round_stage=season_cup.current_stage)
     print(f"Found {round_fixtures.count()} fixtures for current stage: {season_cup.current_stage}")
 
-    if not round_fixtures.filter(is_finished=False).exists():
-        progressing_teams = []
-        eliminated_teams = []
-
-        for fixture in round_fixtures:
-            print(f"Processing fixture {fixture.fixture_number}: {fixture.home_team.name} vs {fixture.away_team.name}")
-            if fixture.winner:
-                print(f"Winner: {fixture.winner.name}")
-                progressing_teams.append(fixture.winner)
-
-                if fixture.winner == fixture.home_team:
-                    eliminated_teams.append(fixture.away_team)
-                else:
-                    eliminated_teams.append(fixture.home_team)
-            else:
-                print(f"Fixture {fixture.fixture_number} has no winner!")
-
-        print(f"Clearing old progressing teams.")
-        season_cup.progressing_teams.clear()
-
-        print(f"Setting new progressing teams: {[team.name for team in progressing_teams]}")
-        season_cup.progressing_teams.set(progressing_teams)
-
-        print(f"Adding eliminated teams: {[team.name for team in eliminated_teams]}")
-        season_cup.eliminated_teams.add(*eliminated_teams)
-
-        season_cup.save()
-    else:
+    unfinished_fixtures = round_fixtures.filter(is_finished=False)
+    if unfinished_fixtures.exists():
+        print(f"Unfinished fixtures found: {[f.fixture_number for f in unfinished_fixtures]}")
         raise ValueError(f"Not all fixtures in {season_cup.current_stage} are finished.")
 
+    progressing_teams = []
+    eliminated_teams = []
 
+    for fixture in round_fixtures:
+        print(f"Processing fixture {fixture.fixture_number}: {fixture.home_team.name} vs {fixture.away_team.name}")
+        if fixture.winner:
+            print(f"Winner for fixture {fixture.fixture_number}: {fixture.winner.name}")
+            progressing_teams.append(fixture.winner)
+
+            if fixture.winner == fixture.home_team:
+                eliminated_teams.append(fixture.away_team)
+                print(f"Eliminated team: {fixture.away_team.name}")
+            else:
+                eliminated_teams.append(fixture.home_team)
+                print(f"Eliminated team: {fixture.home_team.name}")
+        else:
+            print(f"Fixture {fixture.fixture_number} has no winner set!")
+
+    print(f"Clearing old progressing teams for season cup: {season_cup.cup.name}")
+    season_cup.progressing_teams.clear()
+
+    print(f"Setting new progressing teams: {[team.name for team in progressing_teams]}")
+    season_cup.progressing_teams.set(progressing_teams)
+
+    print(f"Adding eliminated teams: {[team.name for team in eliminated_teams]}")
+    season_cup.eliminated_teams.add(*eliminated_teams)
+
+    print(f"Saving updated season cup: {season_cup.cup.name}")
+    season_cup.save()
+    print(f"Successfully populated progressing teams for season cup: {season_cup.cup.name}")
 
 def set_champion(season_cup):
     if season_cup.current_stage.lower() == "final":
-        final_fixture = CupFixture.objects.filter(season_cup=season_cup, round_stage="Final", is_finished=True).first()
+        final_fixture = CupFixture.objects.filter(season_cup=season_cup, is_final=True, is_finished=True).first()
 
         if final_fixture and final_fixture.winner:
             season_cup.champion_team = final_fixture.winner

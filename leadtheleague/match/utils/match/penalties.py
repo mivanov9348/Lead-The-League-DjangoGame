@@ -1,5 +1,11 @@
-from match.models import MatchPenalties
-
+from django.db import transaction
+from match.models import MatchPenalties, PenaltyAttempt
+from match.utils.match.events import calculate_event_success_rate, get_event_result, get_event_template
+from match.utils.match.lineup import get_starting_lineup
+from match.utils.match.penalties_logic import check_penalties_completion, check_sudden_death_completion, \
+    check_rotation_violations, get_penalty_match_event, calculate_penalty_success, get_penalty_taker, \
+    update_penalty_score, log_penalty_event
+from match.utils.match.processing_logic import fill_template_with_player
 
 def generate_match_penalties(match):
     if not hasattr(match, 'penalties'):

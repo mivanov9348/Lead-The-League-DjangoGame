@@ -5,11 +5,9 @@ from game.utils.get_season_stats_utils import get_current_season
 from players.models import PlayerMatchStatistic, PlayerMatchRating, Player, Statistic, PlayerSeasonStatistic
 from teams.models import TeamPlayer, TeamTactics
 
-
 def get_base_price(position_name):
     setting_name = f'{position_name}_base_price'
     return Settings.objects.filter(key=setting_name).values_list('value', flat=True).first() or 100000
-
 
 def get_age_factor(age):
     age_factors = {
@@ -34,7 +32,6 @@ def get_attribute_factor(player):
     total_attributes = player.playerattribute_set.aggregate(total=Sum('value'))['total'] or 0
     return 1 + total_attributes / 300 if total_attributes else 1.0
 
-
 def get_statistics_factor(player, season):
     match_ratings = PlayerMatchRating.objects.filter(player=player, match__season=season).values_list('rating',
                                                                                                       flat=True)
@@ -43,6 +40,10 @@ def get_statistics_factor(player, season):
     average_rating = sum(match_ratings) / len(match_ratings)
     return 1 + average_rating / 10
 
+def update_all_players_prices():
+    all_players = Player.objects.all()
+    for player in all_players:
+        update_player_price(player)
 
 def update_player_price(player):
     season = get_current_season()

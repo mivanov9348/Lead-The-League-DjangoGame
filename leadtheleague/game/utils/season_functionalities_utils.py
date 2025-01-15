@@ -14,7 +14,8 @@ from messaging.utils.placeholders_utils import get_new_season_placeholders
 from players.utils.generate_player_utils import generate_youth_players, process_retirement_players, \
     generate_all_players_season_stats, generate_players_for_all_teams
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
-from players.utils.update_player_stats_utils import promoting_youth_players
+from players.utils.update_player_stats_utils import promoting_youth_players, all_players_age_up, \
+    update_all_players_prices
 from staff.utils.agent_utils import generate_agents
 from staff.utils.coach_utils import new_seasons_coaches
 from teams.utils.generate_team_utils import set_team_logos
@@ -111,23 +112,26 @@ def prepare_first_season(season):
 def prepare_new_season(new_season):
     try:
         with transaction.atomic():
-            # TODO: да сложим чек дали всичи имат шампиони и са завършили??
-            # TODO: ако имат ->
             #eurocup participants
+            #TODO: Check how many europe promotions are up
             europe_promotion(new_season)
             print(f'European teams found!')
-            # TODO: Age+1
+            #aging all player
+            all_players_age_up()
+            print('All Players agging up')
             # retired players
             process_retirement_players()
             print(f'Players over 35 years successfully retired!')
-            # TODO: Calculate new prices??
+            # update_players_prices
+            update_all_players_prices()
+            print(f'All Players prices updated!')
             # league season fixtures
             generate_all_league_fixtures(new_season)
             print(f'League Fixtures Successfully Created!')
             # cup season fixtures
             process_all_season_cups(new_season)
             print(f'Cup Fixtures Successfully Created!')
-            # eurocup season fixtures
+            # euro cup season fixtures
             create_groups_for_season(new_season)
             print(f'European Cup Group Successfully Created!')
             generate_group_fixtures(new_season)
@@ -156,6 +160,7 @@ def prepare_new_season(new_season):
             # coaches
             new_seasons_coaches()
             print('Coaches for new season added successfully!')
+
     except Exception as e:
         print(f"An error occurred: {e}")
         raise

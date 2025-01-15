@@ -11,21 +11,27 @@ from messaging.utils.category_messages_utils import create_european_cup_champion
 from teams.models import Team
 
 
+
 def get_current_european_cup_season():
     current_season = get_current_season()
-    season = EuropeanCupSeason.objects.filter(season=current_season).first()
-    if not season:
-        raise ValueError("No European Cup Season found for the current season.")
-    return season
+    euro_season = EuropeanCupSeason.objects.filter(season=current_season).first()
+    if not euro_season:
+        raise ValueError("No European Cup season found for the current season.")
+    print(f"Current European Cup season: {euro_season}")
+    return euro_season
 
-
-def get_current_knockout_stage_order(euro_season):
+def get_current_knockout_stage_order(current_euro_season):
     current_stage = KnockoutStage.objects.filter(
-        european_cup_season=euro_season,
+        european_cup_season=current_euro_season,
         is_played=False
     ).order_by('stage_order').first()
 
-    return current_stage.stage_order if current_stage else None
+    if not current_stage:
+        print("No unplayed knockout stage found.")
+        return None
+
+    print(f"Current knockout stage: {current_stage} (Stage order: {current_stage.stage_order})")
+    return current_stage
 
 
 def are_knockout_stage_matches_finished(euro_season, stage_order):
@@ -63,6 +69,26 @@ def add_team_to_european_cup(team, european_cup_season):
     )
     return f"The team {team.name} is added for season {european_cup_season}."
 
+def check_and_update_euro_cup_season_status(euro_cup_season):
+    if not euro_cup_season.is_group_stage_finished:
+        groups = euro_cup_season.groups.all()
+        all_groups_finished = all(
+            group.groupteam_set.filter(matches=euro_cup_season.teams_per_group - 1).count() == euro_cup_season.teams_per_group
+            for group in groups
+        )
+        if all_groups_finished:
+            euro_cup_season.is_group_stage_finished = True
+
+    knockout_stages = euro_cup_season.knockout_stages.all()
+    all_knockout_stages_played = all(stage.is_played for stage in knockout_stages)
+
+    if euro_cup_season.is_group_stage_finished and all_knockout_stages_played:
+        euro_cup_season.is_euro_cup_finished = True
+        euro_cup_season.save()
+        return f"Season '{euro_cup_season}' is finished."
+
+    euro_cup_season.save()
+    return f"Season '{euro_cup_season}' is not yet finished."
 
 def europe_promotion(new_season):
     european_cups = EuropeanCup.objects.all()
@@ -138,3 +164,26 @@ def set_european_cup_season_champion():
     european_cup_season.save()
     create_european_cup_champion_message()
     return champion
+
+def finalize_euro_cup(european_cup_season, match):
+    fixture = EuropeanCupFixture.objects.filter(
+        home_team=match.home_team,
+        away_team=match.away_team,
+        season=match.season,
+        is_finished=True
+    ).first()
+
+    if not fixture:
+        raise ValueError("No completed fixture found for the given match.")
+
+    winner_team = fixture.winner
+    if not winner_team:
+        raise ValueError("Cannot finalize European Cup season without a winner.")
+
+    european_cup_season.champion = winner_team
+    european_cup_season.current_phase = 'finished'
+    european_cup_season.is_euro_cup_finished = True
+    european_cup_season.save()
+
+    print(f"European Cup {european_cup_season.cup.name} for season {european_cup_season.season} is completed.")
+    print(f"The champion is {winner_team.name}.")
