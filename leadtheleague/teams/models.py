@@ -2,8 +2,6 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from accounts.models import CustomUser
-from django.db.models import JSONField
-
 
 class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)

@@ -18,6 +18,13 @@ def get_all_transfers():
     return Transfer.objects.all()
 
 
+from transfers.models import Transfer
+
+
+def get_latest_transfers(limit=5):
+    return Transfer.objects.select_related('player', 'selling_team', 'buying_team') \
+               .order_by('-transfer_date')[:limit]
+
 def transfer_history_by_team(team_id):
     transfers_in = Transfer.objects.filter(buying_team_id=team_id).order_by('-transfer_date')
     transfers_out = Transfer.objects.filter(selling_team_id=team_id).order_by('-transfer_date')

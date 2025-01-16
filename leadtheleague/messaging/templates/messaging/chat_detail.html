@@ -1,0 +1,27 @@
+<h1>Чат с {{ recipient.username }}</h1>
+<div id="messages">
+    {% for message in messages %}
+    <p><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
+    {% endfor %}
+</div>
+<form id="sendMessageForm">
+    <textarea name="content" id="content" rows="3"></textarea>
+    <input type="hidden" id="recipient_id" value="{{ recipient.id }}">
+    <button type="submit">Send</button>
+</form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#sendMessageForm").on("submit", function(e) {
+        e.preventDefault();
+        $.post("{% url 'messaging:send_message' %}", {
+            recipient_id: $("#recipient_id").val(),
+            content: $("#content").val(),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }, function(data) {
+            if (data.success) {
+                $("#messages").append("<p><strong>Вие:</strong> " + $("#content").val() + "</p>");
+                $("#content").val("");
+            }
+        });
+    });
+</script>

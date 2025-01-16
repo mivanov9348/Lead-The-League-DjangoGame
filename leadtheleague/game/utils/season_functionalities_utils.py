@@ -113,7 +113,6 @@ def prepare_new_season(new_season):
     try:
         with transaction.atomic():
             #eurocup participants
-            #TODO: Check how many europe promotions are up
             europe_promotion(new_season)
             print(f'European teams found!')
             #aging all player

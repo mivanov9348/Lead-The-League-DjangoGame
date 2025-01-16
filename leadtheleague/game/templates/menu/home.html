@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+{% load humanize %}
 <meta name="csrf-token" content="{{ csrf_token }}">
 
 <div class="container main-content mt-4">
@@ -53,19 +54,19 @@
 
         <div class="col-md-4">
             <div class="card last-messages-card">
-    <div class="card-header text-center text-uppercase fw-bold">
-        <a href="{% url 'messaging:inbox_view' %}">Last Messages</a>
-    </div>
-    <div class="card-body">
-        {% for message in latest_messages %}
-        <div class="message-item">
-            <span class="message-status-dot {% if message.is_read %}read{% else %}unread{% endif %}"></span>
-            <p class="message-date">{{ message.date_sent }}</p>
-            <p class="message-title text-truncate">{{ message.title }}</p>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+                <div class="card-header text-center text-uppercase fw-bold">
+                    <a href="{% url 'messaging:inbox_view' %}">Last Messages</a>
+                </div>
+                <div class="card-body">
+                    {% for message in latest_messages %}
+                    <div class="message-item">
+                        <span class="message-status-dot {% if message.is_read %}read{% else %}unread{% endif %}"></span>
+                        <p class="message-date">{{ message.date_sent }}</p>
+                        <p class="message-title text-truncate">{{ message.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
         </div>
 
@@ -270,8 +271,7 @@
                         {% for transfer in transfers %}
                         <tr>
                             <td>{{ transfer.transfer_date }}</td>
-                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{
-                                transfer.player.name|default:"-" }}</a></td>
+                            <td><a href="{% url 'players:player_profile' transfer.player.id %}">{{ transfer.player.name|default:"-" }}</a></td>
                             <td>
                                 {% if transfer.selling_team %}
                                 {{ transfer.selling_team.name }}
@@ -280,7 +280,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ transfer.buying_team.name }}</td>
-                            <td>{{ transfer.amount }}</td>
+                            <td>{{ transfer.amount|intcomma }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -290,28 +290,32 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <a href="#">Finance Overview</a>
-                </div>
-                <div class="card-body">
-                    <h5>Balance: ${{ finance_overview.balance }}</h5>
-                    <p>Total Income: ${{ finance_overview.total_income }}</p>
-                    <p>Total Expenses: ${{ finance_overview.total_expenses }}</p>
-                    <hr>
-                    <h6>Recent Transactions:</h6>
-                    <ul>
-                        {% for transaction in recent_transactions %}
-                        <li>
-                            <strong>{{ transaction.type }}:</strong> ${{ transaction.amount }} - {{
-                            transaction.description }}
-                            <br><small>{{ transaction.created_at|date:"Y-m-d H:i" }}</small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+    <div class="card">
+        <div class="card-header">
+            <a href="#">Finance Overview</a>
         </div>
+        <div class="card-body">
+            <h5>Balance: ${{ balance|intcomma }}</h5>
+            <hr>
+            <h6>Recent Transactions:</h6>
+            <ul>
+                {% for transaction in recent_transactions %}
+                <li>
+                    <strong
+                        class="{% if transaction.type == 'IN' %}text-success{% elif transaction.type == 'OUT' %}text-danger{% else %}text-muted{% endif %}">
+                        {{ transaction.type }}:
+                    </strong>
+                    ${{ transaction.amount|intcomma }} - {{ transaction.description }}
+                    <br>
+                    <small>{{ transaction.created_at }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
     </div>
 </div>
 {% load static %}

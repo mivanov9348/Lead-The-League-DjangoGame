@@ -32,7 +32,7 @@
                 </thead>
                 <tbody>
                 {% for team in group_data.teams %}
-                <tr>
+    <tr class="{% if forloop.counter <= 2 %}qualified{% endif %}">
                     <td>{{ forloop.counter }}</td>
                     <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }} </a></td>
                     <td>{{ team.matches }}</td>

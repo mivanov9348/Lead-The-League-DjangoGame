@@ -129,6 +129,14 @@
             <!-- Match Score -->
             <div style="flex: 1; text-align: center;">
                 <h1 style="margin: 0;">{{ match.home_goals }} : {{ match.away_goals }}</h1>
+
+                <!-- Check for Penalties -->
+                {% if match.penalties %}
+                <p style="font-size: 14px; color: #ccc;">
+                    ( {{ match.penalties.home_score }} : {{ match.penalties.away_score }} )
+                </p>
+                {% endif %}
+
                 <p>{{ match.stadium.name }}</p>
                 <p class="attendance">Attendance: {{ match.attendance }}</p>
                 <hr/>

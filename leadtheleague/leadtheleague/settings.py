@@ -9,6 +9,17 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+ASGI_APPLICATION = 'leadtheleague.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -32,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'django.contrib.humanize',
     'rest_framework',
+    'channels',
     'core',
     'teams',
     'accounts',
@@ -132,20 +144,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -155,7 +155,6 @@ EMAIL_HOST_USER = 'leadtheleaguedj@gmail.com'
 EMAIL_HOST_PASSWORD = 'CSKA1948aaa!'
 DEFAULT_FROM_EMAIL = 'leadtheleaguedj@gmail.com'
 
-ASGI_APPLICATION = 'leadtheleague.asgi.application'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

@@ -22,11 +22,21 @@
                 </div>
                 <div class="match-details">
                     {% if match.is_finished %}
-                    <span class="result">{{ match.home_goals }} : {{ match.away_goals }}</span>
+                    <a href="{% url 'match:match' match.id %}" class="result-link">
+                    <span class="result">
+        {{ match.home_goals }} : {{ match.away_goals }}
+        {% if match.penalties %}
+        ({{ match.penalties.home_score }}:{{ match.penalties.away_score }})
+        {% endif %}
+    </span>
+                    </a>
+
                     {% else %}
                     <span class="details">Match Not Played</span>
+
                     {% endif %}
                 </div>
+
                 <div class="team away">
                     <span class="team-name">{{ match.away_team }}</span>
                 </div>

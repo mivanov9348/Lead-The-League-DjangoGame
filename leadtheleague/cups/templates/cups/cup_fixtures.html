@@ -22,25 +22,33 @@
             {% endfor %}
         </select>
     </div>
+
     <div class="fixtures">
         {% for match in matches %}
         <div class="fixture">
             <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
 
             <div class="fixture-content">
-    <span class="team">
-        <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
-    </span>
-                <span class="score"> <a href="{% url 'match:match' match.id %}">
-            {% if match.is_played %}
-                {{ match.home_goals }} : {{ match.away_goals }}
-            {% else %}
-                TBA
-            {% endif %}
-        </a></span>
                 <span class="team">
-        <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
-    </span>
+                    <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+                </span>
+                <span class="score">
+                    <a href="{% url 'match:match' match.id %}">
+                    {% if match.is_played %}
+                        {{ match.home_goals }} : {{ match.away_goals }}
+                        {% if match.penalties %}
+                            <span style="font-size: 14px; color: #777;">
+                                ({{ match.penalties.home_score }} : {{ match.penalties.away_score }})
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        TBA
+                    {% endif %}
+                    </a>
+                </span>
+                <span class="team">
+                    <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+                </span>
             </div>
 
             <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
@@ -48,6 +56,7 @@
         {% endfor %}
     </div>
 </div>
+
 <script>
     document.getElementById('stage-select').addEventListener('change', function () {
         const selectedRound = this.value;
@@ -55,6 +64,5 @@
         window.location.href = `${baseUrl}?round=${selectedRound}`;
     });
 </script>
-
 
 {% endblock %}

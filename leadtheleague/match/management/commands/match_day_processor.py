@@ -1,10 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from europeancups.utils.euro_cup_season_utils import get_current_knockout_stage_order, get_current_european_cup_season, \
-    finalize_euro_cup
-from game.models import MatchSchedule
+from finance.utils.prize_utils import calculate_team_percentages
 from match.utils.match.processing import match_day_processor
-from teams.models import Team
 
 
 class Command(BaseCommand):
@@ -13,13 +10,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting match day processing...")
         try:
-            # match_day_processor('2025-04-04')
-            current_euro_season = get_current_european_cup_season()
-            current_stage_order = get_current_knockout_stage_order(current_euro_season)
-            winner_team = Team.objects.filter(id=9702).first()
+            # match_day_processor('2025-03-13')
+            # match_day_processor('2025-03-14')
+            # match_day_processor('2025-03-15')
+            # match_day_processor('2025-03-16')
+            # match_day_processor('2025-03-17')
 
-            if current_stage_order.is_final:
-                finalize_euro_cup(current_euro_season, winner_team)
+            result = calculate_team_percentages(30)
+            print(result)
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"An error occurred: {e}"))

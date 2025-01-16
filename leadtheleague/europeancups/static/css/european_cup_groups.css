@@ -96,3 +96,7 @@
 .fixtures-list .upcoming {
     color: #ff9800;
 }
+.qualified {
+    background-color: #d4edda; /* Светлозелен фон */
+    font-weight: bold;
+}

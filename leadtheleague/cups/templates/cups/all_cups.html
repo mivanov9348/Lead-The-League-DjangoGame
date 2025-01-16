@@ -28,37 +28,41 @@
     </div>
     {% endif %}
 
-    <!-- Мачове за избраната купа -->
     <div class="fixtures">
-        {% if fixtures_grouped %}
-        {% for round_stage, matches in fixtures_grouped.items %}
-        <div class="round-stage">
-            <h2>{{ round_stage }}</h2>
-            {% for match in matches %}
-            <div class="fixture">
-                <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
-                <div class="fixture-content">
-                    <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
-                    <span class="score">
-                    {% if match.is_played %}
-                        <a href="{% url 'match:match' match.id %}">
-                            {{ match.home_goals }} : {{ match.away_goals }}
-                        </a>
-                    {% else %}
-                        TBA
-                    {% endif %}
+    {% if fixtures_grouped %}
+    {% for round_stage, matches in fixtures_grouped.items %}
+    <div class="round-stage">
+        <h2>{{ round_stage }}</h2>
+        {% for match in matches %}
+        <div class="fixture">
+            <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
+            <div class="fixture-content">
+                <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+                <span class="score">
+                {% if match.is_played %}
+                    <a href="{% url 'match:match' match.id %}">
+                        {{ match.home_goals }} : {{ match.away_goals }}
+                        {% if match.penalties %}
+                        <span style="font-size: 14px; color: #777;">
+                            ({{ match.penalties.home_score }} : {{ match.penalties.away_score }})
+                        </span>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    TBA
+                {% endif %}
                 </span>
-                    <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
-                </div>
-                <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
+                <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
             </div>
-            {% endfor %}
+            <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
         </div>
         {% endfor %}
-        {% else %}
-        <p class="no-fixtures">No fixtures available for the selected cup.</p>
-        {% endif %}
-
     </div>
-    {% endblock %}
+    {% endfor %}
+    {% else %}
+    <p class="no-fixtures">No fixtures available for the selected cup.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
 </div>

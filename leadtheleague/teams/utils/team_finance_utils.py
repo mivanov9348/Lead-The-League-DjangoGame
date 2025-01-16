@@ -1,23 +1,10 @@
 from decimal import Decimal
 from django.db import transaction
+
+from finance.models import Transaction
 from finance.utils.bank_utils import get_bank, distribute_income
 from game.utils.get_season_stats_utils import get_current_season
 from teams.models import TeamFinance, TeamTransaction
-
-def get_team_finance_overview(team):
-    try:
-        finance = TeamFinance.objects.get(team=team)
-        return {
-            "balance": finance.balance,
-            "total_income": finance.total_income,
-            "total_expenses": finance.total_expenses,
-        }
-    except TeamFinance.DoesNotExist:
-        return {
-            "balance": Decimal('0.00'),
-            "total_income": Decimal('0.00'),
-            "total_expenses": Decimal('0.00'),
-        }
 
 def get_recent_team_transactions(team, limit=5):
     return TeamTransaction.objects.filter(team=team).order_by('-created_at')[:limit]

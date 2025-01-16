@@ -43,8 +43,6 @@
   color: var(--white-color);
 }
 
-
-
 .icon.orange {
   background-color: orange;
 }
@@ -79,16 +77,16 @@
 }
 
 .champion {
-    background-color: #4caf50; /* Зелен цвят */
-    color: white;
-    font-weight: bold;
+    background-color: var(--darkergreen-color) !important;
+    color: white !important;
+    font-weight: bold !important;
 }
-
 
 .euro-qualifiers {
-    background-color: #c8e6c9; /* Светло зелен цвят */
-    color: black;
+    background-color: #c8e6c9 !important;
+    color: black !important;
 }
+
 
 .last-places {
     background-color: #ffcdd2; /* Светло червен цвят */
@@ -100,4 +98,12 @@
     width: 20px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+.user-team {
+    color: red !important;
+}
+.manager-name {
+        font-size: 0.6em;
+        color: gray; !important
 }
