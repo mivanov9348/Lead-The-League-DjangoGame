@@ -342,3 +342,49 @@ def create_european_cup_champion_message():
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
+
+def create_prize_fund_message(user, previous_season, results):
+    team = user.team
+    if not team:
+        print(f"User {user.username} does not have a team assigned. Skipping message creation.")
+        return None
+
+    team_prizes = [
+        entry["team_prize"]
+        for entry in results["teams"]
+        if entry["team_name"] == team.name
+    ]
+    team_prize = sum(team_prizes)
+
+    placeholders = {
+        "total_sum": f"{results['total_sum']:.2f}",
+        "league_fund": f"{results['league_fund']:.2f}",
+        "cup_fund": f"{results['cup_fund']:.2f}",
+        "global_fund": f"{results['global_fund']:.2f}",
+        "match_fund": f"{results['match_fund']:.2f}",
+        "team_name": team.name,
+        "team_prize": f"{team_prize:,.2f}"
+    }
+
+    template = MessageTemplate.objects.filter(category='Prize Fund').order_by('?').first()
+    if not template:
+        raise ValueError("No templates found for 'Prize Fund' category.")
+
+    try:
+        message = template.message.format(**placeholders)
+        title = template.title.format(**placeholders)
+    except KeyError as e:
+        raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
+
+    system_message = SystemMessage.objects.create(
+        recipient=user,
+        title=title,
+        preview=message[:30],
+        message=message,
+        date_sent=now(),
+        is_global=False
+    )
+
+    create_user_message_status(system_message, is_global=False, recipient=user)
+
+    return system_message

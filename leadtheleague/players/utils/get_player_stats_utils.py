@@ -261,9 +261,9 @@ def ensure_all_teams_has_minimum_players():
 def ensure_team_has_minimum_players(team):
     required_positions = {
         "Goalkeeper": 1,
-        "Defender": 4,
-        "Midfielder": 4,
-        "Forward": 2,
+        "Defender": 5,
+        "Midfielder": 5,
+        "Forward": 3,
     }
 
     team_players = TeamPlayer.objects.filter(team=team).select_related("player")

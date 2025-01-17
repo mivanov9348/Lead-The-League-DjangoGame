@@ -9,33 +9,30 @@ from django.db.models import Sum
 
 def calculate_player_points(stats, weights):
     points = 0
-    matches = max(stats.get('Matches', 1), 5)  # Минимален праг от 5 мача
 
-    # Основни точки на база тежести
     for stat, value in stats.items():
         weight = weights.get(stat.lower(), 0)
         points += value * weight
 
-    # Корекции на база производителност
+    matches = stats.get('Matches', 0)
+    points += matches * 0.1
+
     goals = stats.get('Goals', 0)
     assists = stats.get('Assists', 0)
     shoots = stats.get('Shoots', 0)
-    shoots_on_target = stats.get('ShootsOnTarget', 0)
     yellow_cards = stats.get('YellowCards', 0)
     red_cards = stats.get('RedCards', 0)
 
-    points += (goals / matches) * 8
-    points += (assists / matches) * 6
+    points += goals * 2
+    points += assists * 1
 
-    if shoots > 0:
+    if shoots > 0 and goals > 0:
         shooting_efficiency = goals / shoots
-        if shooting_efficiency < 0.2:  # По-малко от 20% ефективност
-            points -= (1 - shooting_efficiency) * 5
+        if shooting_efficiency < 0.2:
+            points -= (1 - shooting_efficiency) * 3
 
-    points += (shoots_on_target / matches) * 2
-
-    points -= yellow_cards * 3
-    points -= red_cards * 6
+    points -= yellow_cards * 1
+    points -= red_cards * 2
 
     return round(points, 2)
 

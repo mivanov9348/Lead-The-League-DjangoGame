@@ -210,40 +210,69 @@ def update_standings_from_fixtures(fixtures):
     print("Standings update completed.")
 
 
-def assign_league_champions(season):
+def determine_league_champions(season):
+    print("\nЗапочваме процедура за определяне на шампионите за сезона.")
+
     if not season:
+        print("Сезонът не е подаден, опит за извличане на текущия сезон...")
         season = get_current_season()
-        return
+        if not season:
+            print("Грешка: Не е намерен текущ сезон.")
+            return
+        print(f"Извлечен текущ сезон: {season}")
+
+    print(f"Работа със сезон: {season}")
 
     played_league_days = MatchSchedule.objects.filter(
         season=season,
         is_league_day_assigned=True,
         is_played=True
     )
+    print(f"Намерени изиграни дни от лиги: {played_league_days.count()} броя.")
 
     if not played_league_days.exists():
-        print("Няма изиграни лиги през активния сезон.")
+        print("Грешка: Няма изиграни лиги през активния сезон.")
         return
 
     league_seasons = LeagueSeason.objects.filter(season=season)
+    print(f"Намерени лиги за сезона: {league_seasons.count()} броя.")
 
     for league_season in league_seasons:
+        print(f"Обработваме лига: {league_season.league.name}.")
+
         league_teams = league_season.teams.all()
+        print(f"Намерени отбори за лигата {league_season.league.name}: {league_teams.count()} броя.")
 
         if not league_teams.exists():
-            print(f"Няма отбори за лига {league_season.league.name}.")
+            print(f"Грешка: Няма отбори за лига {league_season.league.name}.")
             continue
 
+        print(f"Сортиране на отборите по точки, голова разлика и отбелязани голове...")
         champion_team = league_teams.order_by('-points', '-goaldifference', '-goalscored').first()
 
         if champion_team:
+            print(f"Най-добър отбор в {league_season.league.name}: {champion_team.team.name}.")
             league_season.champion_team = champion_team.team
             league_season.is_completed = True
-            league_season.save()
-            create_league_champion_message()
-            print(f"Шампион на лигата {league_season.league.name}: {champion_team.team.name}")
+
+            try:
+                league_season.save()
+                print(f"Запазена информация за шампиона на {league_season.league.name}.")
+            except Exception as e:
+                print(f"Грешка при запазването на информацията за {league_season.league.name}: {e}")
+                continue
+
+            try:
+                create_league_champion_message()
+                print(f"Съобщение за шампион на {league_season.league.name} е създадено успешно.")
+            except Exception as e:
+                print(f"Грешка при създаване на съобщение за {league_season.league.name}: {e}")
+
         else:
-            print(f"Неуспешно определяне на шампиона за лига {league_season.league.name}.")
+            print(f"Грешка: Неуспешно определяне на шампиона за лига {league_season.league.name}.")
+
+    print("Процедурата по определяне на шампионите е завършена.")
+
 
 
 def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):

@@ -4,9 +4,10 @@ from cups.utils.generate_cup_fixtures import process_all_season_cups, populate_s
 from cups.utils.update_cup_season import generate_cups_season
 from europeancups.utils.euro_cup_season_utils import generate_european_cups_season, europe_promotion
 from europeancups.utils.group_stage_utils import create_groups_for_season, generate_group_fixtures
-from fixtures.utils import  generate_all_league_fixtures
+from finance.utils.prize_utils import end_of_season_fund_distribution
+from fixtures.utils import generate_all_league_fixtures
 from game.models import Season
-from game.utils.get_season_stats_utils import check_are_all_competition_completed
+from game.utils.get_season_stats_utils import check_are_all_competition_completed, get_previous_season
 from leagues.utils import generate_leagues_season, populate_teams_for_season
 from match.utils.match.generator import generate_league_matches, generate_euro_cup_matches, generate_cup_matches
 from messaging.utils.category_messages_utils import create_message_for_new_season
@@ -19,6 +20,7 @@ from players.utils.update_player_stats_utils import promoting_youth_players, all
 from staff.utils.agent_utils import generate_agents
 from staff.utils.coach_utils import new_seasons_coaches
 from teams.utils.generate_team_utils import set_team_logos
+
 
 def create_game_season(year, season_number, start_date, match_time, is_active):
     start_datetime = datetime.datetime.combine(start_date, match_time)
@@ -54,6 +56,7 @@ def create_game_season(year, season_number, start_date, match_time, is_active):
     except IntegrityError as e:
         return None, f"Error creating season: {str(e)}"
 
+
 def finalize_season(season):
     if not check_are_all_competition_completed(season):
         return False
@@ -63,6 +66,7 @@ def finalize_season(season):
     season.end_date = datetime.date.today()
     season.save()
     return True
+
 
 def prepare_first_season(season):
     try:
@@ -84,7 +88,7 @@ def prepare_first_season(season):
             # cup season fixtures
             process_all_season_cups(season)
             print(f'Cup Fixtures Successfully Created!')
-            # eurocup season fixtures
+            # euro cup season fixtures
             create_groups_for_season(season)
             print(f'European Cup Group Successfully Created!')
             generate_group_fixtures(season)
@@ -111,11 +115,17 @@ def prepare_first_season(season):
 
 def prepare_new_season(new_season):
     try:
+        previous_season = get_previous_season(new_season)
+        if not previous_season:
+            raise ValueError("Previous season not found.")
         with transaction.atomic():
-            #eurocup participants
+            # fund distributions
+            end_of_season_fund_distribution(previous_season)
+            print(f'Funds Distributions!')
+            # euro cup participants
             europe_promotion(new_season)
             print(f'European teams found!')
-            #aging all player
+            # aging all player
             all_players_age_up()
             print('All Players agging up')
             # retired players
@@ -124,9 +134,15 @@ def prepare_new_season(new_season):
             # update_players_prices
             update_all_players_prices()
             print(f'All Players prices updated!')
+            # PopulateWithTeams
+            populate_teams_for_season(new_season)
+            print(f'Teams are added successfully')
             # league season fixtures
             generate_all_league_fixtures(new_season)
             print(f'League Fixtures Successfully Created!')
+            # Populate Season Cups With Teams
+            populate_season_cups_with_teams(new_season)
+            print(f'Cup teams populating successfully!')
             # cup season fixtures
             process_all_season_cups(new_season)
             print(f'Cup Fixtures Successfully Created!')

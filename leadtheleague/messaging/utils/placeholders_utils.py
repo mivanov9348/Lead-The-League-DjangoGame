@@ -1,14 +1,10 @@
 from datetime import date, timedelta
 from decimal import Decimal
-
 from dateutil.utils import today
-
 from cups.models import SeasonCup
 from europeancups.models import EuropeanCupSeason
 from fixtures.models import LeagueFixture, CupFixture
 from leagues.models import LeagueSeason
-from transfers.models import Transfer
-
 
 def get_new_season_placeholders(season):
     return {
@@ -16,13 +12,11 @@ def get_new_season_placeholders(season):
         'year': season.year
     }
 
-
 def get_new_manager_placeholders(user, team):
     return {
         'user_name': user.username,
         'team_name': team.name,
     }
-
 
 def get_european_cup_champion_placeholder():
     latest_season = EuropeanCupSeason.objects.filter(champion__isnull=False).order_by('-season').first()
@@ -30,20 +24,17 @@ def get_european_cup_champion_placeholder():
         raise ValueError("No European Cup Champion found in the database.")
     return {'team_name': latest_season.champion.name}
 
-
 def get_league_champion_placeholder():
     latest_season = LeagueSeason.objects.filter(champion_team__isnull=False).order_by('-season').first()
     if not latest_season:
         raise ValueError("No League Champion found in the database.")
     return {'team_name': latest_season.champion_team.name}
 
-
 def get_cup_champion_placeholder():
     latest_cup_season = SeasonCup.objects.filter(champion_team__isnull=False).order_by('-season').first()
     if not latest_cup_season:
         raise ValueError("No Cup Champion found in the database.")
     return {'team_name': latest_cup_season.champion_team.name}
-
 
 def get_team_to_team_transfer_placeholder(player, from_team, to_team, transfer_fee):
     transfer_fee = Decimal(transfer_fee)

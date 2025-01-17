@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 {% load static %}
+{% load humanize %}
 <!--<link rel="stylesheet" href="{% static 'css/inbox_view.css' %}">-->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
@@ -164,7 +165,7 @@
             <h3>{{ message.title }}</h3>
             <p><strong>Date:</strong> {{ message.date|date:"Y-m-d H:i" }}</p>
             <hr>
-            <p>{{ message.content }}</p>
+            <p>{{ message.content|intcomma }}</p>
         </div>
         {% else %}
         <div class="no-message">

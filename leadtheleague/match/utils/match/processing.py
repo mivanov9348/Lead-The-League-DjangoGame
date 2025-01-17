@@ -10,7 +10,7 @@ from europeancups.utils.knockout_utils import generate_euro_cup_knockout, finish
 from fixtures.models import CupFixture
 from fixtures.utils import get_fixtures_by_date
 from game.models import MatchSchedule, GameState
-from leagues.utils import update_standings_from_fixtures
+from leagues.utils import update_standings_from_fixtures, determine_league_champions
 from match.models import Match
 from match.utils.match.attendance import calculate_match_attendance
 from match.utils.match.events import create_match_end_match_event, create_penalty_start_match_event, \
@@ -91,6 +91,16 @@ def process_league_day(match_date):
     bulk_update_team_statistics(matches, match_date)
     fixtures = get_fixtures_by_date(match_date.date)
     update_standings_from_fixtures(fixtures)
+
+    remaining_matches = Match.objects.filter(
+        season=match_date.season,
+        league_season__isnull=False,
+        is_played=False
+    )
+
+    if not remaining_matches.exists():
+        print("No more league matches. Determining champions...")
+        determine_league_champions(match_date.season)
 
 
 def process_cup_day(match_date):
@@ -240,7 +250,6 @@ def process_euro_day(match_date):
 
     if current_stage_order.is_final:
         finalize_euro_cup(current_euro_season, match)
-
 
     if current_euro_season.current_phase == 'group':
         print("Group phase detected. Checking if group stage matches are finished...")

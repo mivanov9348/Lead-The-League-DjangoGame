@@ -1,4 +1,7 @@
 import datetime
+
+from django.db.models import Q
+
 from game.models import Season
 
 def get_current_season():
@@ -7,6 +10,17 @@ def get_current_season():
         raise ValueError("No active season found.")
     print(f"Current season: {current_season}")
     return current_season
+
+def get_previous_season(current_season):
+    return (
+        Season.objects.filter(
+            Q(year__lt=current_season.year) |
+            Q(year=current_season.year, season_number__lt=current_season.season_number),
+            is_ended=True
+        )
+        .order_by('-year', '-season_number')
+        .first()
+    )
 
 def check_are_all_competition_completed(season):
     leagues_completed = not season.league_seasons.filter(is_completed=False).exists()
