@@ -3,6 +3,7 @@ from datetime import date
 from decimal import Decimal
 from django.db.models import Prefetch
 from game.models import MatchSchedule
+from game.utils.get_season_stats_utils import get_current_season
 from messaging.utils.category_messages_utils import create_team_to_team_transfer_message
 from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import sell_player_income, buy_player_expense
@@ -25,6 +26,7 @@ def get_latest_transfers(limit=5):
     return Transfer.objects.select_related('player', 'selling_team', 'buying_team') \
                .order_by('-transfer_date')[:limit]
 
+
 def transfer_history_by_team(team_id):
     transfers_in = Transfer.objects.filter(buying_team_id=team_id).order_by('-transfer_date')
     transfers_out = Transfer.objects.filter(selling_team_id=team_id).order_by('-transfer_date')
@@ -37,12 +39,14 @@ def transfer_history_by_team(team_id):
 
 
 def create_transfer(team, player, is_free_agent):
+    season = get_current_season()
     selling_team = None
     if not is_free_agent:
         current_team_player = player.team_players.first()
         selling_team = current_team_player.team if current_team_player else None
 
     Transfer.objects.create(
+        season=season,
         player=player,
         buying_team=team,
         selling_team=selling_team,

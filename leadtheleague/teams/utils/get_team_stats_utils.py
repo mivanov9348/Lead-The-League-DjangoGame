@@ -8,16 +8,20 @@ from game.models import Season
 from match.models import Match
 from teams.models import Team, TeamFinance
 
+
 def get_all_teams():
     return Team.objects.all()
+
 
 def get_team_balance(user_team):
     team_finance = TeamFinance.objects.filter(team=user_team).first()
     return team_finance.balance if team_finance else 0
 
+
 from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+
 
 def get_poster_schedule(league, user_team, season):
     fixtures_by_type = get_fixtures_by_team_and_type(user_team)
@@ -61,6 +65,15 @@ def get_poster_schedule(league, user_team, season):
             }
             match = Match(**match_data)
 
+        if isinstance(fixture, LeagueFixture):
+            competition = f"League"
+        elif isinstance(fixture, CupFixture):
+            competition = f"Cup"
+        elif isinstance(fixture, EuropeanCupFixture):
+            competition = f"Europe"
+        else:
+            competition = "Unknown"
+
         # Append enriched match data to the result list
         matches.append({
             'match': match,
@@ -68,7 +81,7 @@ def get_poster_schedule(league, user_team, season):
             'opponent': opponent,
             'location': location,
             'result': result,
-            'competition': getattr(fixture, 'competition_type', 'Unknown'),
+            'competition': competition,
         })
 
     # Sort matches by date
@@ -125,6 +138,3 @@ def get_team_data(team_id):
         },
     }
     return team_data
-
-
-

@@ -20,7 +20,8 @@ urlpatterns = [
     path('staff/', include('staff.urls', namespace='staff')),
     path('stadium/', include('stadium.urls', namespace='stadium')),
     path('cups/', include('cups.urls', namespace='cups')),
-    path('europeancups/', include('europeancups.urls', namespace='europeancups'))
+    path('europeancups/', include('europeancups.urls', namespace='europeancups')),
+    path('vault/', include('vault.urls', namespace='vault'))
 ]
 
 if settings.DEBUG:

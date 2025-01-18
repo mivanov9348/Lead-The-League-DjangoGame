@@ -15,8 +15,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
 from .utils.lineup_utils import validate_lineup, auto_select_starting_lineup
-from .utils.team_analytics_utils import get_team_analytics
-
 
 def get_sort_field(sort_by):
     valid_sort_fields = {
@@ -407,12 +405,3 @@ def schedule(request):
     }
 
     return render(request, 'teams/schedule.html', context)
-
-
-def all_teams(request):
-    the_top_30 = get_team_analytics(
-        limit=30,
-        order_by=['-points', '-goalscored', 'goalconceded', '-wins']
-    )
-
-    return render(request, 'teams/all_teams.html', {'teams': the_top_30})

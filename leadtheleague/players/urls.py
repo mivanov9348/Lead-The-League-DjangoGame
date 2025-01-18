@@ -1,13 +1,11 @@
 from django.urls import path
 
 from .api import players_list_api
-from .views import player_profile, youth_academy, sign_player, submit_offer, get_free_agent_info, release_player, \
-    all_players, top_league_players, search_players, api_search_players
+from .views import player_profile, youth_academy, sign_player, submit_offer, get_free_agent_info, release_player, top_league_players, search_players, api_search_players
 
 app_name = 'players'
 
 urlpatterns = [
-    path('all_players/', all_players, name='all_players'),
     path('top_league_players/', top_league_players, name='top_league_players'),  # Без параметър
     path('top_league_players/<int:league_id>/', top_league_players, name='top_league_players_with_id'),
     path('api/players/', players_list_api, name='players_list_api'),

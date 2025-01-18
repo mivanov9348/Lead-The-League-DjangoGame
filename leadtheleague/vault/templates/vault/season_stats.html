@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="season-stats-container">
+    <!-- Dropdown for Season Selection -->
+    <div class="dropdown-container">
+        <select id="season-select" class="season-dropdown">
+            {% for season in seasons %}
+            <option value="{{ season.id }}" {% if season.id == selected_season.id %}selected{% endif %}>
+                Year: {{ season.year }} Season: {{ season.season_number }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="champions-container">
+        <h2>Champions of the Season</h2>
+        <div class="champions-grid">
+            <!-- League Champions -->
+            <div class="champions-section">
+                <h3>League Champions</h3>
+                <ul>
+                    {% for league in league_champions %}
+                    <li>{{ league.league.name }}: {{ league.champion_team.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Cup Champions -->
+            <div class="champions-section">
+                <h3>Cup Champions</h3>
+                <ul>
+                    {% for cup in cup_champions %}
+                    <li>{{ cup.cup.name }}: {{ cup.champion_team.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- European Cup Champion -->
+            <div class="champions-section">
+                <h3>European Cup Champion</h3>
+                <ul>
+                    {% for euro_cup in euro_cup_champions %}
+                    <li>{{ euro_cup.cup.name }}: {{ euro_cup.champion.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid of Tables -->
+    <div class="grid-container">
+        <!-- Top Teams -->
+        <div class="table-container">
+            <h3>Top Teams</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Points</th>
+                        <th>Wins</th>
+                        <th>Draws</th>
+                        <th>Losses</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for team in top_teams %}
+                    <tr>
+                        <td>{{ team.team.name }}</td>
+                        <td>{{ team.points|floatformat:2 }}</td>
+                        <td>{{ team.wins }}</td>
+                        <td>{{ team.draws }}</td>
+                        <td>{{ team.losses }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Players -->
+        <div class="table-container">
+            <h3>Top Players</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Matches</th>
+                        <th>Goals</th>
+                        <th>Points</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for player in top_season_players %}
+                    <tr class="{% if forloop.counter <= 3 %}top-{% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}bronze{% endif %}{% endif %}">
+                        <td>{{ player.name }}</td>
+                        <td>{{ player.team }}</td>
+                        <td>{{ player.matches }}</td>
+                        <td>{{ player.goals }}</td>
+                        <td>{{ player.points }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Goalscorers -->
+        <div class="table-container">
+            <h3>Top Goalscorers</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Goals</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for scorer in top_goalscorers %}
+                    <tr class="{% if forloop.counter <= 3 %}top-{% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}bronze{% endif %}{% endif %}">
+                        <td>{{ scorer.name }}</td>
+                        <td>{{ scorer.team }}</td>
+                        <td>{{ scorer.goals }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!-- Most Expensive Transfers -->
+        <div class="table-container">
+            <h3>Top Transfers</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>From Team</th>
+                        <th>To Team</th>
+                        <th>Transfer Fee</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for transfer in expensive_transfers %}
+                    <tr>
+                        <td>{{ transfer.player.first_name }} {{ transfer.player.last_name }}</td>
+                        {% if transfer.selling_team %}
+                        <td>{{ transfer.selling_team }}</td>
+                        {% else %}
+                        <td>Free Agent</td>
+                        {% endif %}
+                        <td>{{ transfer.buying_team }}</td>
+                        <td>{{ transfer.amount|floatformat:2 }} €</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- High Scoring Matches -->
+        <div class="table-container">
+            <h3>High Scoring Matches</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Home Team</th>
+                        <th>Away Team</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for match in high_scoring_matches %}
+                    <tr>
+                        <td>{{ match.home_team }}</td>
+                        <td>{{ match.away_team }}</td>
+                        <td>{{ match.home_goals }} - {{ match.away_goals }}</td>
+                        <td>{{ match.match_date }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Highest Attendance Matches -->
+        <div class="table-container">
+            <h3>Highest Attendance Matches</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+
+                        <th>Home Team</th>
+                        <th>Away Team</th>
+                        <th>Attendance</th>
+                        <th>Stadium</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for match in highest_attendance_matches %}
+                    <tr>
+                        <td>{{ match.match_date }}</td>
+
+                        <td>{{ match.home_team }}</td>
+                        <td>{{ match.away_team }}</td>
+                        <td>{{ match.attendance }}</td>
+                        <td>{{ match.stadium.name }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .season-stats-container {
+        width: 100%;
+        margin: auto;
+        padding: 20px;
+        font-size: 12px;
+    }
+
+    .dropdown-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .season-dropdown {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .table-container {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-container h3 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .table-scroll {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .stats-table th, .stats-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .stats-table th {
+        background-color: #f1f1f1;
+        font-weight: bold;
+    }
+
+    .stats-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .stats-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .champions-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f3f3f3;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        font-size: 12px;
+    }
+
+    .champions-grid {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .champions-section {
+        flex: 1;
+        margin: 0 10px;
+    }
+
+    .champions-section h3 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .champions-section ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .champions-section li {
+        margin: 5px 0;
+        text-align: center;
+    }
+
+    .top-gold {
+        background-color: #ffd700;
+    }
+
+    .top-silver {
+        background-color: #c0c0c0;
+    }
+
+    .top-bronze {
+        background-color: #cd7f32;
+    }
+</style>
+
+<script>
+    document.getElementById('season-select').addEventListener('change', function() {
+        const seasonId = this.value;
+        window.location.href = `?season=${seasonId}`;
+    });
+</script>
+
+{% endblock %}

@@ -36,11 +36,11 @@ def create_knockout_stage(european_cup_season, stage_order, stage_name, teams_pe
     return knockout_stage
 
 
-def finish_current_knockout_stage(stage_order):
-    knockout_stage = KnockoutStage.objects.filter(stage_order=stage_order).first()
+def finish_current_knockout_stage(current_stage):
+    knockout_stage = KnockoutStage.objects.filter(stage_order=current_stage.stage_order).first()
 
     if not knockout_stage:
-        raise ValueError(f"Knockout stage with stage_order {stage_order} does not exist.")
+        raise ValueError(f"Knockout stage with stage_order {current_stage.stage_order} does not exist.")
 
     knockout_stage.is_played = True
     knockout_stage.save()
