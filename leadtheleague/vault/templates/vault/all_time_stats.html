@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="all-time-stats-container">
+    <!-- Champions Rankings -->
+    <div class="champions-container">
+        <h2>Champions Rankings</h2>
+        <div class="champions-grid">
+            <!-- League Champions -->
+            {% if league_champions %}
+            <div class="champions-section">
+                <h3>League Champions</h3>
+                <ul>
+                    {% for team in league_champions %}
+                    <li>{{ team.team.name }}: {{ team.league_titles }} titles</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Cup Champions -->
+            {% if cup_champions %}
+            <div class="champions-section">
+                <h3>Cup Champions</h3>
+                <ul>
+                    {% for team in cup_champions %}
+                    <li>{{ team.team.name }}: {{ team.cup_titles }} cups</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- European Cup Champions -->
+            {% if euro_cup_champions %}
+            <div class="champions-section">
+                <h3>European Cup Champions</h3>
+                <ul>
+                    {% for team in euro_cup_champions %}
+                    <li>{{ team.team.name }}: {{ team.euro_cup_titles }} European titles</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Teams and Players Rankings -->
+    <div class="grid-container">
+        <!-- Top Teams -->
+        <div class="table-container">
+            <h3>Top Teams</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Matches</th>
+                        <th>Wins</th>
+                        <th>Draws</th>
+                        <th>Loses</th>
+                        <th>Goals Scored</th>
+                        <th>Goals Conceded</th>
+                        <th>Points</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for team in top_teams %}
+                    <tr>
+                        <td>{{ team.team.name }}</td>
+                        <td>{{ team.matches }}</td>
+                        <td>{{ team.wins }}</td>
+                        <td>{{ team.draws }}</td>
+                        <td>{{ team.loses }}</td>
+                        <td>{{ team.goal_scored }}</td>
+                        <td>{{ team.goal_conceded }}</td>
+                        <td>{{ team.points }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Top Players -->
+        <div class="table-container">
+            <h3>Top Players</h3>
+            <div class="table-scroll">
+                <table class="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Matches</th>
+                        <th>Goals</th>
+                        <th>Rating</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for player in top_players %}
+                    <tr>
+                        <td>{{ player.player.name }}</td>
+                        <td>{{ player.matches }}</td>
+                        <td>{{ player.goals }}</td>
+                        <td>{{ player.rating|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .all-time-stats-container {
+        width: 100%;
+        margin: auto;
+        padding: 20px;
+        font-size: 14px;
+    }
+
+    .champions-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f3f3f3;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .champions-grid {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .champions-section {
+        flex: 1;
+        margin: 0 10px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .champions-section h3 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #333333;
+    }
+
+    .champions-section ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .champions-section li {
+        margin-bottom: 5px;
+        color: #555555;
+    }
+
+    .grid-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .table-container {
+        flex: 1;
+        min-width: 300px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-container h3 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #333333;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .stats-table th,
+    .stats-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .stats-table th {
+        background-color: #f2f2f2;
+        color: #333333;
+    }
+
+    .stats-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .stats-table tr:hover {
+        background-color: #f1f1f1;
+    }
+</style>
+{% endblock %}

@@ -218,14 +218,12 @@ def generate_next_round_fixtures(season_cup, shared_match_date):
                     match_time=shared_match_date.season.match_time,
                     season=season_cup.season,
                     season_cup=season_cup,
-                    round_stage=(stage == "Final"),
+                    round_stage=stage,
                 )
                 bulk_create_list.append(cup_fixture)
 
             CupFixture.objects.bulk_create(bulk_create_list)
             print(f"{len(bulk_create_list)} fixtures created successfully.")
-
-            generate_matches_from_fixtures(bulk_create_list, event_type='cup', season=season_cup.season)
 
         season_cup.current_stage = stage
         season_cup.save()

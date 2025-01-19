@@ -146,3 +146,4 @@ def update_season_statistics_for_match(match):
                 # Update the season statistic value
                 season_stat.value += value
                 season_stat.save()
+

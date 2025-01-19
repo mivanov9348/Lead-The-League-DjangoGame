@@ -27,6 +27,8 @@ from players.utils.update_player_stats_utils import update_season_statistics_for
 from teams.utils.lineup_utils import ensure_team_tactics
 from django.db import transaction
 from teams.utils.team_analytics_utils import bulk_update_team_statistics
+from vault.utils.player_all_stats import update_player_stats_for_match
+from vault.utils.team_all_stats import update_team_all_time_stats_after_match
 
 
 def match_day_processor(date=None):
@@ -37,9 +39,9 @@ def match_day_processor(date=None):
         print(f"No schedule found for today ({today}).")
         return
 
-    if match_date.is_played:
-        print(f"Match day for {today} has already been processed.")
-        return
+    # if match_date.is_played:
+    #     print(f"Match day for {today} has already been processed.")
+    #     return
 
     print(f"Processing match day for {today}: {match_date.event_type}")
 
@@ -87,6 +89,9 @@ def process_league_day(match_date):
         log_clean_sheets(match)
         update_season_statistics_for_match(match)
         finalize_match(match)
+        update_team_all_time_stats_after_match(match)
+        update_player_stats_for_match(match)
+        update_player_stats_for_match
 
     bulk_update_team_statistics(matches, match_date)
     fixtures = get_fixtures_by_date(match_date.date)
@@ -158,20 +163,18 @@ def process_cup_day(match_date):
             log_match_participate(match)
             log_clean_sheets(match)
             update_season_statistics_for_match(match)
+            update_team_all_time_stats_after_match(match)
+            update_player_stats_for_match(match)
             print(f"Match participation logged for match {match.id}.")
         except Exception as e:
             print(f"Error logging match participation for match {match.id}: {e}")
 
     bulk_update_team_statistics(matches, match_date)
-    try:
-        print("Team statistics updated successfully.")
-    except Exception as e:
-        print(f"Error updating team statistics: {e}")
 
     season_cups = SeasonCup.objects.filter(season=match_date.season)
     for season_cup in season_cups:
         try:
-            final_fixture = CupFixture.objects.filter(season_cup=season_cup, is_final=True,
+            final_fixture = CupFixture.objects.filter(season_cup=season_cup, round_stage='Final',
                                                       is_finished=True).first()
             if final_fixture:
                 print(f"Final match detected for {season_cup.cup.name}. Setting champion...")
@@ -186,8 +189,8 @@ def process_cup_day(match_date):
         is_cup_day_assigned=False,
         date__gt=match_date.date
     ).order_by('date').first()
-    print(f'Next Cup Date: {next_available_date}')
 
+    print(f'Next Cup Date: {next_available_date}')
 
     if not next_available_date:
         print("No available date for the next cup round.")
@@ -241,14 +244,13 @@ def process_euro_day(match_date):
         update_season_statistics_for_match(match)
         print(f'finalize_match')
         finalize_match(match)
+        update_team_all_time_stats_after_match(match)
+        update_player_stats_for_match(match)
 
     bulk_update_team_statistics(matches, match_date)
 
     current_stage_order = get_current_knockout_stage_order(current_euro_season)
     print(f'current stage: {current_stage_order}')
-
-    if current_stage_order is not None and current_stage_order.is_final:
-        finalize_euro_cup(current_euro_season, match)
 
     if current_euro_season.current_phase == 'group':
         print("Group phase detected. Checking if group stage matches are finished...")
@@ -313,6 +315,8 @@ def process_euro_day(match_date):
         if not free_date:
             print(f"No available date for next knockout stage in {current_euro_season}.")
             check_and_update_euro_cup_season_status(current_euro_season)
+            if current_stage_order is not None and current_stage_order.is_final:
+                finalize_euro_cup(current_euro_season, match)
             return
 
         # 4. Generate next knockout
