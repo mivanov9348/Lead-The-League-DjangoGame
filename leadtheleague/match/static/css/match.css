@@ -1,0 +1,105 @@
+.match-container {
+        display: grid;
+        gap: 20px;
+        padding: 30px;
+        background-color: var(--darkgreen-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .match-score {
+        text-align: center;
+        font-size: 30px;
+        font-weight: bold;
+        color: #222;
+        padding: 15px;
+        background-color: var(--darkergreen-color);
+        color: white;
+        border-radius: 8px;
+        max-height:300px;
+        overflow-y: auto;
+    }
+
+    .grid-sections {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    gap: 5px;
+}
+
+
+    .section {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    max-height: 700px;
+}
+
+    .section h2 {
+    font-size: 22px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size:12px;
+        font-weight: 900;
+    }
+
+    table th, table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+        white-space: nowrap;
+    }
+
+    table th {
+        background-color: var(--darkergreen-color);
+        color: white;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .event-list p {
+            font-weight: 900;
+
+        font-size: 14px;
+        margin: 10px 0;
+        color: #555;
+        padding: 10px;
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+            text-align: center; /* Центрираме събитията */
+
+    }
+
+    .attendance {
+        font-size: 14px;
+        color: #e2e2e2;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    .goalscorers-section {
+        margin-top: 10px;
+        text-align: center;
+        color: #fff;
+    }
+
+    .goalscorers-section ul {
+        list-style: none;
+        padding: 0;
+        font-size: 14px;
+    }
+
+    .goalscorers-section li {
+        margin: 5px 0;
+    }

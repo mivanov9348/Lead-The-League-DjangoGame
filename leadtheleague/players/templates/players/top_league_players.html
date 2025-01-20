@@ -3,50 +3,10 @@
 {% block title %}Player Rankings{% endblock %}
 
 {% block extra_css %}
+{% load static %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<style>
-    #filter-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-    }
+<link rel="stylesheet" href="{% static 'css/top_league_players.css' %}">
 
-    #league-selector {
-        padding: 10px;
-        border: 2px solid #dfe6e9;
-        border-radius: 8px;
-        font-size: 16px;
-        background: #f1f2f6;
-        cursor: pointer;
-        transition: border-color 0.3s ease;
-    }
-
-    #league-selector:hover {
-        border-color: #3742fa;
-    }
-
-    table.dataTable thead th {
-        background-color: var(--darkgreen-color);
-        color: white;
-    }
-
-    table.dataTable {
-        background-color: var(--darkgreen-color);
-        border-radius: 8px;
-        overflow: hidden;
-        margin-top: 20px;
-        font-size: 14px;
-    }
-
-    table.dataTable tbody tr {
-        background: linear-gradient(135deg, #f1f2f6, #ffffff);
-    }
-
-    table.dataTable tbody tr:hover {
-        background-color: #dfe6e9;
-    }
-</style>
 {% endblock %}
 
 {% block content %}

@@ -17,7 +17,7 @@ from players.utils.generate_player_utils import generate_youth_players, process_
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
 from players.utils.update_player_stats_utils import promoting_youth_players, all_players_age_up, \
     update_all_players_prices
-from staff.utils.agent_utils import generate_agents
+from staff.utils.agent_utils import generate_agents, scouting_new_talents, recalculate_agents_rating
 from staff.utils.coach_utils import new_seasons_coaches
 from teams.utils.generate_team_utils import set_team_logos
 
@@ -118,7 +118,7 @@ def prepare_new_season(new_season):
         previous_season = get_previous_season(new_season)
         if not previous_season:
             raise ValueError("Previous season not found.")
-        with transaction.atomic():
+        with (transaction.atomic()):
             # fund distributions
             end_of_season_fund_distribution(previous_season)
             print(f'Funds Distributions!')
@@ -175,6 +175,12 @@ def prepare_new_season(new_season):
             # coaches
             new_seasons_coaches()
             print('Coaches for new season added successfully!')
+            #re-rating agents
+            recalculate_agents_rating()
+            print('Agents ratings are ready!')
+            #scouting new talents
+            scouting_new_talents()
+            print('New Talents founded!!')
 
     except Exception as e:
         print(f"An error occurred: {e}")

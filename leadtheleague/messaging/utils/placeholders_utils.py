@@ -120,3 +120,4 @@ def get_cup_matchday_placeholders(season_cup):
         'cup': season_cup.name,
         'match_results': match_results
     }
+

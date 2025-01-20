@@ -40,29 +40,29 @@
         </thead>
         <tbody>
         {% for team in standings %}
-<tr class="{% if team.team == user_team %}user-team{% elif forloop.first %}champion{% elif forloop.counter <= euro_qualifiers %}euro-qualifiers{% elif forloop.revcounter <= 2 %}last-places{% endif %}">
-    <td>{{ forloop.counter }}</td>
-    <td>
-        {% if team.team.logo %}
-        <img src="/media/{{ team.team.logo }}" class="icon" alt="{{ team.team.name }} logo"/>
-        {% else %}
-        <span>No Logo</span>
-        {% endif %}
-    </td>
-    <td>
-        <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
-        <span class="manager-name">{{ team.team.user.username|lower }}</span>
-    </td>
-    <td>{{ team.matches }}</td>
-    <td>{{ team.wins }}</td>
-    <td>{{ team.draws }}</td>
-    <td>{{ team.losses }}</td>
-    <td>{{ team.goalscored }}</td>
-    <td>{{ team.goalconceded }}</td>
-    <td>{{ team.goaldifference }}</td>
-    <td>{{ team.points }}</td>
-</tr>
-{% endfor %}
+        <tr class="{% if team.team == user_team %}user-team{% elif forloop.first %}champion{% elif forloop.counter <= euro_qualifiers %}euro-qualifiers{% elif forloop.revcounter <= 2 %}last-places{% endif %}">
+            <td>{{ forloop.counter }}</td>
+            <td>
+                {% if team.team.logo %}
+                <img src="/media/{{ team.team.logo }}" class="icon" alt="{{ team.team.name }} logo"/>
+                {% else %}
+                <span>No Logo</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
+                <span class="manager-name">{{ team.team.user.username|lower }}</span>
+            </td>
+            <td>{{ team.matches }}</td>
+            <td>{{ team.wins }}</td>
+            <td>{{ team.draws }}</td>
+            <td>{{ team.losses }}</td>
+            <td>{{ team.goalscored }}</td>
+            <td>{{ team.goalconceded }}</td>
+            <td>{{ team.goaldifference }}</td>
+            <td>{{ team.points }}</td>
+        </tr>
+        {% endfor %}
 
         </tbody>
     </table>

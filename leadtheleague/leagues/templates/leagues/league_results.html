@@ -5,7 +5,6 @@
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/league_results.css' %}">
-
 {% endblock %}
 
 {% block content %}
@@ -15,80 +14,60 @@
 
 <div class="results-container">
     {% if league_data %}
-        {% for league_name, matches in league_data.items %}
-        <div class="league-section">
-            <div class="league-header">{{ league_name }}</div>
-            {% for match in matches %}
-            <div class="match-row" data-match-id="{{ match.id }}">
-    <div class="team-container">
-        <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="team-logo">
-        <span class="team-name">
-            <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
-        </span>
-        <div class="score">
-            {% if match.is_played %}
-            <a href="{% url 'match:match' match.id %}">
-                {{ match.home_goals }} : {{ match.away_goals }}
-            </a>
-            {% else %}
-            <a href="{% url 'match:match' match.id %}">- : -</a>
-            {% endif %}
-        </div>
-        <span class="team-name">
-            <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
-        </span>
-        <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="team-logo">
-    </div>
-    <span class="toggle-scorers">🔽 View Scorers</span>
-    <div class="goal-scorers">
-    <div class="home-scorers">
-        <strong>{{ match.home_team.name }}</strong>:
-        <ul>
-            {% for scorer in match.home_scorers %}
-            <li>{{ scorer }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="away-scorers">
-        <strong>{{ match.away_team.name }}</strong>:
-        <ul>
-            {% for scorer in match.away_scorers %}
-            <li>{{ scorer }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-</div>
-            {% endfor %}
+    {% for league_name, matches in league_data.items %}
+    <div class="league-section">
+        <div class="league-header">{{ league_name }}</div>
+        {% for match in matches %}
+        <div class="match-row" data-match-id="{{ match.id }}">
+            <div class="team-container">
+                <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="team-logo">
+                <span class="team-name">
+                        <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+                    </span>
+                <div class="score">
+                    {% if match.is_played %}
+                    <a href="{% url 'match:match' match.id %}">
+                        {{ match.home_goals }} : {{ match.away_goals }}
+                    </a>
+                    {% else %}
+                    <a href="{% url 'match:match' match.id %}">- : -</a>
+                    {% endif %}
+                </div>
+                <span class="team-name">
+                        <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+                    </span>
+                <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="team-logo">
+            </div>
+            <span class="toggle-scorers">View Scorers</span>
+            <div class="goal-scorers">
+                <div class="home-scorers">
+                    <strong>{{ match.home_team.name }}</strong>:
+                    <ul>
+                        {% for scorer in match.home_scorers %}
+                        <li>{{ scorer }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="away-scorers">
+                    <strong>{{ match.away_team.name }}</strong>:
+                    <ul>
+                        {% for scorer in match.away_scorers %}
+                        <li>{{ scorer }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
         </div>
         {% endfor %}
+    </div>
+    {% endfor %}
     {% else %}
     <div class="alert alert-warning text-center">No matches found for the selected date.</div>
     {% endif %}
 </div>
 
-<script>
-    // Логика за избора на дата
-    document.getElementById('date-picker').addEventListener('change', function () {
-        const selectedDate = this.value;
-        window.location.href = `?date=${selectedDate}`;
-    });
+<script src="{% static 'js/results-date-picker.js' %}"></script>
+<script src="{% static 'js/results-toggle-scorers.js' %}"></script>
 
-    // Логика за показване/скриване на голмайсторите
-    document.querySelectorAll('.toggle-scorers').forEach(toggleScorersBtn => {
-        toggleScorersBtn.addEventListener('click', function () {
-            const scorersContainer = this.nextElementSibling;
-
-            if (scorersContainer.classList.contains('show')) {
-                // Скриваме голмайсторите
-                scorersContainer.classList.remove('show');
-                this.textContent = '🔽 View Scorers';
-            } else {
-                // Показваме голмайсторите
-                scorersContainer.classList.add('show');
-                this.textContent = '🔼 Hide Scorers';
-            }
-        });
-    });
-</script>
 {% endblock %}
+

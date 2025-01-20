@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/season_stats.css' %}">
+
 <div class="season-stats-container">
     <!-- Dropdown for Season Selection -->
     <div class="dropdown-container">
@@ -67,7 +70,8 @@
                     <tbody>
                     {% for team in top_teams %}
                     <tr>
-                        <td>{{ team.team.name }}</td>
+                        <td><a href="{% url 'teams:team_stats' team.team.id %}"> {{ team.team.name }} </a>
+                        </td>
                         <td>{{ team.points|floatformat:2 }}</td>
                         <td>{{ team.wins }}</td>
                         <td>{{ team.draws }}</td>
@@ -96,7 +100,7 @@
                     <tbody>
                     {% for player in top_season_players %}
                     <tr class="{% if forloop.counter <= 3 %}top-{% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}bronze{% endif %}{% endif %}">
-                        <td>{{ player.name }}</td>
+                        <td><a href="{% url 'players:player_profile' player.player.id %}">{{ player.name }}</a></td>
                         <td>{{ player.team }}</td>
                         <td>{{ player.matches }}</td>
                         <td>{{ player.goals }}</td>
@@ -123,12 +127,17 @@
                     <tbody>
                     {% for scorer in top_goalscorers %}
                     <tr class="{% if forloop.counter <= 3 %}top-{% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}bronze{% endif %}{% endif %}">
-                        <td>{{ scorer.name }}</td>
-                        <td>{{ scorer.team }}</td>
+                        <td>
+                            <a href="{% url 'players:player_profile' scorer.player.id %}">{{ scorer.name }}</a>
+                        </td>
+                        <td>
+                            <a href="">{{ scorer.team }}</a>
+                        </td>
                         <td>{{ scorer.goals }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -183,7 +192,7 @@
                     <tr>
                         <td>{{ match.home_team }}</td>
                         <td>{{ match.away_team }}</td>
-                        <td>{{ match.home_goals }} - {{ match.away_goals }}</td>
+                        <td><a href="{% url 'match:match' match.id %}"> {{ match.home_goals }} - {{ match.away_goals }} </a></td>
                         <td>{{ match.match_date }}</td>
                     </tr>
                     {% endfor %}
@@ -224,129 +233,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .season-stats-container {
-    width: 100%;
-    margin: auto;
-    padding: 20px;
-    font-size: 12px;
-}
-
-.dropdown-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.season-dropdown {
-    padding: 10px;
-    font-size: 12px;
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.table-container {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-    .table-container h3 {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .table-scroll {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-
-    .stats-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-}
-
-.stats-table th, .stats-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-.stats-table th {
-    background-color: #f1f1f1;
-    font-weight: bold;
-    color: #333333;
-}
-
-.stats-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.stats-table tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-.top-gold {
-    background-color: #ffd700;
-}
-
-.top-silver {
-    background-color: #c0c0c0;
-}
-
-.top-bronze {
-    background-color: #cd7f32;
-}
-
-    .champions-container {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f3f3f3;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 12px;
-}
-
-.champions-grid {
-    display: flex;
-    justify-content: space-between;
-}
-
-.champions-section {
-    flex: 1;
-    margin: 0 10px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.champions-section h3 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: #333333;
-}
-
-.champions-section ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.champions-section li {
-    margin: 5px 0;
-    text-align: center;
-    color: #555555;
-}
-
-
-</style>
 
 <script>
     document.getElementById('season-select').addEventListener('change', function() {

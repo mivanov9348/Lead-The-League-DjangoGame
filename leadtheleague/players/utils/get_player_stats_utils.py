@@ -2,7 +2,7 @@ from django.db.models import Avg, Prefetch
 import random
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player, \
-    PlayerMatchStatistic
+    PlayerMatchStatistic, PositionAttribute
 from players.utils.generate_player_utils import generate_random_player
 from teams.models import TeamPlayer, Team, TeamTactics
 
@@ -290,3 +290,39 @@ def ensure_team_has_minimum_players(team):
             generate_random_player(team=team, position=random_position)
 
     return f"Team '{team.name}' now has at least 11 players with the required positions."
+
+def calculate_player_rating(player):
+    position = player.position
+    if not position:
+        raise ValueError(f"Player {player.name} does not have a defined position.")
+
+    position_attributes = PositionAttribute.objects.filter(position=position)
+    player_attributes = PlayerAttribute.objects.filter(player=player)
+
+    rating = 0
+
+    for pos_attr in position_attributes:
+        player_attr = player_attributes.filter(attribute=pos_attr.attribute).first()
+        if player_attr:
+            rating += pos_attr.importance * player_attr.value
+
+    return rating
+
+
+def get_top_players_from_list(players):
+    if not players:
+        raise ValueError("No agents provided to determine the top player.")
+
+    best_player = None
+    highest_rating = -1
+
+    for player in players:
+        rating = calculate_player_rating(player)
+        if rating > highest_rating:
+            highest_rating = rating
+            best_player = player
+
+    if best_player:
+        return best_player.name
+
+    raise ValueError("Unable to determine the top player from the provided agents.")

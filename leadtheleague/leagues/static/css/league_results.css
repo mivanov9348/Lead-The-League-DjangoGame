@@ -48,7 +48,7 @@
     }
 
     .match-row:hover {
-        background-color: #f1f2f6;
+        background-color: lightgrey;
     }
 
     .team-container {
@@ -81,8 +81,10 @@
     .toggle-scorers {
         cursor: pointer;
         font-size: 10px;
-        color: #6c5ce7;
-        text-decoration: underline;
+    }
+
+    .toggle-scorers:hover {
+        color:blue;
     }
 
     .goal-scorers {

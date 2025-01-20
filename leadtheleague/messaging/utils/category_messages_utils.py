@@ -7,6 +7,7 @@ from messaging.utils.placeholders_utils import get_free_agent_transfer_placehold
     get_cup_matchday_placeholders, get_european_cup_champion_placeholder, get_league_champion_placeholder, \
     get_cup_champion_placeholder, get_team_to_team_transfer_placeholder, get_release_player_placeholders, \
     get_send_offer_placeholder
+from players.utils.get_player_stats_utils import get_top_players_from_list
 
 
 def create_message_for_new_season(category, placeholders, is_global=True):
@@ -387,4 +388,37 @@ def create_prize_fund_message(user, previous_season, results):
 
     create_user_message_status(system_message, is_global=False, recipient=user)
 
+    return system_message
+
+def create_free_agents_intake_message(new_agents, agent):
+    if not new_agents or not agent:
+        raise ValueError("No new agents or agent provided for message generation.")
+
+    placeholders = {
+        'agent_name': f"{agent.first_name} {agent.last_name}",
+        'num_players': len(new_agents),
+        'top_player_name': get_top_players_from_list(new_agents),
+    }
+
+    template = MessageTemplate.objects.filter(category='Free Agents Intake').order_by('?').first()
+    if not template:
+        raise ValueError("No templates found for 'Free Agents Intake' category.")
+
+    try:
+        message = template.message.format(**placeholders)
+    except KeyError as e:
+        raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
+
+    system_message = SystemMessage.objects.create(
+        recipient=None,
+        title=template.title.format(**placeholders),
+        preview=message[:30],
+        message=message,
+        date_sent=now(),
+        is_global=True
+    )
+
+    create_user_message_status(system_message, is_global=True, recipient=None)
+
+    print(f"Message sent: {message}")
     return system_message

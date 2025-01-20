@@ -38,21 +38,21 @@
     </div>
 
     <div class="attributes-panel">
-    <h3>Player Attributes</h3>
-    <div class="attributes-grid-wrapper">
-        <div class="attributes-grid">
-            {% for player in players %}
-            <div class="player-attributes-column">
-                <h4>{{ player.first_name }} {{ player.last_name }}</h4>
-                <table class="attributes-table">
-                    <thead>
+        <h3>Player Attributes</h3>
+        <div class="attributes-grid-wrapper">
+            <div class="attributes-grid">
+                {% for player in players %}
+                <div class="player-attributes-column">
+                    <h4>{{ player.first_name }} {{ player.last_name }}</h4>
+                    <table class="attributes-table">
+                        <thead>
                         <tr>
                             <th>Attribute</th>
                             <th>Value</th>
                             <th>Progress</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         {% for attribute in player.attributes %}
                         <tr>
                             <td>{{ attribute.name }}</td>
@@ -60,22 +60,22 @@
                             <td>
                                 <div class="progress-wrapper">
                                     <div class="progress-bar">
-                                        <div class="progress-fill" style="width: {{ attribute.progress_percent|floatformat:1 }}%;"></div>
+                                        <div class="progress-fill"
+                                             style="width: {{ attribute.progress_percent|floatformat:1 }}%;"></div>
                                     </div>
                                     <span>{{ attribute.progress|floatformat:1 }}/10.0</span>
                                 </div>
                             </td>
                         </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
 </div>
 
-</div>
 {% endblock %}

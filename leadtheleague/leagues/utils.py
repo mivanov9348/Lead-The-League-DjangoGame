@@ -62,6 +62,7 @@ def check_and_mark_league_seasons_completed():
                 league_season.is_completed = True
                 league_season.save()
 
+
 def populate_teams_for_season(season):
     json_path = os.path.join(settings.BASE_DIR, "static/data/leagues_and_teams.json")
 
@@ -197,10 +198,10 @@ def update_standings_from_fixtures(fixtures):
                 away_team_record.points += 1
 
             home_team_record.goaldifference = (
-                home_team_record.goalscored - home_team_record.goalconceded
+                    home_team_record.goalscored - home_team_record.goalconceded
             )
             away_team_record.goaldifference = (
-                away_team_record.goalscored - away_team_record.goalconceded
+                    away_team_record.goalscored - away_team_record.goalconceded
             )
 
             # Запазваме промените
@@ -274,7 +275,6 @@ def determine_league_champions(season):
     print("Процедурата по определяне на шампионите е завършена.")
 
 
-
 def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):
     leagues = League.objects.all()
     added_teams = []
@@ -288,7 +288,8 @@ def promote_league_teams_to_europe(new_season, new_european_cup_season, european
         if qualifiers_count <= 0:
             continue
 
-        top_teams = previous_league_season.teams.order_by('-points', '-goaldifference', '-goalscored')[:qualifiers_count]
+        top_teams = previous_league_season.teams.order_by('-points', '-goaldifference', '-goalscored')[
+                    :qualifiers_count]
         qualified_teams = []
 
         for team in top_teams:
@@ -309,3 +310,16 @@ def promote_league_teams_to_europe(new_season, new_european_cup_season, european
 
     return added_teams
 
+
+def auto_set_league_champions():
+    current_season = get_current_season()
+    league_seasons = LeagueSeason.objects.filter(season=current_season)
+
+    for league in league_seasons:
+        league_teams = LeagueTeams.objects.filter(league_season=league)
+
+        if league_teams.exists():
+            random_team = random.choice(league_teams).team
+            league.champion_team = random_team
+            league.is_completed = True
+            league.save()

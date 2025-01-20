@@ -11,7 +11,7 @@
 {% csrf_token %}
 <div class="profile-grid">
     <div class="navigation">
-        <button onclick="goBack()">Back</button>
+        <button class="btn btn-back" onclick="goBack()">Back</button>
     </div>
 
     <div class="profile-header">
@@ -24,12 +24,11 @@
         </div>
         <div class="player-info">
             <ul>
-                <li> {{ player.first_name }} {{ player.last_name }}</li>
-                <li> {{ player_team.team_name }}</li>
-                <li> {{ player.position }}</li>
+                <li class="player-name">{{ player.first_name }} {{ player.last_name }}</li>
+                <li class="player-team">{{ player_team.team_name }}</li>
+                <li class="player-position">{{ player.position }}</li>
                 <hr/>
-                <li> {{ player_team.name }}</li>
-                <li> {{ player.nationality.name }}</li>
+                <li class="player-nationality">{{ player.nationality.name }}</li>
                 {% load humanize %}
                 <hr/>
                 <li><strong>Age:</strong> {{ player.age }}</li>
@@ -37,16 +36,23 @@
             </ul>
             <div id="action-section">
                 {% if is_player_in_user_team %}
-                <button id="release-button" style="background-color:red" onclick="releasePlayer()">Release Player
-                </button>
+                <button id="release-button" class="btn btn-danger" onclick="releasePlayer()">Release Player</button>
                 {% elif not player.is_free_agent %}
-                <button id="offer-button" onclick="toggleOfferInput()">Send Offer</button>
-                <div id="offer-input" style="display: none;">
+                <button id="offer-button" class="btn btn-primary" onclick="toggleOfferInput()">Send Offer</button>
+                <div id="offer-input" class="offer-input" style="display: none;">
                     <input type="number" id="offerAmount" value="{{ player.price }}" min="0"
                            placeholder="Enter offer amount">
-                    <button id="sendOfferButton" onclick="sendOffer()">Send</button>
+                    <button id="sendOfferButton" class="btn btn-success" onclick="sendOffer()">Send</button>
                 </div>
                 {% endif %}
+                <div id="offer-data"
+                     data-url="{% url 'transfers:send_offer' player.id %}"
+                     data-csrf-token="{{ csrf_token }}"></div>
+                <div id="release-data"
+                     data-url="{% url 'players:release_player' player.id %}"
+                     data-csrf-token="{{ csrf_token }}">
+                </div>
+
             </div>
         </div>
     </div>
@@ -56,10 +62,7 @@
         <hr/>
         <div class="attributes-grid">
             {% for attribute in attributes %}
-            <div class="attribute
-        {% if attribute.value <= 10 %}attribute-low
-        {% elif attribute.value <= 15 %}attribute-medium
-        {% else %}attribute-high{% endif %}">
+            <div class="attribute {% if attribute.value <= 10 %}attribute-low {% elif attribute.value <= 15 %}attribute-medium {% else %}attribute-high{% endif %}">
                 {{ attribute.name }}: {{ attribute.value }}
             </div>
             {% endfor %}
@@ -118,114 +121,10 @@
         </table>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-
-    function goBack() {
-        window.history.back();
-    }
-
-    function toggleOfferInput() {
-        const offerInput = document.getElementById('offer-input');
-        offerInput.style.display = offerInput.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function sendOffer() {
-        const offerAmount = document.getElementById('offerAmount').value;
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-        if (!offerAmount || parseFloat(offerAmount) <= 0) {
-            Swal.fire({
-            icon: 'warning',
-            title: 'Invalid Offer Amount',
-            text: 'Please enter a valid offer amount.',
-        });
-        return;
-        }
-
-        fetch("{% url 'transfers:send_offer' player.id %}", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-            body: JSON.stringify({ offer_amount: parseFloat(offerAmount) })
-        })
-        .then(response => response.json())
-        .then(data => {
-        if (data.status === 'error') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: data.message || 'Something went wrong.',
-            });
-        } else {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message || 'Offer sent successfully!',
-            }).then(() => {
-                window.location.reload();
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Something went wrong.',
-        });
-    });
-    }
-
-    function releasePlayer() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to undo this action!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, release the player!',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch("{% url 'players:release_player' player.id %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    Swal.fire(
-                        'Released!',
-                        data.message || 'The player has been released successfully.',
-                        'success'
-                    ).then(() => {
-                        window.location.reload(); // Или актуализирайте интерфейса
-                    });
-                } else {
-                    Swal.fire(
-                        'Error!',
-                        data.message || 'Something went wrong.',
-                        'error'
-                    );
-                }
-            })
-            .catch(error => {
-                Swal.fire(
-                    'Error!',
-                    'Something went wrong.',
-                    'error'
-                );
-                console.error('Error:', error);
-            });
-        }
-    });
-}
-</script>
+<script src="{% static 'js/navigation.js' %}"></script>
+<script src="{% static 'js/offer.js' %}"></script>
+<script src="{% static 'js/release.js' %}"></script>
 
 {% endblock %}

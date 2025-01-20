@@ -1,4 +1,5 @@
 import random
+from datetime import date
 from decimal import Decimal
 from django.db import transaction
 from core.models import Nationality
@@ -6,12 +7,12 @@ from core.utils.names_utils import get_random_first_name, get_random_last_name
 from finance.models import Bank
 from finance.utils.bank_utils import distribute_income
 from game.utils.settings_utils import get_setting_value
-from players.models import Player
+from messaging.utils.category_messages_utils import create_free_agents_intake_message
+from players.models import Player, PositionAttribute, PlayerAttribute
 from players.utils.generate_player_utils import generate_free_agents
 from staff.models import FootballAgent
 from teams.utils.team_finance_utils import team_expense
 from transfers.models import Transfer
-
 
 def generate_agents():
     agents = []
@@ -44,7 +45,6 @@ def generate_agents():
         generate_free_agents(agent)
     return agents
 
-
 def agent_sell_player(team, player):
     with transaction.atomic():
         agent = player.agent
@@ -55,7 +55,6 @@ def agent_sell_player(team, player):
     team_expense(team, player.price, f'{team.name} buy {player.first_name} {player.last_name}')
     if agent:
         process_agent_payment(agent, player.price)
-
 
 def process_agent_payment(agent, price):
     with transaction.atomic():
@@ -72,7 +71,6 @@ def process_agent_payment(agent, price):
         except Bank.DoesNotExist:
             pass
 
-
 def hire_agent_to_player(agent, player):
     if agent is None:
         agents = FootballAgent.objects.all()
@@ -86,21 +84,27 @@ def hire_agent_to_player(agent, player):
     player.is_free_agent = False
     player.save()
 
-def agent_level_increase(agent, player):
-    increment = min(0.5, (player.potential_rating / 100) * (player.price / 1000000))
-    agent.scouting_level = min(10.0, agent.scouting_level + increment)
-    agent.save()
+def recalculate_agents_rating():
+    agents = FootballAgent.objects.all()
 
-from datetime import date
+    if not agents:
+        print("No agents found.")
+        return
+
+    print(f"Processing end-of-season calculations for {len(agents)} agents.")
+
+    for agent in agents:
+        try:
+            agent_level_end_season_calculate(agent)
+            print(f"Processed agent: {agent.first_name} {agent.last_name}")
+        except Exception as e:
+            print(f"Error processing agent {agent.first_name} {agent.last_name}: {e}")
+
+    print("End-of-season calculations completed for all agents.")
 
 def agent_level_end_season_calculate(agent):
-    """
-    Recalculates the scouting level of a FootballAgent at the end of the season based on performance.
-    """
-    # Текущата година
     current_year = date.today().year
 
-    # Намери трансфери, където играчите са били free agents и с агент == текущия
     sold_players = Transfer.objects.filter(
         player__is_free_agent=True,
         player__agent=agent,
@@ -117,3 +121,36 @@ def agent_level_end_season_calculate(agent):
     agent.save()
 
     print(f"Agent {agent.first_name} {agent.last_name}: New scouting level: {agent.scouting_level}")
+
+
+def scouting_new_talents():
+    agents = FootballAgent.objects.all()
+    new_agents = []
+
+    if not agents:
+        print("No agents found for scouting.")
+        return new_agents
+
+    print(f"Found {len(agents)} agents for scouting.")
+
+    for agent in agents:
+        if agent.balance <= 0:
+            print(f"Agent {agent.first_name} {agent.last_name} has insufficient funds to scout.")
+            continue
+
+        print(f"Scouting talents for Agent {agent.first_name} {agent.last_name}, Balance: {agent.balance}")
+
+        try:
+            free_agents = generate_free_agents(agent)
+            if free_agents:
+                new_agents.extend(free_agents)
+                print(f"Agent {agent.first_name} {agent.last_name} found {len(free_agents)} new talents.")
+                create_free_agents_intake_message(free_agents, agent)
+
+            else:
+                print(f"Agent {agent.first_name} {agent.last_name} didn't find any talents.")
+        except Exception as e:
+            print(f"An error occurred while scouting talents for {agent.first_name} {agent.last_name}: {e}")
+
+    print(f"Scouting completed for {len(new_agents)} new agents.")
+    return new_agents

@@ -19,16 +19,15 @@
 
                 {% if user.is_authenticated %}
                 <div class="dropdown ms-3">
-                    <img src="{% static 'images/1.png' %}" alt="User Profile" class="profile-icon"
-                         data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-chevron-down dropdown-indicator"></i>
+                    <span class="profile-name" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ user.username }} <i class="fa-solid fa-chevron-down dropdown-indicator"></i>
+                    </span>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#settings"><i class="fas fa-cog"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="#settings"><i class="fa-solid fa-cog"></i> Profile</a></li>
                         <li>
                             <form method="POST" action="{% url 'accounts:logout' %}">
                                 {% csrf_token %}
-                                <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout
-                                </button>
+                                <button type="submit" class="dropdown-item"><i class="fa-solid fa-sign-out-alt"></i> Logout</button>
                             </form>
                         </li>
                     </ul>
@@ -80,7 +79,7 @@
                         <li><a class="dropdown-item" href="{% url 'leagues:league_results' %}"><i
                                 class="fas fa-clock"></i>
                             Results</a></li>
-<li><a class="dropdown-item" href="{% url 'players:top_league_players' %}"><i
+                        <li><a class="dropdown-item" href="{% url 'players:top_league_players' %}"><i
                                 class="fas fa-clock"></i>
                             League Top Players</a></li>
 
@@ -116,7 +115,8 @@
                     <a class="nav-link dropdown-toggle" href="#" id="transfersDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-exchange-alt"></i>Transfers</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'players:search_players' %}"><i class="fas fa-clock"></i>
+                        <li><a class="dropdown-item" href="{% url 'players:search_players' %}"><i
+                                class="fas fa-clock"></i>
                             Search Players</a></li>
                         <li><a class="dropdown-item" href="{% url 'staff:staff_market' %}"><i
                                 class="fas fa-store"></i>Staff Market</a>
