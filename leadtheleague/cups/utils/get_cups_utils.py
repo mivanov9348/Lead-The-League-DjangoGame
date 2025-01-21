@@ -24,7 +24,7 @@ def promote_cup_champions_to_europe(new_season, new_european_cup_season, europea
     for cup in previous_season_cups:
         if cup.champion_team:
             cup_champions.append(cup.champion_team)
-            for euro_cup in european_cups:
+            for cup in previous_season_cups:
                 EuropeanCupTeam.objects.create(
                     team=cup.champion_team,
                     european_cup_season=new_european_cup_season

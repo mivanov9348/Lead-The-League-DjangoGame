@@ -11,6 +11,7 @@ from match.utils.match.attendance import calculate_match_attendance, match_incom
 from match.utils.match.retrieval import get_match_by_fixture
 from messaging.utils.category_messages_utils import create_league_matchday_message, create_league_champion_message
 from teams.models import Team
+from vault.utils.team_all_stats import add_league_title
 from .models import League, LeagueSeason, LeagueTeams
 
 
@@ -254,6 +255,7 @@ def determine_league_champions(season):
         if champion_team:
             print(f"Най-добър отбор в {league_season.league.name}: {champion_team.team.name}.")
             league_season.champion_team = champion_team.team
+            add_league_title(champion_team.team)
             league_season.is_completed = True
 
             try:
@@ -320,6 +322,7 @@ def auto_set_league_champions():
 
         if league_teams.exists():
             random_team = random.choice(league_teams).team
+            add_league_title(random_team)
             league.champion_team = random_team
             league.is_completed = True
             league.save()

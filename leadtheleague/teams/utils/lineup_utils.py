@@ -81,13 +81,17 @@ def validate_lineup(players, selected_tactic):
 def ensure_team_tactics(match):
     teams = [match.home_team, match.away_team]
 
+
     for team in teams:
         TeamTactics.objects.filter(team=team).delete()
         auto_select_starting_lineup(team)
 
 def auto_select_starting_lineup(team):
     try:
+        print(f"Processing team: {team}")
+
         tactics = Tactics.objects.all()
+        print(f"Available tactics: {[tactic.name for tactic in tactics]}")
 
         if not tactics.exists():
             raise ValueError("No tactics available in the database.")
@@ -97,6 +101,8 @@ def auto_select_starting_lineup(team):
             is_youth=False,
             is_free_agent=False
         )
+
+        print(f"Total players in team {team.name}: {all_players.count()}")
 
         grouped_players = {
             'goalkeeper': [],
@@ -115,6 +121,8 @@ def auto_select_starting_lineup(team):
             elif player.position.abbreviation == 'ATT':
                 grouped_players['attacker'].append(player)
 
+        print(f"Grouped players: { {k: len(v) for k, v in grouped_players.items()} }")
+
         valid_tactics = [
             tactic for tactic in tactics if
             len(grouped_players['goalkeeper']) >= tactic.num_goalkeepers and
@@ -123,10 +131,13 @@ def auto_select_starting_lineup(team):
             len(grouped_players['attacker']) >= tactic.num_attackers
         ]
 
+        print(f"Valid tactics for team {team.name}: {[tactic.name for tactic in valid_tactics]}")
+
         if not valid_tactics:
             raise ValueError("No valid tactics available based on the current squad.")
 
         selected_tactic = random.choice(valid_tactics)
+        print(f"Selected tactic: {selected_tactic.name}")
 
         selected_players = (
             select_best_starting_players_by_position(grouped_players['goalkeeper'], selected_tactic.num_goalkeepers, Position.objects.get(abbreviation='GK')) +
@@ -135,8 +146,11 @@ def auto_select_starting_lineup(team):
             select_best_starting_players_by_position(grouped_players['attacker'], selected_tactic.num_attackers, Position.objects.get(abbreviation='ATT'))
         )
 
+        print(f"Selected players for team {team.name}: {[player.name for player in selected_players]}")
+
         errors = validate_lineup(selected_players, selected_tactic)
         if errors:
+            print(f"Validation errors for team {team.name}: {errors}")
             raise ValueError("; ".join(errors))
 
         team_tactics, _ = TeamTactics.objects.get_or_create(team=team)
@@ -147,8 +161,10 @@ def auto_select_starting_lineup(team):
             team_tactics.starting_players.add(player)
 
         team_tactics.save()
+        print(f"Lineup successfully saved for team {team.name}.")
 
     except Exception as e:
+        print(f"Error occurred for team {team.name}: {str(e)}")
         raise ValueError(f"Failed to auto-select lineup: {str(e)}")
 
 

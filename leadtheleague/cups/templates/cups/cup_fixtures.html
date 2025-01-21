@@ -7,12 +7,22 @@
 
 {% block content %}
 <div class="cup-container">
+    <!-- Заглавие и текуща фаза -->
     <div class="title-box">
         <h1>{{ season_cup.cup.name }}</h1>
         <p class="phase">Current Phase: {{ season_cup.current_stage }}</p>
     </div>
 
-    <div class="stage-dropdown">
+    <!-- Филтри за сезони и рундове -->
+    <div class="filters">
+        <select id="season-select">
+            {% for season in seasons %}
+            <option value="{{ season.id }}" {% if season.id == selected_season_id %}selected{% endif %}>
+                {{ season.year }} - Season {{ season.season_number }}
+            </option>
+            {% endfor %}
+        </select>
+
         <select id="stage-select">
             <option value="all" {% if current_round == "all" %}selected{% endif %}>All Rounds</option>
             {% for round in rounds %}
@@ -23,45 +33,60 @@
         </select>
     </div>
 
+    <!-- Фикчъри и резултати -->
     <div class="fixtures">
         {% for match in matches %}
         <div class="fixture">
+            <!-- Лого и име на домакинския отбор -->
             <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
-
             <div class="fixture-content">
                 <span class="team">
                     <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
                 </span>
+
+                <!-- Резултат или статус на мача -->
                 <span class="score">
                     <a href="{% url 'match:match' match.id %}">
-                    {% if match.is_played %}
-                        {{ match.home_goals }} : {{ match.away_goals }}
-                        {% if match.penalties %}
-                            <span style="font-size: 14px; color: #777;">
+                        {% if match.is_played %}
+                            {{ match.home_goals }} : {{ match.away_goals }}
+                            {% if match.penalties %}
+                            <span class="penalty-score">
                                 ({{ match.penalties.home_score }} : {{ match.penalties.away_score }})
                             </span>
+                            {% endif %}
+                        {% else %}
+                            TBA
                         {% endif %}
-                    {% else %}
-                        TBA
-                    {% endif %}
                     </a>
                 </span>
+
+                <!-- Лого и име на гостуващия отбор -->
                 <span class="team">
                     <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
                 </span>
             </div>
-
             <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
         </div>
         {% endfor %}
     </div>
 </div>
 
+<!-- Скриптове за управление на филтрите -->
 <script>
+    // Промяна на сезона
+    document.getElementById('season-select').addEventListener('change', function () {
+        const selectedSeason = this.value !== "null" ? this.value : "";
+        const baseUrl = window.location.href.split('?')[0];
+        const roundParam = new URLSearchParams(window.location.search).get('round') || "all";
+        window.location.href = `${baseUrl}?season=${selectedSeason}&round=${roundParam}`;
+    });
+
+    // Промяна на рунда
     document.getElementById('stage-select').addEventListener('change', function () {
         const selectedRound = this.value;
         const baseUrl = window.location.href.split('?')[0];
-        window.location.href = `${baseUrl}?round=${selectedRound}`;
+        const seasonParam = new URLSearchParams(window.location.search).get('season') || "";
+        window.location.href = `${baseUrl}?round=${selectedRound}&season=${seasonParam}`;
     });
 </script>
 

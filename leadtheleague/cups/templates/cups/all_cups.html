@@ -7,12 +7,26 @@
 
 {% block content %}
 <div class="all-cups-container">
+    <!-- Dropdown за избор на сезон -->
+    <div class="dropdown-container">
+        <form method="get" id="season-form">
+            <select name="season" id="season-select" onchange="document.getElementById('season-form').submit();">
+                {% for season in seasons %}
+                <option value="{{ season.id }}" {% if selected_season and season.id == selected_season.id %}selected{% endif %}>
+                    {{ season.year }} - {{ season.season_number }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- Dropdown за избор на купа -->
     <div class="dropdown-container">
         <form method="get" id="cup-form">
+            <input type="hidden" name="season" value="{{ selected_season.id }}">
             <select name="cup" id="cup-select" onchange="document.getElementById('cup-form').submit();">
                 {% for cup in cups %}
-                <option value="{{ cup.id }}"
-                        {% if selected_season_cup and cup.id == selected_season_cup.cup.id %}selected{% endif %}>
+                <option value="{{ cup.id }}" {% if selected_season_cup and cup.id == selected_season_cup.cup.id %}selected{% endif %}>
                     {{ cup.name }}
                 </option>
                 {% endfor %}
@@ -28,41 +42,39 @@
     </div>
     {% endif %}
 
+    <!-- Фикчъри и мачове -->
     <div class="fixtures">
-    {% if fixtures_grouped %}
-    {% for round_stage, matches in fixtures_grouped.items %}
-    <div class="round-stage">
-        <h2>{{ round_stage }}</h2>
-        {% for match in matches %}
-        <div class="fixture">
-            <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
-            <div class="fixture-content">
-                <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
-                <span class="score">
-                {% if match.is_played %}
-                    <a href="{% url 'match:match' match.id %}">
-                        {{ match.home_goals }} : {{ match.away_goals }}
-                        {% if match.penalties %}
-                        <span style="font-size: 14px; color: #777;">
-                            ({{ match.penalties.home_score }} : {{ match.penalties.away_score }})
-                        </span>
+        {% if fixtures_grouped %}
+        {% for round_stage, matches in fixtures_grouped.items %}
+        <div class="round-stage">
+            <h2>{{ round_stage }}</h2>
+            {% for match in matches %}
+            <div class="fixture">
+                <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
+                <div class="fixture-content">
+                    <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+                    <span class="score">
+                        {% if match.is_played %}
+                        <a href="{% url 'match:match' match.id %}">
+                            {{ match.home_goals }} : {{ match.away_goals }}
+                            {% if match.penalties %}
+                            <span class="penalty-score">({{ match.penalties.home_score }} : {{ match.penalties.away_score }})</span>
+                            {% endif %}
+                        </a>
+                        {% else %}
+                        TBA
                         {% endif %}
-                    </a>
-                {% else %}
-                    TBA
-                {% endif %}
-                </span>
-                <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+                    </span>
+                    <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+                </div>
+                <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
             </div>
-            <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
+            {% endfor %}
         </div>
         {% endfor %}
+        {% else %}
+        <p class="no-fixtures">No fixtures available for the selected cup.</p>
+        {% endif %}
     </div>
-    {% endfor %}
-    {% else %}
-    <p class="no-fixtures">No fixtures available for the selected cup.</p>
-    {% endif %}
 </div>
-
 {% endblock %}
-</div>

@@ -48,7 +48,7 @@ def finalize_match(match):
             elif match.away_goals > match.home_goals:
                 match.winner = match.away_team
             else:
-                match.winner = None  # Равен резултат
+                match.winner = None
 
         calculate_match_attendance(match)
         match_income(match, match.home_team)
@@ -56,7 +56,7 @@ def finalize_match(match):
 
         fixture = match.fixture
         if not fixture:
-            raise ValueError("Мачът няма свързан fixture.")
+            raise ValueError("Match has no fixture.")
 
         fixture.home_goals = match.home_goals
         fixture.away_goals = match.away_goals

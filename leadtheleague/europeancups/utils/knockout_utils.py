@@ -1,12 +1,7 @@
 import random
-from webbrowser import Konqueror
-
-from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction
+from django.db import models
 from europeancups.models import KnockoutTeam, KnockoutStage
 from fixtures.models import EuropeanCupFixture
-from game.models import MatchSchedule
-from match.models import Match
 from match.utils.match.generator import generate_matches_from_fixtures
 
 
@@ -46,9 +41,10 @@ def finish_current_knockout_stage(current_stage):
     knockout_stage.save()
 
 
-def create_knockout_team(team):
+def create_knockout_team(team, european_cup_season):
     return KnockoutTeam.objects.create(
-        team=team
+        team=team,
+        european_cup_season=european_cup_season
     )
 
 
@@ -56,9 +52,10 @@ def update_knockout_teams(match):
     winner_team = match.home_team if match.home_goals > match.away_goals else match.away_team
     loser_team = match.away_team if match.home_goals > match.away_goals else match.home_team
 
-    KnockoutTeam.objects.filter(team=loser_team, knockout_stage__european_cup_season=match.european_cup_season).update(
+    KnockoutTeam.objects.filter(team=loser_team, european_cup_season=match.european_cup_season).update(
         is_eliminated=True
     )
+
 
 def generate_euro_cup_knockout(european_cup_season, match_date):
     current_stage = european_cup_season.knockout_stages.order_by('-stage_order').first()
@@ -70,6 +67,7 @@ def generate_euro_cup_knockout(european_cup_season, match_date):
                 update_knockout_teams(match)
 
     advancing_teams = list(KnockoutTeam.objects.filter(
+        european_cup_season=european_cup_season,
         knockout_stage=current_stage,
         is_eliminated=False
     ).values_list('team', flat=True))
@@ -89,7 +87,7 @@ def generate_euro_cup_knockout(european_cup_season, match_date):
     )
 
     max_fixture_number = (
-        EuropeanCupFixture.objects.aggregate(max_number=models.Max('fixture_number'))['max_number'] or 0
+            EuropeanCupFixture.objects.aggregate(max_number=models.Max('fixture_number'))['max_number'] or 0
     )
 
     random.shuffle(advancing_teams)
@@ -113,9 +111,9 @@ def generate_euro_cup_knockout(european_cup_season, match_date):
         fixtures.append(fixture)
 
     for team_id in advancing_teams:
-        KnockoutTeam.objects.create(knockout_stage=knockout_stage, team_id=team_id)
+        KnockoutTeam.objects.create(knockout_stage=knockout_stage, team_id=team_id,
+                                    european_cup_season=european_cup_season)
 
     generate_matches_from_fixtures(fixtures, 'euro_cup', european_cup_season.season)
 
     return fixtures
-

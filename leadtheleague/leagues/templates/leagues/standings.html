@@ -20,6 +20,14 @@
                 </option>
                 {% endfor %}
             </select>
+            <select id="season" name="season" onchange="document.getElementById('filters-form').submit();">
+            <option value="">Choose Season</option>
+            {% for season in seasons %}
+            <option value="{{ season.id }}" {% if season.id == selected_season.id %}selected{% endif %}>
+                {{ season.year }} - Season {{ season.season_number }}
+            </option>
+            {% endfor %}
+        </select>
         </form>
     </div>
     <table class="standings-table">

@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from players.models import PlayerMatchStatistic
 from vault.models import TeamAllStats, PlayerAllStats
 
@@ -42,3 +44,20 @@ def update_team_all_time_stats_after_match(match):
     away_team_stats.save()
 
 
+def add_league_title(team):
+    with transaction.atomic():
+        team_stats, created = TeamAllStats.objects.get_or_create(team=team)
+        team_stats.league_titles += 1
+        team_stats.save()
+
+def add_cup_title(team):
+    with transaction.atomic():
+        team_stats, created = TeamAllStats.objects.get_or_create(team=team)
+        team_stats.cup_titles += 1
+        team_stats.save()
+
+def add_euro_cup_title(team):
+    with transaction.atomic():
+        team_stats, created = TeamAllStats.objects.get_or_create(team=team)
+        team_stats.euro_cup_titles += 1
+        team_stats.save()

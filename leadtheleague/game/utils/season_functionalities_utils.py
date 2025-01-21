@@ -21,7 +21,6 @@ from staff.utils.agent_utils import generate_agents, scouting_new_talents, recal
 from staff.utils.coach_utils import new_seasons_coaches
 from teams.utils.generate_team_utils import set_team_logos
 
-
 def create_game_season(year, season_number, start_date, match_time, is_active):
     start_datetime = datetime.datetime.combine(start_date, match_time)
 

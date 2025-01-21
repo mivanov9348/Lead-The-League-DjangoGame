@@ -118,6 +118,7 @@ def generate_group_fixtures(season):
                     round_stage="Group Stage",
                     round_number=round_num + 1,
                     date=match_date.date,
+                    season = season
                 ))
                 next_fixture_number += 1
 
@@ -275,7 +276,7 @@ def advance_teams_from_groups(european_cup_season):
                     european_cup_team.save()
 
                 advancing_teams.append(group_team.team.name)
-                create_knockout_team(group_team.team)
+                create_knockout_team(group_team.team, european_cup_season)
 
             for group_team in group_teams[teams_qualify_from_group:]:
                 european_cup_team = EuropeanCupTeam.objects.get(

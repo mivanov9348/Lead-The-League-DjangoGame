@@ -9,7 +9,7 @@ from leagues.utils import promote_league_teams_to_europe
 from match.models import Match
 from messaging.utils.category_messages_utils import create_european_cup_champion_message
 from teams.models import Team
-
+from vault.utils.team_all_stats import add_euro_cup_title
 
 
 def get_current_european_cup_season():
@@ -181,6 +181,7 @@ def finalize_euro_cup(european_cup_season, match):
         raise ValueError("Cannot finalize European Cup season without a winner.")
 
     european_cup_season.champion = winner_team
+    add_euro_cup_title(winner_team)
     european_cup_season.current_phase = 'finished'
     european_cup_season.is_euro_cup_finished = True
     european_cup_season.save()

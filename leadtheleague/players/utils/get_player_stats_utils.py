@@ -270,9 +270,10 @@ def ensure_team_has_minimum_players(team):
     position_count = {pos: 0 for pos in required_positions.keys()}
 
     for team_player in team_players:
-        position_name = team_player.player.position.name
-        if position_name in position_count:
-            position_count[position_name] += 1
+        if not team_player.player.is_youth:  # Ensure player is not youth
+            position_name = team_player.player.position.name
+            if position_name in position_count:
+                position_count[position_name] += 1
 
     for position_name, required_count in required_positions.items():
         missing_count = required_count - position_count.get(position_name, 0)
@@ -281,7 +282,7 @@ def ensure_team_has_minimum_players(team):
             for _ in range(missing_count):
                 generate_random_player(team=team, position=position)
 
-    current_player_count = team_players.count()
+    current_player_count = team_players.filter(player__is_youth=False).count()  # Count only non-youth players
     if current_player_count < 11:
         additional_players_needed = 11 - current_player_count
         all_positions = list(Position.objects.all())
@@ -290,6 +291,7 @@ def ensure_team_has_minimum_players(team):
             generate_random_player(team=team, position=random_position)
 
     return f"Team '{team.name}' now has at least 11 players with the required positions."
+
 
 def calculate_player_rating(player):
     position = player.position
