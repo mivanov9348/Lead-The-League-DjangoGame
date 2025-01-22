@@ -91,7 +91,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
-                'leadtheleague.context_processors.team_info'
+                'leadtheleague.context_processors.team_info',
+                'leadtheleague.context_processors.backgrounds'
             ],
         },
     }, ]

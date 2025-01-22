@@ -144,13 +144,22 @@ def generate_random_player(team=None, position=None, age=None):
     if team:
         team_nationality = team.nationality
         nationality = get_random_nationality_priority(team_nationality, 0.8)  # за settings
+
+        if nationality:
+            first_name = get_random_first_name(None, nationality.name)
+            last_name = get_random_last_name(None, nationality.name)
+        else:
+            region = team_nationality.region
+            first_name = get_random_first_name(region)
+            last_name = get_random_last_name(region)
     else:
         nationality = random.choice(nationalities)
+        region = nationality.region
+        first_name = get_random_first_name(region)
+        last_name = get_random_last_name(region)
 
-    region = nationality.region
     team_player_numbers = set(TeamPlayer.objects.filter(team=team).values_list('shirt_number', flat=True))
-    first_name = get_random_first_name(region)
-    last_name = get_random_last_name(region)
+
 
     if position is None:
         position = random.choice(positions)

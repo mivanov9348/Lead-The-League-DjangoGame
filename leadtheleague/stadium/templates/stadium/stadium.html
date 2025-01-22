@@ -6,38 +6,69 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <title>Stadium Upgrade</title>
-<div class="main-container">
-    <div class="stadium-section">
-        <div class="stadium-header">
-            <h2 id="stadium-name">{{ stadium.name }}</h2>
-        </div>
+<div class="stadium-container">
+    <div class="stadium-info">
+        <h2 id="stadium-name">{{ stadium.name }}</h2>
         <div class="stadium-details">
-            <img src="{% static 'images/stadium_placeholder.png' %}" alt="Stadium Image" class="stadium-image">
+            <img src="{% static 'stadiumsimages/' %}{{ current_tier_level }}.jpg" alt="Stadium Tier Image"
+                 class="stadium-image">
             <div class="details">
                 <p><strong>Capacity:</strong> <span id="stadium-capacity">{{ stadium.capacity }}</span></p>
                 <p><strong>Ticket Price:</strong> $<span id="stadium-price">{{ stadium.ticket_price }}</span></p>
                 <p><strong>Tier:</strong> <span id="stadium-tier">{{ current_tier_level }}</span></p>
-                <p><strong>Popularity Bonus:</strong> +<span id="stadium-bonus">{{ current_popularity_bonus }}</span></p>
+                <p><strong>Popularity Bonus:</strong> +<span id="stadium-bonus">{{ current_popularity_bonus }}</span>
+                </p>
             </div>
         </div>
+
+        <!-- Мачовете играни на този стадион -->
+        <div class="matches">
+            <h3>Matches Played at {{ stadium.name }}</h3>
+            {% if matches %}
+            <table class="matches-table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Result</th>
+                    <th>Attendance</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td>{{ match.match_date }}</td>
+                    <td>{{ match.home_team.name }}</td>
+                    <td>{{ match.away_team.name }}</td>
+                    <td>{{ match.home_goals }} - {{ match.away_goals }}</td>
+                    <td>{{ match.attendance }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No matches have been played at this stadium yet.</p>
+            {% endif %}
+        </div>
     </div>
-    <div class="slider-section">
+    <div class="tier-upgrade">
         <h2>Upgrade Options</h2>
-        <div class="slider">
+        <div class="tier-slider">
             <ul id="tier-list">
                 {% for tier_info in tiers %}
-                {% with tier_info.tier as tier %}
-                <li class="tier-item {% if tier_info.is_unlocked %}unlocked{% else %}locked{% endif %}"
-                    data-id="{{ tier.id }}"
-                    data-name="{{ tier.name }}"
-                    data-capacity="{{ tier.capacity_boost }}"
-                    data-ticket-price="{{ tier.ticket_price }}"
-                    data-popularity="{{ tier.popularity_bonus }}"
-                    data-cost="{{ tier.upgrade_cost }}"
-                    {% if tier_info.can_purchase %} data-purchasable="true" {% endif %}>
-                    {{ tier.name }}
+                <li class="tier-item {% if not tier_info.is_unlocked %}locked{% else %}unlocked{% endif %}"
+                    style="background-image: url('{% static '/stadiumsimages/' %}{{ tier_info.tier.level }}.jpg');"
+                    data-id="{{ tier_info.tier.id }}"
+                    data-name="{{ tier_info.tier.name }}"
+                    data-capacity="{{ tier_info.tier.capacity_boost }}"
+                    data-ticket-price="{{ tier_info.tier.ticket_price }}"
+                    data-popularity="{{ tier_info.tier.popularity_bonus }}"
+                    data-cost="{{ tier_info.tier.upgrade_cost }}"
+                    {% if not tier_info.is_unlocked %} data-purchasable="true" {% else %} data-purchasable="false" {% endif %}>
+                    {{ tier_info.tier.name }}
                 </li>
-                {% endwith %}
+
                 {% endfor %}
             </ul>
         </div>
@@ -45,7 +76,7 @@
 </div>
 
 <!-- Modal -->
-<div id="tier-modal" class="modal">
+<div id="tier-modal" class="modal hidden">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2 id="modal-tier-name">Tier Name</h2>
@@ -53,79 +84,13 @@
         <p><strong>Ticket Price Multiplier:</strong> ×<span id="modal-price-multiplier"></span></p>
         <p><strong>Popularity Bonus:</strong> +<span id="modal-bonus"></span></p>
         <p><strong>Upgrade Cost:</strong> $<span id="modal-cost"></span></p>
-        <button id="buy-button" class="buy-button">Buy This Tier</button>
+        <div class="modal-actions">
+            <button id="buy-button" class="buy-button hidden">Buy This Tier</button>
+            <button id="cancel-button" class="cancel-button">Cancel</button>
+        </div>
     </div>
 </div>
 
-<script>
 
-document.addEventListener("DOMContentLoaded", () => {
-    const tierList = document.querySelectorAll(".tier-item");
-    const modal = document.getElementById("tier-modal");
-    const modalClose = document.querySelector(".close-modal");
-    const buyButton = document.getElementById("buy-button");
-
-    let selectedTierId = null;
-
-    tierList.forEach(item => {
-        item.addEventListener("click", () => {
-            const id = item.dataset.id;
-            const name = item.dataset.name;
-            const capacity = item.dataset.capacity;
-            const ticketPrice = item.dataset.ticketPrice;
-            const popularity = item.dataset.popularity;
-            const cost = item.dataset.cost;
-            const isPurchasable = item.dataset.purchasable === "true";
-
-            selectedTierId = id;
-
-            document.getElementById("modal-tier-name").textContent = name;
-            document.getElementById("modal-capacity").textContent = capacity;
-            document.getElementById("modal-price-multiplier").textContent = ticketPrice;
-            document.getElementById("modal-bonus").textContent = popularity;
-            document.getElementById("modal-cost").textContent = cost;
-
-            if (isPurchasable) {
-                buyButton.style.display = "block";
-                buyButton.textContent = `Buy Tier ${name}`;
-            } else {
-                buyButton.style.display = "none";
-            }
-
-            modal.classList.remove("hidden");
-        });
-    });
-
-    modalClose.addEventListener("click", () => {
-        modal.classList.add("hidden");
-        selectedTierId = null;
-    });
-
-    buyButton.addEventListener("click", () => {
-        if (selectedTierId) {
-            fetch("/stadium/purchase_tier/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCSRFToken(),
-                },
-                body: JSON.stringify({ tier_id: selectedTierId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire("Success", data.message, "success").then(() => location.reload());
-                } else {
-                    Swal.fire("Error", data.error, "error");
-                }
-            })
-            .catch(error => console.error("Error purchasing tier:", error));
-        }
-    });
-
-    function getCSRFToken() {
-        return document.querySelector("[name=csrfmiddlewaretoken]").value;
-    }
-});
-</script>
+<script src="{% static 'js/stadium.js' %}"></script>
 {% endblock %}

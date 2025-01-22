@@ -1,4 +1,9 @@
+import os
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.templatetags.static import static
+
+from leadtheleague import settings
 from teams.models import Team, TeamFinance
 
 
@@ -31,3 +36,11 @@ def team_info(request):
         'team_name': 'Guest',
         'team_finance': {'balance': 0},
     }
+
+
+
+def backgrounds(request):
+    backgrounds = [
+        static(f'images/{i}.jpg') for i in range(1, 21)
+    ]
+    return {'backgrounds': backgrounds}

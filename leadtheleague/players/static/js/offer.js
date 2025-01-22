@@ -32,13 +32,17 @@ function sendOffer() {
                 text: data.message || 'Something went wrong.',
             });
         } else {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message || 'Offer sent successfully!',
-            }).then(() => {
-                window.location.reload();
-            });
+           Swal.fire({
+    icon: 'success',
+    title: 'Success!',
+    text: data.message || 'Offer sent successfully!',
+    confirmButtonText: 'OK' // Текст за бутона
+}).then((result) => {
+    if (result.isConfirmed) { // Проверява дали бутонът "OK" е кликнат
+        window.location.reload(); // Презарежда страницата
+    }
+});
+
         }
     })
     .catch(error => {

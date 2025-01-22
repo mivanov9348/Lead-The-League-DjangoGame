@@ -11,8 +11,9 @@ from transfers.models import Transfer, TransferOffer
 
 
 def is_transfer_day():
-    today = date.today()
-    return MatchSchedule.objects.filter(date=today, event_type='transfer').exists()
+    current_season = get_current_season()
+    current_date = current_season.current_date
+    return MatchSchedule.objects.filter(date=current_date, event_type='transfer').exists()
 
 
 def get_all_transfers():
@@ -67,6 +68,7 @@ def find_transfer_offer_by_id(offer_id):
 def COM_receive_transfer_offer(transfer_offer):
     team_player = transfer_offer.player.team_players.first()
     player_team = team_player.team if team_player else None
+    current_season = get_current_season()
 
     if not player_team or player_team.user is not None:
         return False, "Offer decision skipped (team is controlled by a user)."
@@ -95,6 +97,7 @@ def COM_receive_transfer_offer(transfer_offer):
         buy_player_expense(offering_team, transfer_offer.player, amount)
 
         Transfer.objects.create(
+            season=current_season,
             selling_team=player_team,
             buying_team=offering_team,
             player=transfer_offer.player,

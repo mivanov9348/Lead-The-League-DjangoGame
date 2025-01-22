@@ -1,5 +1,7 @@
 import datetime
 from django.db import transaction, IntegrityError
+from django.utils.timezone import now
+
 from cups.utils.generate_cup_fixtures import process_all_season_cups, populate_season_cups_with_teams
 from cups.utils.update_cup_season import generate_cups_season
 from europeancups.utils.euro_cup_season_utils import generate_european_cups_season, europe_promotion
@@ -7,7 +9,8 @@ from europeancups.utils.group_stage_utils import create_groups_for_season, gener
 from finance.utils.prize_utils import end_of_season_fund_distribution
 from fixtures.utils import generate_all_league_fixtures
 from game.models import Season
-from game.utils.get_season_stats_utils import check_are_all_competition_completed, get_previous_season
+from game.utils.get_season_stats_utils import check_are_all_competition_completed, get_previous_season, \
+    get_current_season
 from leagues.utils import generate_leagues_season, populate_teams_for_season
 from match.utils.match.generator import generate_league_matches, generate_euro_cup_matches, generate_cup_matches
 from messaging.utils.category_messages_utils import create_message_for_new_season
@@ -20,6 +23,7 @@ from players.utils.update_player_stats_utils import promoting_youth_players, all
 from staff.utils.agent_utils import generate_agents, scouting_new_talents, recalculate_agents_rating
 from staff.utils.coach_utils import new_seasons_coaches
 from teams.utils.generate_team_utils import set_team_logos
+
 
 def create_game_season(year, season_number, start_date, match_time, is_active):
     start_datetime = datetime.datetime.combine(start_date, match_time)
@@ -55,6 +59,16 @@ def create_game_season(year, season_number, start_date, match_time, is_active):
     except IntegrityError as e:
         return None, f"Error creating season: {str(e)}"
 
+
+def set_current_day_today():
+    current_season = get_current_season()
+    current_season.current_date = now().date()
+    current_season.save()
+
+def set_manual_day_today(date):
+    current_season = get_current_season()
+    current_season.current_date = date
+    current_season.save()
 
 def finalize_season(season):
     if not check_are_all_competition_completed(season):
@@ -174,10 +188,10 @@ def prepare_new_season(new_season):
             # coaches
             new_seasons_coaches()
             print('Coaches for new season added successfully!')
-            #re-rating agents
+            # re-rating agents
             recalculate_agents_rating()
             print('Agents ratings are ready!')
-            #scouting new talents
+            # scouting new talents
             scouting_new_talents()
             print('New Talents founded!!')
 

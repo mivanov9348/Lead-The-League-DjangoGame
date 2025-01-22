@@ -19,19 +19,17 @@
 <!-- Включване на navbar -->
 {% include 'navbar.html' %}
 
-<!-- Основно съдържание на страницата -->
 <div class="container">
-
-<!--    {% if messages %}-->
-<!--    <div class="messages">-->
-<!--        {% for message in messages %}-->
-<!--        <div class="message {{ message.tags }}">{{ message }}</div>-->
-<!--        {% endfor %}-->
-<!--    </div>-->
-<!--    {% endif %}-->
-
     <div class="content">
         {% block content %}
+        <div class="menus">
+            {% for background in backgrounds %}
+            <div class="menu" style="background-image: url('{{ background }}');">
+                <h1>Menu {{ forloop.counter }}</h1>
+            </div>
+            {% endfor %}
+        </div>
+
         {% endblock %}
     </div>
 </div>
