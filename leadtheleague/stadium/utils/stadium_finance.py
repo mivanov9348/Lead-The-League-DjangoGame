@@ -1,6 +1,8 @@
-def calculate_match_income(stadium, attendance_percentage):
-    attendance = int(stadium.capacity * attendance_percentage)
-    income = attendance * stadium.ticket_price
+from match.utils.match.attendance import calculate_match_income
+
+
+def get_match_income(match):
+    income = calculate_match_income(match, match.home_team)
     return income
 
 

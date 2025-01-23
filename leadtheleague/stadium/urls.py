@@ -1,10 +1,9 @@
 from django.urls import path
-from stadium.views import stadium, purchase_tier
+from stadium.views import stadium, buy_tier
 
 app_name = 'stadium'
 
 urlpatterns = [
     path('stadium/', stadium, name='stadium'),
-    path('purchase_tier/', purchase_tier, name='purchase_tier'),
-
+    path("buy_tier/<int:tier_id>/", buy_tier, name="buy_tier"),
 ]

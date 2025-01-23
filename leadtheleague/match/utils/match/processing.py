@@ -91,7 +91,7 @@ def process_league_day(match_date):
         finalize_match(match)
         update_team_all_time_stats_after_match(match)
         update_player_stats_for_match(match)
-        update_player_stats_for_match
+        # update_player_stats_for_match
 
     bulk_update_team_statistics(matches, match_date)
     fixtures = get_fixtures_by_date(match_date.date)

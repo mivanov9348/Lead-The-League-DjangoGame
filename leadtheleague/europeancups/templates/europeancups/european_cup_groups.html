@@ -8,6 +8,18 @@
 {% block content %}
 {% include 'europeancups/_partial_choose_phase.html' %}
 
+<div class="season-selector">
+    <form method="get">
+        <select id="season" name="season" onchange="this.form.submit()">
+            {% for season in all_seasons %}
+            <option value="{{ season.id }}" {% if season == selected_season %}selected{% endif %}>
+                Year: {{ season.year }} Season: {{ season.season_number }}
+            </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
 <div class="groups-container">
     {% for group_data in grouped_data %}
     <div class="group-card">

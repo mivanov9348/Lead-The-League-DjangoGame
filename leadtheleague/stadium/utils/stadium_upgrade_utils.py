@@ -16,17 +16,15 @@ def upgrade_stadium(stadium, tier):
     Upgrades the stadium to the given tier.
     Adjusts the stadium's attributes and related teams popularity.
     """
-    if not can_upgrade_stadium(stadium, tier):
-        raise ValueError("Invalid tier upgrade")
+    if tier.level <= (stadium.tier.level if stadium.tier else 0):
+        raise ValueError(f"Cannot downgrade or stay at the same level ({tier.level}).")
 
-    # Update stadium attributes
     stadium.tier = tier
     stadium.capacity = tier.capacity_boost
     stadium.ticket_price = tier.ticket_price
-
-    # Update teams's popularity
-    team = stadium.team
-    boost_reputation(team, tier.popularity_bonus)
-    team.save()
-
     stadium.save()
+
+    team = stadium.team
+    if team:
+        boost_reputation(team, tier.popularity_bonus)
+        team.save()

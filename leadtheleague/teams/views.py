@@ -3,6 +3,8 @@ from datetime import date
 from itertools import chain
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
+
+from core.utils.nationality_utils import get_all_nationalities
 from fixtures.models import LeagueFixture
 from game.utils.get_season_stats_utils import get_current_season
 from players.utils.get_player_stats_utils import get_personal_player_data, get_player_attributes, get_player_stats
@@ -15,6 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
 from .utils.lineup_utils import validate_lineup, auto_select_starting_lineup
+from .utils.team_finance_utils import get_teams_by_balance
+
 
 def get_sort_field(sort_by):
     valid_sort_fields = {
@@ -405,3 +409,15 @@ def schedule(request):
     }
 
     return render(request, 'teams/schedule.html', context)
+
+
+def finances(request):
+    teams = get_teams_by_balance()
+    nations = get_all_nationalities()
+
+    context = {
+        "teams": teams,
+        'nations': nations
+    }
+
+    return render(request, 'teams/finances.html', context)

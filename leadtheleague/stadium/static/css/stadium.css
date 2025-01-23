@@ -29,11 +29,12 @@
 }
 
 .stadium-image {
-    width: 200px;
+    width: 400px;
     height: auto;
     border-radius: 10px;
     border: 2px solid #4caf50;
 }
+
 
 .details {
     font-size: 16px;
@@ -75,19 +76,25 @@
     text-align: center;
     color: white;
     font-weight: bold;
-    cursor: pointer;
     transition: transform 0.3s, background-color 0.3s;
-    height: 150px; /* Височина на елементите */
+    height: 150px;
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: auto;
 }
 
 .tier-item.locked {
     filter: grayscale(100%);
-    cursor: not-allowed;
     opacity: 0.6;
 }
+
+.tier-item.locked:hover {
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.7);
+    transform: translateY(-3px);
+    cursor: pointer;
+}
+
 
 .tier-item.unlocked {
     cursor: pointer;

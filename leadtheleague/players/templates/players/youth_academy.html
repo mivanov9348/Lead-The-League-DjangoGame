@@ -4,22 +4,24 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/youth_academy.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="youth-container">
     <div class="academy-grid">
-        <div class="players-grid">
+        <div class="players-list">
             {% for player in players %}
             <div class="player-card">
-                <img src="{{ player.image }}" alt="Player Image">
-                <h3>{{ player.first_name }} {{ player.last_name }}</h3>
-                <hr/>
-                <p>Age: {{ player.age }}</p>
-                <p>Position: {{ player.positionabbr }}</p>
-                <p>Nationality: {{ player.nationalityabbr }}</p>
-                <p>Potential: {{ player.potential|floatformat:2 }} ★</p>
+                <div class="player-info">
+                    <img src="{{ player.image }}" alt="Player Image">
+                    <div class="player-details">
+                        <h3>{{ player.first_name }} {{ player.last_name }}</h3>
+                        <p>Age: {{ player.age }}</p>
+                        <p>Position: {{ player.positionabbr }}</p>
+                        <p>Nationality: {{ player.nationalityabbr }}</p>
+                        <p>Potential: {{ player.potential|floatformat:2 }} ★</p>
+                    </div>
+                </div>
                 <div class="player-actions">
                     <form method="post" action="{% url 'players:release_player' player.id %}">
                         {% csrf_token %}
@@ -31,19 +33,9 @@
                         <button type="submit" class="sign-btn">Sign Player</button>
                     </form>
                     {% endif %}
+                    <button class="toggle-attributes-btn" onclick="toggleAttributes('{{ player.id }}')">Show Attributes</button>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="attributes-panel">
-        <h3>Player Attributes</h3>
-        <div class="attributes-grid-wrapper">
-            <div class="attributes-grid">
-                {% for player in players %}
-                <div class="player-attributes-column">
-                    <h4>{{ player.first_name }} {{ player.last_name }}</h4>
+                <div id="attributes-{{ player.id }}" class="player-attributes hidden">
                     <table class="attributes-table">
                         <thead>
                         <tr>
@@ -57,25 +49,120 @@
                         <tr>
                             <td>{{ attribute.name }}</td>
                             <td>{{ attribute.value }}</td>
-                            <td>
-                                <div class="progress-wrapper">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill"
-                                             style="width: {{ attribute.progress_percent|floatformat:1 }}%;"></div>
-                                    </div>
-                                    <span>{{ attribute.progress|floatformat:1 }}/10.0</span>
-                                </div>
-                            </td>
+                            <td>{{ attribute.progress|floatformat:1 }}/1.0</td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
-
 </div>
+
+<script>
+    function toggleAttributes(playerId) {
+        // Затваряне на всички отворени прозорци с атрибути
+        const allAttributes = document.querySelectorAll('.player-attributes');
+        allAttributes.forEach(attr => {
+            if (!attr.classList.contains('hidden')) {
+                attr.classList.add('hidden');
+            }
+        });
+
+        // Отваряне/затваряне на атрибутите за конкретния играч
+        const attributesElement = document.getElementById(`attributes-${playerId}`);
+        if (attributesElement) {
+            attributesElement.classList.toggle('hidden');
+        }
+    }
+</script>
+
+<style>
+    .players-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 колони */
+        gap: 20px; /* Разстояние между картите */
+    }
+
+    .player-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        background-color: var(--darkgreen-color);
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .player-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .player-card img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+    }
+
+    .player-details {
+        text-align: center;
+    }
+
+    .player-details h3 {
+        margin: 10px 0;
+        font-size: 1.2em;
+    }
+
+    .player-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        align-items: center;
+    }
+
+    .attributes-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9em;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .attributes-table th,
+    .attributes-table td {
+        padding: 8px;
+        border: 1px solid var(--lightgray-color);
+        color: white;
+    }
+
+    .toggle-attributes-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .toggle-attributes-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
 
 {% endblock %}

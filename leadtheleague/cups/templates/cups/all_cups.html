@@ -6,35 +6,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="all-cups-container">
-    <!-- Dropdown за избор на сезон -->
-    <div class="dropdown-container">
-        <form method="get" id="season-form">
-            <select name="season" id="season-select" onchange="document.getElementById('season-form').submit();">
-                {% for season in seasons %}
-                <option value="{{ season.id }}" {% if selected_season and season.id == selected_season.id %}selected{% endif %}>
-                    {{ season.year }} - {{ season.season_number }}
-                </option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
-
-    <!-- Dropdown за избор на купа -->
-    <div class="dropdown-container">
-        <form method="get" id="cup-form">
-            <input type="hidden" name="season" value="{{ selected_season.id }}">
-            <select name="cup" id="cup-select" onchange="document.getElementById('cup-form').submit();">
-                {% for cup in cups %}
-                <option value="{{ cup.id }}" {% if selected_season_cup and cup.id == selected_season_cup.cup.id %}selected{% endif %}>
-                    {{ cup.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
-
-    <!-- Информация за избраната купа -->
+<div class="cup-container">
+    <!-- Заглавие и текуща фаза -->
     {% if selected_season_cup %}
     <div class="title-box">
         <h1>{{ selected_season_cup.cup.name }}</h1>
@@ -42,30 +15,59 @@
     </div>
     {% endif %}
 
+    <!-- Филтри за сезони и купи -->
+    <div class="filters">
+        <select id="season-select">
+            {% for season in seasons %}
+            <option value="{{ season.id }}" {% if selected_season and season.id == selected_season.id %}selected{% endif %}>
+                {{ season.year }} - {{ season.season_number }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select id="cup-select">
+            {% for cup in cups %}
+            <option value="{{ cup.id }}" {% if selected_season_cup and cup.id == selected_season_cup.cup.id %}selected{% endif %}>
+                {{ cup.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
     <!-- Фикчъри и мачове -->
     <div class="fixtures">
         {% if fixtures_grouped %}
         {% for round_stage, matches in fixtures_grouped.items %}
         <div class="round-stage">
-            <h2>{{ round_stage }}</h2>
+            <h2 style="text-align:center; color:white">{{ round_stage }}</h2>
             {% for match in matches %}
             <div class="fixture">
                 <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="icon">
                 <div class="fixture-content">
-                    <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+                    <span class="team">
+                        <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
+                    </span>
+
+                    <!-- Резултат или статус на мача -->
                     <span class="score">
-                        {% if match.is_played %}
                         <a href="{% url 'match:match' match.id %}">
-                            {{ match.home_goals }} : {{ match.away_goals }}
-                            {% if match.penalties %}
-                            <span class="penalty-score">({{ match.penalties.home_score }} : {{ match.penalties.away_score }})</span>
+                            {% if match.is_played %}
+                                {{ match.home_goals }} : {{ match.away_goals }}
+                                {% if match.penalties %}
+                                <span class="penalty-score">
+                                    ({{ match.penalties.home_score }} : {{ match.penalties.away_score }})
+                                </span>
+                                {% endif %}
+                            {% else %}
+                                TBA
                             {% endif %}
                         </a>
-                        {% else %}
-                        TBA
-                        {% endif %}
                     </span>
-                    <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+
+                    <!-- Лого и име на гостуващия отбор -->
+                    <span class="team">
+                        <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
+                    </span>
                 </div>
                 <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="icon">
             </div>
@@ -77,4 +79,24 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Скриптове за управление на филтрите -->
+<script>
+    // Промяна на сезона
+    document.getElementById('season-select').addEventListener('change', function () {
+        const selectedSeason = this.value !== "null" ? this.value : "";
+        const baseUrl = window.location.href.split('?')[0];
+        const cupParam = new URLSearchParams(window.location.search).get('cup') || "";
+        window.location.href = `${baseUrl}?season=${selectedSeason}&cup=${cupParam}`;
+    });
+
+    // Промяна на купата
+    document.getElementById('cup-select').addEventListener('change', function () {
+        const selectedCup = this.value;
+        const baseUrl = window.location.href.split('?')[0];
+        const seasonParam = new URLSearchParams(window.location.search).get('season') || "";
+        window.location.href = `${baseUrl}?cup=${selectedCup}&season=${seasonParam}`;
+    });
+</script>
+
 {% endblock %}

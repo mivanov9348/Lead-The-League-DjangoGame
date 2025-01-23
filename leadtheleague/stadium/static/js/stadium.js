@@ -1,67 +1,122 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const tierList = document.querySelectorAll(".tier-item");
+document.addEventListener("DOMContentLoaded", function () {
+    const tierItems = document.querySelectorAll(".tier-item");
     const modal = document.getElementById("tier-modal");
-    const modalClose = document.querySelector(".close-modal");
+    const modalTierName = document.getElementById("modal-tier-name");
+    const modalCapacity = document.getElementById("modal-capacity");
+    const modalPriceMultiplier = document.getElementById("modal-price-multiplier");
+    const modalBonus = document.getElementById("modal-bonus");
+    const modalCost = document.getElementById("modal-cost");
     const buyButton = document.getElementById("buy-button");
+    const cancelButton = document.getElementById("cancel-button");
+    const closeModal = document.querySelector(".close-modal");
 
-    let selectedTierId = null;
+    // Проверка дали елементите съществуват
+    if (!modal || !modalTierName || !modalCapacity || !modalPriceMultiplier || !modalBonus || !modalCost || !buyButton || !cancelButton || !closeModal) {
+        console.error("One or more required elements are missing from the DOM.");
+        return;
+    }
 
-    tierList.forEach(item => {
-        item.addEventListener("click", () => {
-            const isPurchasable = item.dataset.purchasable === "true";
+    // Проверка при клик на tier елементи
+    tierItems.forEach((tier) => {
+        if (!tier) {
+            console.warn("A tier item is missing.");
+            return;
+        }
+        tier.addEventListener("click", function () {
+            // Проверка за налични данни
+            const isPurchasable = tier.dataset.purchasable === "true";
+            const tierName = tier.dataset.name || "Unknown Tier";
+            const capacityBoost = tier.dataset.capacity || "N/A";
+            const priceMultiplier = tier.dataset.ticketPrice || "N/A";
+            const popularityBonus = tier.dataset.popularity || "N/A";
+            const upgradeCost = tier.dataset.cost || "N/A";
 
-            if (!isPurchasable) return; // Пропускаме, ако тирът е вече купен
+            modalTierName.textContent = tierName;
+            modalCapacity.textContent = capacityBoost;
+            modalPriceMultiplier.textContent = priceMultiplier;
+            modalBonus.textContent = popularityBonus;
+            modalCost.textContent = upgradeCost;
 
-            const id = item.dataset.id;
-            const name = item.dataset.name;
-            const capacity = item.dataset.capacity;
-            const ticketPrice = item.dataset.ticketPrice;
-            const popularity = item.dataset.popularity;
-            const cost = item.dataset.cost;
-
-            selectedTierId = id;
-
-            document.getElementById("modal-tier-name").textContent = name;
-            document.getElementById("modal-capacity").textContent = capacity;
-            document.getElementById("modal-price-multiplier").textContent = ticketPrice;
-            document.getElementById("modal-bonus").textContent = popularity;
-            document.getElementById("modal-cost").textContent = cost;
-
-            buyButton.style.display = "block";
-            buyButton.textContent = `Buy Tier ${name}`;
+            // Проверка за отключване на бутон
+            if (isPurchasable) {
+                buyButton.classList.remove("hidden");
+                buyButton.dataset.id = tier.dataset.id; // ID на tier-а
+            } else {
+                buyButton.classList.add("hidden");
+            }
 
             modal.classList.remove("hidden");
         });
     });
 
-    modalClose.addEventListener("click", () => {
-        modal.classList.add("hidden");
-        selectedTierId = null;
-    });
-
-    buyButton.addEventListener("click", () => {
-        if (selectedTierId) {
-            fetch("/stadium/purchase_tier/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCSRFToken(),
-                },
-                body: JSON.stringify({ tier_id: selectedTierId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire("Success", data.message, "success").then(() => location.reload());
-                } else {
-                    Swal.fire("Error", data.error, "error");
-                }
-            })
-            .catch(error => console.error("Error purchasing tier:", error));
+    // Затваряне на модала
+    closeModal.addEventListener("click", function () {
+        if (modal.classList.contains("hidden")) {
+            console.warn("Modal is already hidden.");
+        } else {
+            modal.classList.add("hidden");
         }
     });
 
-    function getCSRFToken() {
-        return document.querySelector("[name=csrfmiddlewaretoken]").value;
+    cancelButton.addEventListener("click", function () {
+        if (modal.classList.contains("hidden")) {
+            console.warn("Modal is already hidden.");
+        } else {
+            modal.classList.add("hidden");
+        }
+    });
+
+    buyButton.addEventListener("click", function () {
+        // Проверка за наличен ID преди изпращане на заявката
+        const tierId = buyButton.dataset.id;
+        if (!tierId) {
+            console.error("Tier ID is missing or invalid.");
+            Swal.fire("Error!", "Tier ID is missing.", "error");
+            return;
+        }
+
+        fetch(`/stadium/buy_tier/${tierId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector("meta[name='csrf-token']")?.getAttribute("content") || getCookie("csrftoken"),
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    console.error("Server responded with an error status:", response.status);
+                    throw new Error("Network response was not ok.");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    Swal.fire("Success!", "Tier upgraded successfully!", "success");
+                    location.reload();
+                } else {
+                    console.error("Server error:", data.message);
+                    Swal.fire("Error!", data.message, "error");
+                }
+            })
+            .catch((error) => {
+                console.error("Fetch error:", error);
+                Swal.fire("Error!", "Something went wrong.", "error");
+            });
+    });
+
+    // Функция за получаване на CSRF токен
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === name + "=") {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 });

@@ -2,7 +2,7 @@ import random
 from django.db import transaction
 from django.db.models import Q, F
 from match.models import MatchEvent
-from match.utils.match.attendance import calculate_match_attendance, match_income
+from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
 from match.utils.match.goalscorers import log_goalscorer
 from match.utils.match.retrieval import get_opposing_team
 from players.models import PlayerMatchStatistic
@@ -50,8 +50,11 @@ def finalize_match(match):
             else:
                 match.winner = None
 
+        print(f'Tuk li greshis mama ti prosta?')
         calculate_match_attendance(match)
-        match_income(match, match.home_team)
+        print(f'Tuk li greshis mama ti prosta? 2')
+        calculate_match_income(match, match.home_team)
+        print(f'Tuk li greshis mama ti prosta? 3')
         match.save()
 
         fixture = match.fixture

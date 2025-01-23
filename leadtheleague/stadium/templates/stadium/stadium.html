@@ -4,18 +4,19 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/stadium.css' %}">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<meta name="csrf-token" content="{{ csrf_token }}">
+
 
 <title>Stadium Upgrade</title>
 <div class="stadium-container">
     <div class="stadium-info">
         <h2 id="stadium-name">{{ stadium.name }}</h2>
         <div class="stadium-details">
-            <img src="{% static 'stadiumsimages/' %}{{ current_tier_level }}.jpg" alt="Stadium Tier Image"
-                 class="stadium-image">
+            <img src="{% static 'stadiumsimages/' %}{{ current_tier_level }}.jpg" alt="Stadium Tier Image" class="stadium-image">
             <div class="details">
                 <p><strong>Capacity:</strong> <span id="stadium-capacity">{{ stadium.capacity }}</span></p>
                 <p><strong>Ticket Price:</strong> $<span id="stadium-price">{{ stadium.ticket_price }}</span></p>
-                <p><strong>Tier:</strong> <span id="stadium-tier">{{ current_tier_level }}</span></p>
+                <p><strong>Tier:</strong> <span id="stadium-tier">{{ current_tier_name }}</span></p>
                 <p><strong>Popularity Bonus:</strong> +<span id="stadium-bonus">{{ current_popularity_bonus }}</span>
                 </p>
             </div>
@@ -33,6 +34,7 @@
                     <th>Away Team</th>
                     <th>Result</th>
                     <th>Attendance</th>
+                    <th>Income</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -43,6 +45,7 @@
                     <td>{{ match.away_team.name }}</td>
                     <td>{{ match.home_goals }} - {{ match.away_goals }}</td>
                     <td>{{ match.attendance }}</td>
+                    <td>{{ match.match_income }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -85,7 +88,7 @@
         <p><strong>Popularity Bonus:</strong> +<span id="modal-bonus"></span></p>
         <p><strong>Upgrade Cost:</strong> $<span id="modal-cost"></span></p>
         <div class="modal-actions">
-            <button id="buy-button" class="buy-button hidden">Buy This Tier</button>
+            <button id="buy-button" class="buy-button hidden">Purchase</button>
             <button id="cancel-button" class="cancel-button">Cancel</button>
         </div>
     </div>

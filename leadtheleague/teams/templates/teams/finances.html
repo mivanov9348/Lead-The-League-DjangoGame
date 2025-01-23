@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Team Finances{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+{% load humanize %}
+<link rel="stylesheet" href="{% static 'css/finances.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="table-container">
+  <h2>Team Finances</h2>
+  <div class="filter-container">
+    <select id="filter-by-nation">
+      <option value="">All Nations</option>
+      {% for nation in nations %}
+      <option value="{{ nation.id }}">{{ nation.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <table class="team-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th class="sortable">Team</th>
+        <th class="sortable">Nation</th>
+        <th class="sortable">Balance</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      {% for team in teams %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><img src="{{ team.logo.url }}" alt="{{ team.name }}">{{ team.name }}</td>
+        <td>{{ team.nationality.name }}</td>
+        <td>{{ team.teamfinance.balance|intcomma }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script src="{% static 'js/finances.js' %}"></script>
+{% endblock %}

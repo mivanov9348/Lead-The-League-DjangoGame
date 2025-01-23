@@ -7,7 +7,7 @@ from fixtures.models import LeagueFixture
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
-from match.utils.match.attendance import calculate_match_attendance, match_income
+from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
 from match.utils.match.retrieval import get_match_by_fixture
 from messaging.utils.category_messages_utils import create_league_matchday_message, create_league_champion_message
 from teams.models import Team
@@ -110,58 +110,6 @@ def populate_teams_for_season(season):
             )
 
         print(f"Teams populated for {league_name}.")
-
-
-def simulate_day_league_fixtures(match_day):
-    with transaction.atomic():
-        active_seasons = LeagueSeason.objects.filter(season__match_schedule__date=match_day)
-
-        for league_season in active_seasons:
-            league = league_season.league
-
-            fixtures = LeagueFixture.objects.filter(
-                league_season__league=league, date=match_day, is_finished=False
-            )
-
-            if not fixtures.exists():
-                continue
-
-            for fixture in fixtures:
-                home_goals = random.randint(0, 7)
-                away_goals = random.randint(0, 7)
-
-                fixture.home_goals = home_goals
-                fixture.away_goals = away_goals
-                fixture.is_finished = True
-
-                if home_goals > away_goals:
-                    fixture.winner = fixture.home_team
-                elif away_goals > home_goals:
-                    fixture.winner = fixture.away_team
-
-                fixture.save()
-
-                try:
-                    match = get_match_by_fixture(fixture)
-                except ValueError:
-                    continue
-
-                match.home_goals = home_goals
-                match.away_goals = away_goals
-                match.is_played = True
-                match.current_minute = 90
-
-                attendance = calculate_match_attendance(match)
-                match.attendance = attendance
-                match.save()
-
-                match_income(match, match.home_team)
-
-            update_standings_from_fixtures(league_season, fixtures)
-            create_league_matchday_message(league_season)
-
-        check_and_mark_league_seasons_completed()
-
 
 def update_standings_from_fixtures(fixtures):
     print("Updating standings based on fixtures...")
