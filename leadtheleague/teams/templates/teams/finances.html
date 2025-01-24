@@ -31,8 +31,8 @@
       {% for team in teams %}
       <tr>
         <td>{{ forloop.counter }}</td>
-        <td><img src="{{ team.logo.url }}" alt="{{ team.name }}">{{ team.name }}</td>
-        <td>{{ team.nationality.name }}</td>
+        <td style="color: {% if team.id == request.user.team.id %}red{% else %}inherit{% endif %};"><img src="{{ team.logo.url }}" alt="{{ team.name }}">{{ team.name }}</td>
+        <td >{{ team.nationality.name }}</td>
         <td>{{ team.teamfinance.balance|intcomma }}</td>
       </tr>
       {% endfor %}

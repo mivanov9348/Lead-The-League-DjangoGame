@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+
     const tierItems = document.querySelectorAll(".tier-item");
     const modal = document.getElementById("tier-modal");
     const modalTierName = document.getElementById("modal-tier-name");
@@ -66,8 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    buyButton.addEventListener("click", function () {
-        // Проверка за наличен ID преди изпращане на заявката
+    buyButton.addEventListener("click", function (event) {
+        event.preventDefault();
+
         const tierId = buyButton.dataset.id;
         if (!tierId) {
             console.error("Tier ID is missing or invalid.");
@@ -91,8 +93,9 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then((data) => {
                 if (data.success) {
-                    Swal.fire("Success!", "Tier upgraded successfully!", "success");
+                Swal.fire("Success!", "Tier upgraded successfully!", "success").then(() => {
                     location.reload();
+                });
                 } else {
                     console.error("Server error:", data.message);
                     Swal.fire("Error!", data.message, "error");

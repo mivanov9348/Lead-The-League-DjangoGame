@@ -29,3 +29,7 @@
 .filter-container {
   margin-bottom: 10px;
 }
+
+.current-team {
+    color: red;
+}

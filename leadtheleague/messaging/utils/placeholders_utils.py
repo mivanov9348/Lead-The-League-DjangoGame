@@ -121,3 +121,9 @@ def get_cup_matchday_placeholders(season_cup):
         'match_results': match_results
     }
 
+def get_stadium_upgrade_placeholders(team, stadium_name, tier_name):
+    return {
+        'team_name': team.name,
+        'stadium_name': stadium_name,
+        'tier_name': tier_name,
+    }

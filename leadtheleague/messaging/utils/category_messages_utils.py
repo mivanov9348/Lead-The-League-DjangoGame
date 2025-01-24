@@ -2,11 +2,12 @@ import random
 from django.utils.timezone import now
 from accounts.models import CustomUser
 from messaging.models import UserMessageStatus, SystemMessage, MessageTemplate
+from messaging.utils.messaging_utils import create_system_message
 from messaging.utils.placeholders_utils import get_free_agent_transfer_placeholders, get_new_coach_placeholders, \
     get_league_matchday_placeholders, \
     get_cup_matchday_placeholders, get_european_cup_champion_placeholder, get_league_champion_placeholder, \
     get_cup_champion_placeholder, get_team_to_team_transfer_placeholder, get_release_player_placeholders, \
-    get_send_offer_placeholder
+    get_send_offer_placeholder, get_stadium_upgrade_placeholders
 from players.utils.get_player_stats_utils import get_top_players_from_list
 
 
@@ -24,15 +25,7 @@ def create_message_for_new_season(category, placeholders, is_global=True):
     except KeyError as e:
         raise ValueError(f"Missing placeholder for key: {e}. Provided placeholders: {placeholders}")
 
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
-
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
@@ -64,15 +57,7 @@ def create_message_for_new_manager(category, placeholders, is_global=False):
     except KeyError as e:
         raise ValueError(f"Missing placeholder for key: {e}. Provided placeholders: {placeholders}")
 
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
-
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
@@ -90,18 +75,11 @@ def create_team_to_team_transfer_message(player, from_team, to_team, amount):
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
 
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
-
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
+
 
 def create_send_offer_message(player, from_team, to_team, amount):
     placeholders = get_send_offer_placeholder(player, from_team, to_team, amount)
@@ -114,19 +92,12 @@ def create_send_offer_message(player, from_team, to_team, amount):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=to_team.user,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=False
-    )
+    system_message = create_system_message(to_team.user, template.title.format(**placeholders), message, False)
 
     create_user_message_status(system_message, is_global=False, recipient=to_team.user)
 
     return system_message
+
 
 def create_free_agent_transfer_message(player, team):
     placeholders = get_free_agent_transfer_placeholders(player, team)
@@ -141,19 +112,12 @@ def create_free_agent_transfer_message(player, team):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=team.user,
-        title=template.title,
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=False
-    )
+    system_message = create_system_message(team.user, template.title, message, False)
 
     create_user_message_status(system_message, is_global=False, recipient=team.user)
 
     return system_message
+
 
 def create_release_player_message(player, team):
     placeholders = get_release_player_placeholders(player, team)
@@ -168,19 +132,12 @@ def create_release_player_message(player, team):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=team.user,
-        title=template.title,
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=False
-    )
+    system_message = create_system_message(team.user, template.title, message, False)
 
     create_user_message_status(system_message, is_global=False, recipient=team.user)
 
     return system_message
+
 
 def create_new_coach_message(coach, team):
     placeholders = get_new_coach_placeholders(coach, team)
@@ -195,15 +152,7 @@ def create_new_coach_message(coach, team):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=team.user,
-        title=template.title,
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=False
-    )
+    system_message = create_system_message(team.user, template.title, message, False)
 
     create_user_message_status(system_message, is_global=False, recipient=team.user)
     print(f'system message: {system_message}')
@@ -224,15 +173,7 @@ def create_league_matchday_message(league_season):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
@@ -252,15 +193,7 @@ def create_cup_matchday_message(season_cup):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
@@ -278,15 +211,7 @@ def create_league_champion_message():
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
@@ -304,15 +229,7 @@ def create_cup_champion_message():
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
@@ -330,19 +247,12 @@ def create_european_cup_champion_message():
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
+
 
 def create_prize_fund_message(user, previous_season, results):
     team = user.team
@@ -376,19 +286,12 @@ def create_prize_fund_message(user, previous_season, results):
         title = template.title.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=user,
-        title=title,
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=False
-    )
+    system_message = create_system_message(user, title, message, False)
 
     create_user_message_status(system_message, is_global=False, recipient=user)
 
     return system_message
+
 
 def create_free_agents_intake_message(new_agents, agent):
     if not new_agents or not agent:
@@ -408,17 +311,30 @@ def create_free_agents_intake_message(new_agents, agent):
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-
-    system_message = SystemMessage.objects.create(
-        recipient=None,
-        title=template.title.format(**placeholders),
-        preview=message[:30],
-        message=message,
-        date_sent=now(),
-        is_global=True
-    )
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     print(f"Message sent: {message}")
+    return system_message
+
+def update_stadium_message(team, stadium_name, tier_name):
+    if not team or not stadium_name or not tier_name:
+        raise ValueError("Team, stadium name, and tier name must be provided.")
+
+    placeholders = get_stadium_upgrade_placeholders(team, stadium_name, tier_name)
+
+    template = MessageTemplate.objects.filter(category='stadium upgrade').order_by('?').first()
+    if not template:
+        raise ValueError("No templates found for 'Stadium Upgrade' category.")
+
+    try:
+        message = template.message.format(**placeholders)
+    except KeyError as e:
+        raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
+    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
+
+    create_user_message_status(system_message, is_global=True, recipient=None)
+
+    print(f"Stadium upgrade message sent: {message}")
     return system_message

@@ -1,5 +1,8 @@
 from collections import defaultdict
-from teams.models import TeamSeasonAnalytics
+import pandas as pd
+from matplotlib import pyplot as plt
+
+from teams.models import TeamSeasonAnalytics, Team
 
 TOURNAMENT_WEIGHTS = {
     'league': 1.1,
@@ -8,87 +11,10 @@ TOURNAMENT_WEIGHTS = {
 }
 
 STATISTIC_WEIGHTS = {
-    'goalscored': 0.5,       # Положителна тежест за вкараните голове
-    'goalconceded': -0.5,    # Отрицателна тежест за допуснати голове
+    'goalscored': 0.5,  # Положителна тежест за вкараните голове
+    'goalconceded': -0.5,  # Отрицателна тежест за допуснати голове
 }
 
-
-def get_team_analytics(limit=None, order_by=None):
-    analytics = TeamSeasonAnalytics.objects.all()
-
-    if order_by:
-        analytics = analytics.order_by(*order_by)
-
-    if limit:
-        analytics = analytics[:limit]
-
-    # Създаване на списък от речници
-    analytics_data = [
-        {
-            'id':entry.team.id,
-            'name': entry.team.name,
-            'matches': entry.matches,
-            'wins': entry.wins,
-            'draws': entry.draws,
-            'losses': entry.losses,
-            'goalscored': entry.goalscored,
-            'goalconceded': entry.goalconceded,
-            'points': entry.points,
-            'logo': entry.team.logo.url
-        }
-        for entry in analytics
-    ]
-
-    return analytics_data
-
-
-
-def update_team_statistics(match, match_date):
-    if not match.is_played:
-        return
-
-    weight = TOURNAMENT_WEIGHTS.get(match_date.event_type, 1)
-    if weight not in TOURNAMENT_WEIGHTS.values():
-        weight = 1
-
-    try:
-        home_team_stats, _ = TeamSeasonAnalytics.objects.get_or_create(
-            team=match.home_team,
-            season=match.season
-        )
-        away_team_stats, _ = TeamSeasonAnalytics.objects.get_or_create(
-            team=match.away_team,
-            season=match.season
-        )
-    except Exception as e:
-        print(f"Error updating team statistics: {e}")
-        return
-
-    home_team_stats.matches += 1
-    away_team_stats.matches += 1
-
-    home_team_stats.goalscored += match.home_goals
-    home_team_stats.goalconceded += match.away_goals
-
-    away_team_stats.goalscored += match.away_goals
-    away_team_stats.goalconceded += match.home_goals
-
-    if match.home_goals > match.away_goals:
-        home_team_stats.wins += 1
-        away_team_stats.losses += 1
-        home_team_stats.points += 3 * weight
-    elif match.home_goals < match.away_goals:
-        away_team_stats.wins += 1
-        home_team_stats.losses += 1
-        away_team_stats.points += 3 * weight
-    else:
-        home_team_stats.draws += 1
-        away_team_stats.draws += 1
-        home_team_stats.points += 1 * weight
-        away_team_stats.points += 1 * weight
-
-    home_team_stats.calculate_average()
-    away_team_stats.calculate_average()
 
 def bulk_update_team_statistics(matches, match_date):
     team_updates = defaultdict(lambda: {
@@ -124,11 +50,13 @@ def bulk_update_team_statistics(matches, match_date):
 
         # Update matches and apply statistic weights
         team_updates[(match.home_team.id, match.season.id)]['matches'] += 1
-        team_updates[(match.home_team.id, match.season.id)]['goalscored'] += match.home_goals * STATISTIC_WEIGHTS['goalscored']
+        team_updates[(match.home_team.id, match.season.id)]['goalscored'] += match.home_goals * STATISTIC_WEIGHTS[
+            'goalscored']
         team_updates[(match.home_team.id, match.season.id)]['goalconceded'] += match.away_goals
 
         team_updates[(match.away_team.id, match.season.id)]['matches'] += 1
-        team_updates[(match.away_team.id, match.season.id)]['goalscored'] += match.away_goals * STATISTIC_WEIGHTS['goalscored']
+        team_updates[(match.away_team.id, match.season.id)]['goalscored'] += match.away_goals * STATISTIC_WEIGHTS[
+            'goalscored']
         team_updates[(match.away_team.id, match.season.id)]['goalconceded'] += match.home_goals
 
     existing_records = TeamSeasonAnalytics.objects.filter(
@@ -172,3 +100,84 @@ def bulk_update_team_statistics(matches, match_date):
             ['matches', 'goalscored', 'goalconceded', 'points', 'wins', 'draws', 'losses']
         )
 
+
+def get_league_season_statistics(season):
+    analytics = TeamSeasonAnalytics.objects.filter(season=season).values(
+        'team__name',
+        'matches',
+        'wins',
+        'draws',
+        'losses',
+        'goalscored',
+        'goalconceded',
+        'points'
+    )
+    print("Analytics data:", analytics)
+
+    return list(analytics)
+
+def process_league_season_data(season):
+    raw_data = get_league_season_statistics(season)
+    print("Raw data:", raw_data)
+
+    if not raw_data:
+        print("No data returned!")
+        return None
+
+    df = pd.DataFrame(raw_data)
+    print("DataFrame columns:", df.columns)
+
+    df['goal_difference'] = df['goalscored'] - df['goalconceded']
+    df = df.sort_values(by='points', ascending=False)
+
+    print("Sorted DataFrame:", df)
+    return df
+
+def plot_team_points(df):
+    # Създаваме стълбовидна графика
+    plt.figure(figsize=(10, 6))
+    plt.bar(df['team__name'], df['points'], color='skyblue')
+
+    # Настройки на графиката
+    plt.title('Точки на отборите за сезона', fontsize=16)
+    plt.xlabel('Отбори', fontsize=12)
+    plt.ylabel('Точки', fontsize=12)
+    plt.xticks(rotation=45, ha='right')  # Завъртане на имената за по-добра четимост
+
+    # Показване на графиката
+    plt.tight_layout()
+    plt.show()
+
+def plot_goals_scored(df):
+    # Създаваме линейна графика
+    plt.figure(figsize=(10, 6))
+    plt.plot(df['team__name'], df['goalscored'], marker='o', linestyle='-', color='green', label='Отбелязани голове')
+
+    # Настройки на графиката
+    plt.title('Отбелязани голове на отборите', fontsize=16)
+    plt.xlabel('Отбори', fontsize=12)
+    plt.ylabel('Голове', fontsize=12)
+    plt.xticks(rotation=45, ha='right')
+
+    # Показване на легенда и графиката
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def plot_points_vs_goal_difference(df):
+    # Добавяме разлика в головете, ако още я няма
+    if 'goal_difference' not in df.columns:
+        df['goal_difference'] = df['goalscored'] - df['goalconceded']
+
+    # Създаваме разпръсната графика
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df['goal_difference'], df['points'], color='purple', s=100, alpha=0.7)
+
+    # Настройки на графиката
+    plt.title('Точки спрямо разлика в головете', fontsize=16)
+    plt.xlabel('Разлика в головете', fontsize=12)
+    plt.ylabel('Точки', fontsize=12)
+
+    # Показване на графиката
+    plt.tight_layout()
+    plt.show()

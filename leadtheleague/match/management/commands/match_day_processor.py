@@ -5,7 +5,9 @@ from django.core.management.base import BaseCommand
 from core.models import FirstName
 from core.utils.names_utils import get_random_first_name
 from game.models import MatchSchedule
+from game.utils.get_season_stats_utils import get_current_season
 from game.utils.season_functionalities_utils import set_manual_day_today
+from leagues.models import LeagueSeason
 from leagues.utils import auto_set_league_champions
 from match.models import Match
 from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
@@ -16,6 +18,8 @@ from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_pl
 from staff.utils.agent_utils import scouting_new_talents, generate_agents
 from teams.models import Team
 from teams.utils.lineup_utils import ensure_team_tactics
+from teams.utils.team_analytics_utils import process_league_season_data, get_league_season_statistics, plot_team_points, \
+    plot_goals_scored, plot_points_vs_goal_difference
 from teams.utils.team_finance_utils import get_teams_by_balance, team_income, team_match_profit
 
 
@@ -51,7 +55,7 @@ class Command(BaseCommand):
 
         match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
         try:
-            dayslimit = 5
+            dayslimit = 3
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
@@ -73,5 +77,16 @@ class Command(BaseCommand):
         # for match in matches:
         #     team_match_profit(match.home_team, match, 2000000, 'test')
 
-
+        # current_season = get_current_season()
+        # df = process_league_season_data(current_season)
+        #
+        # if df is not None:
+        #     # Визуализираме точките
+        #     plot_team_points(df)
+        #
+        #     # Визуализираме отбелязаните голове
+        #     plot_goals_scored(df)
+        #
+        #     # Визуализираме точките спрямо разлика в головете
+        #     plot_points_vs_goal_difference(df)
 

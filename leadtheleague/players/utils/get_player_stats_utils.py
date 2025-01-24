@@ -292,6 +292,23 @@ def ensure_team_has_minimum_players(team):
 
     return f"Team '{team.name}' now has at least 11 players with the required positions."
 
+def ensure_all_teams_within_maximum_players():
+    for team in Team.objects.all():
+        if not ensure_team_within_maximum_players(team):
+            return False
+    return True
+
+def ensure_team_within_maximum_players(team):
+    MAX_PLAYERS = 40
+
+    total_players = TeamPlayer.objects.filter(team=team).count()
+
+    if total_players > MAX_PLAYERS:
+        print(f"Error: Team '{team.name}' exceeds the maximum allowed players ({MAX_PLAYERS}).")
+        return False
+
+    return True
+
 
 def calculate_player_rating(player):
     position = player.position
