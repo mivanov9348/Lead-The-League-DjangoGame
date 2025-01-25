@@ -44,10 +44,58 @@
 }
 
 .team {
-    font-weight: bold;
-    flex: 1;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Разделя елементите равномерно */
+    margin: 5px 0;
+}
+.team.home {
+    justify-content: flex-start; /* Подравняване в началото */
 }
 
-.vs {
-    flex: 0 0 auto
+.team.away {
+    justify-content: flex-end; /* Подравняване вдясно */
+}
+
+.result {
+    text-align: center;
+    flex: 0.5;
+        align-items: center;
+
+}
+
+.team-logo {
+    width: 30px; /* Намален размер */
+    height: 30px; /* Намален размер */
+    margin-right: 8px; /* По-голямо разстояние между логото и текста */
+    vertical-align: middle;
+    object-fit: cover;
+    border-radius: 50%; /* Заоблени ръбове */
+    border: 1px solid #ccc; /* Добавя лек контур за естетика */
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.team-name {
+    font-size: 14px; /* Леко намаляване на шрифта за по-добър баланс */
+    font-weight: bold;
+}
+
+.team away team-name{
+    margin:right;
+}
+
+.match-details {
+    text-align: center; /* Центрира текста в елемента */
+    flex: 0 0 auto; /* Запазва размера на елемента спрямо съдържанието */
+    font-size: 18px; /* Може да нагласите размера на текста */
+    font-weight: bold; /* Подчертава резултатите */
+    display: flex;
+    justify-content: center; /* Центрира резултата хоризонтално */
+    align-items: center; /* Центрира резултата вертикално */
+    min-width: 80px; /* Минимална ширина за резултатите */
+}

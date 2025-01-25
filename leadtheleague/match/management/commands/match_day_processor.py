@@ -1,6 +1,10 @@
 import random
 
 from django.core.management.base import BaseCommand
+import logging
+import random
+
+from numpy.ma.extras import average
 
 from core.models import FirstName
 from core.utils.names_utils import get_random_first_name
@@ -11,8 +15,10 @@ from leagues.models import LeagueSeason
 from leagues.utils import auto_set_league_champions
 from match.models import Match
 from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
-from match.utils.match.processing import match_day_processor
+from match.utils.match.events import calculate_event_success_rate, get_random_match_event, get_event_result
+from match.utils.match.processing import match_day_processor, process_match
 from match.utils.match.stats import generate_players_match_stats
+from players.models import Player
 from players.utils.generate_player_utils import generate_random_player
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
 from staff.utils.agent_utils import scouting_new_talents, generate_agents
@@ -55,7 +61,7 @@ class Command(BaseCommand):
 
         match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
         try:
-            dayslimit = 3
+            dayslimit = 5
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
@@ -90,3 +96,21 @@ class Command(BaseCommand):
         #     # Визуализираме точките спрямо разлика в головете
         #     plot_points_vs_goal_difference(df)
 
+        # match = Match.objects.filter(id = 170168).first()
+        # process_match(match)
+
+        # success_rates = []
+        # for i in range(0, 50):
+        #     print('----------------------------')
+        #     event = get_random_match_event()
+        #     print(f'Event: {event}')
+        #     players = Player.objects.all()
+        #     player = random.choice(players)
+        #     print(f'Player: {player.first_name} {player.last_name} - {player.position.name}')
+        #     success = calculate_event_success_rate(event, player)
+        #     print(f'Success: {success}')
+        #     success_rates.append(success)
+        #     event_result = get_event_result(event, success)
+        #     print(f'event result: {event_result.event_result}')
+        #
+        # print(f'average for 50: {average(success_rates)}')

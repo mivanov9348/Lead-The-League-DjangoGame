@@ -12,23 +12,24 @@
     <div class="table-header">
         <h1>STANDINGS</h1>
         <form method="get" id="league-select-form">
-            <select id="league" name="league" onchange="document.getElementById('league-select-form').submit();">
-                <option value="">Choose League</option>
-                {% for league in leagues %}
-                <option value="{{ league.id }}" {% if league.id == selected_league.id %}selected{% endif %}>
-                    {{ league.name }}
-                </option>
-                {% endfor %}
-            </select>
-            <select id="season" name="season" onchange="document.getElementById('filters-form').submit();">
-            <option value="">Choose Season</option>
-            {% for season in seasons %}
-            <option value="{{ season.id }}" {% if season.id == selected_season.id %}selected{% endif %}>
-                {{ season.year }} - Season {{ season.season_number }}
-            </option>
-            {% endfor %}
-        </select>
-        </form>
+    <select id="league" name="league" onchange="document.getElementById('league-select-form').submit();">
+        <option value="">Choose League</option>
+        {% for league in leagues %}
+        <option value="{{ league.id }}" {% if league.id == selected_league.id %}selected{% endif %}>
+            {{ league.name }}
+        </option>
+        {% endfor %}
+    </select>
+    <select id="season" name="season" onchange="document.getElementById('league-select-form').submit();">
+        <option value="">Choose Season</option>
+        {% for season in seasons %}
+        <option value="{{ season.id }}" {% if season.id == selected_season.id %}selected{% endif %}>
+            {{ season.year }} - Season {{ season.season_number }}
+        </option>
+        {% endfor %}
+    </select>
+</form>
+
     </div>
     <table class="standings-table">
         <thead>

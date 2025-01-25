@@ -181,42 +181,52 @@ def fill_template_with_player(template, player):
     formatted_text = template.template_text.format(player_1=player_name)
     return formatted_text
 
-
 def handle_card_event(event_result, player, match, team):
     current_minute = match.current_minute
+    print(f"Handling card event: {event_result.event_result} at minute {current_minute}")
 
     try:
         player_match_stat, created = PlayerMatchStatistic.objects.get_or_create(
             player=player,
             match=match
         )
+        print(f"PlayerMatchStatistic {'created' if created else 'retrieved'} for player {player.name}")
 
         statistics = player_match_stat.statistics or {}
+        print(f"Initial statistics: {statistics}")
 
         if event_result.event_result == "RedCard":
+            print(f"Red card issued to player {player.name}")
             player.has_red_card = True
             remove_player_from_team(player, team)
             log_card_event(match, current_minute, "Red Card", player)
 
             statistics["RedCards"] = statistics.get("RedCards", 0) + 1
+            print(f"Updated red card count: {statistics['RedCards']}")
 
         elif event_result.event_result == "YellowCard":
+            print(f"Yellow card issued to player {player.name}")
             player.yellow_cards += 1
             log_card_event(match, current_minute, "Yellow Card", player)
 
             statistics["YellowCards"] = statistics.get("YellowCards", 0) + 1
+            print(f"Updated yellow card count: {statistics['YellowCards']}")
 
             if player.yellow_cards >= 2:
+                print(f"Player {player.name} has 2 yellow cards, issuing red card")
                 player.has_red_card = True
                 remove_player_from_team(player, team)
                 log_card_event(match, current_minute, "Red Card", player)
 
                 statistics["RedCards"] = statistics.get("RedCards", 0) + 1
+                print(f"Updated red card count due to 2 yellows: {statistics['RedCards']}")
 
         player_match_stat.statistics = statistics
         player_match_stat.save()
+        print(f"PlayerMatchStatistic saved for player {player.name}")
 
         player.save()
+        print(f"Player {player.name} updated and saved")
 
     except Exception as e:
         print(f"Error handling card event: {e}")
@@ -354,8 +364,8 @@ def log_clean_sheets(match):
     goalkeepers = {}
 
     try:
-        home_goalkeeper = home_team_tactics.starting_players.filter(position="Goalkeeper").first()
-        away_goalkeeper = away_team_tactics.starting_players.filter(position="Goalkeeper").first()
+        home_goalkeeper = home_team_tactics.starting_players.filter(position__name="Goalkeeper").first()
+        away_goalkeeper = away_team_tactics.starting_players.filter(position__name="Goalkeeper").first()
 
         if home_goalkeeper:
             goalkeepers[home_goalkeeper.id] = home_goalkeeper

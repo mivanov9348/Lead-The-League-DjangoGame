@@ -31,7 +31,10 @@
             {% for match in stage.matches %}
             <div class="match">
                 <div class="team home">
-                    <span class="team-name">{{ match.home_team }}</span>
+                    {% if match.home_team.logo %}
+                    <img src="{{ match.home_team.logo }}" alt="{{ match.home_team.name }} logo" class="team-logo">
+                    {% endif %}
+                    <span class="team-name">{{ match.home_team.name }}</span>
                 </div>
                 <div class="match-details">
                     {% if match.is_finished %}
@@ -49,9 +52,11 @@
 
                     {% endif %}
                 </div>
-
                 <div class="team away">
-                    <span class="team-name">{{ match.away_team }}</span>
+                    <span class="team-name">{{ match.away_team.name }}</span>
+                    {% if match.away_team.logo %}
+                    <img src="{{ match.away_team.logo }}" alt="{{ match.away_team.name }} logo" class="team-logo">
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

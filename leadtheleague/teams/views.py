@@ -1,6 +1,8 @@
 import json
 from datetime import date
 from itertools import chain
+
+from django.conf import settings
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 
@@ -17,6 +19,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from .utils.get_team_stats_utils import get_team_data, get_fixtures_by_team_and_type
 from .utils.lineup_utils import validate_lineup, auto_select_starting_lineup
+from .utils.team_analytics_utils import save_plot_to_file, plot_team_points, plot_goals_scored, \
+    plot_points_vs_goal_difference, process_league_season_data
 from .utils.team_finance_utils import get_teams_by_balance
 
 
@@ -421,3 +425,25 @@ def finances(request):
     }
 
     return render(request, 'teams/finances.html', context)
+
+
+def league_statistics(request):
+    season = get_current_season()
+    df = process_league_season_data(season)
+
+    if df is None:
+        return render(request, 'league_statistics.html', {'error': 'Няма налични данни за сезона.'})
+
+    points_chart = save_plot_to_file(df, plot_team_points, f'points_chart_{season}.png')
+    goals_chart = save_plot_to_file(df, plot_goals_scored, f'goals_chart_{season}.png')
+    scatter_chart = save_plot_to_file(df, plot_points_vs_goal_difference, f'scatter_chart_{season}.png')
+
+    context = {
+        'season': season,
+        'table': df.to_html(classes='table table-striped', index=False, justify='center'),
+        'points_chart': points_chart.replace(settings.MEDIA_ROOT, settings.MEDIA_URL),
+        'goals_chart': goals_chart.replace(settings.MEDIA_ROOT, settings.MEDIA_URL),
+        'scatter_chart': scatter_chart.replace(settings.MEDIA_ROOT, settings.MEDIA_URL),
+    }
+
+    return render(request, 'teams/league_statistics.html', context)

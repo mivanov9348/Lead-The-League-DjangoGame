@@ -1,6 +1,8 @@
+import os
 from collections import defaultdict
 import pandas as pd
 from matplotlib import pyplot as plt
+from django.conf import settings
 
 from teams.models import TeamSeasonAnalytics, Team
 
@@ -181,3 +183,11 @@ def plot_points_vs_goal_difference(df):
     # Показване на графиката
     plt.tight_layout()
     plt.show()
+
+def save_plot_to_file(df, plot_function, file_name):
+    plot_function(df)
+
+    file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+    plt.savefig(file_path, format='png')
+    plt.close()
+    return file_path

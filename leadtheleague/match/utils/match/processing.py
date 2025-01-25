@@ -39,9 +39,9 @@ def match_day_processor(date=None):
         print(f"No schedule found for today ({today}).")
         return
 
-    # if match_date.is_played:
-    #     print(f"Match day for {today} has already been processed.")
-    #     return
+    if match_date.is_played:
+        print(f"Match day for {today} has already been processed.")
+        return
 
     print(f"Processing match day for {today}: {match_date.event_type}")
 
@@ -102,6 +102,7 @@ def process_league_day(match_date):
         league_season__isnull=False,
         is_played=False
     )
+    print(f'remaining matches: {remaining_matches}')
 
     if not remaining_matches.exists():
         print("No more league matches. Determining champions...")
@@ -316,6 +317,7 @@ def process_euro_day(match_date):
             print(f"No available date for next knockout stage in {current_euro_season}.")
             check_and_update_euro_cup_season_status(current_euro_season)
             if current_stage_order is not None and current_stage_order.is_final:
+                finalize_match(match)
                 finalize_euro_cup(current_euro_season, match)
             return
 
@@ -366,6 +368,7 @@ def process_match(match):
                 print("Fetching EventResult...")
                 event_result = get_event_result(event, success)
                 print(f'event result 1: {event_result}')
+
 
                 if event_result.event_result in ["YellowCard", "RedCard"]:
                     print(f"Handling card event: {event_result.event_result}")

@@ -39,6 +39,7 @@ def create_match_event(match, event_result_name, players=None, is_negative_event
     except Exception as e:
         raise ValueError(f"Error creating MatchEvent: {str(e)}")
 
+
 def create_match_event_instance(match, minute, event_type, description, is_negative_event, possession_kept):
     return MatchEvent.objects.create(
         match=match,
@@ -49,11 +50,14 @@ def create_match_event_instance(match, minute, event_type, description, is_negat
         possession_kept=possession_kept
     )
 
+
 def create_kickoff_match_event(match, players=None, is_negative_event=False, possession_kept=True):
     return create_match_event(match, 'KickOff', players, is_negative_event, possession_kept)
 
+
 def create_match_end_match_event(match, players=None, is_negative_event=False, possession_kept=True):
     return create_match_event(match, 'FullTime', players, is_negative_event, possession_kept)
+
 
 def create_penalty_start_match_event(match, players=None, is_negative_event=False, possession_kept=True):
     return create_match_event(match, 'PenaltyStart', players, is_negative_event, possession_kept)
@@ -64,9 +68,7 @@ def get_random_match_event():
 
     event = events_query.order_by('?').first()
 
-    if event:
-        print(f"Random event generated: {event.type} with success rate {event.success_rate}")
-    else:
+    if not event:
         print("No events found matching the criteria.")
 
     return event
@@ -87,7 +89,6 @@ def calculate_event_success_rate(event, player):
     # Get player attributes and event weights
     player_attributes = get_player_attributes(player)
     event_weights = get_event_weights(event)
-    print(f'eventweig : {event_weights}')
 
     # Calculate the weighted sum
     attributes_dict = {attr['name']: attr['value'] for attr in player_attributes}
@@ -97,14 +98,13 @@ def calculate_event_success_rate(event, player):
     ]
 
     weighted_sum = sum(attribute_value * weight for attribute_value, weight in attributes_and_weights)
-    print(f'weighted sum: {weighted_sum}')
 
+    base_success_rate = event.success_rate
+    player_influence = weighted_sum * 0.6
     luck_factor = random.uniform(-3.0, 3.0)
-    print(f"Luck factor: {luck_factor}")
-
-    final_success_rate = round(event.success_rate + weighted_sum + luck_factor, 2)
-    final_success_rate = min(100.0, final_success_rate)
-    print(f"Final success rate: {final_success_rate}")
+    print(f'luck factor: {luck_factor}')
+    final_success_rate = round(base_success_rate + player_influence + luck_factor, 2)
+    final_success_rate = min(100.0, max(0.0, final_success_rate))
 
     return final_success_rate
 
@@ -128,44 +128,27 @@ def get_event_template(event_result):
 
 
 def get_event_result(event, success):
-    import logging
-
-    logger = logging.getLogger(__name__)
-
     if not event:
-        logger.error("No event provided.")
         print("No event provided.")
         return None
-
-    logger.info(f"Searching for EventResults for event type: {event.type} with success: {success}")
 
     event_results = EventResult.objects.filter(
         event_type__type=event.type
     ).order_by('-event_threshold')
 
     if not event_results.exists():
-        logger.warning(f"No EventResults found for event type: {event.type}")
         print(f"No EventResults found for event type: {event.type}")
         return None
-
-    logger.info(f"Found {event_results.count()} matching EventResults.")
-    print(f"Found {event_results.count()} matching EventResults.")
 
     last_valid_result = None
 
     for event_result in event_results:
-        logger.debug(f"Checking if success {success} <= threshold {event_result.event_threshold}")
-        print(f"Checking if success {success} <= threshold {event_result.event_threshold}")
         if success <= event_result.event_threshold:
             last_valid_result = event_result
-            logger.info(f"Selected EventResult: {event_result.event_result} with threshold {event_result.event_threshold}")
-            print(f"Selected EventResult: {event_result.event_result} with threshold {event_result.event_threshold}")
 
     if last_valid_result:
-        logger.info(f"Returning last valid EventResult: {last_valid_result.event_result}")
         return last_valid_result
 
-    logger.warning("No valid EventResult found.")
     print("No valid EventResult found.")
     return None
 

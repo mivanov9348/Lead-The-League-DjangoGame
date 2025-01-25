@@ -2,7 +2,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from leadtheleague import settings
 from .views import squad, team_stats, line_up, save_lineup, training, schedule, train_team, auto_lineup, fire_coach, \
-    get_position_attributes, finances
+    get_position_attributes, finances, league_statistics
 
 app_name = 'teams'
 
@@ -17,7 +17,8 @@ urlpatterns = [
     path('fire_coach/<int:coach_id>/', fire_coach, name='fire_coach'),
     path('team_stats/<int:team_id>/', team_stats, name='team_stats'),
     path('schedule/', schedule, name='schedule'),
-    path('finances/', finances, name='finances')
+    path('finances/', finances, name='finances'),
+    path('league_statistics/', league_statistics, name='league_statistics'),
 ]
 
 if settings.DEBUG:

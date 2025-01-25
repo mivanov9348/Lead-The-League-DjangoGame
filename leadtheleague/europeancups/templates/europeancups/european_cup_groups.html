@@ -46,7 +46,12 @@
                 {% for team in group_data.teams %}
     <tr class="{% if forloop.counter <= 2 %}qualified{% endif %}">
                     <td>{{ forloop.counter }}</td>
-                    <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }} </a></td>
+                    <td>
+            {% if team.team.logo %}
+            <img src="{{ team.team.logo.url }}" alt="{{ team.team.name }} logo" class="team-logo">
+            {% endif %}
+            <a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>
+        </td>
                     <td>{{ team.matches }}</td>
                     <td>{{ team.wins }}</td>
                     <td>{{ team.draws }}</td>

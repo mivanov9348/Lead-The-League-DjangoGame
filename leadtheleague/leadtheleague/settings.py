@@ -156,19 +156,37 @@ DEFAULT_FROM_EMAIL = 'leadtheleaguedj@gmail.com'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGGING = {
+LOGGLOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
-        'console': {
+        'file': {
             'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
+            'class': 'logging.FileHandler',
+            'filename': 'app.log',  # Името на файла, където ще записваш логовете
+            'formatter': 'verbose',
         },
     },
     'loggers': {
-        'django.db.backends': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'custom_logger': {
+            'handlers': ['file'],
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'propagate': False,
         },
     },
 }
