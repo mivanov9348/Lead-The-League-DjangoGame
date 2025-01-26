@@ -1,12 +1,11 @@
 import random
-from django.utils.timezone import now
 from accounts.models import CustomUser
-from messaging.models import UserMessageStatus, SystemMessage, MessageTemplate
+from game.utils.get_season_stats_utils import get_current_season
+from messaging.models import UserMessageStatus, MessageTemplate
 from messaging.utils.messaging_utils import create_system_message
 from messaging.utils.placeholders_utils import get_free_agent_transfer_placeholders, get_new_coach_placeholders, \
     get_league_matchday_placeholders, \
-    get_cup_matchday_placeholders, get_european_cup_champion_placeholder, get_league_champion_placeholder, \
-    get_cup_champion_placeholder, get_team_to_team_transfer_placeholder, get_release_player_placeholders, \
+    get_cup_matchday_placeholders, get_team_to_team_transfer_placeholder, get_release_player_placeholders, \
     get_send_offer_placeholder, get_stadium_upgrade_placeholders
 from players.utils.get_player_stats_utils import get_top_players_from_list
 
@@ -200,8 +199,12 @@ def create_cup_matchday_message(season_cup):
     return system_message
 
 
-def create_league_champion_message():
-    placeholders = get_league_champion_placeholder()
+def create_league_champion_message(league_season, champion_team):
+    placeholders = {
+        'league_name': league_season.league.name,
+        'season_number': league_season.season.season_number,
+        'team_name': champion_team.name
+    }
 
     template = MessageTemplate.objects.filter(category='League Champion').order_by('?').first()
     if not template:
@@ -211,15 +214,27 @@ def create_league_champion_message():
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
+
+    system_message = create_system_message(
+        None,
+        template.title.format(**placeholders),
+        message,
+        True
+    )
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
 
 
-def create_cup_champion_message():
-    placeholders = get_cup_champion_placeholder()
+def create_cup_champion_message(season_cup, winner):
+    current_season = get_current_season()
+
+    placeholders = {
+        'cup_name': season_cup.cup.name,
+        'team_name': winner.name,
+        'season_number': current_season.season_number
+    }
 
     template = MessageTemplate.objects.filter(category='Cup Champion').order_by('?').first()
     if not template:
@@ -229,15 +244,24 @@ def create_cup_champion_message():
         message = template.message.format(**placeholders)
     except KeyError as e:
         raise ValueError(f"Missing placeholder key: {e}. Provided placeholders: {placeholders}")
-    system_message = create_system_message(None, template.title.format(**placeholders), message, True)
+
+    system_message = create_system_message(
+        None,
+        template.title.format(**placeholders),
+        message,
+        True
+    )
 
     create_user_message_status(system_message, is_global=True, recipient=None)
 
     return system_message
 
 
-def create_european_cup_champion_message():
-    placeholders = get_european_cup_champion_placeholder()
+def create_european_cup_champion_message(european_cup, winner):
+    placeholders = {
+        'european_cup': european_cup.name,
+        'team_name': winner.name
+    }
 
     template = MessageTemplate.objects.filter(category='European Cup Champion').order_by('?').first()
     if not template:
@@ -317,6 +341,7 @@ def create_free_agents_intake_message(new_agents, agent):
 
     print(f"Message sent: {message}")
     return system_message
+
 
 def update_stadium_message(team, stadium_name, tier_name):
     if not team or not stadium_name or not tier_name:

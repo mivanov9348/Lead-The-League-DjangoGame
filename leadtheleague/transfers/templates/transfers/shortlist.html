@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Shortlist{% endblock %}
+
+{% block extra_css %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>
+    table.dataTable thead {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+    .shortlist-container {
+        margin: 20px auto;
+        padding: 20px;
+        width: 100%;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    #shortlist-table {
+        width: 100% !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="shortlist-container">
+    <h2>Shortlisted Players</h2>
+    <table id="shortlist-table" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Player Name</th>
+                <th>Age</th>
+                <th>Position</th>
+                <th>Potential Rating</th>
+                <th>Price (€)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in shortlisted_players %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ player.first_name }} {{ player.last_name }}</td>
+                <td>{{ player.age }}</td>
+                <td>{{ player.position.name }}</td>
+                <td>{{ player.potential_rating }}</td>
+                <td>{{ player.price }}</td>
+                <td>
+                    <button class="remove-btn btn btn-danger" data-player-id="{{ player.id }}">Remove</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Инициализация на DataTable с опции
+        $('#shortlist-table').DataTable({
+            responsive: true,
+            paging: true,
+            searching: true,
+            info: true,
+            order: [[1, 'asc']], // Сортиране по втората колона (Player Name)
+            columnDefs: [
+                { orderable: false, targets: [0, 6] }, // Без сортиране за # и Actions
+            ]
+        });
+
+        // Обработка на бутоните "Remove"
+        $('.remove-btn').on('click', function () {
+            const playerId = $(this).data('player-id');
+            const row = $(this).closest('tr');
+
+            // Изпращане на заявка към toggle_shortlist
+            fetch(`transfers/toggle_shortlist/${playerId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'removed') {
+                        // Показване на съобщение и премахване на реда
+                        row.fadeOut(500, function () {
+                            row.remove();
+                        });
+                        alert(data.message);
+                    } else {
+                        alert('Failed to remove player. Please try again.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+{% endblock %}

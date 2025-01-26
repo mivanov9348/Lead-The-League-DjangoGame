@@ -10,4 +10,7 @@ urlpatterns = [
     path('accept_transfer/', views.accept_transfer, name='accept_transfer'),
     path('reject_transfer/', views.reject_transfer, name='reject_transfer'),
     path('send_offer/<int:player_id>/', views.send_offer, name='send_offer'),
+    path('shortlist/', views.shortlist, name='shortlist'),
+    path('toggle_shortlist/<int:player_id>/', views.toggle_shortlist, name='toggle_shortlist'),
+
 ]

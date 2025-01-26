@@ -8,3 +8,4 @@ def update_reputation_after_match(team, attendance, result):
 
     team.reputation = max(1, min(10000, team.reputation))
     team.save()
+

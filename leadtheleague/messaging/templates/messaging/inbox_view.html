@@ -5,48 +5,46 @@
 {% block extra_css %}
 {% load static %}
 {% load humanize %}
-<!--<link rel="stylesheet" href="{% static 'css/inbox_view.css' %}">-->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
-
     .inbox-container {
         display: flex;
-        height: 100vh;
+        height: 150vh;
         width: 100%;
-        background-color: var(--bg-color);
+        background-color: #f0f0f5;
         overflow: hidden;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
     }
 
-    /* Sidebar Styling */
     .sidebar {
-        width: 30%;
-        background-color: #ffffff;
-        color: var(--text-light-color);
+        border:1px solid black;
+        width: 40%;
+        background-color: var(--darkgreen-color);
         display: flex;
         flex-direction: column;
-        padding: 20px;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-        border-radius:8px;
+        padding: 10px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar h2 {
-        font-size: 24px;
+        font-size: 18px;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
+        color: #333;
     }
 
     #search-bar {
-        padding: 12px;
-        margin-bottom: 20px;
+        padding: 8px;
+        margin-bottom: 10px;
         border-radius: 5px;
-        border: none;
+        border: 1px solid #ddd;
         outline: none;
-        font-size: 16px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: lightgray;
+        font-size: 14px;
     }
 
     .message-list {
+
         list-style: none;
         padding: 0;
         margin: 0;
@@ -54,95 +52,95 @@
     }
 
     .message-item {
+
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        padding: 15px;
-        margin-bottom: 10px;
+        padding: 10px;
+        margin-bottom: 8px;
         background-color: var(--darkgreen-color);
-        border-radius: 8px;
+        border-radius: 5px;
         cursor: pointer;
-        transition: background-color 0.3s, transform 0.2s;
-        color:white;
+        transition: background-color 0.3s, box-shadow 0.2s;
     }
 
     .message-item:hover {
-        background-color: black;
+        background-color: #f0f0f0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .message-item.active {
-        background-color: var(--darkgreen-color);
-        color:white;
-    }
-
-    .message-item .status-indicator {
-        font-size: 14px;
-        margin-right: 10px;
+        background-color: #dce4ea;
     }
 
     .message-item .preview-text {
-        font-size: 16px;
-        color: var(--text-light-color);
+        flex-grow: 1;
+        font-size: 14px;
+        color: #333;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-left: 10px;
     }
 
-    /* Main Content */
+    .delete-button {
+        color: #ff4d4d;
+        font-size: 12px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        transition: color 0.3s;
+    }
+
+    .delete-button:hover {
+        color: #ff1a1a;
+    }
+
     .content {
+        border:1px solid black;
         flex-grow: 1;
-        padding: 20px;
+        padding: 10px;
         background-color: var(--darkgreen-color);
         overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
     .message-detail {
         width: 100%;
-        max-width: 800px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        margin-top: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 15px;
     }
 
     .message-detail h3 {
-        color: var(--text-dark-color);
         margin-bottom: 10px;
+        color: #333;
     }
 
     .no-message {
-        font-size: 18px;
+        font-size: 14px;
         text-align: center;
-        color: var(--darkgreen-color);
+        color: #888;
     }
 
     .no-message i {
-        font-size: 40px;
+        font-size: 30px;
         margin-bottom: 10px;
     }
 
-    /* Scrollbar Styling */
     .sidebar::-webkit-scrollbar, .content::-webkit-scrollbar {
         width: 8px;
     }
 
     .sidebar::-webkit-scrollbar-thumb, .content::-webkit-scrollbar-thumb {
-        background-color: var(--blue-color);
+        background-color: #bbb;
         border-radius: 4px;
-    }
-
-    .sidebar::-webkit-scrollbar-track, .content::-webkit-scrollbar-track {
-        background-color: #cccccc;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="inbox-container">
-    <!-- Sidebar -->
     <div class="sidebar">
         <h2><i class="fas fa-envelope"></i> Game Messages</h2>
         <input type="text" id="search-bar" placeholder="Search messages...">
@@ -150,23 +148,28 @@
             {% for item in context %}
             <li class="message-item {{ item.is_read|yesno:'active,' }}" data-id="{{ item.message.id }}">
                 <a href="?notification_id={{ item.message.id }}" class="message-link">
-                    <span class="status-indicator">{{ item.is_read|yesno:'🟢,🔴' }}</span>
-                    <span class="preview-text">{{ item.message.title }}</span>
+                    <span class="preview-text">{{ item.title }}</span>
                 </a>
+                <button class="delete-button" data-id="{{ item.message.id }}"><i class="fas fa-trash-alt"></i></button>
             </li>
             {% endfor %}
         </ul>
     </div>
 
-    <!-- Content -->
     <div class="content">
         {% if message %}
         <div class="message-detail">
-            <h3>{{ message.title }}</h3>
-            <p><strong>Date:</strong> {{ message.date|date:"Y-m-d H:i" }}</p>
-            <hr>
-            <p>{{ message.content|intcomma }}</p>
-        </div>
+    <h3>{{ message.title }}</h3>
+    <p><strong>Date:</strong> {{ message.date|date:"Y-m-d H:i" }}</p>
+    <hr>
+    <p>{{ message.content }}</p>
+    {% if message.image %}
+    <div class="message-image">
+        <img src="{{ message.image.url }}" alt="Message Image" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    </div>
+    {% endif %}
+</div>
+
         {% else %}
         <div class="no-message">
             <i class="fas fa-info-circle"></i>
@@ -181,7 +184,6 @@
         const searchBar = document.getElementById("search-bar");
         const messageItems = document.querySelectorAll(".message-item");
 
-        // Filter messages in real-time
         searchBar.addEventListener("input", () => {
             const query = searchBar.value.toLowerCase();
             messageItems.forEach(item => {
@@ -190,30 +192,35 @@
             });
         });
 
-        // Add click event to message items
-        messageItems.forEach(item => {
-            item.addEventListener("click", async () => {
-                messageItems.forEach(i => i.classList.remove("active"));
-                item.classList.add("active");
+        const deleteButtons = document.querySelectorAll(".delete-button");
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const messageId = button.getAttribute("data-id");
 
-                const messageId = item.getAttribute("data-id");
-
-                // Mark message as read (AJAX request)
                 try {
-                    const response = await fetch(`/mark-as-read/${messageId}/`, {
-                        method: "POST",
+                    const response = await fetch(`/delete-message/${messageId}/`, {
+                        method: "DELETE",
                         headers: {
                             "X-CSRFToken": "{{ csrf_token }}",
-                            "Content-Type": "application/json"
-                        }
+                        },
                     });
 
-                    if (!response.ok) {
-                        console.error("Error marking message as read");
+                    if (response.ok) {
+                        button.closest(".message-item").remove();
+                    } else {
+                        console.error("Failed to delete message");
                     }
                 } catch (error) {
                     console.error("Network error:", error);
                 }
+            });
+        });
+
+        messageItems.forEach(item => {
+            item.addEventListener("click", () => {
+                messageItems.forEach(i => i.classList.remove("active"));
+                item.classList.add("active");
             });
         });
     });

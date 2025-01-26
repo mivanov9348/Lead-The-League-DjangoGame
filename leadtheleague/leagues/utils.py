@@ -215,7 +215,7 @@ def determine_league_champions(season):
                 continue
 
             try:
-                create_league_champion_message()
+                create_league_champion_message(league_season, champion_team.team)
                 print(f"Съобщение за шампион на {league_season.league.name} е създадено успешно.")
             except Exception as e:
                 print(f"Грешка при създаване на съобщение за {league_season.league.name}: {e}")

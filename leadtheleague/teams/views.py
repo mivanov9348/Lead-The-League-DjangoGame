@@ -447,3 +447,4 @@ def league_statistics(request):
     }
 
     return render(request, 'teams/league_statistics.html', context)
+

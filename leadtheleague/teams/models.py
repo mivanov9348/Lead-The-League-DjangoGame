@@ -14,6 +14,8 @@ class Team(models.Model):
                                     null=True,
                                     blank=True)
     is_active = models.BooleanField(default=True)
+    shortlist = models.ManyToManyField('players.Player', related_name='shortlisted_by_teams', blank=True)
+
 
     def __str__(self):
         return self.name

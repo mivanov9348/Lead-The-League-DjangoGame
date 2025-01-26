@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Staff Market{% endblock %}
+{% load humanize %}
+{% block extra_css %}
+<style>
+    table {
+      width: 100%;
+      background-color: var(--darkgreen-color);
+      color: white;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+      text-align: left;
+    }
+    th, td {
+      color: white;
+      padding: 10px; /* Увеличаваме пропорционално малко разстоянието */
+      border: 1px solid #ddd;
+    }
+    th {
+      color: black;
+      background-color: #f4f4f4;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .agent-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .show-players-btn {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 6px 10px; /* Малко по-малки бутони */
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 12px; /* По-малък текст в бутона */
+    }
+    .show-players-btn:hover {
+      background-color: #0056b3;
+    }
+</style>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block content %}
+<table id="agents-table">
+    <thead>
+    <tr>
+        <th colspan="2">Name</th>
+        <th>Age</th>
+        <th>Balance</th>
+        <th>Number of Players</th>
+        <th>Scouting Level</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for agent in agents %}
+    <tr>
+        <td>{% if agent.image %}<img src="{{ agent.image.url }}" alt="Agent Image" class="agent-image">{% endif %}</td>
+        <td>{{ agent.name }}</td>
+        <td>{{ agent.age }}</td>
+        <td>{{ agent.balance|intcomma }}</td>
+        <td>{{ agent.agent_players.count }}</td>
+        <td>{{ agent.scouting_level|floatformat:1 }}</td>
+        <td>
+            <a href="/staff/football_agent/{{ agent.id }}" class="show-players-btn">Show Players</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#agents-table').DataTable();
+    });
+</script>
+{% endblock %}

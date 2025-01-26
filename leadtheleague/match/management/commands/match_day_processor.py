@@ -8,6 +8,8 @@ from numpy.ma.extras import average
 
 from core.models import FirstName
 from core.utils.names_utils import get_random_first_name
+from cups.models import SeasonCup
+from europeancups.models import EuropeanCup
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from game.utils.season_functionalities_utils import set_manual_day_today
@@ -18,10 +20,13 @@ from match.utils.match.attendance import calculate_match_attendance, calculate_m
 from match.utils.match.events import calculate_event_success_rate, get_random_match_event, get_event_result
 from match.utils.match.processing import match_day_processor, process_match
 from match.utils.match.stats import generate_players_match_stats
+from messaging.utils.category_messages_utils import create_league_champion_message, create_cup_champion_message, \
+    create_european_cup_champion_message
 from players.models import Player
 from players.utils.generate_player_utils import generate_random_player
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
-from staff.utils.agent_utils import scouting_new_talents, generate_agents
+from staff.models import FootballAgent
+from staff.utils.agent_utils import scouting_new_talents, generate_agents, attach_image_to_all_agents
 from teams.models import Team
 from teams.utils.lineup_utils import ensure_team_tactics
 from teams.utils.team_analytics_utils import process_league_season_data, get_league_season_statistics, plot_team_points, \
@@ -61,7 +66,7 @@ class Command(BaseCommand):
 
         match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
         try:
-            dayslimit = 5
+            dayslimit = 1
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
@@ -114,3 +119,10 @@ class Command(BaseCommand):
         #     print(f'event result: {event_result.event_result}')
         #
         # print(f'average for 50: {average(success_rates)}')
+        # generate_agents(1)
+        # attach_image_to_all_agents()
+        # agents = FootballAgent.objects.all()
+        # for agent in agents:
+        #     agents_sell = get_agent_sold_players(agent)
+        #     sum_get = get_agent_total_transfer_income(agent)
+        #     print(f'Agent: {agent.first_name} {agent.last_name} - agent sell: {agents_sell['count']}, Sum: {sum_get}')

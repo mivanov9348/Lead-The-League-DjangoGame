@@ -119,7 +119,7 @@ def prepare_first_season(season):
             new_seasons_coaches()
             print('Coaches for new season added successfully!')
             # agents
-            generate_agents()
+            generate_agents(10)
             print(f'Agents added successfully!')
     except Exception as e:
         print(f"An error occurred: {e}")

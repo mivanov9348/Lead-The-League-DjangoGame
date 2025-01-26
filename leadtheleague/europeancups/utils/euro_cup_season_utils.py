@@ -4,13 +4,11 @@ from cups.utils.get_cups_utils import promote_cup_champions_to_europe
 from europeancups.models import EuropeanCupSeason, EuropeanCupTeam, KnockoutStage, EuropeanCup
 from fixtures.models import EuropeanCupFixture
 from game.utils.get_season_stats_utils import get_current_season
-from leagues.models import League
 from leagues.utils import promote_league_teams_to_europe
 from match.models import Match
 from messaging.utils.category_messages_utils import create_european_cup_champion_message
 from teams.models import Team
 from vault.utils.team_all_stats import add_euro_cup_title
-
 
 def get_current_european_cup_season():
     current_season = get_current_season()
@@ -135,36 +133,6 @@ def fill_remaining_spots(new_european_cup_season, total_added_teams):
         print(f"Added {len(inactive_teams)} remaining teams to complete the list for {new_european_cup_season}.")
 
 
-def set_european_cup_season_champion():
-    current_season = get_current_season()
-    european_cup_season = EuropeanCupSeason.objects.filter(season=current_season).first()
-
-    final_stage = KnockoutStage.objects.filter(
-        european_cup_season=european_cup_season,
-        is_final=True
-    ).first()
-
-    if not final_stage:
-        raise ValueError("Final stage not found for the current European Cup season.")
-
-    final_fixture = EuropeanCupFixture.objects.filter(
-        european_cup_season=european_cup_season,
-        knockout_stage=final_stage,
-        is_finished=True
-    ).first()
-
-    if not final_fixture:
-        raise ValueError("No finished final match found for the current European Cup season.")
-
-    champion = final_fixture.winner
-    if not champion:
-        raise ValueError("No winner found for the final match.")
-
-    european_cup_season.champion = champion
-    european_cup_season.save()
-    create_european_cup_champion_message()
-    return champion
-
 def finalize_euro_cup(european_cup_season, match):
     fixture = EuropeanCupFixture.objects.filter(
         home_team=match.home_team,
@@ -185,6 +153,7 @@ def finalize_euro_cup(european_cup_season, match):
     european_cup_season.current_phase = 'finished'
     european_cup_season.is_euro_cup_finished = True
     european_cup_season.save()
+    create_european_cup_champion_message(european_cup_season, winner_team)
 
     print(f"European Cup {european_cup_season.cup.name} for season {european_cup_season.season} is completed.")
     print(f"The champion is {winner_team.name}.")

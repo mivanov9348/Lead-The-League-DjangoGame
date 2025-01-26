@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}{{ agent.first_name }} {{ agent.last_name }}{% endblock %}
+
+{% load static %}
+{% load humanize %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>
+    .agent-details {
+        display: flex;
+        margin: 20px;
+        gap: 20px;
+    }
+    .agent-card {
+        background-color: var(--darkgreen-color);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        flex: 1;
+        max-width: 300px;
+    }
+    .agent-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+    .players-list {
+        flex: 2;
+    }
+    .players-list table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        color: #333;
+    }
+    .players-list th, .players-list td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    .players-list th {
+        background-color: var(--darkgreen-color);
+        color: white;
+    }
+    .players-list tr:hover {
+        background-color: #f4f4f4;
+    }
+    .player-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .player-link {
+        color: var(--darkgreen-color);
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .player-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="agent-details">
+    <!-- Картичка на агента -->
+    <div class="agent-card">
+        {% if agent.image %}
+            <img src="{{ agent.image.url }}" alt="{{ agent.first_name }} {{ agent.last_name }}">
+        {% else %}
+            <img src="{% static 'images/default-agent.png' %}" alt="Default Image">
+        {% endif %}
+        <h2>{{ agent.first_name }} {{ agent.last_name }}</h2>
+        <p><strong>Age:</strong> {{ agent.age }}</p>
+        <p><strong>Balance:</strong> {{ agent.balance|intcomma }}</p>
+        <p><strong>Scouting Level:</strong> {{ agent.scouting_level|floatformat:1 }}</p>
+        <hr/>
+        <p><strong>Sold Players:</strong> {{ transfer_count }} </p>
+        <p><strong>Money Earned:</strong> {{ total_income }} </p>
+    </div>
+
+    <!-- Таблица с играчи -->
+    <div class="players-list">
+        <table id="players-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Nationality</th>
+                    <th>Age</th>
+                    <th>Position</th>
+                    <th>Price</th>
+                    <th>Potential Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                <tr>
+                    <td>
+                        {% if player.image %}
+                            <img src="{{ player.image.url }}" alt="{{ player.first_name }}" class="player-image">
+                        {% else %}
+                            <img src="{% static 'images/default-player.png' %}" alt="Default Player" class="player-image">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'players:player_profile' player.id %}" class="player-link">
+                            {{ player.first_name }} {{ player.last_name }}
+                        </a>
+                    </td>
+                    <td>{{ player.nationality }}</td>
+                    <td>{{ player.age }}</td>
+                    <td>{{ player.position }}</td>
+                    <td>{{ player.price|intcomma }}</td>
+                    <td>{{ player.potential_rating|floatformat:1 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No players found for this agent.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- DataTables Script -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#players-table').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true
+        });
+    });
+</script>
+{% endblock %}

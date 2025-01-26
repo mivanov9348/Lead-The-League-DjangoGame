@@ -85,6 +85,8 @@ def set_champion(season_cup):
             add_cup_title(final_fixture.winner)
             season_cup.is_completed = True
             season_cup.save()
+            create_cup_champion_message(season_cup, final_fixture.winner)
+
         else:
             raise ValueError("The final match is not completed or has no winner.")
     else:

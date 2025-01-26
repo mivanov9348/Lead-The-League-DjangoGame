@@ -19,4 +19,5 @@ urlpatterns = [
 
     path('<int:player_id>/info/', get_free_agent_info, name='get_free_agent_info'),
     path('<int:player_id>/offer/', submit_offer, name='submit_offer'),
+
 ]

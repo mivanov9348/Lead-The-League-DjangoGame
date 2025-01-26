@@ -34,6 +34,8 @@
                 <li><strong>Age:</strong> {{ player.age }}</li>
                 <li><strong>Price:</strong> {{ player.price|intcomma }}</li>
             </ul>
+            <hr/>
+
             <div id="action-section">
                 {% if is_player_in_user_team %}
                 <button id="release-button" class="btn btn-danger" onclick="releasePlayer()">Release Player</button>
@@ -45,6 +47,15 @@
                     <button id="sendOfferButton" class="btn btn-success" onclick="sendOffer()">Send</button>
                 </div>
                 {% endif %}
+                <hr/>
+                <button id="shortlist-button" class="btn btn-info"
+                        data-url="{% url 'transfers:toggle_shortlist' player.id %}">
+                    {% if player in team.shortlist.all %}
+                    Remove from Shortlist
+                    {% else %}
+                    Add to Shortlist
+                    {% endif %}
+                </button>
                 <div id="offer-data"
                      data-url="{% url 'transfers:send_offer' player.id %}"
                      data-csrf-token="{{ csrf_token }}"></div>
@@ -126,5 +137,6 @@
 <script src="{% static 'js/navigation.js' %}"></script>
 <script src="{% static 'js/offer.js' %}"></script>
 <script src="{% static 'js/release.js' %}"></script>
+<script src="{% static 'js/shortlist.js' %}"></script>
 
 {% endblock %}

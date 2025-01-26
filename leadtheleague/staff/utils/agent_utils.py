@@ -2,24 +2,28 @@ import random
 from datetime import date
 from decimal import Decimal
 from django.db import transaction
+from django.db.models import Sum
+
 from core.models import Nationality
 from core.utils.names_utils import get_random_first_name, get_random_last_name
 from finance.models import Bank
 from finance.utils.bank_utils import distribute_income
 from game.utils.settings_utils import get_setting_value
 from messaging.utils.category_messages_utils import create_free_agents_intake_message
-from players.models import Player, PositionAttribute, PlayerAttribute
+from players.models import Player
 from players.utils.generate_player_utils import generate_free_agents
 from staff.models import FootballAgent
+from staff.utils.common_utils import copy_staff_image_to_media
 from teams.utils.team_finance_utils import team_expense
 from transfers.models import Transfer
 
-def generate_agents():
+
+def generate_agents(limit=1):
     agents = []
     nationalities = Nationality.objects.all()
     print(f"Nationalities count: {len(nationalities)}")
 
-    free_agents_count = 10
+    free_agents_count = limit
     for _ in range(free_agents_count):
         nationality = random.choice(nationalities)
         region = nationality.region
@@ -41,9 +45,36 @@ def generate_agents():
             balance=starting_balance,
             scouting_level=scouting_level
         )
+
+        # Copy a random photo and link it to the agent
+        photo_path = copy_staff_image_to_media(
+            photo_folder="E:/Data/staffImages",
+            staff_id=agent.id
+        )
+        if photo_path:
+            agent.image = photo_path
+            agent.save()
+        else:
+            print(f"Agent {agent.id} ({agent.first_name} {agent.last_name}) saved without an image.")
+
         agents.append(agent)
         generate_free_agents(agent)
     return agents
+
+
+def attach_image_to_all_agents():
+    football_agents = FootballAgent.objects.all()
+    for agent in football_agents:
+        photo_path = copy_staff_image_to_media(
+            photo_folder="E:/Data/staffImages",
+            staff_id=agent.id
+        )
+        if photo_path:
+            agent.image = photo_path
+            agent.save()
+        else:
+            print(f"Agent {agent.id} ({agent.first_name} {agent.last_name}) saved without an image.")
+
 
 def agent_sell_player(team, player):
     with transaction.atomic():
@@ -55,6 +86,7 @@ def agent_sell_player(team, player):
     team_expense(team, player.price, f'{team.name} buy {player.first_name} {player.last_name}')
     if agent:
         process_agent_payment(agent, player.price)
+
 
 def process_agent_payment(agent, price):
     with transaction.atomic():
@@ -71,6 +103,7 @@ def process_agent_payment(agent, price):
         except Bank.DoesNotExist:
             pass
 
+
 def hire_agent_to_player(agent, player):
     if agent is None:
         agents = FootballAgent.objects.all()
@@ -83,6 +116,7 @@ def hire_agent_to_player(agent, player):
     player.agent = agent
     player.is_free_agent = False
     player.save()
+
 
 def recalculate_agents_rating():
     agents = FootballAgent.objects.all()
@@ -101,6 +135,7 @@ def recalculate_agents_rating():
             print(f"Error processing agent {agent.first_name} {agent.last_name}: {e}")
 
     print("End-of-season calculations completed for all agents.")
+
 
 def agent_level_end_season_calculate(agent):
     current_year = date.today().year
@@ -154,3 +189,14 @@ def scouting_new_talents():
 
     print(f"Scouting completed for {len(new_agents)} new agents.")
     return new_agents
+
+
+def get_agent_transfer_info(agent):
+    transfers = Transfer.objects.filter(player__agent=agent)
+    total_income = transfers.aggregate(total_amount=Sum('amount'))['total_amount']
+
+    return {
+        'transfers': transfers,
+        'count': transfers.count(),
+        'total_income': total_income if total_income is not None else 0,
+    }
