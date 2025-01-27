@@ -2,13 +2,18 @@
 {% block title %}{{ team.name }} Stats{% endblock %}
 
 {% block extra_css %}
+{% load custom_filters %}
 {% load static %}
+{% load humanize %}
+
 <link rel="stylesheet" href="{% static 'css/team_stats.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
 {% endblock %}
 
 {% block content %}
+
 <div class="team-stats-container">
-    <div class="team-info">
+    <div class="team-stats">
         {% if team.logo_url %}
         <img src="{{ team.logo_url }}" alt="{{ team.name }} Logo" class="team-logo">
         {% else %}
@@ -29,29 +34,107 @@
     </div>
 
     <div class="team-players">
-        {% if players %}
-        <div class="players-grid">
+    {% if players %}
+    <div id="players-table-container">
+        <table id="players-table" class="display">
+            <thead>
+            <tr>
+                <th><i class="fas fa-user" title="Name"></i></th>
+                <th><i class="fas fa-futbol" title="Position"></i></th>
+                <th><i class="fas fa-flag" title="Nationality"></i></th>
+                <th><i class="fas fa-calendar-alt" title="Age"></i></th>
+                <th><i class="fas fa-dollar-sign" title="Price"></i></th>
+                <th><i class="fas fa-list-ol" title="Matches"></i></th>
+                <th><i class="fas fa-futbol" title="Goals"></i></th>
+                <th><i class="fas fa-handshake" title="Assists"></i></th>
+                <th><i class="fas fa-exchange-alt" title="Passes"></i></th>
+                <th><i class="fas fa-bullseye" title="Shoots"></i></th>
+                <th><i class="fas fa-check-circle" title="Shoots On Target"></i></th>
+                <th><i class="fas fa-running" title="Dribbles"></i></th>
+                <th><i class="fas fa-hand-paper" title="Fouls"></i></th>
+                <th><i class="fas fa-tasks" title="Tackles"></i></th>
+                <th><i class="fas fa-square" title="Yellow Cards"></i></th>
+                <th><i class="fas fa-ban" title="Red Cards"></i></th>
+                <th><i class="fas fa-shield-alt" title="Clean Sheets"></i></th>
+                <th><i class="fas fa-crosshairs" title="Conceded"></i></th>
+                <th><i class="fas fa-glove" title="Saves"></i></th>
+            </tr>
+            </thead>
+            <tbody>
             {% for player in players %}
-            <a href="{% url 'players:player_profile' player.id %}" class="player-card">
-                <div class="player-card">
-                    {% if player.image_url %}
-                    <img src="{{ player.image_url }}" alt="{{ player.first_name }} {{ player.last_name }}"
-                         class="player-image">
-                    {% else %}
-                    <img src="{% static 'images/default_player.png' %}" alt="Default Player" class="player-image">
-                    {% endif %}
-                    <p><strong>{{ player.first_name }} {{ player.last_name }}</strong></p>
-                    <p><strong>Position:</strong> {{ player.position }} </p>
-                    <p><strong>Nationality:</strong> {{ player.nationality }}</p>
-                    <p><strong>Age:</strong> {{ player.age }}</p>
-                    <p><strong>Price:</strong> {{ player.price|floatformat:2 }} $</p>
-                </div>
-            </a>
+            <tr>
+                <td>
+                    <a href="{% url 'players:player_profile' player.id %}">
+                        {{ player.first_name }} {{ player.last_name }}
+                    </a>
+                </td>
+                <td>{{ player.position }}</td>
+                <td>{{ player.nationality }}</td>
+                <td>{{ player.age }}</td>
+                <td>{{ player.price|intcomma }}</td>
+                <td>{{ player.stats.Matches }}</td>
+                <td>{{ player.stats.Goals }}</td>
+                <td>{{ player.stats.Assists }}</td>
+                <td>{{ player.stats.Passes }}</td>
+                <td>{{ player.stats.Shoots }}</td>
+                <td>{{ player.stats.ShootsOnTarget }}</td>
+                <td>{{ player.stats.Dribbles }}</td>
+                <td>{{ player.stats.Fouls }}</td>
+                <td>{{ player.stats.Tackles }}</td>
+                <td>{{ player.stats.YellowCards }}</td>
+                <td>{{ player.stats.RedCards }}</td>
+                <td>{{ player.stats.CleanSheets }}</td>
+                <td>{{ player.stats.Conceded }}</td>
+                <td>{{ player.stats.Saves }}</td>
+            </tr>
             {% endfor %}
-        </div>
-        {% else %}
-        <p>No players found for this team.</p>
-        {% endif %}
+            </tbody>
+        </table>
     </div>
+    {% else %}
+    <p>No players found for this team.</p>
+    {% endif %}
 </div>
+
+
+</div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#players-table').DataTable({
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "order": [[0, "asc"]], // Сортиране по първата колона (име) по подразбиране
+            "columns": [
+                null, // Name
+                null, // Position
+                null, // Nationality
+                { "type": "num" }, // Age
+                { "type": "num-fmt" }, // Price
+                { "type": "num" }, // Assists
+                { "type": "num" }, // Clean Sheets
+                { "type": "num" }, // Conceded
+                { "type": "num" }, // Dribbles
+                { "type": "num" }, // Fouls
+                { "type": "num" }, // Goals
+                { "type": "num" }, // Matches
+                { "type": "num" }, // Passes
+                { "type": "num" }, // Red Cards
+                { "type": "num" }, // Saves
+                { "type": "num" }, // Shoots
+                { "type": "num" }, // Shoots On Target
+                { "type": "num" }, // Tackles
+                { "type": "num" }  // Yellow Cards
+            ]
+        });
+    });
+</script>
+{% endblock %}
+
 {% endblock %}

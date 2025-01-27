@@ -259,7 +259,7 @@ def create_cup_champion_message(season_cup, winner):
 
 def create_european_cup_champion_message(european_cup, winner):
     placeholders = {
-        'european_cup': european_cup.name,
+        'european_cup': european_cup.cup.name,
         'team_name': winner.name
     }
 

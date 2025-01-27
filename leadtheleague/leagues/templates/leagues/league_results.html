@@ -8,66 +8,97 @@
 {% endblock %}
 
 {% block content %}
-<div class="date-picker-container">
+<div class="date-navigation">
+    <button id="prev-date" class="date-nav-button">&#x276E; Previous</button>
     <input type="date" id="date-picker" class="date-picker" value="{{ current_date }}">
+    <button id="next-date" class="date-nav-button">Next &#x276F;</button>
 </div>
 
 <div class="results-container">
     {% if league_data %}
-    {% for league_name, matches in league_data.items %}
-    <div class="league-section">
-        <div class="league-header">{{ league_name }}</div>
-        {% for match in matches %}
-        <div class="match-row" data-match-id="{{ match.id }}">
-            <div class="team-container">
-                <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="team-logo">
-                <span class="team-name">
+        {% for league_name, matches in league_data.items %}
+        <div class="league-section">
+            <div class="league-header">{{ league_name }}</div>
+            {% for match in matches %}
+            <div class="match-row" data-match-id="{{ match.id }}">
+                <div class="team-container">
+                    <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="team-logo">
+                    <span class="team-name">
                         <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
                     </span>
-                <div class="score">
-                    {% if match.is_played %}
-                    <a href="{% url 'match:match' match.id %}">
-                        {{ match.home_goals }} : {{ match.away_goals }}
-                    </a>
-                    {% else %}
-                    <a href="{% url 'match:match' match.id %}">- : -</a>
-                    {% endif %}
-                </div>
-                <span class="team-name">
+                    <div class="score">
+                        {% if match.is_played %}
+                            <a href="{% url 'match:match' match.id %}">
+                                {{ match.home_goals }} : {{ match.away_goals }}
+                            </a>
+                        {% else %}
+                            <a href="{% url 'match:match' match.id %}">- : -</a>
+                        {% endif %}
+                    </div>
+                    <span class="team-name">
                         <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
                     </span>
-                <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="team-logo">
-            </div>
-            <span class="toggle-scorers">View Scorers</span>
-            <div class="goal-scorers">
-                <div class="home-scorers">
-                    <strong>{{ match.home_team.name }}</strong>:
-                    <ul>
-                        {% for scorer in match.home_scorers %}
-                        <li>{{ scorer }}</li>
-                        {% endfor %}
-                    </ul>
+                    <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="team-logo">
                 </div>
-                <div class="away-scorers">
-                    <strong>{{ match.away_team.name }}</strong>:
-                    <ul>
-                        {% for scorer in match.away_scorers %}
-                        <li>{{ scorer }}</li>
-                        {% endfor %}
-                    </ul>
+                <span class="toggle-scorers">View Scorers</span>
+                <div class="goal-scorers">
+                    <div class="home-scorers">
+                        <strong>{{ match.home_team.name }}</strong>:
+                        <ul>
+                            {% for scorer in match.home_scorers %}
+                            <li>{{ scorer }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="away-scorers">
+                        <strong>{{ match.away_team.name }}</strong>:
+                        <ul>
+                            {% for scorer in match.away_scorers %}
+                            <li>{{ scorer }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
         {% endfor %}
-    </div>
-    {% endfor %}
     {% else %}
-    <div class="alert alert-warning text-center">No matches found for the selected date.</div>
+        <div class="alert alert-warning text-center">No matches found for the selected date.</div>
     {% endif %}
 </div>
 
-<script src="{% static 'js/results-date-picker.js' %}"></script>
-<script src="{% static 'js/results-toggle-scorers.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const datePicker = document.getElementById('date-picker');
+        const prevButton = document.getElementById('prev-date');
+        const nextButton = document.getElementById('next-date');
 
+        function changeDate(days) {
+            const currentDate = new Date(datePicker.value);
+            currentDate.setDate(currentDate.getDate() + days);
+            datePicker.value = currentDate.toISOString().split('T')[0];
+            window.location.href = `?date=${datePicker.value}`;
+        }
+
+        datePicker.addEventListener('change', () => {
+            window.location.href = `?date=${datePicker.value}`;
+        });
+
+        prevButton.addEventListener('click', () => {
+            changeDate(-1);
+        });
+
+        nextButton.addEventListener('click', () => {
+            changeDate(1);
+        });
+
+        document.querySelectorAll('.toggle-scorers').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const scorers = e.target.nextElementSibling;
+                scorers.classList.toggle('show');
+            });
+        });
+    });
+</script>
 {% endblock %}
-

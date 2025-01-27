@@ -6,7 +6,6 @@ from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerS
 from players.utils.generate_player_utils import generate_random_player
 from teams.models import TeamPlayer, Team, TeamTactics
 
-
 def get_all_positions():
     return Position.objects.all()
 
@@ -16,7 +15,6 @@ def get_average_player_rating_for_current_season(player):
         player=player,
         match__season=current_season
     ).aggregate(Avg('rating')).get('rating__avg', 0.0) or 0.0
-
 
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
@@ -33,8 +31,6 @@ def get_player_team(player):
         'shirt_number': None,
         'team_logo': None,
     }
-
-
 
 def get_personal_player_data(player):
     return {
@@ -54,7 +50,6 @@ def get_personal_player_data(player):
         'image_url': player.image.url if player.image else None,
     }
 
-
 def get_player_attributes(player):
     attributes = PlayerAttribute.objects.filter(player=player).select_related('attribute')
     return [
@@ -66,7 +61,6 @@ def get_player_attributes(player):
         }
         for attr in attributes
     ]
-
 
 def get_player_match_stats(match, team):
     try:
@@ -112,6 +106,21 @@ def get_player_season_stats_all_seasons(player):
         all_stats[season_number][stat.statistic.name] = stat.value
 
     return all_stats
+
+def get_current_season_stats(player):
+    season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic').order_by('-season__year')
+
+    if not season_stats.exists():
+        return None
+
+    latest_season = season_stats.first().season.year
+    latest_stats = season_stats.filter(season__year=latest_season)
+
+    stats = {}
+    for stat in latest_stats:
+        stats[stat.statistic.name] = stat.value
+
+    return stats
 
 
 def get_player_stats(player, season=None, match=None):

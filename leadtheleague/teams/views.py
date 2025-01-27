@@ -9,7 +9,8 @@ from django.http import JsonResponse
 from core.utils.nationality_utils import get_all_nationalities
 from fixtures.models import LeagueFixture
 from game.utils.get_season_stats_utils import get_current_season
-from players.utils.get_player_stats_utils import get_personal_player_data, get_player_attributes, get_player_stats
+from players.utils.get_player_stats_utils import get_personal_player_data, get_player_attributes, get_player_stats, \
+    get_player_season_stats_all_seasons, get_current_season_stats
 from players.utils.update_player_stats_utils import update_player_price
 from staff.models import Coach
 from players.models import Player, PlayerSeasonStatistic, PlayerAttribute, Position, PositionAttribute
@@ -96,7 +97,22 @@ def team_stats(request, team_id):
 
     players = TeamPlayer.objects.filter(team_id=team_id).select_related('player', 'player__position',
                                                                         'player__nationality')
-    players_data = [get_personal_player_data(player.player) for player in players]
+
+    players_data = []
+    for player in players:
+        player_data = {
+            "id": player.player.id,
+            "first_name": player.player.first_name,
+            "last_name": player.player.last_name,
+            "position": player.player.position.name,
+            "nationality": player.player.nationality.name,
+            "age": player.player.age,
+            "price": player.player.price,
+            "stats": get_current_season_stats(player.player)
+        }
+        players_data.append(player_data)
+
+    print(players_data)
 
     context = {
         'team': team_data,

@@ -225,7 +225,6 @@ def determine_league_champions(season):
 
     print("Процедурата по определяне на шампионите е завършена.")
 
-
 def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):
     added_teams = []
 
@@ -248,18 +247,19 @@ def promote_league_teams_to_europe(new_season, new_european_cup_season, european
         print(f"Top teams after filtering: {[team.team.name for team in top_teams]}")
 
         qualified_teams = []
+        additional_team_needed = False  # Флаг за допълнителен отбор
 
-        for team in top_teams:
-            if len(qualified_teams) >= qualifiers_count:
-                break
-            if team.team not in cup_champions and team.team not in qualified_teams:
+        for cup_champion in cup_champions:
+            if cup_champion not in [team.team for team in top_teams[:qualifiers_count]]:
+                qualified_teams.append(cup_champion)
+
+        for team in top_teams[:qualifiers_count]:
+            if team.team not in qualified_teams:
                 qualified_teams.append(team.team)
 
-        while len(qualified_teams) < qualifiers_count:
+        while len(qualified_teams) < qualifiers_count + len(cup_champions):
             next_team = top_teams.exclude(
                 team__in=qualified_teams
-            ).exclude(
-                team__in=cup_champions
             ).first()
             if next_team:
                 qualified_teams.append(next_team.team)
@@ -277,7 +277,6 @@ def promote_league_teams_to_europe(new_season, new_european_cup_season, european
             print(f"Added {', '.join([team.name for team in qualified_teams])} from {league.name} to {cup.name}.")
 
     return added_teams
-
 
 
 def auto_set_league_champions():

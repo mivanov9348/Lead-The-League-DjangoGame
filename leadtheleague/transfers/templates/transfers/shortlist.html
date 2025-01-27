@@ -5,21 +5,33 @@
 {% block extra_css %}
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 <style>
     table.dataTable thead {
-        background-color: #f4f4f4;
+        background-color: var(--blue-color);
         font-weight: bold;
     }
     .shortlist-container {
         margin: 20px auto;
         padding: 20px;
         width: 100%;
-        background: #fff;
+        background-color: var(--darkgreen-color);
+        color:white;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     #shortlist-table {
         width: 100% !important;
+    }
+    .player-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .free-agent {
+        color: green;
+        font-weight: bold;
     }
 </style>
 {% endblock %}
@@ -29,81 +41,109 @@
     <h2>Shortlisted Players</h2>
     <table id="shortlist-table" class="display nowrap" style="width:100%">
         <thead>
-            <tr>
-                <th>#</th>
-                <th>Player Name</th>
-                <th>Age</th>
-                <th>Position</th>
-                <th>Potential Rating</th>
-                <th>Price (€)</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Player Name</th>
+            <th>Age</th>
+            <th>Nationality</th>
+            <th>Position</th>
+            <th>Potential Rating</th>
+            <th>Price (€)</th>
+            <th>Free Agent</th>
+            <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-            {% for player in shortlisted_players %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ player.first_name }} {{ player.last_name }}</td>
-                <td>{{ player.age }}</td>
-                <td>{{ player.position.name }}</td>
-                <td>{{ player.potential_rating }}</td>
-                <td>{{ player.price }}</td>
-                <td>
-                    <button class="remove-btn btn btn-danger" data-player-id="{{ player.id }}">Remove</button>
-                </td>
-            </tr>
-            {% endfor %}
+        {% for player in shortlisted_players %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                {% if player.image %}
+                <img src="{{ player.image.url }}" class="player-image">
+                {% else %}
+                <img src="/static/default-player.png" class="player-image">
+                {% endif %}
+            </td>
+            <td>{{ player.first_name }} {{ player.last_name }}</td>
+            <td>{{ player.age }}</td>
+            <td>{{ player.nationality.name }}</td>
+            <td>{{ player.position.name }}</td>
+            <td>{{ player.potential_rating|floatformat:2 }}</td>
+            <td>{{ player.price }}</td>
+            <td class="free-agent">{% if player.is_free_agent %}Yes{% else %}No{% endif %}</td>
+            <td>
+                <button class="remove-btn btn btn-danger" data-player-id="{{ player.id }}"
+                        data-url="{% url 'transfers:toggle_shortlist' player.id %}">
+                    Remove
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<!-- DataTables JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script>
-    $(document).ready(function () {
-        // Инициализация на DataTable с опции
-        $('#shortlist-table').DataTable({
-            responsive: true,
-            paging: true,
-            searching: true,
-            info: true,
-            order: [[1, 'asc']], // Сортиране по втората колона (Player Name)
-            columnDefs: [
-                { orderable: false, targets: [0, 6] }, // Без сортиране за # и Actions
-            ]
-        });
-
-        // Обработка на бутоните "Remove"
-        $('.remove-btn').on('click', function () {
-            const playerId = $(this).data('player-id');
-            const row = $(this).closest('tr');
-
-            // Изпращане на заявка към toggle_shortlist
-            fetch(`transfers/toggle_shortlist/${playerId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json',
-                },
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'removed') {
-                        // Показване на съобщение и премахване на реда
-                        row.fadeOut(500, function () {
-                            row.remove();
-                        });
-                        alert(data.message);
-                    } else {
-                        alert('Failed to remove player. Please try again.');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        });
+$(document).ready(function () {
+    $('#shortlist-table').DataTable({
+        responsive: true,
+        paging: true,
+        searching: true,
+        info: true,
+        order: [[2, 'asc']],
+        columnDefs: [{ orderable: false, targets: [0, 1, 9] }],
     });
+
+    $(document).on('click', '.remove-btn', function () {
+        const button = $(this);
+        const playerId = button.data('player-id');
+        const url = button.data('url');
+        const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'removed') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                    button.closest('tr').fadeOut(500, function () {
+                        $(this).remove();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to remove player. Please try again later.',
+                        showConfirmButton: true,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Something went wrong!',
+                    text: 'Please try again later.',
+                    showConfirmButton: true,
+                });
+            });
+    });
+});
+
 </script>
 {% endblock %}

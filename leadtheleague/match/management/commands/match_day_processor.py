@@ -9,7 +9,8 @@ from numpy.ma.extras import average
 from core.models import FirstName
 from core.utils.names_utils import get_random_first_name
 from cups.models import SeasonCup
-from europeancups.models import EuropeanCup
+from europeancups.models import EuropeanCup, EuropeanCupSeason
+from europeancups.utils.euro_cup_season_utils import finalize_euro_cup
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from game.utils.season_functionalities_utils import set_manual_day_today
@@ -66,7 +67,7 @@ class Command(BaseCommand):
 
         match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
         try:
-            dayslimit = 1
+            dayslimit = 5
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
@@ -126,3 +127,5 @@ class Command(BaseCommand):
         #     agents_sell = get_agent_sold_players(agent)
         #     sum_get = get_agent_total_transfer_income(agent)
         #     print(f'Agent: {agent.first_name} {agent.last_name} - agent sell: {agents_sell['count']}, Sum: {sum_get}')
+        # set_manual_day_today('2025-05-01')
+        # finalize_euro_cup(current_euro_season, match)

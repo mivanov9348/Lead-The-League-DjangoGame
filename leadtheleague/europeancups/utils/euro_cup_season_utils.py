@@ -144,7 +144,7 @@ def finalize_euro_cup(european_cup_season, match):
     if not fixture:
         raise ValueError("No completed fixture found for the given match.")
 
-    winner_team = match.winner
+    winner_team = fixture.winner
     if not winner_team:
         raise ValueError("Cannot finalize European Cup season without a winner.")
 
