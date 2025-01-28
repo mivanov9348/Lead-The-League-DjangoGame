@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-
-
 {% block content %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/all_time_stats.css' %}">
@@ -9,111 +7,152 @@
 <div class="all-time-stats-container">
     <!-- Champions Rankings -->
     <div class="champions-container">
-        <h2>Champions Rankings</h2>
-        <div class="champions-grid">
+        <div class="grid-3x3">
             <!-- League Champions -->
             {% if league_champions %}
-            <div class="champions-section">
+            <div class="grid-item">
                 <h3>League Champions</h3>
-                <ul>
-                    {% for team in league_champions %}
-                    <li><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>: {{ team.league_titles }} titles</li>
-                    {% endfor %}
-                </ul>
+                <div class="table-scroll">
+                    <table class="champions-table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>Titles</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in league_champions %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a></td>
+                            <td>{{ team.league_titles }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
 
             <!-- Cup Champions -->
             {% if cup_champions %}
-            <div class="champions-section">
+            <div class="grid-item">
                 <h3>Cup Champions</h3>
-                <ul>
-                    {% for team in cup_champions %}
-                    <li><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>: {{ team.cup_titles }} cups</li>
-                    {% endfor %}
-                </ul>
+                <div class="table-scroll">
+                    <table class="champions-table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>Cups</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in cup_champions %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a></td>
+                            <td>{{ team.cup_titles }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
 
             <!-- European Cup Champions -->
             {% if euro_cup_champions %}
-            <div class="champions-section">
+            <div class="grid-item">
                 <h3>European Cup Champions</h3>
-                <ul>
-                    {% for team in euro_cup_champions %}
-                    <li><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a>: {{ team.euro_cup_titles }} European titles</li>
-                    {% endfor %}
-                </ul>
+                <div class="table-scroll">
+                    <table class="champions-table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>European Titles</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in euro_cup_champions %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a></td>
+                            <td>{{ team.euro_cup_titles }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
-        </div>
-    </div>
 
-    <!-- Teams and Players Rankings -->
-    <div class="grid-container">
-        <!-- Top Teams -->
-        <div class="table-container">
-            <h3>Top Teams</h3>
-            <div class="table-scroll">
-                <table class="stats-table">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Team</th>
-                        <th>Matches</th>
-                        <th>Wins</th>
-                        <th>Draws</th>
-                        <th>Loses</th>
-                        <th>Goals Scored</th>
-                        <th>Goals Conceded</th>
-                        <th>Points</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for team in top_teams %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a></td>
-                        <td>{{ team.matches }}</td>
-                        <td>{{ team.wins }}</td>
-                        <td>{{ team.draws }}</td>
-                        <td>{{ team.loses }}</td>
-                        <td>{{ team.goal_scored }}</td>
-                        <td>{{ team.goal_conceded }}</td>
-                        <td>{{ team.points }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <!-- Top Teams -->
+            <div class="grid-item">
+                <h3>Top Teams</h3>
+                <div class="table-scroll">
+                    <table class="stats-table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Team</th>
+                            <th>Matches</th>
+                            <th>Wins</th>
+                            <th>Draws</th>
+                            <th>Loses</th>
+                            <th>GS</th>
+                            <th>GC</th>
+                            <th>Points</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in top_teams %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url 'teams:team_stats' team.team.id %}">{{ team.team.name }}</a></td>
+                            <td>{{ team.matches }}</td>
+                            <td>{{ team.wins }}</td>
+                            <td>{{ team.draws }}</td>
+                            <td>{{ team.loses }}</td>
+                            <td>{{ team.goal_scored }}</td>
+                            <td>{{ team.goal_conceded }}</td>
+                            <td>{{ team.points }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <!-- Top Players -->
-        <div class="table-container">
-            <h3>Top Players</h3>
-            <div class="table-scroll">
-                <table class="stats-table">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Player</th>
-                        <th>Matches</th>
-                        <th>Goals</th>
-                        <th>Rating</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for player in top_players %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td><a href="{% url 'players:player_profile' player.player.id %}">{{ player.player.name }}</a></td>
-                        <td>{{ player.matches }}</td>
-                        <td>{{ player.goals }}</td>
-                        <td>{{ player.rating|floatformat:2 }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <!-- Top Players -->
+            <div class="grid-item">
+                <h3>Top Players</h3>
+                <div class="table-scroll">
+                    <table class="stats-table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Player</th>
+                            <th>Matches</th>
+                            <th>Goals</th>
+                            <th>Rating</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for player in top_players %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url 'players:player_profile' player.player.id %}">{{ player.player.name }}</a></td>
+                            <td>{{ player.matches }}</td>
+                            <td>{{ player.goals }}</td>
+                            <td>{{ player.rating|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

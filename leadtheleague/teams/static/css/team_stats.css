@@ -6,10 +6,21 @@
     width: 100%;
 }
 
-.team-stats, .team-players {
+.team-stats {
+    width:300px;
+    background-color: var(--darkgreen-color);
+    color: #e0e0e0; /* Светъл текст за четимост */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align:center;
+}
+
+.team-players {
     flex: 1;
     min-width: 300px; /* Минимална ширина, за да изглеждат добре на малки екрани */
-    background-color: #1e2f26; /* Наситено тъмнозелен цвят за контраст */
+    background-color: var(--darkgreen-color);
     color: #e0e0e0; /* Светъл текст за четимост */
     padding: 20px;
     border-radius: 12px;
@@ -32,7 +43,7 @@
 #players-table-container {
     width: 100%;
     overflow-x: auto;
-    background-color: #273a31; /* Леко различен цвят за разграничение */
+    background-color: var(--darkgreen-color);
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -41,12 +52,12 @@
 #players-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #2d4235; /* Основен цвят за таблицата */
+    background-color: var(--darkgreen-color);
     color: #ffffff;
 }
 
 #players-table th {
-    background-color: #3a5742; /* Леко по-ярък цвят за заглавната част */
+    background-color: var(--darkgreen-color);
     color: #ffffff; /* Текстът остава бял */
     font-weight: bold;
     padding: 12px;
@@ -59,9 +70,6 @@
     border-bottom: 1px solid #3a5742; /* Линии между редовете за по-четлива структура */
 }
 
-#players-table tr:nth-child(even) {
-    background-color: #334d3f; /* Алтернативен цвят за всеки втори ред */
-}
 
 #players-table tr:hover {
     background-color: #416a54; /* Леко изсветляване при задържане с мишката */

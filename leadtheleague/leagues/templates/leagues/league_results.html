@@ -8,97 +8,91 @@
 {% endblock %}
 
 {% block content %}
-<div class="date-navigation">
-    <button id="prev-date" class="date-nav-button">&#x276E; Previous</button>
-    <input type="date" id="date-picker" class="date-picker" value="{{ current_date }}">
-    <button id="next-date" class="date-nav-button">Next &#x276F;</button>
-</div>
-
 <div class="results-container">
+    <h1>League Results</h1>
+    <div class="filters">
+        <form method="GET" action="{% url 'leagues:league_results' %}">
+            <div class="form-group">
+                <label for="league">Select League:</label>
+                <select name="league" id="league">
+                    <option value="">-- All Leagues --</option>
+                    {% for league in leagues %}
+                    <option value="{{ league.id }}" {% if selected_league_id == league.id %}selected{% endif %}>
+                        {{ league.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">Select Date:</label>
+                <input type="date" name="date" value="{{ current_date|date:'Y-m-d' }}" required>
+            </div>
+            <button type="submit">Show Results</button>
+        </form>
+    </div>
+
     {% if league_data %}
-        {% for league_name, matches in league_data.items %}
-        <div class="league-section">
-            <div class="league-header">{{ league_name }}</div>
-            {% for match in matches %}
-            <div class="match-row" data-match-id="{{ match.id }}">
-                <div class="team-container">
-                    <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }}" class="team-logo">
-                    <span class="team-name">
-                        <a href="{% url 'teams:team_stats' match.home_team.id %}">{{ match.home_team.name }}</a>
-                    </span>
-                    <div class="score">
-                        {% if match.is_played %}
-                            <a href="{% url 'match:match' match.id %}">
-                                {{ match.home_goals }} : {{ match.away_goals }}
-                            </a>
-                        {% else %}
-                            <a href="{% url 'match:match' match.id %}">- : -</a>
-                        {% endif %}
-                    </div>
-                    <span class="team-name">
-                        <a href="{% url 'teams:team_stats' match.away_team.id %}">{{ match.away_team.name }}</a>
-                    </span>
-                    <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }}" class="team-logo">
+    {% for league, matches in league_data.items %}
+    <div class="league">
+        <h2>{{ league }}</h2>
+        {% for match in matches %}
+        <div class="match">
+           <div class="teams">
+    <div class="team home-team">
+        <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }} Logo" class="team-logo">
+        <span>{{ match.home_team.name }}</span>
+    </div>
+    <span class="vs">vs</span>
+    <div class="team away-team">
+        <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }} Logo" class="team-logo">
+        <span>{{ match.away_team.name }}</span>
+    </div>
+</div>
+            <div class="score">
+                {% if match.is_played %}
+                <a href="{% url 'match:match' match.id %}">
+                    {{ match.home_goals }} : {{ match.away_goals }}
+                </a>
+                {% else %}
+                <a href="{% url 'match:match' match.id %}">- : -</a>
+                {% endif %}
+            </div>
+            <div class="goal-scorers">
+                <div class="home-scorers">
+                    <span class="toggle-scorers" onclick="toggleScorers(this)">Show Home Scorers</span>
+                    <ul class="scorers-list" style="display: none;">
+                        {% for scorer in match.home_scorers %}
+                        <li>{{ scorer }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
-                <span class="toggle-scorers">View Scorers</span>
-                <div class="goal-scorers">
-                    <div class="home-scorers">
-                        <strong>{{ match.home_team.name }}</strong>:
-                        <ul>
-                            {% for scorer in match.home_scorers %}
-                            <li>{{ scorer }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="away-scorers">
-                        <strong>{{ match.away_team.name }}</strong>:
-                        <ul>
-                            {% for scorer in match.away_scorers %}
-                            <li>{{ scorer }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                <div class="away-scorers">
+                    <span class="toggle-scorers" onclick="toggleScorers(this)">Show Away Scorers</span>
+                    <ul class="scorers-list" style="display: none;">
+                        {% for scorer in match.away_scorers %}
+                        <li>{{ scorer }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
-            {% endfor %}
         </div>
         {% endfor %}
+    </div>
+    {% endfor %}
     {% else %}
-        <div class="alert alert-warning text-center">No matches found for the selected date.</div>
+    <p>No matches available for the selected date.</p>
     {% endif %}
 </div>
-
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const datePicker = document.getElementById('date-picker');
-        const prevButton = document.getElementById('prev-date');
-        const nextButton = document.getElementById('next-date');
-
-        function changeDate(days) {
-            const currentDate = new Date(datePicker.value);
-            currentDate.setDate(currentDate.getDate() + days);
-            datePicker.value = currentDate.toISOString().split('T')[0];
-            window.location.href = `?date=${datePicker.value}`;
+    function toggleScorers(element) {
+        const scorersList = element.nextElementSibling;
+        if (scorersList.style.display === "none") {
+            scorersList.style.display = "block";
+            element.textContent = element.textContent.replace("Show", "Hide");
+        } else {
+            scorersList.style.display = "none";
+            element.textContent = element.textContent.replace("Hide", "Show");
         }
-
-        datePicker.addEventListener('change', () => {
-            window.location.href = `?date=${datePicker.value}`;
-        });
-
-        prevButton.addEventListener('click', () => {
-            changeDate(-1);
-        });
-
-        nextButton.addEventListener('click', () => {
-            changeDate(1);
-        });
-
-        document.querySelectorAll('.toggle-scorers').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const scorers = e.target.nextElementSibling;
-                scorers.classList.toggle('show');
-            });
-        });
-    });
+    }
 </script>
 {% endblock %}

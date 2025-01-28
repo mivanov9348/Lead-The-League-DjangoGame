@@ -23,78 +23,82 @@
         <p><strong>Abbreviation:</strong> {{ team.abbreviation }}</p>
         <p><strong>Reputation:</strong> {{ team.reputation }}</p>
         <p><strong>Nationality:</strong> {{ team.nationality }} ({{ team.nationality_abbr }})</p>
+
         <hr>
         <h3>Trophies and Success</h3>
-        <p>Include team achievements here...</p>
+        <p>League Titles: {{ team.all_time_stats.league_titles }}</p>
+        <p>Cup Titles: {{ team.all_time_stats.cup_titles }}</p>
+        <p>Euro Champions: {{ team.all_time_stats.euro_cup_titles }}</p>
+
         <hr>
         <h3>Finances</h3>
-        <p><strong>Balance:</strong> {{ team.finances.balance|floatformat:2 }} $</p>
-        <p><strong>Total Income:</strong> {{ team.finances.total_income|floatformat:2 }} $</p>
-        <p><strong>Total Expenses:</strong> {{ team.finances.total_expenses|floatformat:2 }} $</p>
+        <p><strong>Balance:</strong> {{ team.finances.balance|intcomma }} $</p>
+        <p><strong>Total Income:</strong> {{ team.finances.total_income|intcomma }} $</p>
+        <p><strong>Total Expenses:</strong> {{ team.finances.total_expenses|intcomma }} $</p>
     </div>
 
     <div class="team-players">
-    {% if players %}
-    <div id="players-table-container">
-        <table id="players-table" class="display">
-            <thead>
-            <tr>
-                <th><i class="fas fa-user" title="Name"></i></th>
-                <th><i class="fas fa-futbol" title="Position"></i></th>
-                <th><i class="fas fa-flag" title="Nationality"></i></th>
-                <th><i class="fas fa-calendar-alt" title="Age"></i></th>
-                <th><i class="fas fa-dollar-sign" title="Price"></i></th>
-                <th><i class="fas fa-list-ol" title="Matches"></i></th>
-                <th><i class="fas fa-futbol" title="Goals"></i></th>
-                <th><i class="fas fa-handshake" title="Assists"></i></th>
-                <th><i class="fas fa-exchange-alt" title="Passes"></i></th>
-                <th><i class="fas fa-bullseye" title="Shoots"></i></th>
-                <th><i class="fas fa-check-circle" title="Shoots On Target"></i></th>
-                <th><i class="fas fa-running" title="Dribbles"></i></th>
-                <th><i class="fas fa-hand-paper" title="Fouls"></i></th>
-                <th><i class="fas fa-tasks" title="Tackles"></i></th>
-                <th><i class="fas fa-square" title="Yellow Cards"></i></th>
-                <th><i class="fas fa-ban" title="Red Cards"></i></th>
-                <th><i class="fas fa-shield-alt" title="Clean Sheets"></i></th>
-                <th><i class="fas fa-crosshairs" title="Conceded"></i></th>
-                <th><i class="fas fa-glove" title="Saves"></i></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for player in players %}
-            <tr>
-                <td>
-                    <a href="{% url 'players:player_profile' player.id %}">
-                        {{ player.first_name }} {{ player.last_name }}
-                    </a>
-                </td>
-                <td>{{ player.position }}</td>
-                <td>{{ player.nationality }}</td>
-                <td>{{ player.age }}</td>
-                <td>{{ player.price|intcomma }}</td>
-                <td>{{ player.stats.Matches }}</td>
-                <td>{{ player.stats.Goals }}</td>
-                <td>{{ player.stats.Assists }}</td>
-                <td>{{ player.stats.Passes }}</td>
-                <td>{{ player.stats.Shoots }}</td>
-                <td>{{ player.stats.ShootsOnTarget }}</td>
-                <td>{{ player.stats.Dribbles }}</td>
-                <td>{{ player.stats.Fouls }}</td>
-                <td>{{ player.stats.Tackles }}</td>
-                <td>{{ player.stats.YellowCards }}</td>
-                <td>{{ player.stats.RedCards }}</td>
-                <td>{{ player.stats.CleanSheets }}</td>
-                <td>{{ player.stats.Conceded }}</td>
-                <td>{{ player.stats.Saves }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% if players %}
+        <div id="players-table-container">
+            <table id="players-table" class="display">
+                <thead>
+                <tr>
+                    <th><i class="fas fa-user" title="Name"></i></th>
+                    <th><i class="fas fa-futbol" title="Position"></i></th>
+                    <th><i class="fas fa-flag" title="Nationality"></i></th>
+                    <th><i class="fas fa-calendar-alt" title="Age"></i></th>
+                    <th><i class="fas fa-dollar-sign" title="Price"></i></th>
+                    <th><i class="fas fa-list-ol" title="Matches"></i></th>
+                    <th><i class="fas fa-futbol" title="Goals"></i></th>
+                    <th><i class="fas fa-handshake" title="Assists"></i></th>
+                    <th><i class="fas fa-exchange-alt" title="Passes"></i></th>
+                    <th><i class="fas fa-bullseye" title="Shoots"></i></th>
+                    <th><i class="fas fa-check-circle" title="Shoots On Target"></i></th>
+                    <th><i class="fas fa-running" title="Dribbles"></i></th>
+                    <th><i class="fas fa-hand-paper" title="Fouls"></i></th>
+                    <th><i class="fas fa-tasks" title="Tackles"></i></th>
+                    <th><i class="fas fa-square" title="Yellow Cards"></i></th>
+                    <th><i class="fas fa-ban" title="Red Cards"></i></th>
+                    <th><i class="fas fa-shield-alt" title="Clean Sheets"></i></th>
+                    <th><i class="fas fa-crosshairs" title="Conceded"></i></th>
+                    <th><i class="fas fa-glove" title="Saves"></i></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for player in players %}
+                <tr>
+                    <td>
+                        <a href="{% url 'players:player_profile' player.id %}">
+                            {{ player.first_name }} {{ player.last_name }}
+                        </a>
+                    </td>
+                    <td>{{ player.position }}</td>
+                    <td>{{ player.nationality }}</td>
+                    <td>{{ player.age }}</td>
+                    <td>{{ player.price|intcomma }}</td>
+                    <td>{{ player.stats.Matches }}</td>
+                    <td>{{ player.stats.Goals }}</td>
+                    <td>{{ player.stats.Assists }}</td>
+                    <td>{{ player.stats.Passes }}</td>
+                    <td>{{ player.stats.Shoots }}</td>
+                    <td>{{ player.stats.ShootsOnTarget }}</td>
+                    <td>{{ player.stats.Dribbles }}</td>
+                    <td>{{ player.stats.Fouls }}</td>
+                    <td>{{ player.stats.Tackles }}</td>
+                    <td>{{ player.stats.YellowCards }}</td>
+                    <td>{{ player.stats.RedCards }}</td>
+                    <td>{{ player.stats.CleanSheets }}</td>
+                    <td>{{ player.stats.Conceded }}</td>
+                    <td>{{ player.stats.Saves }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No players found for this team.</p>
+        {% endif %}
     </div>
-    {% else %}
-    <p>No players found for this team.</p>
-    {% endif %}
-</div>
 
 
 </div>

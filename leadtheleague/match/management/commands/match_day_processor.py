@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
         try:
-            dayslimit = 5
+            dayslimit = 1
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")

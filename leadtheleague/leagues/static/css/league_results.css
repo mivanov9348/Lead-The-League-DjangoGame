@@ -1,157 +1,191 @@
-/* Стилове за секцията с избор на дата */
-.date-navigation {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px auto;
-    gap: 10px;
+.results-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
 }
 
 .date-picker {
-    padding: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.date-picker input[type="date"] {
+    padding: 10px;
     font-size: 16px;
-    border: 2px solid #0066cc;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-    background-color: white;
-    color: #333;
-    outline: none;
-    transition: all 0.3s ease-in-out;
 }
 
-.date-picker:hover, .date-picker:focus {
-    border-color: #005bb5;
-    background-color: #f0f9ff;
-}
-
-.date-nav-button {
-    padding: 8px 12px;
+.date-picker button {
+    padding: 10px 20px;
     font-size: 16px;
-    font-weight: bold;
-    color: white;
-    background-color: #0066cc;
+    background-color: #007bff;
+    color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease-in-out;
 }
 
-.date-nav-button:hover {
-    background-color: #005bb5;
-    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.25);
+.date-picker button:hover {
+    background-color: #0056b3;
 }
 
-.results-container {
-    width:100%;
-    margin: 20px auto;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
-    padding: 20px;
-    border: 1px solid #ddd;
-    text-align: center;
+.league {
+    margin-bottom: 30px;
 }
 
-.league-header {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    color: white;
-    background-color: #333;
+.league h2 {
+    background-color: #007bff;
+    color: #fff;
     padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    text-align: center;
 }
 
-.match-row {
+.match {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.teams {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    padding: 15px 10px;
-    transition: background-color 0.3s ease-in-out;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
-.match-row:hover {
-    background-color: #f0faff;
-}
-
-.team-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px; /* разстояние между отборите */
-}
-
-.team-logo {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
-    background-color: #f0f0f0;
-}
-
-.team-name {
-    font-size: 14px;
+.team {
     font-weight: bold;
-    color: #333;
-    flex-shrink: 0;
-    text-align: center;
+    font-size: 18px;
 }
 
-.team-name a {
-    text-decoration: none; /* Махане на подчертаването */
-    color: #0066cc;
-    transition: color 0.3s ease-in-out;
+.vs {
+    font-size: 18px;
+    color: #666;
 }
 
-.team-name a:hover {
-    color: #004da3;
-}
 .score {
-    font-size: 16px;
+    font-size: 24px;
     font-weight: bold;
-    color: #000;
-    padding: 0 10px;
-    text-align: center;
+    margin: 10px 0;
 }
 
-.toggle-scorers {
-    font-size: 12px;
-    cursor: pointer;
+.score a {
+    text-decoration: none;
     color: #007bff;
-    text-decoration: none; /* Махане на подчертаването */
-    margin-top: 8px;
-    display: block;
-    transition: color 0.3s ease-in-out;
 }
 
-.toggle-scorers:hover {
-    color: #0056b3;
+.score a:hover {
+    text-decoration: underline;
 }
 
 .goal-scorers {
-    display: none;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
     margin-top: 10px;
-    background-color: #f5f5f5;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.goal-scorers.show {
-    display: block;
 }
 
 .home-scorers, .away-scorers {
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 8px;
+    width: 45%;
 }
 
 .home-scorers strong, .away-scorers strong {
-    color: #005bb5;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    padding: 5px 0;а
+    border-bottom: 1px solid #ddd;
+}
+
+ul li:last-child {
+    border-bottom: none;
+}
+
+.filters {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
     font-weight: bold;
+}
+
+.form-group select,
+.form-group input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+.team-logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.team {
+    display: flex;
+    align-items: center;
+}
+
+.teams {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.vs {
+    font-size: 18px;
+    color: #666;
+    margin: 0 20px;
 }

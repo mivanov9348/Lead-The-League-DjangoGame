@@ -7,6 +7,7 @@ from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
 from game.models import Season
 from match.models import Match
 from teams.models import Team, TeamFinance
+from vault.models import TeamAllStats
 
 
 def get_all_teams():
@@ -122,6 +123,7 @@ def get_team_data(team_id):
     team = get_object_or_404(Team, id=team_id, is_active=True)
 
     finances = TeamFinance.objects.filter(team=team).first()
+    all_time_stats = TeamAllStats.objects.filter(team=team).first()
 
     team_data = {
         'id': team.id,
@@ -136,5 +138,17 @@ def get_team_data(team_id):
             'total_income': finances.total_income if finances else 0.00,
             'total_expenses': finances.total_expenses if finances else 0.00,
         },
+        'all_time_stats': {
+            'matches': all_time_stats.matches if all_time_stats else 0,
+            'wins': all_time_stats.wins if all_time_stats else 0,
+            'draws': all_time_stats.draws if all_time_stats else 0,
+            'loses': all_time_stats.loses if all_time_stats else 0,
+            'goal_scored': all_time_stats.goal_scored if all_time_stats else 0,
+            'goal_conceded': all_time_stats.goal_conceded if all_time_stats else 0,
+            'points': all_time_stats.points if all_time_stats else 0,
+            'league_titles': all_time_stats.league_titles if all_time_stats else 0,
+            'cup_titles': all_time_stats.cup_titles if all_time_stats else 0,
+            'euro_cup_titles': all_time_stats.euro_cup_titles if all_time_stats else 0,
+        } if all_time_stats else None,
     }
     return team_data
