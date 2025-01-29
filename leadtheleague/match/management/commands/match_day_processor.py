@@ -1,9 +1,12 @@
+import datetime
 import random
+from datetime import time
 
 from django.core.management.base import BaseCommand
 import logging
 import random
 
+from django.db.models import Q
 from numpy.ma.extras import average
 
 from core.models import FirstName
@@ -14,7 +17,7 @@ from europeancups.utils.euro_cup_season_utils import finalize_euro_cup
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from game.utils.season_functionalities_utils import set_manual_day_today
-from leagues.models import LeagueSeason
+from leagues.models import LeagueSeason, League
 from leagues.utils import auto_set_league_champions
 from match.models import Match
 from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
@@ -65,12 +68,30 @@ class Command(BaseCommand):
         # except:
         #     print('Error when processing')
 
-        match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
+        # match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
+        # try:
+        #     dayslimit = 4
+        #     for i, match_day in enumerate(match_days):
+        #         if i >= dayslimit:
+        #             print(f"Reached maximum iterations: {dayslimit}")
+        #             print(datetime.datetime.now())
+        #             break
+        #
+        #         print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date}")
+        #         match_day_processor(match_day.date)
+        #
+        # except:
+        #     print('Error when processing')
+
+        season = get_current_season()
+        match_days = MatchSchedule.objects.filter(season=season, is_played=False).exclude(
+            event_type='transfer').order_by('date')
         try:
-            dayslimit = 1
+            dayslimit = 2
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
+                    print(datetime.datetime.now())
                     break
 
                 print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date}")

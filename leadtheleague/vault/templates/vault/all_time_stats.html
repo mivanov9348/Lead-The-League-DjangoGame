@@ -135,9 +135,10 @@
                         <tr>
                             <th>#</th>
                             <th>Player</th>
+                            <th>Team</th>
                             <th>Matches</th>
                             <th>Goals</th>
-                            <th>Rating</th>
+                            <th>Points</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -145,9 +146,17 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td><a href="{% url 'players:player_profile' player.player.id %}">{{ player.player.name }}</a></td>
+                            <td>
+                                {% for team_player in player.player.team_players.all %}
+                                {{ team_player.team.name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                No Team
+                                {% endfor %}
+                            </td>
                             <td>{{ player.matches }}</td>
                             <td>{{ player.goals }}</td>
-                            <td>{{ player.rating|floatformat:2 }}</td>
+                            <td>{{ player.points }}</td>
+
                         </tr>
                         {% endfor %}
                         </tbody>

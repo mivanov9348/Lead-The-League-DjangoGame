@@ -13,7 +13,6 @@ def get_player_all_stats_by_player(player):
         return None
 
 
-
 def update_player_stats_for_match(match):
     try:
         print(f"Updating player statistics for match: {match}")
@@ -43,7 +42,15 @@ def update_player_stats_for_match(match):
 
             # Save the updated stats
             player_stats.save()
-            print(f"Updated all-time stats for player: {player_stat.player.name} -> Matches: {player_stats.matches}, Goals: {player_stats.goals}")
+            print(
+                f"Updated all-time stats for player: {player_stat.player.name} -> Matches: {player_stats.matches}, Goals: {player_stats.goals}")
+
+        update_all_players_points()
 
     except Exception as e:
         print(f"Error updating player statistics for match {match}: {e}")
+
+
+def update_all_players_points():
+    for player_stats in PlayerAllStats.objects.all():
+        player_stats.save()

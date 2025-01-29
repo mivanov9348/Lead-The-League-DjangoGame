@@ -6,30 +6,43 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/league_results.css' %}">
 {% endblock %}
-
 {% block content %}
 <div class="results-container">
-    <h1>League Results</h1>
+
     <div class="filters">
-        <form method="GET" action="{% url 'leagues:league_results' %}">
-            <div class="form-group">
-                <label for="league">Select League:</label>
-                <select name="league" id="league">
-                    <option value="">-- All Leagues --</option>
-                    {% for league in leagues %}
-                    <option value="{{ league.id }}" {% if selected_league_id == league.id %}selected{% endif %}>
-                        {{ league.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="date">Select Date:</label>
-                <input type="date" name="date" value="{{ current_date|date:'Y-m-d' }}" required>
-            </div>
-            <button type="submit">Show Results</button>
-        </form>
+    <form method="GET" action="{% url 'leagues:league_results' %}">
+        <div class="form-group">
+            <label for="league">Select League:</label>
+            <select name="league" id="league">
+                <option value="">-- All Leagues --</option>
+                {% for league in leagues %}
+                <option value="{{ league.id }}" {% if selected_league_id == league.id %}selected{% endif %}>
+                    {{ league.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="date">Select Date:</label>
+            <select name="date" id="date">
+                <option value="">-- Select Date --</option>
+                {% for date in league_match_dates %}
+                <option value="{{ date|date:'Y-m-d' }}" {% if date == current_date|date:'Y-m-d' %}selected{% endif %}>
+                    {{ date|date:'d M Y' }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit">Show Results</button>
+    </form>
+
+    <!-- Навигация между датите -->
+    <div class="date-navigation">
+        <a href="?league={{ selected_league_id }}&date={{ previous_date|date:'Y-m-d' }}" class="nav-arrow">&#9664;</a>
+        <span>{{ current_date|date:"d M Y" }}</span>
+        <a href="?league={{ selected_league_id }}&date={{ next_date|date:'Y-m-d' }}" class="nav-arrow">&#9654;</a>
     </div>
+</div>
 
     {% if league_data %}
     {% for league, matches in league_data.items %}
@@ -37,44 +50,46 @@
         <h2>{{ league }}</h2>
         {% for match in matches %}
         <div class="match">
-           <div class="teams">
-    <div class="team home-team">
-        <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }} Logo" class="team-logo">
-        <span>{{ match.home_team.name }}</span>
-    </div>
-    <span class="vs">vs</span>
-    <div class="team away-team">
-        <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }} Logo" class="team-logo">
-        <span>{{ match.away_team.name }}</span>
-    </div>
-</div>
-            <div class="score">
-                {% if match.is_played %}
-                <a href="{% url 'match:match' match.id %}">
-                    {{ match.home_goals }} : {{ match.away_goals }}
-                </a>
-                {% else %}
-                <a href="{% url 'match:match' match.id %}">- : -</a>
-                {% endif %}
+            <div class="teams">
+                <div class="team home-team">
+                    <img src="{{ match.home_team.logo.url }}" alt="{{ match.home_team.name }} Logo" class="team-logo">
+                    <span>{{ match.home_team.name }}</span>
+                </div>
+                <div class="score">
+                    <a href="{% url 'match:match' match.id %}">
+                        {% if match.is_played %}
+                        {{ match.home_goals }} : {{ match.away_goals }}
+                        {% else %}
+                        - : -
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="team away-team">
+                    <img src="{{ match.away_team.logo.url }}" alt="{{ match.away_team.name }} Logo" class="team-logo">
+                    <span>{{ match.away_team.name }}</span>
+                </div>
             </div>
             <div class="goal-scorers">
-                <div class="home-scorers">
-                    <span class="toggle-scorers" onclick="toggleScorers(this)">Show Home Scorers</span>
-                    <ul class="scorers-list" style="display: none;">
-                        {% for scorer in match.home_scorers %}
-                        <li>{{ scorer }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="away-scorers">
-                    <span class="toggle-scorers" onclick="toggleScorers(this)">Show Away Scorers</span>
-                    <ul class="scorers-list" style="display: none;">
-                        {% for scorer in match.away_scorers %}
-                        <li>{{ scorer }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+    <button class="toggle-scorers" onclick="toggleScorers(this)">Show Goalscorers</button>
+    <div class="scorers-list" style="display: none;">
+        <div class="scorers-column">
+            <strong>{{ match.home_team.name }}</strong>
+            <ul>
+                {% for scorer in match.home_scorers %}
+                <li>{{ scorer }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="scorers-column">
+            <strong>{{ match.away_team.name }}</strong>
+            <ul>
+                {% for scorer in match.away_scorers %}
+                <li>{{ scorer }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
         </div>
         {% endfor %}
     </div>
@@ -84,15 +99,16 @@
     {% endif %}
 </div>
 <script>
-    function toggleScorers(element) {
-        const scorersList = element.nextElementSibling;
-        if (scorersList.style.display === "none") {
-            scorersList.style.display = "block";
-            element.textContent = element.textContent.replace("Show", "Hide");
-        } else {
-            scorersList.style.display = "none";
-            element.textContent = element.textContent.replace("Hide", "Show");
-        }
+   function toggleScorers(button) {
+    const scorersList = button.nextElementSibling;
+    if (scorersList.style.display === "none") {
+        scorersList.style.display = "flex"; /* Променено от "inline" на "flex" */
+        button.textContent = "Hide Goalscorers";
+    } else {
+        scorersList.style.display = "none";
+        button.textContent = "Show Goalscorers";
     }
+}
 </script>
+
 {% endblock %}

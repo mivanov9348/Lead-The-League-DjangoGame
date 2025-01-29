@@ -304,9 +304,10 @@ def train_team(request, team_id):
             team_players = TeamPlayer.objects.filter(team=team)
             players = [team_player.player for team_player in team_players]
             changes = []
-            today = date.today()
+            current_season = get_current_season()
+            current_date = current_season.current_date
 
-            if TrainingImpact.objects.filter(coach=coach, date__date=today).exists():
+            if TrainingImpact.objects.filter(coach=coach, date__date=current_date).exists():
                 return JsonResponse({
                     "success": False,
                     "error": "Training has already been performed for the team today.",
@@ -322,7 +323,7 @@ def train_team(request, team_id):
                     continue  # Skip if no attribute was selected for the player
 
                 # Check if the player was trained today
-                if TrainingImpact.objects.filter(player=player, coach=coach, date__date=today).exists():
+                if TrainingImpact.objects.filter(player=player, coach=coach, date__date=current_date).exists():
                     changes.append({
                         "player": f"{player.first_name} {player.last_name}",
                         "attribute": selected_attribute,

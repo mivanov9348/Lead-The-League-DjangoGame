@@ -1,8 +1,5 @@
 from django.db import transaction
-
-from players.models import PlayerMatchStatistic
-from vault.models import TeamAllStats, PlayerAllStats
-
+from vault.models import TeamAllStats
 
 def get_all_team_all_stats():
     return TeamAllStats.objects.all()

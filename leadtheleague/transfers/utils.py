@@ -7,6 +7,7 @@ from game.utils.get_season_stats_utils import get_current_season
 from messaging.utils.category_messages_utils import create_team_to_team_transfer_message
 from teams.models import TeamPlayer
 from teams.utils.team_finance_utils import sell_player_income, buy_player_expense
+from teams.utils.update_team_stats import get_available_shirt_number
 from transfers.models import Transfer, TransferOffer
 
 
@@ -93,6 +94,10 @@ def COM_receive_transfer_offer(transfer_offer):
         offering_team = transfer_offer.offering_team
         amount = offer_amount
 
+        # Намираме минималния свободен номер
+        shirt_number = get_available_shirt_number(offering_team)
+        team_player.shirt_number = shirt_number
+
         sell_player_income(player_team, transfer_offer.player, amount)
         buy_player_expense(offering_team, transfer_offer.player, amount)
 
@@ -106,9 +111,10 @@ def COM_receive_transfer_offer(transfer_offer):
 
         team_player.team = offering_team
         team_player.save()
+
         create_team_to_team_transfer_message(transfer_offer.player, player_team, offering_team, amount)
 
-        return True, "Offer accepted by AI team."
+        return True, f"Offer accepted by AI team. Player transferred with new shirt number {shirt_number}."
     else:
         transfer_offer.status = 'Rejected'
         transfer_offer.save()

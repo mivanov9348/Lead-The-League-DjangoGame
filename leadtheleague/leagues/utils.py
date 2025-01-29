@@ -2,11 +2,14 @@ import json
 import os
 import random
 from django.db import transaction
+from django.db.models import Q
+
 from europeancups.models import EuropeanCupTeam
 from fixtures.models import LeagueFixture
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from leadtheleague import settings
+from match.models import Match
 from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
 from match.utils.match.retrieval import get_match_by_fixture
 from messaging.utils.category_messages_utils import create_league_matchday_message, create_league_champion_message
@@ -36,8 +39,10 @@ def get_selected_league(league_id):
 
 
 def get_standings_for_league(league):
+    current_season = get_current_season()
+
     league_season = LeagueSeason.objects.filter(
-        league=league
+        league=league, season=current_season
     ).order_by('-season__year').first()
 
     if not league_season:
@@ -110,6 +115,7 @@ def populate_teams_for_season(season):
             )
 
         print(f"Teams populated for {league_name}.")
+
 
 def update_standings_from_fixtures(fixtures):
     print("Updating standings based on fixtures...")
@@ -225,6 +231,7 @@ def determine_league_champions(season):
 
     print("Процедурата по определяне на шампионите е завършена.")
 
+
 def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):
     added_teams = []
 
@@ -292,3 +299,10 @@ def auto_set_league_champions():
             league.champion_team = random_team
             league.is_completed = True
             league.save()
+
+
+def get_league_match_dates(league_id):
+    matches = Match.objects.filter(
+        Q(league_season__league_id=league_id)).values_list('match_date', flat=True).distinct()
+
+    return matches

@@ -52,36 +52,42 @@
     }
 
     .message-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: var(--darkgreen-color); /* Тъмно зелен фон */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.2s, color 0.3s;
+    color: white; /* Основен цвят на текста */
+}
 
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        margin-bottom: 8px;
-        background-color: var(--darkgreen-color);
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s, box-shadow 0.2s;
-    }
+.message-item:hover {
+    background-color: #2a3f2f; /* По-светло зелено при hover */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
-    .message-item:hover {
-        background-color: #f0f0f0;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
+.message-item.unread {
+    background-color: #1e2b22; /* Много тъмно зелено за непрочетени */
+    color: #ffcc00; /* Жълт цвят за текста на непрочетените съобщения */
+    font-weight: bold; /* Удебелен текст за непрочетените */
+}
 
-    .message-item.active {
-        background-color: #dce4ea;
-    }
+.message-item.active {
+    background-color: #3d5a48; /* Средно зелено за активно съобщение */
+    color: white; /* Бял текст за активното съобщение */
+}
 
-    .message-item .preview-text {
-        flex-grow: 1;
-        font-size: 14px;
-        color: #333;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-left: 10px;
-    }
+.message-item .preview-text {
+    flex-grow: 1;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 10px;
+}
 
     .delete-button {
         color: #ff4d4d;
@@ -136,6 +142,9 @@
         background-color: #bbb;
         border-radius: 4px;
     }
+
+
+
 </style>
 {% endblock %}
 
@@ -146,7 +155,7 @@
         <input type="text" id="search-bar" placeholder="Search messages...">
         <ul class="message-list">
             {% for item in context %}
-            <li class="message-item {{ item.is_read|yesno:'active,' }}" data-id="{{ item.message.id }}">
+            <li class="message-item {{ item.is_read|yesno:',unread' }}" data-id="{{ item.message.id }}">
                 <a href="?notification_id={{ item.message.id }}" class="message-link">
                     <span class="preview-text">{{ item.title }}</span>
                 </a>
@@ -159,16 +168,17 @@
     <div class="content">
         {% if message %}
         <div class="message-detail">
-    <h3>{{ message.title }}</h3>
-    <p><strong>Date:</strong> {{ message.date|date:"Y-m-d H:i" }}</p>
-    <hr>
-    <p>{{ message.content }}</p>
-    {% if message.image %}
-    <div class="message-image">
-        <img src="{{ message.image.url }}" alt="Message Image" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    </div>
-    {% endif %}
-</div>
+            <h3>{{ message.title }}</h3>
+            <p><strong>Date:</strong> {{ message.date|date:"Y-m-d H:i" }}</p>
+            <hr>
+            <p>{{ message.content }}</p>
+            {% if message.image %}
+            <div class="message-image">
+                <img src="{{ message.image.url }}" alt="Message Image"
+                     style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            </div>
+            {% endif %}
+        </div>
 
         {% else %}
         <div class="no-message">
@@ -177,13 +187,24 @@
         </div>
         {% endif %}
     </div>
-</div>
-
-<script>
+</div><script>
     document.addEventListener("DOMContentLoaded", () => {
         const searchBar = document.getElementById("search-bar");
         const messageItems = document.querySelectorAll(".message-item");
+        const sidebar = document.querySelector(".sidebar");
 
+        // Възстановяване на позицията на скрол
+        const scrollPosition = localStorage.getItem("scrollPosition");
+        if (scrollPosition) {
+            sidebar.scrollTop = parseInt(scrollPosition, 10);
+        }
+
+        // Съхраняване на позицията на скрол
+        sidebar.addEventListener("scroll", () => {
+            localStorage.setItem("scrollPosition", sidebar.scrollTop);
+        });
+
+        // Търсене на съобщения
         searchBar.addEventListener("input", () => {
             const query = searchBar.value.toLowerCase();
             messageItems.forEach(item => {
@@ -192,6 +213,7 @@
             });
         });
 
+        // Изтриване на съобщения
         const deleteButtons = document.querySelectorAll(".delete-button");
         deleteButtons.forEach(button => {
             button.addEventListener("click", async (e) => {
@@ -218,11 +240,37 @@
         });
 
         messageItems.forEach(item => {
-            item.addEventListener("click", () => {
-                messageItems.forEach(i => i.classList.remove("active"));
-                item.classList.add("active");
+            item.addEventListener("click", async () => {
+                const messageId = item.getAttribute("data-id");
+
+                try {
+                    const response = await fetch(`/mark_as_read/${messageId}/`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({}),
+                    });
+
+                    if (response.ok) {
+                        item.classList.remove("unread");
+                        item.classList.add("active");
+
+                        messageItems.forEach(i => {
+                            if (i !== item) {
+                                i.classList.remove("active");
+                            }
+                        });
+                    } else {
+                        console.error("Failed to mark message as read");
+                    }
+                } catch (error) {
+                    console.error("Network error:", error);
+                }
             });
         });
     });
 </script>
+
 {% endblock %}
