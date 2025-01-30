@@ -1,10 +1,12 @@
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q, Count
+from django.db.models import Case, When, Value, BooleanField
+
 from django.shortcuts import get_object_or_404
 from fixtures.models import LeagueFixture, EuropeanCupFixture, CupFixture
 from game.models import Season
+from leagues.models import League, LeagueTeams
 from match.models import Match
 from teams.models import Team, TeamFinance
 from vault.models import TeamAllStats
@@ -12,6 +14,32 @@ from vault.models import TeamAllStats
 
 def get_all_teams():
     return Team.objects.all()
+
+def get_sorted_teams():
+    league_teams = (
+        LeagueTeams.objects
+        .select_related('team', 'league_season__league')
+        .filter(team__isnull=False)
+        .order_by(
+            'league_season__league__name',  # Подреждане първо по лига
+            Case(
+                When(team__is_active=False, then=Value(1)),  # is_active=False -> отива в края
+                When(team__is_active=True, then=Value(0)),   # is_active=True -> първо
+                output_field=BooleanField()
+            ),
+            'team__name'  # Допълнителна подредба по име
+        )
+    )
+
+    unique_teams = []
+    seen_teams = set()
+
+    for league_team in league_teams:
+        if league_team.team.id not in seen_teams:
+            unique_teams.append(league_team.team)
+            seen_teams.add(league_team.team.id)
+
+    return unique_teams
 
 
 def get_team_balance(user_team):

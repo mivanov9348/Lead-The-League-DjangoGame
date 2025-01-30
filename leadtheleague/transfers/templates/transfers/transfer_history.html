@@ -3,6 +3,7 @@
 {% block title %}Transfer History{% endblock %}
 
 {% block extra_css %}
+{% load humanize %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/transfer_history.css' %}">
 {% endblock %}
@@ -10,24 +11,25 @@
 {% block content %}
 {% load humanize %}
 <header class="header">
-
     <div class="dropdown">
         <select id="team-select">
-            <option value="all">All</option>
-            {% for team in all_teams %}
+            <option value="all" {% if team_id == "all" %}selected{% endif %}>All</option>
+            {% for team in sorted_teams %}
             <option value="{{ team.id }}" {% if team.id|stringformat:"s" == team_id|stringformat:"s" %}selected{% endif %}>
-            {{ team.name }}
+                {{ team.name }}
             </option>
             {% endfor %}
         </select>
     </div>
 </header>
+
+
 <main class="transfer-history">
     <section class="transfer-card transfers-in">
         <h2>In ⬇</h2>
-        <!-- Добавен е ред за заглавие -->
         <div class="transfer-header">
             <span class="transfer-date">Date</span>
+            <span class="transfer-in">In</span>
             <span class="transfer-player">Player</span>
             <span class="transfer-from">From</span>
             <span class="transfer-amount">Amount</span>
@@ -36,13 +38,28 @@
             {% for transfer in transfers_in %}
             <li class="transfer-item">
                 <span class="transfer-date">{{ transfer.transfer_date }}</span>
+                <span class="transfer-in" title={{ transfer.buying_team.name }}>
+                    {% if transfer.buying_team.logo %}
+                        <img src="{{ transfer.buying_team.logo.url }}" alt="{{ transfer.buying_team.name }} logo"
+                             class="team-logo">
+                    {% else %}
+                        No Logo
+                    {% endif %}
+                </span>
                 <span class="transfer-player">
                     <a href="{% url 'players:player_profile' transfer.player.id %}">
                         {{ transfer.player.name }}
                     </a>
                 </span>
-                <span class="transfer-from">{{ transfer.selling_team.name }}</span>
-                <span class="transfer-amount">{% if transfer.is_free_agent %}Free{% else %}{{ transfer.amount|floatformat:2 }}{% endif %}</span>
+                <span class="transfer-out" title={{ transfer.selling_team.name }}>
+                    {% if transfer.selling_team.logo %}
+                        <img src="{{ transfer.selling_team.logo.url }}" alt="{{ transfer.selling_team.name }} logo"
+                             class="team-logo">
+                    {% else %}
+                        Free Agent
+                    {% endif %}
+                </span>
+                <span class="transfer-amount">{% if transfer.is_free_agent %}Free{% else %}{{ transfer.amount|intcomma }}{% endif %}</span>
             </li>
             {% empty %}
             <li class="transfer-item no-transfers">No transfers in.</li>
@@ -52,7 +69,6 @@
 
     <section class="transfer-card transfers-out">
         <h2>Out ⬆</h2>
-        <!-- Добавен е ред за заглавие -->
         <div class="transfer-header">
             <span class="transfer-date">Date</span>
             <span class="transfer-player">Player</span>
@@ -68,8 +84,15 @@
                         {{ transfer.player.name }}
                     </a>
                 </span>
-                <span class="transfer-to">{{ transfer.buying_team.name }}</span>
-                <span class="transfer-amount">{% if transfer.is_free_agent %}Free{% else %}{{ transfer.amount|floatformat:2 }}{% endif %}</span>
+                <span class="transfer-to" title={{ transfer.buying_team.name }}>
+                    {% if transfer.buying_team.logo %}
+                        <img src="{{ transfer.buying_team.logo.url }}" alt="{{ transfer.buying_team.name }} logo"
+                             class="team-logo">
+                    {% else %}
+                        Free Agent
+                    {% endif %}
+                </span>
+                <span class="transfer-amount">{% if transfer.is_free_agent %}Free{% else %}{{ transfer.amount|intcomma }}{% endif %}</span>
             </li>
             {% empty %}
             <li class="transfer-item no-transfers">No transfers out.</li>
@@ -78,28 +101,16 @@
     </section>
 </main>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Вземане на dropdown менюто и текста за избрания отбор
-        const teamSelect = document.getElementById('team-select');
-        const selectedTeamText = document.getElementById('selected-team');
+    const teamSelect = document.getElementById('team-select');
 
-        // Добавяне на event listener за промяна на селекцията
-        teamSelect.addEventListener('change', function () {
-            // Вземане на текста и стойността на избрания отбор
-            const selectedTeamName = teamSelect.options[teamSelect.selectedIndex].text;
-            const selectedTeam = teamSelect.value;
-
-            // Актуализация на текста на избрания отбор (по желание)
-            if (selectedTeamText) {
-                selectedTeamText.textContent = selectedTeamName;
-            }
-
-            // Пренасочване към новия URL с параметър
-            window.location.href = "{% url 'transfers:transfer_history' %}?team=" + selectedTeam;
-        });
+    teamSelect.addEventListener('change', function () {
+        const selectedTeam = teamSelect.value;
+        window.location.href = window.location.pathname + "?team=" + selectedTeam;
     });
+});
+
 </script>
 
 {% endblock %}

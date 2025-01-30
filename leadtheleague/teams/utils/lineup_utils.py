@@ -98,7 +98,6 @@ def auto_select_starting_lineup(team):
 
         all_players = Player.objects.filter(
             team_players__team=team,
-            is_youth=False,
             is_free_agent=False
         )
 

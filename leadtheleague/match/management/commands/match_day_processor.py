@@ -1,14 +1,12 @@
 import datetime
 import random
 from datetime import time
-
-from django.core.management.base import BaseCommand
 import logging
 import random
 
+from django.core.management import BaseCommand
 from django.db.models import Q
 from numpy.ma.extras import average
-
 from core.models import FirstName
 from core.utils.names_utils import get_random_first_name
 from cups.models import SeasonCup
@@ -31,6 +29,8 @@ from players.utils.generate_player_utils import generate_random_player
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
 from staff.models import FootballAgent
 from staff.utils.agent_utils import scouting_new_talents, generate_agents, attach_image_to_all_agents
+from teams.ai.release_player_ai import ai_decide_release_players
+from teams.ai.search_player_ai import search_player_decision_making
 from teams.models import Team
 from teams.utils.lineup_utils import ensure_team_tactics
 from teams.utils.team_analytics_utils import process_league_season_data, get_league_season_statistics, plot_team_points, \
@@ -87,7 +87,7 @@ class Command(BaseCommand):
         match_days = MatchSchedule.objects.filter(season=season, is_played=False).exclude(
             event_type='transfer').order_by('date')
         try:
-            dayslimit = 2
+            dayslimit = 3
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
@@ -150,3 +150,5 @@ class Command(BaseCommand):
         #     print(f'Agent: {agent.first_name} {agent.last_name} - agent sell: {agents_sell['count']}, Sum: {sum_get}')
         # set_manual_day_today('2025-05-01')
         # finalize_euro_cup(current_euro_season, match)
+        # ai_decide_release_players()
+        # search_player_decision_making()

@@ -3,9 +3,6 @@ from decimal import Decimal
 
 
 def player_training(coach, player):
-    """
-    Провежда тренировка между coach и player, изчислявайки training_impact.
-    """
     # Вземаме важните показатели
     coach_rating = Decimal(coach.rating)  # Уверяваме се, че coach_rating е Decimal
     determination = Decimal(random.randint(8, 15))  # Генерираме стойност за determination

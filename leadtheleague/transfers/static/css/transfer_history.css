@@ -1,40 +1,30 @@
-.transfer-history {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px; /* Разстояние между секциите */
 
+.transfer-history {
+    display: flex; /* Използваме flexbox за да разделим страницата на две равни части */
+    gap: 20px; /* Разстояние между двете секции */
 }
 
 .transfer-card {
     flex: 1;
-    background-color: var(--darkgreen-color);
-    border: 1px solid #333;
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    height:700px;
+    padding: 10px;
+    background-color: #f9f9f9;
 }
 
-.transfers-in {
-    margin-right: 10px;
-}
-
-.transfers-out {
-    margin-left: 10px;
-}
-
-.transfer-card h2 {
-    text-align: center;
-    color: var(--blue-color);
-    margin-bottom: 15px;
-    font-size: 18px;
+.transfer-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #eee;
     font-weight: bold;
-    font-family: 'OLD SPORT 02 ATHLETIC NCV', sans-serif;
+    border-bottom: 1px solid #ddd;
 }
 
 .transfer-list {
-    list-style: none;
+    list-style-type: none;
     padding: 0;
     margin: 0;
 }
@@ -42,100 +32,36 @@
 .transfer-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    margin-bottom: 8px;
-    background-color: var(--darkgreen-color);
-    border: 1px solid #333;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
 }
 
-.transfer-item:nth-child(even) {
-    background-color: #005500; /* По-наситено зелено за редуване */
+.transfer-item:last-child {
+    border-bottom: none;
 }
 
-.transfer-item span {
-    font-size: 16px;
-    color: var(--blue-color);
+.transfer-date, .transfer-player, .transfer-from, .transfer-to, .transfer-amount {
+    flex: 1;
+    text-align: center;
 }
 
-.transfer-item .transfer-player a {
-    color: var(--white-color);
+.transfer-player a {
+    color: #007bff;
     text-decoration: none;
-    font-weight: bold;
-    font-size: 16px;
-    transition: color 0.2s;
 }
 
-.transfer-item .transfer-player a:hover {
-    color: var(--lightblue-color);
+.transfer-player a:hover {
     text-decoration: underline;
 }
 
-.transfer-item.no-transfers {
+.no-transfers {
     text-align: center;
-    font-style: italic;
-    color: var(--white-color);
-    background-color: rgba(0, 0, 0, 0.2);
-    border: none;
+    color: #888;
+    padding: 20px;
 }
 
-/* Адаптивност за малки екрани */
-@media (max-width: 768px) {
-    .transfer-history {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .transfer-card {
-        margin: 0;
-    }
-
-    .transfer-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .transfer-item span {
-        font-size: 14px;
-        text-align: left;
-        padding: 5px 0;
-    }
-}
-
-.transfer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    margin-bottom: 5px;
-    background-color: var(--blue-color);
-    border: 1px solid #333;
-    border-radius: 8px;
-    font-weight: bold;
-    color: black;
-    text-transform: uppercase;
-    font-size: 12px;
-}
-
-.transfer-header span {
-    flex: 1;
-    text-align: center;
-    padding: 0 8px;
-}
-
-.transfer-header .transfer-date {
-    max-width: 100px;
-}
-
-.transfer-header .transfer-amount {
-    font-weight: bold;
-    color: var(--lightgreen-color);
-}
-
-.dropdown #team-select{
-    background-color: var(--darkgreen-color);
-    color: var(--white-color);
-    border-radius: 5px;
+.team-logo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
 }
