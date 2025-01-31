@@ -1,3 +1,11 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dropdown {
+    margin-right: 10px;
+}
 
 .transfer-history {
     display: flex; /* Използваме flexbox за да разделим страницата на две равни части */

@@ -1,8 +1,14 @@
 import datetime
-
 from django.db.models import Q
-
 from game.models import Season
+
+
+# def advance_day(self):
+#     if self.current_date < self.end_date:
+#         self.current_date += timezone.timedelta(days=1)
+#         self.save()
+#         # Извикване на логика за обработка на текущия ден
+#         TeamState.process_all_teams(self)
 
 def get_current_season():
     current_season = Season.objects.filter(is_active=True).first()

@@ -1,6 +1,7 @@
 import os
 from collections import defaultdict
 import pandas as pd
+from django.db import transaction
 from matplotlib import pyplot as plt
 from django.conf import settings
 
@@ -65,42 +66,45 @@ def bulk_update_team_statistics(matches, match_date):
         team_id__in=[team_id for team_id, _ in team_updates.keys()],
         season_id__in=[season_id for _, season_id in team_updates.keys()]
     )
+
     records_dict = {(rec.team_id, rec.season_id): rec for rec in existing_records}
 
     to_create = []
     to_update = []
 
-    for (team_id, season_id), stats in team_updates.items():
-        if (team_id, season_id) in records_dict:
-            record = records_dict[(team_id, season_id)]
-            record.matches += stats['matches']
-            record.goalscored += max(stats['goalscored'], 0)
-            record.goalconceded += max(stats['goalconceded'], 0)  # Само положителни стойности
-            record.points += stats['points']
-            record.wins += stats['wins']
-            record.draws += stats['draws']
-            record.losses += stats['losses']
-            to_update.append(record)
-        else:
-            to_create.append(TeamSeasonAnalytics(
-                team_id=team_id,
-                season_id=season_id,
-                matches=stats['matches'],
-                goalscored=max(stats['goalscored'], 0),
-                goalconceded=max(stats['goalconceded'], 0),
-                points=stats['points'],
-                wins=stats['wins'],
-                draws=stats['draws'],
-                losses=stats['losses'],
-            ))
+    with transaction.atomic():
+        for (team_id, season_id), stats in team_updates.items():
+            if (team_id, season_id) in records_dict:
+                record = records_dict[(team_id, season_id)]
+                record.matches += stats['matches']
+                record.goalscored += max(stats['goalscored'], 0)
+                record.goalconceded += max(stats['goalconceded'], 0)  # Only positive values
+                record.points += stats['points']
+                record.wins += stats['wins']
+                record.draws += stats['draws']
+                record.losses += stats['losses']
+                to_update.append(record)
+            else:
+                to_create.append(TeamSeasonAnalytics(
+                    team_id=team_id,
+                    season_id=season_id,
+                    matches=stats['matches'],
+                    goalscored=max(stats['goalscored'], 0),
+                    goalconceded=max(stats['goalconceded'], 0),
+                    points=stats['points'],
+                    wins=stats['wins'],
+                    draws=stats['draws'],
+                    losses=stats['losses'],
+                ))
 
-    if to_create:
-        TeamSeasonAnalytics.objects.bulk_create(to_create)
-    if to_update:
-        TeamSeasonAnalytics.objects.bulk_update(
-            to_update,
-            ['matches', 'goalscored', 'goalconceded', 'points', 'wins', 'draws', 'losses']
-        )
+        if to_create:
+            TeamSeasonAnalytics.objects.bulk_create(to_create)
+
+        if to_update:
+            TeamSeasonAnalytics.objects.bulk_update(
+                to_update,
+                ['matches', 'goalscored', 'goalconceded', 'points', 'wins', 'draws', 'losses']
+            )
 
 
 def get_league_season_statistics(season):

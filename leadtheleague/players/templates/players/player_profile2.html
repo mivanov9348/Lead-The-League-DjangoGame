@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}{{ player.first_name }} {{ player.last_name }}{% endblock %}
+{% block extra_css %}
+    {% load static %}
+    {% load humanize %}
+    <link rel="stylesheet" href="{% static 'css/player_profile2.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="player-container">
+        <div class="header">
+            <div class="player-info">
+                {% if player.image %}
+                    <img src="{{ player.image.url }}" alt="Player Image">
+                {% else %}
+                    <img src="{% static 'images/default_player.png' %}" alt="Default Player Photo">
+                {% endif %}
+                <h1>{{ player.first_name }} {{ player.last_name }}</h1>
+                <p><strong>Team:</strong> {{ player_team.team_name }}</p>
+                <p><strong>Position:</strong> {{ player.position }}</p>
+                <p><strong>Nationality:</strong> {{ player.nationality.name }}</p>
+                <p><strong>Age:</strong> {{ player.age }}</p>
+                <p><strong>Price:</strong> {{ player.price|intcomma }}</p>
+                <button class="btn btn-back" onclick="goBack()">Back</button>
+                {% if is_player_in_user_team %}
+                    <button id="release-button" class="btn btn-danger" onclick="releasePlayer()">Release Player</button>
+                {% elif not player.is_free_agent %}
+                    <button id="offer-button" class="btn btn-primary" onclick="toggleOfferInput()">Send Offer</button>
+                    <div id="offer-input" class="offer-input" style="display: none;">
+                        <input type="number" id="offerAmount" value="{{ player.price }}" min="0" placeholder="Enter offer amount">
+                        <button id="sendOfferButton" class="btn btn-success" onclick="sendOffer()">Send</button>
+                    </div>
+                {% endif %}
+                <button id="shortlist-button" class="btn btn-info"
+                        data-url="{% url 'transfers:toggle_shortlist' player.id %}">
+                    {% if player in team.shortlist.all %}
+                        Remove from Shortlist
+                    {% else %}
+                        Add to Shortlist
+                    {% endif %}
+                </button>
+                <div id="offer-data" data-url="{% url 'transfers:send_offer' player.id %}" data-csrf-token="{{ csrf_token }}"></div>
+                <div id="release-data" data-url="{% url 'players:release_player' player.id %}" data-csrf-token="{{ csrf_token }}"></div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="attributes-section">
+                <h2>Attributes</h2>
+                <div class="attributes-grid">
+                    {% for attribute in attributes %}
+                        <div class="attribute {% if attribute.value <= 10 %}attribute-low {% elif attribute.value <= 15 %}attribute-medium {% else %}attribute-high{% endif %}">
+                            {{ attribute.name }}: {{ attribute.value }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="stats-section">
+                <h2>Season Statistics</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Season</th>
+                            <th>Matches</th>
+                            <th>Goals</th>
+                            <th>Assists</th>
+                            <th>Shoots</th>
+                            <th>Shoots on Target</th>
+                            <th>Passes</th>
+                            <th>Dribbles</th>
+                            <th>Tackles</th>
+                            <th>Fouls</th>
+                            <th>Yellow Cards</th>
+                            <th>Red Cards</th>
+                            <th>Clean Sheets</th>
+                            <th>Conceded</th>
+                            <th>Saves</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in season_stats %}
+                            <tr>
+                                <td>{{ stat.season }}</td>
+                                <td>{{ stat.Matches }}</td>
+                                <td>{{ stat.Goals }}</td>
+                                <td>{{ stat.Assists }}</td>
+                                <td>{{ stat.Shoots }}</td>
+                                <td>{{ stat.ShootsOnTarget }}</td>
+                                <td>{{ stat.Passes }}</td>
+                                <td>{{ stat.Dribbles }}</td>
+                                <td>{{ stat.Tackles }}</td>
+                                <td>{{ stat.Fouls }}</td>
+                                <td>{{ stat.YellowCards }}</td>
+                                <td>{{ stat.RedCards }}</td>
+                                <td>{{ stat.CleanSheets }}</td>
+                                <td>{{ stat.Conceded }}</td>
+                                <td>{{ stat.Saves }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="16">No statistics available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/navigation.js' %}"></script>
+    <script src="{% static 'js/offer.js' %}"></script>
+    <script src="{% static 'js/release.js' %}"></script>
+    <script src="{% static 'js/shortlist.js' %}"></script>
+{% endblock %}

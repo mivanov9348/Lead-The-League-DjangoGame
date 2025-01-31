@@ -27,8 +27,9 @@ from messaging.utils.category_messages_utils import create_league_champion_messa
 from players.models import Player
 from players.utils.generate_player_utils import generate_random_player
 from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
-from staff.models import FootballAgent
+from staff.models import FootballAgent, Coach
 from staff.utils.agent_utils import scouting_new_talents, generate_agents, attach_image_to_all_agents
+from teams.ai.hire_coach_and_train_ai import ai_manage_coaches_and_training, ai_train_players, ai_assign_coach
 from teams.ai.release_player_ai import ai_decide_release_players
 from teams.ai.search_player_ai import search_player_decision_making
 from teams.models import Team
@@ -83,22 +84,53 @@ class Command(BaseCommand):
         # except:
         #     print('Error when processing')
 
-        season = get_current_season()
-        match_days = MatchSchedule.objects.filter(season=season, is_played=False).exclude(
-            event_type='transfer').order_by('date')
         try:
+            # Record the start time of the entire process
+            overall_start_time = datetime.datetime.now()
+            print(f"Overall process started at: {overall_start_time}")
+
+            season = get_current_season()
+            match_days = MatchSchedule.objects.filter(season=season, is_played=False).exclude(
+                event_type='transfer').order_by('date')
+
             dayslimit = 3
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
-                    print(datetime.datetime.now())
                     break
 
-                print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date}")
+                # Record the start time of the iteration
+                start_time = datetime.datetime.now()
+                print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date} at {start_time}")
+
+                # Call the function to process the match day
                 match_day_processor(match_day.date)
 
-        except:
-            print('Error when processing')
+                # Record the end time of the iteration
+                end_time = datetime.datetime.now()
+                print(f"Finished processing match day {i + 1}/{dayslimit}: {match_day.date} at {end_time}")
+
+                # Calculate and print the duration of the iteration
+                duration = end_time - start_time
+                print(f"Duration for match day {i + 1}/{dayslimit}: {duration}")
+
+            # Record the end time of the entire process
+            overall_end_time = datetime.datetime.now()
+            print(f"Overall process finished at: {overall_end_time}")
+
+            # Calculate and print the overall duration
+            overall_duration = overall_end_time - overall_start_time
+            print(f"Overall duration: {overall_duration}")
+
+            # Calculate and print the average duration per iteration
+            if i < dayslimit:
+                print("No iterations were processed.")
+            else:
+                avg_duration = overall_duration / dayslimit
+                print(f"Average duration per iteration: {avg_duration}")
+
+        except Exception as e:
+            print(f'Error when processing: {e}')
 
         # first_name = get_random_first_name('Eastern Europe','Bulgaria')
         # print(first_name)
@@ -148,7 +180,9 @@ class Command(BaseCommand):
         #     agents_sell = get_agent_sold_players(agent)
         #     sum_get = get_agent_total_transfer_income(agent)
         #     print(f'Agent: {agent.first_name} {agent.last_name} - agent sell: {agents_sell['count']}, Sum: {sum_get}')
-        # set_manual_day_today('2025-05-01')
+        # set_manual_day_today('2025-01-30')
         # finalize_euro_cup(current_euro_season, match)
-        # ai_decide_release_players()
+
         # search_player_decision_making()
+        # ai_decide_release_players()
+        # ai_manage_coaches_and_training()

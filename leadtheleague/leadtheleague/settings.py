@@ -12,13 +12,14 @@ STATICFILES_DIRS = [
 ASGI_APPLICATION = 'leadtheleague.asgi.application'
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
+
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -35,6 +36,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',  # Добави това
+    'channels',  # Добави това
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,7 +46,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'django.contrib.humanize',
     'rest_framework',
-    'channels',
     'core',
     'teams',
     'accounts',

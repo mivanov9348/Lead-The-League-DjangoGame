@@ -76,6 +76,7 @@ def get_match_status(match):
 
 
 def get_opposing_team(match, team):
+    print(f'match: {match}')
     if team == match.home_team:
         return match.away_team
     elif team == match.away_team:

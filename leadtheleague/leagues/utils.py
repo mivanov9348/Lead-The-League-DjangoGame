@@ -119,20 +119,30 @@ def populate_teams_for_season(season):
 
 def update_standings_from_fixtures(fixtures):
     print("Updating standings based on fixtures...")
-    for fixture in fixtures:
-        if isinstance(fixture, LeagueFixture):  # Проверяваме дали фикстурата е от тип LeagueFixture
-            league_season = fixture.league_season
-            home_team_record = LeagueTeams.objects.get(
-                league_season=league_season, team=fixture.home_team
-            )
-            away_team_record = LeagueTeams.objects.get(
-                league_season=league_season, team=fixture.away_team
-            )
 
-            # Актуализация на статистики
+    home_team_updates = {}
+    away_team_updates = {}
+
+    for fixture in fixtures:
+        if isinstance(fixture, LeagueFixture):
+            league_season = fixture.league_season
+
+            home_team_record = home_team_updates.get((league_season.id, fixture.home_team.id))
+            if not home_team_record:
+                home_team_record = LeagueTeams.objects.get(
+                    league_season=league_season, team=fixture.home_team
+                )
+                home_team_updates[(league_season.id, fixture.home_team.id)] = home_team_record
+
+            away_team_record = away_team_updates.get((league_season.id, fixture.away_team.id))
+            if not away_team_record:
+                away_team_record = LeagueTeams.objects.get(
+                    league_season=league_season, team=fixture.away_team
+                )
+                away_team_updates[(league_season.id, fixture.away_team.id)] = away_team_record
+
             home_team_record.matches += 1
             away_team_record.matches += 1
-
             home_team_record.goalscored += fixture.home_goals
             home_team_record.goalconceded += fixture.away_goals
             away_team_record.goalscored += fixture.away_goals
@@ -159,12 +169,14 @@ def update_standings_from_fixtures(fixtures):
                     away_team_record.goalscored - away_team_record.goalconceded
             )
 
-            # Запазваме промените
-            home_team_record.save()
-            away_team_record.save()
+    with transaction.atomic():
+        all_records_to_update = list(home_team_updates.values()) + list(away_team_updates.values())
+        LeagueTeams.objects.bulk_update(
+            all_records_to_update,
+            ['matches', 'goalscored', 'goalconceded', 'wins', 'losses', 'draws', 'points', 'goaldifference']
+        )
 
     print("Standings update completed.")
-
 
 def determine_league_champions(season):
     print("\nЗапочваме процедура за определяне на шампионите за сезона.")

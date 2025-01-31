@@ -21,6 +21,16 @@
             {% endfor %}
         </select>
     </div>
+      <div class="dropdown">
+        <select id="date-select">
+            <option value="all" {% if selected_date == "all" %}selected{% endif %}>All Dates</option>
+            {% for date in unique_dates %}
+            <option value="{{ date|date:'Y-m-d' }}" {% if date|date:'Y-m-d' == selected_date %}selected{% endif %}>
+                {{ date|date:"Y-m-d" }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
 </header>
 
 
@@ -102,12 +112,20 @@
 </main>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+   document.addEventListener('DOMContentLoaded', function () {
     const teamSelect = document.getElementById('team-select');
+    const dateSelect = document.getElementById('date-select');
 
     teamSelect.addEventListener('change', function () {
         const selectedTeam = teamSelect.value;
-        window.location.href = window.location.pathname + "?team=" + selectedTeam;
+        const selectedDate = dateSelect.value;
+        window.location.href = window.location.pathname + "?team=" + selectedTeam + "&date=" + selectedDate;
+    });
+
+    dateSelect.addEventListener('change', function () {
+        const selectedTeam = teamSelect.value;
+        const selectedDate = dateSelect.value;
+        window.location.href = window.location.pathname + "?team=" + selectedTeam + "&date=" + selectedDate;
     });
 });
 

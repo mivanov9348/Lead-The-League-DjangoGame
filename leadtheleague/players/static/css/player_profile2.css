@@ -1,0 +1,141 @@
+.player-container {
+    width: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden; /* Prevents the container from overflowing */
+}
+
+.header {
+    background-color: #282c34;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    overflow: hidden; /* Ensures no overflow in the header section */
+}
+
+.header .player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden; /* Ensures no overflow in the player info section */
+}
+
+.header img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2em;
+    overflow: hidden; /* Ensures no overflow in the title */
+    white-space: nowrap; /* Prevents text wrapping */
+    text-overflow: ellipsis; /* Adds ellipsis if text is too long */
+}
+
+.header p {
+    margin: 5px 0;
+    font-size: 1.2em;
+    overflow: hidden; /* Ensures no overflow in paragraphs */
+    white-space: nowrap; /* Prevents text wrapping */
+    text-overflow: ellipsis; /* Adds ellipsis if text is too long */
+}
+
+.header .btn {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    overflow: visible; /* Keeps buttons as they are */
+}
+
+.btn-back {
+    background-color: #61dafb;
+    color: black;
+}
+
+.btn-danger {
+    background-color: #ff4d4d;
+}
+
+.btn-primary {
+    background-color: #4caf50;
+}
+
+.btn-info {
+    background-color: #2196f3;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    overflow: auto; /* Allows scrolling when content overflows */
+}
+
+.attributes-section, .stats-section {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: auto; /* Allows scrolling within each section if needed */
+}
+
+.attributes-section h2, .stats-section h2 {
+    margin-top: 0;
+    overflow: hidden; /* Ensures no overflow in headers */
+    white-space: nowrap; /* Prevents text wrapping */
+    text-overflow: ellipsis; /* Adds ellipsis if text is too long */
+}
+
+.attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    overflow: auto; /* Allows scrolling within the attributes grid if needed */
+}
+
+.attribute {
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    overflow: hidden; /* Ensures no overflow in attribute items */
+    white-space: nowrap; /* Prevents text wrapping */
+    text-overflow: ellipsis; /* Adds ellipsis if text is too long */
+}
+
+.attribute-low {
+    background-color: #ffcccc;
+}
+
+.attribute-medium {
+    background-color: #ffffcc;
+}
+
+.attribute-high {
+    background-color: #ccffcc;
+}
+
+.stats-section table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: auto; /* Allows scrolling within the table if needed */
+}
+
+.stats-section th, .stats-section td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    overflow: hidden; /* Ensures no overflow in table cells */
+    white-space: nowrap; /* Prevents text wrapping */
+    text-overflow: ellipsis; /* Adds ellipsis if text is too long */
+}
+
+.stats-section th {
+    background-color: #f2f2f2;
+}

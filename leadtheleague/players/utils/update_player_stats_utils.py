@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404
 from game.models import Settings
@@ -139,26 +142,66 @@ def update_season_statistics_for_match(match):
     home_team_players = match.home_team.team_players.values_list('player', flat=True)
     away_team_players = match.away_team.team_players.values_list('player', flat=True)
 
-    all_players = Player.objects.filter(id__in=home_team_players.union(away_team_players))
+    all_player_ids = set(home_team_players) | set(away_team_players)
 
-    # Iterate through all players
-    for player in all_players:
-        # Get PlayerMatchStatistics for the player in the match
-        match_stats = PlayerMatchStatistic.objects.filter(player=player, match=match)
+    if not all_player_ids:
+        print("No players found for this match.")
+        return
 
-        for match_stat in match_stats:
-            # Ensure the statistics from PlayerMatchStatistic is added to PlayerSeasonStatistic
-            for stat_name, value in match_stat.statistics.items():
-                statistic, _ = Statistic.objects.get_or_create(name=stat_name)
+    # Fetch all PlayerMatchStatistic objects for the players in this match at once
+    match_stats = PlayerMatchStatistic.objects.filter(player_id__in=all_player_ids, match=match).select_related(
+        'player')
 
-                # Get or create the PlayerSeasonStatistic for the player, season, and statistic
-                season_stat, created = PlayerSeasonStatistic.objects.get_or_create(
-                    player=player,
-                    season=match.season,
-                    statistic=statistic,
-                    defaults={'value': 0}
-                )
+    # Prepare a dictionary to hold the updates
+    season_stat_updates = defaultdict(lambda: defaultdict(int))
 
-                # Update the season statistic value
-                season_stat.value += value
-                season_stat.save()
+    # Collect all statistics that need to be updated
+    for match_stat in match_stats:
+        player = match_stat.player
+        for stat_name, value in match_stat.statistics.items():
+            statistic, _ = Statistic.objects.get_or_create(name=stat_name)
+            key = (player.id, match.season.id, statistic.id)
+            season_stat_updates[key][stat_name] += value
+
+    # Prepare lists for bulk creation and updating
+    to_create = []
+    to_update = []
+
+    with transaction.atomic():
+        # Fetch existing PlayerSeasonStatistic records in bulk
+        existing_records = PlayerSeasonStatistic.objects.filter(
+            player_id__in=all_player_ids,
+            season=match.season,
+            statistic_id__in=[statistic.id for statistic in Statistic.objects.filter(
+                name__in=[name for name, _ in season_stat_updates[next(iter(season_stat_updates))].items()])]
+        ).select_related('player', 'season', 'statistic')
+
+        # Create a dictionary for quick lookup of existing records
+        existing_dict = {
+            (record.player_id, record.season_id, record.statistic_id): record
+            for record in existing_records
+        }
+
+        # Update or create the PlayerSeasonStatistic records
+        for (player_id, season_id, statistic_id), stats in season_stat_updates.items():
+            key = (player_id, season_id, statistic_id)
+            if key in existing_dict:
+                record = existing_dict[key]
+                record.value += sum(stats.values())
+                to_update.append(record)
+            else:
+                total_value = sum(stats.values())
+                to_create.append(PlayerSeasonStatistic(
+                    player_id=player_id,
+                    season_id=season_id,
+                    statistic_id=statistic_id,
+                    value=total_value
+                ))
+
+        # Bulk create new records
+        if to_create:
+            PlayerSeasonStatistic.objects.bulk_create(to_create)
+
+        # Bulk update existing records
+        if to_update:
+            PlayerSeasonStatistic.objects.bulk_update(to_update, ['value'])

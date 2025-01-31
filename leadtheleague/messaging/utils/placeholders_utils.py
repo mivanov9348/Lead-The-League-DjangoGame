@@ -50,8 +50,6 @@ def get_release_player_placeholders(player, team):
 
 
 def get_new_coach_placeholders(coach, team):
-    if not team.is_active:
-        raise ValueError(f"The team {team.name} is not active.")
 
     return {
         'coach_name': f"{coach.first_name} {coach.last_name}",

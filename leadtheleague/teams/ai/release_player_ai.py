@@ -1,7 +1,6 @@
 import random
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
 from messaging.utils.category_messages_utils import create_release_player_message
 from players.models import Position
 from players.utils.update_player_stats_utils import release_player_from_team

@@ -8,6 +8,7 @@ from match.utils.match.retrieval import get_opposing_team
 from players.models import PlayerMatchStatistic
 from teams.models import TeamTactics, TeamPlayer
 
+
 def choose_event_random_player(team):
     try:
         team_tactics = TeamTactics.objects.select_related('team').get(team=team)
@@ -17,6 +18,7 @@ def choose_event_random_player(team):
         return starting_player
     except TeamTactics.DoesNotExist:
         return None
+
 
 def update_match_minute(match):
     increment = random.randint(1, 7)
@@ -75,7 +77,6 @@ def update_player_stats_from_template(match, event_result, player):
     if not player:
         print("No player provided for statistics update.")
         return
-
     event_fields_to_stats = {
         "goals": "Goals",
         "assists": "Assists",
@@ -90,7 +91,6 @@ def update_player_stats_from_template(match, event_result, player):
         "redCards": "RedCards",
         "conceded": "Conceded",
     }
-
     # Зареждаме или създаваме статистика за играча
     player_stat, created = PlayerMatchStatistic.objects.get_or_create(
         player=player,
@@ -98,20 +98,17 @@ def update_player_stats_from_template(match, event_result, player):
         defaults={"statistics": {stat: 0 for stat in event_fields_to_stats.values()}},
     )
     updated_stats = player_stat.statistics
-
     # Обновяване на статистиките на играча
     for field, stat_name in event_fields_to_stats.items():
         stat_value = getattr(event_result, field, 0)
         if stat_value > 0:
             updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
-
     # Оптимизирано: Зареждаме само необходимите данни за вратаря на противниковия отбор
     player_team = TeamPlayer.objects.select_related("team").filter(player=player).first()
     opposing_team = get_opposing_team(match, player_team.team)
     opposing_goalkeeper = (
         opposing_team.teamtactics.starting_players.filter(position__name="Goalkeeper").only("id").first()
     )
-
     if event_result.event_result in {"ShotOnTarget", "Goal"} and opposing_goalkeeper:
         gk_stat, _ = PlayerMatchStatistic.objects.get_or_create(
             player=opposing_goalkeeper,
@@ -125,7 +122,6 @@ def update_player_stats_from_template(match, event_result, player):
             gk_stats["Conceded"] = gk_stats.get("Conceded", 0) + 1
         gk_stat.statistics = gk_stats
         gk_stat.save()
-
     # Оптимизирано: Актуализираме случайно съотборник само ако е нужно
     if event_result.event_result == "Goal":
         teammates = player.team.teamtactics.starting_players.exclude(id=player.id).only("id")
@@ -140,12 +136,9 @@ def update_player_stats_from_template(match, event_result, player):
             teammate_stats["Assists"] = teammate_stats.get("Assists", 0) + 1
             teammate_stat.statistics = teammate_stats
             teammate_stat.save()
-
     if not created:
         player_stat.statistics = updated_stats
         player_stat.save()
-
-
 
 def update_match_score(event_result, match, team_with_initiative, player):
     goal_events = {"ShotGoal", "CornerGoal", "FreeKickGoal", "PenaltyGoal"}
@@ -161,6 +154,7 @@ def update_match_score(event_result, match, team_with_initiative, player):
         match.save(update_fields=["home_goals", "away_goals"])
 
         match.refresh_from_db(fields=["home_goals", "away_goals"])
+
 
 def check_initiative(template, match):
     if not template.event_result.possession_kept:
@@ -180,6 +174,7 @@ def fill_template_with_player(template, player):
 
     formatted_text = template.template_text.format(player_1=player_name)
     return formatted_text
+
 
 def handle_card_event(event_result, player, match, team):
     current_minute = match.current_minute
