@@ -97,10 +97,13 @@ def europe_promotion(new_season):
     with transaction.atomic():
         total_added_teams = 0
 
-        cup_champions = promote_cup_champions_to_europe(new_season, new_euro_cup_season, european_cups)
+        cup_champions = promote_cup_champions_to_europe(new_season, new_euro_cup_season)
+        print(f'cup champions: {cup_champions}')
         total_added_teams += len(cup_champions)
 
-        league_teams = promote_league_teams_to_europe(new_season, new_euro_cup_season, european_cups, cup_champions)
+        league_teams = promote_league_teams_to_europe(new_euro_cup_season,cup_champions)
+        print(f'league_teams: {league_teams}')
+
         total_added_teams += len(league_teams)
 
         fill_remaining_spots(new_euro_cup_season, total_added_teams)

@@ -10,11 +10,15 @@ def get_team_all_stats_by_team(team):
     except TeamAllStats.DoesNotExist:
         return None
 
+
 def update_team_all_time_stats_after_match(match):
+    # Използваме транзакция за да гарантираме атомарността на операциите
     with transaction.atomic():
+        # Зареждаме или създаваме статистиките на отборите в рамките на единична заявка
         home_team_stats, _ = TeamAllStats.objects.select_for_update().get_or_create(team=match.home_team)
         away_team_stats, _ = TeamAllStats.objects.select_for_update().get_or_create(team=match.away_team)
 
+        # Обновяване на общите статистики за всеки отбор
         home_team_stats.matches += 1
         away_team_stats.matches += 1
         home_team_stats.goal_scored += match.home_goals

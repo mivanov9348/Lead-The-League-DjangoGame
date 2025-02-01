@@ -120,13 +120,15 @@ def populate_teams_for_season(season):
 def update_standings_from_fixtures(fixtures):
     print("Updating standings based on fixtures...")
 
+    # Създаване на словари за съхранение на обновяванията
     home_team_updates = {}
     away_team_updates = {}
 
     for fixture in fixtures:
-        if isinstance(fixture, LeagueFixture):
+        if isinstance(fixture, LeagueFixture):  # Проверяваме дали фикстурата е от тип LeagueFixture
             league_season = fixture.league_season
 
+            # Извличане или създаване на записите в словари
             home_team_record = home_team_updates.get((league_season.id, fixture.home_team.id))
             if not home_team_record:
                 home_team_record = LeagueTeams.objects.get(
@@ -141,6 +143,7 @@ def update_standings_from_fixtures(fixtures):
                 )
                 away_team_updates[(league_season.id, fixture.away_team.id)] = away_team_record
 
+            # Актуализация на статистики
             home_team_record.matches += 1
             away_team_record.matches += 1
             home_team_record.goalscored += fixture.home_goals
@@ -169,6 +172,7 @@ def update_standings_from_fixtures(fixtures):
                     away_team_record.goalscored - away_team_record.goalconceded
             )
 
+    # Запазване на промените в единично извикване
     with transaction.atomic():
         all_records_to_update = list(home_team_updates.values()) + list(away_team_updates.values())
         LeagueTeams.objects.bulk_update(
@@ -244,10 +248,10 @@ def determine_league_champions(season):
     print("Процедурата по определяне на шампионите е завършена.")
 
 
-def promote_league_teams_to_europe(new_season, new_european_cup_season, european_cups, cup_champions):
+def promote_league_teams_to_europe( new_european_cup_season, cup_champions):
     added_teams = []
-
     leagues = League.objects.all()
+
     for league in leagues:
         previous_season = league.seasons.filter(is_completed=True).order_by('-season__year').first()
         if not previous_season:
@@ -257,46 +261,50 @@ def promote_league_teams_to_europe(new_season, new_european_cup_season, european
         if qualifiers_count <= 0:
             continue
 
-        league_nationality = league.nationality
-        print(f"Processing previous season: {previous_season} for league: {league.name}")
+        top_teams = previous_season.teams.order_by('-points', '-goaldifference', '-goalscored')
 
-        top_teams = previous_season.teams.filter(
-            team__nationality=league_nationality
-        ).order_by('-points', '-goaldifference', '-goalscored')
-        print(f"Top teams after filtering: {[team.team.name for team in top_teams]}")
+        top_teams = [team.team for team in top_teams if team.team.nationality == league.nationality]
+
+        if len(top_teams) < qualifiers_count:
+            continue
 
         qualified_teams = []
-        additional_team_needed = False  # Флаг за допълнителен отбор
+        cup_champions_in_top = [champion for champion in cup_champions if champion in top_teams[:qualifiers_count]]
 
-        for cup_champion in cup_champions:
-            if cup_champion not in [team.team for team in top_teams[:qualifiers_count]]:
-                qualified_teams.append(cup_champion)
+        for champion in cup_champions_in_top:
+            if champion not in qualified_teams:
+                qualified_teams.append(champion)
 
         for team in top_teams[:qualifiers_count]:
-            if team.team not in qualified_teams:
-                qualified_teams.append(team.team)
+            if team not in qualified_teams:
+                qualified_teams.append(team)
 
-        while len(qualified_teams) < qualifiers_count + len(cup_champions):
-            next_team = top_teams.exclude(
-                team__in=qualified_teams
-            ).first()
+        additional_spots = qualifiers_count + len(cup_champions) - len(qualified_teams)
+        if additional_spots > 0:
+            for team in top_teams[qualifiers_count:]:
+                if team not in qualified_teams:
+                    qualified_teams.append(team)
+                    additional_spots -= 1
+                    if additional_spots == 0:
+                        break
+
+        while len(qualified_teams) < 6:
+            next_team = next((team for team in top_teams if team not in qualified_teams), None)
             if next_team:
-                qualified_teams.append(next_team.team)
+                qualified_teams.append(next_team)
             else:
                 break
 
+        for team in qualified_teams:
+            EuropeanCupTeam.objects.create(
+                team=team,
+                european_cup_season=new_european_cup_season
+            )
+            print(f"Added {team.name} from {league.name} to European Cups.")
+
         added_teams.extend(qualified_teams)
 
-        for cup in european_cups:
-            for team in qualified_teams:
-                EuropeanCupTeam.objects.create(
-                    team=team,
-                    european_cup_season=new_european_cup_season
-                )
-            print(f"Added {', '.join([team.name for team in qualified_teams])} from {league.name} to {cup.name}.")
-
     return added_teams
-
 
 def auto_set_league_champions():
     current_season = get_current_season()

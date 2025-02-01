@@ -29,13 +29,10 @@ def bulk_update_team_statistics(matches, match_date):
         'draws': 0,
         'losses': 0,
     })
-
     weight = TOURNAMENT_WEIGHTS.get(match_date.event_type, 1)
-
     for match in matches:
         if not match.is_played:
             continue
-
         # Update points, wins, draws, and losses based on match result
         if match.home_goals > match.away_goals:
             team_updates[(match.home_team.id, match.season.id)]['wins'] += 1
@@ -50,61 +47,52 @@ def bulk_update_team_statistics(matches, match_date):
             team_updates[(match.home_team.id, match.season.id)]['losses'] += 1
             team_updates[(match.away_team.id, match.season.id)]['wins'] += 1
             team_updates[(match.away_team.id, match.season.id)]['points'] += 3 * weight
-
         # Update matches and apply statistic weights
         team_updates[(match.home_team.id, match.season.id)]['matches'] += 1
         team_updates[(match.home_team.id, match.season.id)]['goalscored'] += match.home_goals * STATISTIC_WEIGHTS[
             'goalscored']
         team_updates[(match.home_team.id, match.season.id)]['goalconceded'] += match.away_goals
-
         team_updates[(match.away_team.id, match.season.id)]['matches'] += 1
         team_updates[(match.away_team.id, match.season.id)]['goalscored'] += match.away_goals * STATISTIC_WEIGHTS[
             'goalscored']
         team_updates[(match.away_team.id, match.season.id)]['goalconceded'] += match.home_goals
-
     existing_records = TeamSeasonAnalytics.objects.filter(
         team_id__in=[team_id for team_id, _ in team_updates.keys()],
         season_id__in=[season_id for _, season_id in team_updates.keys()]
     )
-
     records_dict = {(rec.team_id, rec.season_id): rec for rec in existing_records}
-
     to_create = []
     to_update = []
-
-    with transaction.atomic():
-        for (team_id, season_id), stats in team_updates.items():
-            if (team_id, season_id) in records_dict:
-                record = records_dict[(team_id, season_id)]
-                record.matches += stats['matches']
-                record.goalscored += max(stats['goalscored'], 0)
-                record.goalconceded += max(stats['goalconceded'], 0)  # Only positive values
-                record.points += stats['points']
-                record.wins += stats['wins']
-                record.draws += stats['draws']
-                record.losses += stats['losses']
-                to_update.append(record)
-            else:
-                to_create.append(TeamSeasonAnalytics(
-                    team_id=team_id,
-                    season_id=season_id,
-                    matches=stats['matches'],
-                    goalscored=max(stats['goalscored'], 0),
-                    goalconceded=max(stats['goalconceded'], 0),
-                    points=stats['points'],
-                    wins=stats['wins'],
-                    draws=stats['draws'],
-                    losses=stats['losses'],
-                ))
-
-        if to_create:
-            TeamSeasonAnalytics.objects.bulk_create(to_create)
-
-        if to_update:
-            TeamSeasonAnalytics.objects.bulk_update(
-                to_update,
-                ['matches', 'goalscored', 'goalconceded', 'points', 'wins', 'draws', 'losses']
-            )
+    for (team_id, season_id), stats in team_updates.items():
+        if (team_id, season_id) in records_dict:
+            record = records_dict[(team_id, season_id)]
+            record.matches += stats['matches']
+            record.goalscored += max(stats['goalscored'], 0)
+            record.goalconceded += max(stats['goalconceded'], 0)  # Само положителни стойности
+            record.points += stats['points']
+            record.wins += stats['wins']
+            record.draws += stats['draws']
+            record.losses += stats['losses']
+            to_update.append(record)
+        else:
+            to_create.append(TeamSeasonAnalytics(
+                team_id=team_id,
+                season_id=season_id,
+                matches=stats['matches'],
+                goalscored=max(stats['goalscored'], 0),
+                goalconceded=max(stats['goalconceded'], 0),
+                points=stats['points'],
+                wins=stats['wins'],
+                draws=stats['draws'],
+                losses=stats['losses'],
+            ))
+    if to_create:
+        TeamSeasonAnalytics.objects.bulk_create(to_create)
+    if to_update:
+        TeamSeasonAnalytics.objects.bulk_update(
+            to_update,
+            ['matches', 'goalscored', 'goalconceded', 'points', 'wins', 'draws', 'losses']
+        )
 
 
 def get_league_season_statistics(season):

@@ -132,38 +132,85 @@
     let chatSocket = null;
 
     function selectRecipient(id, username) {
-        if (chatSocket) {
-            chatSocket.close();
+            if (chatSocket) {
+                chatSocket.close();
+            }
+            chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
+            console.log('chatsocket1',chatSocket)
+
+            chatSocket.onopen = function() {
+                console.log("WebSocket connection opened.");
+            };
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                const messageDiv = document.createElement('div');
+                messageDiv.innerHTML = `<strong>${data.sender}:</strong> ${data.message}`;
+                document.getElementById('messages').appendChild(messageDiv);
+                document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+            };
+
+            chatSocket.onerror = function(error) {
+                console.error("WebSocket error:", error);
+            };
+
+            chatSocket.onclose = function(e) {
+                console.log("WebSocket connection closed.");
+            };
+
+            window.location.href = `?recipient_id=${id}`;
         }
 
-        chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
+    document.querySelector('#sendBtn').onclick = async function() {
+            const messageInputDom = document.querySelector('#content');
+            const message = messageInputDom.value.trim();
+            const recipientId = document.querySelector('#recipient_id').value;
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const messageDiv = document.createElement('div');
-            messageDiv.innerHTML = `<strong>${data.sender}:</strong> ${data.message}`;
-            document.getElementById('messages').appendChild(messageDiv);
-            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-        };
+            // Добавете дебъгинг информация
+            console.log('Message:', message);
+            console.log('Recipient ID:', recipientId);
+            console.log('Chat Socket:', chatSocket);
 
-        chatSocket.onclose = function(e) {
-            console.log("WebSocket connection closed.");
-        };
+            if (!message || !recipientId || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+                console.error('Message or recipient not set, or WebSocket is not open');
+                return;
+            }
 
-        window.location.href = `?recipient_id=${id}`;
-    }
+            // Изпращане на съобщение през WebSocket
+            chatSocket.send(JSON.stringify({
+                "message": message,
+                "sender": '{{ request.user.username }}'
+            }));
 
-    document.querySelector('#sendBtn').onclick = function() {
-        const messageInputDom = document.querySelector('#content');
-        const message = messageInputDom.value;
-        if (message.trim() === "" || !chatSocket) return;
+            // Запазване на съобщението в базата данни чрез AJAX
+            try {
+                const response = await fetch('/messaging/send_message/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        'recipient_id': recipientId,
+                        'content': message
+                    })
+                });
 
-        chatSocket.send(JSON.stringify({
-            "message": message,
-            "sender": '{{ request.user.username }}'
-        }));
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-        messageInputDom.value = '';
+                const data = await response.json();
+
+                if (data.success) {
+                    messageInputDom.value = '';
+                    console.log('Message sent successfully');
+                } else {
+                    console.error('Failed to send message:', data);
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
     };
 </script>
 {% endblock %}

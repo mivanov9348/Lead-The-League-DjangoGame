@@ -93,12 +93,12 @@ class Command(BaseCommand):
             match_days = MatchSchedule.objects.filter(season=season, is_played=False).exclude(
                 event_type='transfer').order_by('date')
 
-            dayslimit = 3
+            dayslimit = 1
             for i, match_day in enumerate(match_days):
                 if i >= dayslimit:
                     print(f"Reached maximum iterations: {dayslimit}")
                     break
-
+                set_manual_day_today(match_day.date)
                 # Record the start time of the iteration
                 start_time = datetime.datetime.now()
                 print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date} at {start_time}")

@@ -1,0 +1,94 @@
+
+.calendar-container {
+    display: flex;
+    height: 100vh;
+}
+.sidebar {
+    width: 20%;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.sidebar h2 {
+    margin-top: 0;
+}
+#season-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#season-list li {
+    cursor: pointer;
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    transition: background-color 0.3s ease;
+}
+#season-list li:hover,
+#season-list li.active {
+    background-color: #555;
+}
+.calendar-content {
+    width: 80%;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.current-day-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+}
+.current-day-section h3 {
+    margin: 0 0 10px;
+    font-size: 1.2em;
+}
+.current-day-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.current-day-section ul li {
+    padding: 5px 0;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+.calendar-day {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+}
+.day-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+.day-content {
+    color: #666;
+}
+/* Стили за различните типове мачове */
+.league {
+    background-color: #e7f9e7; /* Зелен цвят */
+}
+.cup {
+    background-color: #ffe6e6; /* Червен цвят */
+}
+.euro {
+    background-color: #e6f2ff; /* Син цвят */
+}
+.transfer {
+    background-color: #fff4e6; /* Оранжев цвят */
+}
+/* Стил за изиграни мачове */
+.played {
+    background-color: #bcbcbc; /* Тъмносив цвят */
+    opacity: 0.5; /* Използваме малко прозрачност */
+}

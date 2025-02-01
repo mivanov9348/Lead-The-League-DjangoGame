@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/calendar.css' %}">
+{% endblock %}
+{% block content %}
+<div class="calendar-container">
+    <div class="sidebar">
+        <h2>Seasons</h2>
+        <ul id="season-list">
+            {% for season in seasons %}
+            <li data-season-id="{{ season.id }}" {% if season.id == current_season_id %}class="active"{% endif %}>
+                {{ season.year }} - Season {{ season.season_number }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="calendar-content" id="calendar-content">
+        <!-- Тук ще бъде зареден календара -->
+        {% if matches %}
+        <div class="current-day-section">
+            <h3>Current Day: {{ current_date|date:"d.m.Y" }}</h3>
+            <ul>
+                {% for match in current_day_matches %}
+                <li>{{ match.event_type|title }} Day</li>
+                {% empty %}
+                <p>No matches scheduled for today.</p>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="calendar-grid">
+            {% for match in matches %}
+            <div class="calendar-day {% if match.is_played %}played{% endif %} {% if match.event_type == 'league' %}league{% elif match.event_type == 'cup' %}cup{% elif match.event_type == 'euro' %}euro{% else %}transfer{% endif %}">
+                <div class="day-header">{{ match.date|date:"d.m.Y" }}</div>
+                <div class="day-content">
+                    {% if match.event_type == 'league' %}
+                        League Day
+                    {% elif match.event_type == 'cup' %}
+                        Cup Day
+                    {% elif match.event_type == 'euro' %}
+                        Euro Day
+                    {% else %}
+                        Transfer Day
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const seasonList = document.getElementById('season-list');
+    const calendarContent = document.getElementById('calendar-content');
+
+    // Функцията за зареждане на мачовете
+    function loadMatchSchedule(seasonId) {
+        fetch(`/game/api/match-schedule/${seasonId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data:', data); // Добавете това за да видите какви данни са върнати
+                renderCalendar(data);
+            })
+            .catch(error => {
+                console.error('Error fetching match schedule:', error); // Добавете това за да видите ако има грешка
+            });
+    }
+
+    // Функцията за рендериране на календара
+    function renderCalendar(matches) {
+        let html = '<div class="current-day-section">';
+        html += `<h3>Current Day: ${new Date().toLocaleDateString()}</h3>`;
+        html += '<ul>';
+        matches.forEach(match => {
+            if (new Date(match.date).toDateString() === new Date().toDateString()) {
+                html += `<li>${match.event_type.charAt(0).toUpperCase() + match.event_type.slice(1)} Day</li>`;
+            }
+        });
+        html += '</ul>';
+        if (!matches.some(match => new Date(match.date).toDateString() === new Date().toDateString())) {
+            html += '<p>No matches scheduled for today.</p>';
+        }
+        html += '</div>';
+
+        html += '<div class="calendar-grid">';
+        matches.forEach(match => {
+            const eventTypeClass = match.event_type === 'league' ? 'league' : (match.event_type === 'cup' ? 'cup' : (match.event_type === 'euro' ? 'euro' : 'transfer'));
+            const playedClass = match.is_played ? 'played' : '';
+            html += `<div class="calendar-day ${playedClass} ${eventTypeClass}">
+                        <div class="day-header">${new Date(match.date).toLocaleDateString()}</div>
+                        <div class="day-content">${match.event_type === 'league' ? 'League Day' : (match.event_type === 'cup' ? 'Cup Day' : (match.event_type === 'euro' ? 'Euro Day' : 'Transfer Day'))}</div>
+                     </div>`;
+        });
+        html += '</div>';
+        calendarContent.innerHTML = html;
+    }
+
+    // Извикване на функцията за зареждане на мачовете за текущия сезон
+    {% if current_season_id %}
+    loadMatchSchedule({{ current_season_id }});
+    {% endif %}
+
+    // Обработване на кликването върху сезона
+    seasonList.addEventListener('click', function(event) {
+        if (event.target.tagName === 'LI') {
+            const seasonId = event.target.getAttribute('data-season-id');
+            console.log('Selected Season ID:', seasonId); // Добавете това за да видите кой сезон е избран
+            loadMatchSchedule(seasonId);
+        }
+    });
+});
+</script>
+{% endblock %}

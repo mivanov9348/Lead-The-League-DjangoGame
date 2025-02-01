@@ -1,5 +1,5 @@
 from django.urls import path
-from messaging.views import inbox_view, message_detail, delete_notification, mark_as_read, send_message, chat_page
+from messaging.views import inbox_view, message_detail, delete_notification, mark_as_read, chat_page, send_message
 
 app_name = 'messaging'
 
@@ -10,5 +10,5 @@ urlpatterns = [
     path('mark-as-read/<int:message_id>/', mark_as_read, name='mark_as_read'),
 
     path('chat/', chat_page, name='chat_page'),
-    path('chat/send/', send_message, name='send_message'),
+    path('send_message/', send_message, name='send_message'),
 ]

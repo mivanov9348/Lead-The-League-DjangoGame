@@ -20,7 +20,7 @@ def determine_stage_by_teams_count(teams_count):
     return stages.get(teams_count, "Unknown Stage")
 
 
-def promote_cup_champions_to_europe(new_season, new_european_cup_season, european_cups):
+def promote_cup_champions_to_europe(new_season, new_european_cup_season):
     previous_season_cups = SeasonCup.objects.filter(season__year=new_season.year - 1, is_completed=True)
     cup_champions = []
 
