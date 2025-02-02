@@ -1,9 +1,18 @@
+import datetime
 import random
-from datetime import timedelta
 from math import ceil, log2
 from europeancups.models import EuropeanCupSeason
 from game.models import MatchSchedule
+from game.utils.get_season_stats_utils import get_current_season
+from teams.state import TeamState
 
+
+def advance_day():
+    season = get_current_season()
+    if season.current_date < season.end_date:
+        season.current_date += datetime.timedelta(days=1)
+        season.save()
+        TeamState.process_all_teams(season)
 
 def get_next_euro_match_day():
     next_schedule = MatchSchedule.objects.filter(
@@ -122,15 +131,12 @@ def generate_season_schedule(season):
         if schedule[i] is None:
             schedule[i] = 'league'
 
-    # Създаване на обекти за събития
     match_schedules = []
     for i, event_type in enumerate(schedule):
-        match_date = current_date + timedelta(days=i)
+        match_date = current_date + datetime.timedelta(days=i)
         match_schedules.append(MatchSchedule(date=match_date, season=season, event_type=event_type))
 
-    # Запис в базата данни
     MatchSchedule.objects.bulk_create(match_schedules)
 
-    # Обновяване на крайната дата на сезона
-    season.end_date = current_date + timedelta(days=total_days - 1)
+    season.end_date = current_date + datetime.timedelta(days=total_days - 1)
     season.save()

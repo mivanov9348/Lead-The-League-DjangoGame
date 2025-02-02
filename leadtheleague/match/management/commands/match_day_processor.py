@@ -14,6 +14,7 @@ from europeancups.models import EuropeanCup, EuropeanCupSeason
 from europeancups.utils.euro_cup_season_utils import finalize_euro_cup
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
+from game.utils.schedule_utils import advance_day
 from game.utils.season_functionalities_utils import set_manual_day_today
 from leagues.models import LeagueSeason, League
 from leagues.utils import auto_set_league_champions
@@ -33,6 +34,7 @@ from teams.ai.hire_coach_and_train_ai import ai_manage_coaches_and_training, ai_
 from teams.ai.release_player_ai import ai_decide_release_players
 from teams.ai.search_player_ai import search_player_decision_making
 from teams.models import Team
+from teams.state import TeamState
 from teams.utils.lineup_utils import ensure_team_tactics
 from teams.utils.team_analytics_utils import process_league_season_data, get_league_season_statistics, plot_team_points, \
     plot_goals_scored, plot_points_vs_goal_difference
@@ -45,89 +47,46 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting match day processing...")
 
-        # # match = Match.objects.filter(id = 151542).first()
-        #
-        # matches = Match.objects.filter(match_date = '2025-04-21')
-        #
-        # for match in matches:
-        #     ensure_team_tactics(match)
-
-        # match_days = MatchSchedule.objects.filter(event_type='euro', is_played=False).order_by('date')
-        # try:
-        #     for match_day in match_days:
-        #         match_day_processor(match_day.date)
-        #
-        # except:
-        #     print('Error when processing')
-
-        # match_days = MatchSchedule.objects.filter(event_type='cup', is_played=False).order_by('date')
-        #
-        # try:
-        #     for match_day in match_days:
-        #         match_day_processor(match_day.date)
-        #
-        # except:
-        #     print('Error when processing')
-
-        # match_days = MatchSchedule.objects.filter(event_type='league', is_played=False).order_by('date')
-        # try:
-        #     dayslimit = 4
-        #     for i, match_day in enumerate(match_days):
-        #         if i >= dayslimit:
-        #             print(f"Reached maximum iterations: {dayslimit}")
-        #             print(datetime.datetime.now())
-        #             break
-        #
-        #         print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date}")
-        #         match_day_processor(match_day.date)
-        #
-        # except:
-        #     print('Error when processing')
-
         try:
-            # Record the start time of the entire process
             overall_start_time = datetime.datetime.now()
             print(f"Overall process started at: {overall_start_time}")
 
+            days_step = 1
+
             season = get_current_season()
-            match_days = MatchSchedule.objects.filter(season=season, is_played=False).exclude(
-                event_type='transfer').order_by('date')
 
-            dayslimit = 1
-            for i, match_day in enumerate(match_days):
-                if i >= dayslimit:
-                    print(f"Reached maximum iterations: {dayslimit}")
+            for _ in range(days_step):
+                advance_day()
+
+                season.refresh_from_db()
+                current_date = season.current_date
+                print(f"Processing matches for date: {current_date}")
+
+                match_days = MatchSchedule.objects.filter(season=season, date=current_date, is_played=False).exclude(
+                    event_type='transfer'
+                )
+
+                if not match_days.exists():
+                    print(f"No matches found for {current_date}, skipping.")
+                    continue
+
+                for match_day in match_days:
+                    start_time = datetime.datetime.now()
+                    print(f"Processing match: {match_day} at {start_time}")
+
+                    match_day_processor(match_day.date)
+
+                    end_time = datetime.datetime.now()
+                    duration = end_time - start_time
+                    print(f"Finished processing match: {match_day} at {end_time}, Duration: {duration}")
+
+                if current_date >= season.end_date:
+                    print("Season has ended. Stopping process.")
                     break
-                set_manual_day_today(match_day.date)
-                # Record the start time of the iteration
-                start_time = datetime.datetime.now()
-                print(f"Processing match day {i + 1}/{dayslimit}: {match_day.date} at {start_time}")
 
-                # Call the function to process the match day
-                match_day_processor(match_day.date)
-
-                # Record the end time of the iteration
-                end_time = datetime.datetime.now()
-                print(f"Finished processing match day {i + 1}/{dayslimit}: {match_day.date} at {end_time}")
-
-                # Calculate and print the duration of the iteration
-                duration = end_time - start_time
-                print(f"Duration for match day {i + 1}/{dayslimit}: {duration}")
-
-            # Record the end time of the entire process
             overall_end_time = datetime.datetime.now()
-            print(f"Overall process finished at: {overall_end_time}")
-
-            # Calculate and print the overall duration
             overall_duration = overall_end_time - overall_start_time
-            print(f"Overall duration: {overall_duration}")
-
-            # Calculate and print the average duration per iteration
-            if i < dayslimit:
-                print("No iterations were processed.")
-            else:
-                avg_duration = overall_duration / dayslimit
-                print(f"Average duration per iteration: {avg_duration}")
+            print(f"Overall process finished at: {overall_end_time}, Total duration: {overall_duration}")
 
         except Exception as e:
             print(f'Error when processing: {e}')
@@ -183,6 +142,5 @@ class Command(BaseCommand):
         # set_manual_day_today('2025-01-30')
         # finalize_euro_cup(current_euro_season, match)
 
-        # search_player_decision_making()
-        # ai_decide_release_players()
-        # ai_manage_coaches_and_training()
+        # season = get_current_season()
+        # TeamState.process_all_teams(season)

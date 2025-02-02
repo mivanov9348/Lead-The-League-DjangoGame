@@ -16,7 +16,7 @@
         </ul>
     </div>
     <div class="calendar-content" id="calendar-content">
-        <!-- Тук ще бъде зареден календара -->
+        <!-- Current Day Section -->
         {% if matches %}
         <div class="current-day-section">
             <h3>Current Day: {{ current_date|date:"d.m.Y" }}</h3>
@@ -49,12 +49,13 @@
         {% endif %}
     </div>
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const seasonList = document.getElementById('season-list');
     const calendarContent = document.getElementById('calendar-content');
 
-    // Функцията за зареждане на мачовете
+    // Function to load match schedule
     function loadMatchSchedule(seasonId) {
         fetch(`/game/api/match-schedule/${seasonId}/`)
             .then(response => {
@@ -64,31 +65,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log('Data:', data); // Добавете това за да видите какви данни са върнати
+                console.log('Data:', data); // Log the data for debugging
                 renderCalendar(data);
             })
             .catch(error => {
-                console.error('Error fetching match schedule:', error); // Добавете това за да видите ако има грешка
+                console.error('Error fetching match schedule:', error); // Log any errors
             });
     }
 
-    // Функцията за рендериране на календара
     function renderCalendar(matches) {
         let html = '<div class="current-day-section">';
-        html += `<h3>Current Day: ${new Date().toLocaleDateString()}</h3>`;
+        // Use the current_date passed from the backend
+        const currentDate = "{{ current_date|date:'Y-m-d' }}"; // Passed from Django
+        const formattedCurrentDate = new Date(currentDate).toLocaleDateString();
+
+        html += `<h3>Current Day: ${formattedCurrentDate}</h3>`;
         html += '<ul>';
-        matches.forEach(match => {
-            if (new Date(match.date).toDateString() === new Date().toDateString()) {
+
+        // Filter matches for the current day
+        const currentDayMatches = matches.filter(match => match.date === currentDate);
+
+        if (currentDayMatches.length > 0) {
+            currentDayMatches.forEach(match => {
                 html += `<li>${match.event_type.charAt(0).toUpperCase() + match.event_type.slice(1)} Day</li>`;
-            }
-        });
-        html += '</ul>';
-        if (!matches.some(match => new Date(match.date).toDateString() === new Date().toDateString())) {
+            });
+        } else {
             html += '<p>No matches scheduled for today.</p>';
         }
-        html += '</div>';
 
+        html += '</ul>';
+        html += '</div>';
         html += '<div class="calendar-grid">';
+
         matches.forEach(match => {
             const eventTypeClass = match.event_type === 'league' ? 'league' : (match.event_type === 'cup' ? 'cup' : (match.event_type === 'euro' ? 'euro' : 'transfer'));
             const playedClass = match.is_played ? 'played' : '';
@@ -97,20 +105,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="day-content">${match.event_type === 'league' ? 'League Day' : (match.event_type === 'cup' ? 'Cup Day' : (match.event_type === 'euro' ? 'Euro Day' : 'Transfer Day'))}</div>
                      </div>`;
         });
+
         html += '</div>';
         calendarContent.innerHTML = html;
     }
 
-    // Извикване на функцията за зареждане на мачовете за текущия сезон
+    // Load match schedule for the current season
     {% if current_season_id %}
     loadMatchSchedule({{ current_season_id }});
     {% endif %}
 
-    // Обработване на кликването върху сезона
+    // Handle season selection
     seasonList.addEventListener('click', function(event) {
         if (event.target.tagName === 'LI') {
             const seasonId = event.target.getAttribute('data-season-id');
-            console.log('Selected Season ID:', seasonId); // Добавете това за да видите кой сезон е избран
+            console.log('Selected Season ID:', seasonId); // Log the selected season ID
             loadMatchSchedule(seasonId);
         }
     });

@@ -1,14 +1,13 @@
-import datetime
+
 from django.db.models import Q
-from game.models import Season
+from game.models import Season, MatchSchedule
 
 
-# def advance_day(self):
-#     if self.current_date < self.end_date:
-#         self.current_date += timezone.timedelta(days=1)
-#         self.save()
-#         # Извикване на логика за обработка на текущия ден
-#         TeamState.process_all_teams(self)
+def is_transfer_day():
+    current_season = get_current_season()
+    match_schedule = MatchSchedule.objects.filter(date=current_season.current_date, event_type='transfer').first()
+    return match_schedule is not None
+
 
 def get_current_season():
     current_season = Season.objects.filter(is_active=True).first()
@@ -16,6 +15,7 @@ def get_current_season():
         raise ValueError("No active season found.")
     print(f"Current season: {current_season}")
     return current_season
+
 
 def get_previous_season(current_season):
     return (
@@ -27,6 +27,7 @@ def get_previous_season(current_season):
         .order_by('-year', '-season_number')
         .first()
     )
+
 
 def check_are_all_competition_completed(season):
     leagues_completed = not season.league_seasons.filter(is_completed=False).exists()

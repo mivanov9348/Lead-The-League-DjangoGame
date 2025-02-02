@@ -1,14 +1,14 @@
 import random
 from decimal import Decimal
+
+from django.db import transaction
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
 from game.utils.get_season_stats_utils import get_current_season
-from messaging.utils.category_messages_utils import create_team_to_team_transfer_message, \
-    create_free_agent_transfer_message
+from messaging.utils.category_messages_utils import create_free_agent_transfer_message
 from players.models import Position, Player
 from teams.models import TeamPlayer, Team
-from teams.utils.team_finance_utils import buy_player_expense, sell_player_income
+from teams.utils.team_finance_utils import buy_player_expense
 from teams.utils.update_team_stats import get_available_shirt_number
 from transfers.models import Transfer
 
@@ -55,9 +55,17 @@ def ai_find_needed_position(team):
     positions = ["GK", "DF", "MF", "ATT"]
     weakest_position = None
     weakest_value = float('inf')
+    min_players_needed = {"GK": 2, "DF": 4, "MF": 4, "ATT": 3}
 
     for pos in positions:
         avg_strength = ai_calculate_position_strength(team, pos)
+        player_count = TeamPlayer.objects.filter(team=team, player__position__abbreviation=pos).count()
+
+        # Приоритетно търсим ако нямаме достатъчно играчи
+        if player_count < min_players_needed[pos]:
+            return pos
+
+        # Ако няма недостиг, търсим най-слабата позиция
         if avg_strength < weakest_value:
             weakest_value = avg_strength
             weakest_position = pos
@@ -67,12 +75,18 @@ def ai_find_needed_position(team):
 
 def ai_find_best_player(position_abbr, budget):
     position = get_object_or_404(Position, abbreviation=position_abbr)
-    available_players = Player.objects.filter(
-        position=position, is_free_agent=True, price__lte=budget
-    ).order_by('-potential_rating')  # Взимаме най-добрите по рейтинг
 
-    best_player = available_players.first()
-    return {"player": best_player, "rating": best_player.potential_rating} if best_player else None
+    with transaction.atomic():  # Използваме транзакция, за да избегнем race conditions
+        available_players = Player.objects.filter(
+            position=position, is_free_agent=True, price__lte=budget
+        ).select_for_update().order_by('-potential_rating')  # Заключваме записите за промяна
+
+        best_player = available_players.first()
+        if best_player:
+            best_player.is_free_agent = False  # Предварително задаваме статуса
+            best_player.save()
+
+        return {"player": best_player, "rating": best_player.potential_rating} if best_player else None
 
 
 def ai_find_best_team_player(team, position_abbr):
@@ -113,6 +127,12 @@ def send_offer_for_ai(offering_team, player, team_finance):
         team_finance.save()
         print(f'Updated team finances: Balance={team_finance.balance}, Total Expenses={team_finance.total_expenses}')
 
+        existing_team_player = TeamPlayer.objects.filter(player=player).first()
+        if existing_team_player:
+            print(
+                f"{player.first_name} {player.last_name} is already assigned to {existing_team_player.team.name}, skipping transfer.")
+            return
+
         team_player = TeamPlayer.objects.create(team=offering_team, player=player)
         print(f'Created TeamPlayer entry for {player.first_name} {player.last_name}')
 
@@ -138,7 +158,7 @@ def send_offer_for_ai(offering_team, player, team_finance):
         print(f'Transfer record created')
 
         player.is_free_agent = False
-        player.save()
+        Player.objects.filter(id=player.id).update(is_free_agent=False)
         print(f'Updated player status: Not a free agent')
 
         create_free_agent_transfer_message(player, offering_team)
