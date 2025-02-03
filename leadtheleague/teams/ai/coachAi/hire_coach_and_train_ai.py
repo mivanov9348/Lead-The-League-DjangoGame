@@ -1,6 +1,4 @@
 from django.utils import timezone
-from datetime import datetime
-
 from django.db import transaction
 from django.db.models import F
 from finance.models import Bank

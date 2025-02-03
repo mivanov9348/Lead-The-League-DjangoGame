@@ -1,44 +1,13 @@
 import datetime
-import random
-from datetime import time
-import logging
-import random
-
 from django.core.management import BaseCommand
-from django.db.models import Q
-from numpy.ma.extras import average
-from core.models import FirstName
-from core.utils.names_utils import get_random_first_name
-from cups.models import SeasonCup
-from europeancups.models import EuropeanCup, EuropeanCupSeason
-from europeancups.utils.euro_cup_season_utils import finalize_euro_cup
+
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from game.utils.schedule_utils import advance_day
 from game.utils.season_functionalities_utils import set_manual_day_today
-from leagues.models import LeagueSeason, League
-from leagues.utils import auto_set_league_champions
-from match.models import Match
-from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
-from match.utils.match.events import calculate_event_success_rate, get_random_match_event, get_event_result
+
 from match.utils.match.processing import match_day_processor, process_match
-from match.utils.match.stats import generate_players_match_stats
-from messaging.utils.category_messages_utils import create_league_champion_message, create_cup_champion_message, \
-    create_european_cup_champion_message
-from players.models import Player
-from players.utils.generate_player_utils import generate_random_player
-from players.utils.get_player_stats_utils import ensure_all_teams_has_minimum_players
-from staff.models import FootballAgent, Coach
-from staff.utils.agent_utils import scouting_new_talents, generate_agents, attach_image_to_all_agents
-from teams.ai.hire_coach_and_train_ai import ai_manage_coaches_and_training, ai_train_players, ai_assign_coach
-from teams.ai.release_player_ai import ai_decide_release_players
-from teams.ai.search_player_ai import search_player_decision_making
-from teams.models import Team
-from teams.state import TeamState
-from teams.utils.lineup_utils import ensure_team_tactics
-from teams.utils.team_analytics_utils import process_league_season_data, get_league_season_statistics, plot_team_points, \
-    plot_goals_scored, plot_points_vs_goal_difference
-from teams.utils.team_finance_utils import get_teams_by_balance, team_income, team_match_profit
+
 
 
 class Command(BaseCommand):
@@ -46,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting match day processing...")
-
+        set_manual_day_today('2025-02-22')
         try:
             overall_start_time = datetime.datetime.now()
             print(f"Overall process started at: {overall_start_time}")

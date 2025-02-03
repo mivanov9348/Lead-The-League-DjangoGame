@@ -4,7 +4,7 @@ from math import ceil, log2
 from europeancups.models import EuropeanCupSeason
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
-from teams.state import TeamState
+from teams.ai.state import TeamState
 
 
 def advance_day():

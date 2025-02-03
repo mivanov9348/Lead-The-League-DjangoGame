@@ -1,6 +1,9 @@
 import random
 from decimal import Decimal
-from teams.ai.search_player_ai import ai_find_needed_position, ai_find_best_team_player, ai_find_best_player, send_offer_for_ai
+
+from teams.ai.transferAi.search_player_ai import ai_find_best_team_player, ai_find_needed_position, ai_find_best_player, \
+    send_offer_for_ai
+
 
 class TransfersAI:
     @staticmethod

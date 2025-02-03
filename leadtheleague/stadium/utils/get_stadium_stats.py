@@ -1,4 +1,5 @@
-from stadium.models import Stadium
+from stadium.models import Stadium, StadiumTier
+
 
 def get_team_stadium(team):
     try:
@@ -18,3 +19,9 @@ def get_stadium_info(stadium):
         "ticket_price": stadium.ticket_price,
         "maintenance_cost": stadium.maintenance_cost,
     }
+
+
+def get_next_stadium_tier(current_tier):
+    if current_tier:
+        return StadiumTier.objects.filter(level=current_tier.level + 1).first()
+    return StadiumTier.objects.filter(level=1).first()
