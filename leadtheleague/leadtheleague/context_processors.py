@@ -1,9 +1,5 @@
-import os
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.templatetags.static import static
-
-from leadtheleague import settings
 from teams.models import Team, TeamFinance
 
 

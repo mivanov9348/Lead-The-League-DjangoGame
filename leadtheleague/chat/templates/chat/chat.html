@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+<div id="chat-container">
+    <div id="users-list">
+        <h3>Users</h3>
+        <ul>
+            {% for user in users %}
+                <li onclick="selectUser('{{ user.id }}', '{{ user.username }}')">{{ user.username }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="chat-box-container">
+        <div id="chat-header">
+            <h3 id="chat-title">Select a user</h3>
+        </div>
+        <div id="chat-box"></div>
+        <div id="message-area">
+            <textarea id="message-input" placeholder="Type a message..."></textarea>
+<button id="send-button" onclick="sendMessage()" disabled>Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedUserId = null;
+let socket = null;
+
+function selectUser(userId, username) {
+    selectedUserId = userId;
+    document.getElementById("chat-title").innerText = username;
+    document.getElementById("send-button").disabled = false;
+    loadMessages();
+    connectWebSocket();
+}
+
+function connectWebSocket() {
+    if (socket) {
+        socket.close();
+    }
+
+    socket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+
+    socket.onmessage = function (event) {
+        let data = JSON.parse(event.data);
+        if (data.sender_id == selectedUserId || data.receiver_id == selectedUserId) {
+            let chatBox = document.getElementById("chat-box");
+            let messageClass = data.sender_id == selectedUserId ? "received" : "sent";
+            chatBox.innerHTML += `<div class="message ${messageClass}"><b>${data.sender_username}:</b> ${data.text}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    };
+}
+
+function loadMessages() {
+    if (!selectedUserId) return;
+    fetch(`/chat/messages/${selectedUserId}/`)
+        .then(response => response.json())
+        .then(data => {
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML = "";
+            data.messages.forEach(msg => {
+                let messageClass = msg.sender_id == selectedUserId ? "received" : "sent";
+                chatBox.innerHTML += `<div class="message ${messageClass}"><b>${msg.sender_username}:</b> ${msg.text}</div>`;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+}
+
+document.getElementById("send-button").addEventListener("click", sendMessage);
+
+function sendMessage() {
+    let message = document.getElementById("message-input").value;
+    if (!selectedUserId || !message) return;
+
+    console.log(socket)
+    console.log(WebSocket)
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(
+            JSON.stringify({
+                receiver_id: selectedUserId,
+                text: message,
+            })
+        );
+        document.getElementById("message-input").value = "";
+    } else {
+        console.error("WebSocket not connected.");
+    }
+}
+
+</script>
+
+
+{% endblock %}
+

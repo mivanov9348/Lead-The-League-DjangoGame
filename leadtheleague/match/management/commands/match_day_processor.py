@@ -15,7 +15,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting match day processing...")
-        set_manual_day_today('2025-02-22')
         try:
             overall_start_time = datetime.datetime.now()
             print(f"Overall process started at: {overall_start_time}")

@@ -13,8 +13,8 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <a class="nav-link chat-btn" href="{% url 'messaging:chat_page' %}">
-                    <i class="fas fa-comments"></i> Chat
+                <a class="nav-link chat-btn" href="{% url 'chat:chat' %}">
+                    <i class="fas fa-comments"></i>Chat
                 </a>
 
                 {% if user.is_authenticated %}

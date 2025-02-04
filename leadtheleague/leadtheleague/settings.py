@@ -12,12 +12,12 @@ STATICFILES_DIRS = [
 ASGI_APPLICATION = 'leadtheleague.asgi.application'
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
         },
-    },
+    }
 }
 
 
@@ -36,8 +36,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 INSTALLED_APPS = [
-    'daphne',  # Добави това
-    'channels',  # Добави това
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'django.contrib.humanize',
     'rest_framework',
+    "channels",
     'core',
     'teams',
     'accounts',
@@ -61,7 +61,9 @@ INSTALLED_APPS = [
     'stadium',
     'cups',
     'europeancups',
-    'vault'
+    'vault',
+    'ai_engine',
+    'chat'
 ]
 
 SITE_ID = 1
@@ -105,10 +107,8 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-WSGI_APPLICATION = "leadtheleague.wsgi.application"
+# WSGI_APPLICATION = "leadtheleague.wsgi.application"
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
