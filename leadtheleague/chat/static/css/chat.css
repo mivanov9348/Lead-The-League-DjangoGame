@@ -26,13 +26,54 @@
 #users-list li {
     padding: 15px;
     cursor: pointer;
-    border-bottom: 1px solid #ddd;
     transition: background 0.3s;
 }
 
 #users-list li:hover {
     background: #e6e6e6;
 }
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    transition: background 0.3s;
+    position: relative;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-info {
+    flex-grow: 1;
+}
+
+.username {
+    font-weight: bold;
+    display: block;
+}
+
+.last-message-time {
+    font-size: 0.8em;
+    color: gray;
+}
+
+.unread-indicator {
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 
 #chat-box-container {
 
@@ -84,9 +125,12 @@ button {
     cursor: pointer;
 }
 
-button:hover{
-
+.typing {
+    font-style: italic;
+    color: gray;
+    padding: 5px;
 }
+
 
 button:disabled {
     background: #cccccc;
@@ -111,4 +155,10 @@ button:disabled {
     background-color: #f1f0f0;
     text-align: left;
     margin-right: auto;
+}
+
+.message-time {
+    font-size: 0.8em;
+    color: gray;
+    margin-left: 5px;
 }

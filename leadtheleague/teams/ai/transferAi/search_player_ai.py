@@ -7,10 +7,12 @@ from django.shortcuts import get_object_or_404
 from game.utils.get_season_stats_utils import get_current_season
 from messaging.utils.category_messages_utils import create_free_agent_transfer_message
 from players.models import Position, Player
+from staff.utils.agent_utils import process_agent_payment
 from teams.models import TeamPlayer, Team
-from teams.utils.team_finance_utils import buy_player_expense
+from teams.utils.team_finance_utils import buy_player_expense, team_expense
 from teams.utils.update_team_stats import get_available_shirt_number
 from transfers.models import Transfer
+from transfers.utils import create_transfer
 
 
 def search_player_decision_making():
@@ -122,16 +124,19 @@ def send_offer_for_ai(offering_team, player, team_finance):
             print(f"{offering_team.name}: Not enough money for {player.first_name} {player.last_name} ({offer_amount})")
             return
 
-        team_finance.balance -= offer_amount
-        team_finance.total_expenses += offer_amount
-        team_finance.save()
-        print(f'Updated team finances: Balance={team_finance.balance}, Total Expenses={team_finance.total_expenses}')
+        # team_finance.balance -= offer_amount
+        # team_finance.total_expenses += offer_amount
+        # team_finance.save()
+        # print(f'Updated team finances: Balance={team_finance.balance}, Total Expenses={team_finance.total_expenses}')
 
         existing_team_player = TeamPlayer.objects.filter(player=player).first()
         if existing_team_player:
             print(
                 f"{player.first_name} {player.last_name} is already assigned to {existing_team_player.team.name}, skipping transfer.")
             return
+
+        team_expense(offering_team, offer_amount, f'Buy free agent {player.first_name} {player.last_name}')
+        process_agent_payment(player.agent, offer_amount)
 
         team_player = TeamPlayer.objects.create(team=offering_team, player=player)
         print(f'Created TeamPlayer entry for {player.first_name} {player.last_name}')
@@ -141,20 +146,10 @@ def send_offer_for_ai(offering_team, player, team_finance):
         team_player.shirt_number = shirt_number
         team_player.save()
 
-        buy_player_expense(offering_team, player, offer_amount)
-        print(f'Recorded purchase expense: {offer_amount}')
-
         current_season = get_current_season()
         print(f'Current season: {current_season}')
 
-        Transfer.objects.create(
-            season=current_season,
-            selling_team=None,
-            buying_team=offering_team,
-            player=player,
-            amount=offer_amount,
-            is_free_agent=True
-        )
+        create_transfer(offering_team, player, True)
         print(f'Transfer record created')
 
         player.is_free_agent = False

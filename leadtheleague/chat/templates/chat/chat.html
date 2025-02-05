@@ -7,9 +7,21 @@
         <h3>Users</h3>
         <ul>
             {% for user in users %}
-                <li onclick="selectUser('{{ user.id }}', '{{ user.username }}')">{{ user.username }}</li>
+            <li onclick="selectUser('{{ user.id }}', '{{ user.username }}')">
+                <div class="user-item">
+                    <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="User Avatar">
+                    <div class="user-info">
+                        <span class="username">{{ user.username }}</span>
+                        <span class="last-message-time" id="last-msg-{{ user.id }}">--:--</span>
+                    </div>
+                    {% if user.has_unread %}
+                    <span class="unread-indicator"></span>
+                    {% endif %}
+                </div>
+            </li>
             {% endfor %}
         </ul>
+
     </div>
     <div id="chat-box-container">
         <div id="chat-header">
@@ -18,13 +30,13 @@
         <div id="chat-box"></div>
         <div id="message-area">
             <textarea id="message-input" placeholder="Type a message..."></textarea>
-<button id="send-button" onclick="sendMessage()" disabled>Send</button>
+            <button id="send-button" onclick="sendMessage()" disabled>Send</button>
         </div>
     </div>
 </div>
 
 <script>
-let selectedUserId = null;
+    let selectedUserId = null;
 let socket = null;
 
 function selectUser(userId, username) {
@@ -40,21 +52,68 @@ function connectWebSocket() {
         socket.close();
     }
 
-    socket = new WebSocket(`ws://${window.location.host}/ws/chat/`);
+    let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    socket = new WebSocket(`${protocol}://${window.location.host}/ws/chat/${selectedUserId}/`);
+
+    socket.onopen = function () {
+        console.log("WebSocket connected.");
+    };
 
     socket.onmessage = function (event) {
         let data = JSON.parse(event.data);
         if (data.sender_id == selectedUserId || data.receiver_id == selectedUserId) {
             let chatBox = document.getElementById("chat-box");
             let messageClass = data.sender_id == selectedUserId ? "received" : "sent";
-            chatBox.innerHTML += `<div class="message ${messageClass}"><b>${data.sender_username}:</b> ${data.text}</div>`;
+
+            let messageTime = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            chatBox.innerHTML += `<div class="message ${messageClass}">
+                <b>${data.sender_username}:</b> ${data.text} <span class="message-time">${messageTime}</span>
+            </div>`;
+
             chatBox.scrollTop = chatBox.scrollHeight;
+            updateLastMessageTime(data.sender_id, data.timestamp);
         }
     };
+
+    socket.onerror = function (error) {
+        console.error("WebSocket error:", error);
+    };
+
+    socket.onclose = function () {
+        console.warn("WebSocket closed. Reconnecting...");
+        setTimeout(connectWebSocket, 3000); // Автоматично презареждане след 3 секунди
+    };
+}
+
+function updateLastMessageTime(userId, timestamp) {
+    let timeElement = document.getElementById(`last-msg-${userId}`);
+    if (timeElement) {
+        let date = new Date(timestamp);
+        let hours = date.getHours().toString().padStart(2, '0');
+        let minutes = date.getMinutes().toString().padStart(2, '0');
+        timeElement.textContent = `${hours}:${minutes}`;
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.split('=')[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 function loadMessages() {
     if (!selectedUserId) return;
+
     fetch(`/chat/messages/${selectedUserId}/`)
         .then(response => response.json())
         .then(data => {
@@ -62,20 +121,52 @@ function loadMessages() {
             chatBox.innerHTML = "";
             data.messages.forEach(msg => {
                 let messageClass = msg.sender_id == selectedUserId ? "received" : "sent";
-                chatBox.innerHTML += `<div class="message ${messageClass}"><b>${msg.sender_username}:</b> ${msg.text}</div>`;
+
+                let messageTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                chatBox.innerHTML += `<div class="message ${messageClass}">
+                    <b>${msg.sender_username}:</b> ${msg.text} <span class="message-time">${messageTime}</span>
+                </div>`;
             });
+
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Маркираме съобщенията като прочетени
+            markMessagesAsRead();
         });
+}
+
+function markMessagesAsRead() {
+    if (!selectedUserId) return;
+
+    fetch(`/chat/messages/read/${selectedUserId}/`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ is_read: true })
+    }).then(() => {
+        // Премахваме червената точка
+        let unreadIndicator = document.querySelector(`li[onclick="selectUser('${selectedUserId}', '')"] .unread-indicator`);
+        if (unreadIndicator) {
+            unreadIndicator.style.display = "none";
+        }
+    });
 }
 
 document.getElementById("send-button").addEventListener("click", sendMessage);
 
-function sendMessage() {
-    let message = document.getElementById("message-input").value;
-    if (!selectedUserId || !message) return;
+document.getElementById("message-input").addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+});
 
-    console.log(socket)
-    console.log(WebSocket)
+function sendMessage() {
+    let message = document.getElementById("message-input").value.trim();
+    if (!selectedUserId || !message) return;
 
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(
@@ -86,7 +177,8 @@ function sendMessage() {
         );
         document.getElementById("message-input").value = "";
     } else {
-        console.error("WebSocket not connected.");
+        console.error("WebSocket not connected. Reconnecting...");
+        connectWebSocket();
     }
 }
 
