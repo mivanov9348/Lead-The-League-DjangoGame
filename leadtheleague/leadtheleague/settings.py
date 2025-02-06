@@ -1,5 +1,12 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
+FERNET_SECRET_KEY = os.getenv("FERNET_SECRET_KEY")
+if not FERNET_SECRET_KEY:
+    raise ValueError("FERNET_SECRET_KEY is not set in environment variables")
 
 BASE_DIR = Path(__file__).resolve().parent
 

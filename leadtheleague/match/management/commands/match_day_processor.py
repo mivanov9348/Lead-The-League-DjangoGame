@@ -1,6 +1,7 @@
 import datetime
 from django.core.management import BaseCommand
 
+from chat.utils.cryptography_utils import encrypt_message, decrypt_message
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from game.utils.schedule_utils import advance_day

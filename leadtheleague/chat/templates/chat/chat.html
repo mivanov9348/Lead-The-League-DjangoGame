@@ -125,16 +125,14 @@ function loadMessages() {
                 let messageTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                 chatBox.innerHTML += `<div class="message ${messageClass}">
-                    <b>${msg.sender_username}:</b> ${msg.text} <span class="message-time">${messageTime}</span>
+                    <b>${msg.sender_username}:</b> ${msg.text} <span class="message-time">${messageTime}</span> <!-- Показва криптирания текст -->
                 </div>`;
             });
 
             chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Маркираме съобщенията като прочетени
-            markMessagesAsRead();
         });
 }
+
 
 function markMessagesAsRead() {
     if (!selectedUserId) return;
