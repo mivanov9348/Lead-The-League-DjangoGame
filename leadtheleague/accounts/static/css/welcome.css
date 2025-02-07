@@ -119,3 +119,16 @@ hr{
 .selected-avatar {
     border: 3px solid blue;
 }
+.avatar-img {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border 0.3s;
+}
+
+.avatar-img:hover {
+    border: 2px solid lightblue;
+}
+
+.selected-avatar {
+    border: 3px solid blue !important;
+}

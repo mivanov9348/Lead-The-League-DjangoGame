@@ -8,7 +8,6 @@ def team_info(request):
         try:
             user_team = Team.objects.get(user=request.user)
         except ObjectDoesNotExist:
-            # Ако няма отбор за потребителя
             return {
                 'team_name': 'No Team',
                 'team_finance': {'balance': 0},
@@ -17,7 +16,6 @@ def team_info(request):
         try:
             team_finance = TeamFinance.objects.get(team=user_team)
         except ObjectDoesNotExist:
-            # Ако няма финансови данни за отбора
             return {
                 'team_name': user_team.name,
                 'team_finance': {'balance': 0},

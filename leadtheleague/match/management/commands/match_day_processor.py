@@ -20,7 +20,7 @@ class Command(BaseCommand):
             overall_start_time = datetime.datetime.now()
             print(f"Overall process started at: {overall_start_time}")
 
-            days_step = 2
+            days_step = 3
 
             season = get_current_season()
 

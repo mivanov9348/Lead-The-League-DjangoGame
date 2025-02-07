@@ -24,13 +24,18 @@ class SignUpView(CreateView):
     template_name = 'accounts/signup.html'
 
     def form_valid(self, form):
-        user = form.save()
+        user = form.save(commit=False)  # Създаваме потребителя, но още не го записваме
+        avatar_url = self.request.POST.get('avatar')  # Вземаме избрания аватар
+        if avatar_url:
+            user.avatar = avatar_url.replace(settings.MEDIA_URL, '')  # Записваме само относителния път
+        user.save()
         login(self.request, user)
 
         if not Team.objects.filter(user=user).exists():
             return redirect('game:choose_team')
 
         return redirect(self.success_url)
+
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
@@ -43,3 +48,4 @@ def get_success_url(self):
     if not Team.objects.filter(user=self.request.user).exists():
         return reverse_lazy('teams:create_team')
     return reverse_lazy('game:home')
+

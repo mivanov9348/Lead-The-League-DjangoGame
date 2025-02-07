@@ -19,15 +19,17 @@
 
                 {% if user.is_authenticated %}
                 <div class="dropdown ms-3">
-                    <span class="profile-name" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ user.username }} <i class="fa-solid fa-chevron-down dropdown-indicator"></i>
-                    </span>
+    <span class="profile-name d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+<img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'avatars/default.png' %}{% endif %}" alt="Avatar" class="profile-icon">
+    </span>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#settings"><i class="fa-solid fa-cog"></i> Profile</a></li>
                         <li>
                             <form method="POST" action="{% url 'accounts:logout' %}">
                                 {% csrf_token %}
-                                <button type="submit" class="dropdown-item"><i class="fa-solid fa-sign-out-alt"></i> Logout</button>
+                                <button type="submit" class="dropdown-item"><i class="fa-solid fa-sign-out-alt"></i>
+                                    Logout
+                                </button>
                             </form>
                         </li>
                     </ul>
@@ -56,7 +58,8 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'teams:squad' %}"><i class="fas fa-list-ol"></i>
                             Squad</a></li>
-                        <li><a class="dropdown-item" href="{% url 'teams:line_up' %}"><i class="fas fa-calendar-alt"></i>
+                        <li><a class="dropdown-item" href="{% url 'teams:line_up' %}"><i
+                                class="fas fa-calendar-alt"></i>
                             Line-up</a></li>
                         <li><a class="dropdown-item" href="{% url 'teams:schedule' %}"><i class="fas fa-clock"></i>
                             Schedule</a></li>
@@ -71,11 +74,14 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'leagues:standings' %}"><i class="fas fa-table"></i>
                             League Table</a></li>
-                        <li><a class="dropdown-item" href="{% url 'leagues:league_results' %}"><i class="fas fa-history"></i>
+                        <li><a class="dropdown-item" href="{% url 'leagues:league_results' %}"><i
+                                class="fas fa-history"></i>
                             Results</a></li>
-                        <li><a class="dropdown-item" href="{% url 'players:top_league_players' %}"><i class="fas fa-star"></i>
+                        <li><a class="dropdown-item" href="{% url 'players:top_league_players' %}"><i
+                                class="fas fa-star"></i>
                             League Top Players</a></li>
-                        <li><a class="dropdown-item" href="{% url 'teams:league_statistics' %}"><i class="fas fa-chart-line"></i>
+                        <li><a class="dropdown-item" href="{% url 'teams:league_statistics' %}"><i
+                                class="fas fa-chart-line"></i>
                             League Analysis</a></li>
 
                     </ul>
@@ -94,7 +100,8 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="" id="europeanCupDropdown"
                        role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-globe-europe"></i>European Cup</a>
+                       data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-globe-europe"></i>European
+                        Cup</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'europeancups:european_cup_groups' %}"><i
                                 class="fas fa-list-ol"></i>
@@ -284,5 +291,11 @@
     color: #ddd;
 }
 
+.profile-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
 
 </style>

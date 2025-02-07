@@ -44,10 +44,10 @@
             <h5 class="text-center">Choose an Avatar</h5>
             <div class="row">
                 {% for avatar in avatars %}
-                <div class="col-md-3 col-sm-4 col-6 text-center">
-                    <img src="{{ avatar }}" class="img-thumbnail avatar-img"
-                         onclick="selectAvatar('{{ avatar }}')">
-                </div>
+                <div class="col-md-3 col-sm-4 col-6 text-center mb-3">
+    <img src="{{ avatar }}" class="img-thumbnail avatar-img" onclick="selectAvatar('{{ avatar }}')">
+</div>
+
                 {% endfor %}
             </div>
             <input type="hidden" name="avatar" id="selected-avatar">
@@ -59,4 +59,5 @@
         </div>
     </form>
 </div>
+
 {% endblock %}

@@ -9,7 +9,11 @@
             {% for user in users %}
             <li onclick="selectUser('{{ user.id }}', '{{ user.username }}')">
                 <div class="user-item">
-                    <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="User Avatar">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" class="user-avatar" alt="User Avatar">
+                    {% else %}
+                    <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="Default Avatar">
+                    {% endif %}
                     <div class="user-info">
                         <span class="username">{{ user.username }}</span>
                         <span class="last-message-time" id="last-msg-{{ user.id }}">--:--</span>
@@ -19,6 +23,7 @@
                     {% endif %}
                 </div>
             </li>
+
             {% endfor %}
         </ul>
 

@@ -18,7 +18,7 @@ function showLogin() {
     document.getElementById("card-title").textContent = "Sign In";
 }
 
-function selectAvatar(avatarUrl) {
+function selectAvatar(event, avatarUrl) {
     document.getElementById("selected-avatar").value = avatarUrl;
     let images = document.querySelectorAll(".avatar-img");
     images.forEach(img => img.classList.remove("selected-avatar"));
