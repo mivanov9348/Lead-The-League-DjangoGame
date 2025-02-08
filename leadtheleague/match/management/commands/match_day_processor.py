@@ -5,11 +5,8 @@ from chat.utils.cryptography_utils import encrypt_message, decrypt_message
 from game.models import MatchSchedule
 from game.utils.get_season_stats_utils import get_current_season
 from game.utils.schedule_utils import advance_day
-from game.utils.season_functionalities_utils import set_manual_day_today
 
-from match.utils.match.processing import match_day_processor, process_match
-
-
+from match.utils.match.processing import match_day_processor
 
 class Command(BaseCommand):
     help = 'Processes today\'s match day.'

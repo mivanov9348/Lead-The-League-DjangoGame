@@ -343,7 +343,7 @@ def generate_free_agents(agent):
 
 def process_retirement_players():
     active_players = Player.objects.filter(is_active=True)
-    print(f"Намерени {active_players.count()} активни играчи за проверка на пенсиониране.")
+    print(f"Founded {active_players.count()} active players.")
 
     for player in active_players:
         retirement_player(player)

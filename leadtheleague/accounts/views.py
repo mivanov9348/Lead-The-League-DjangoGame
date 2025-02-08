@@ -18,26 +18,31 @@ def welcome(request):
     return render(request, 'accounts/welcome.html', {'avatars': avatars})
 
 
+from django.http import JsonResponse
+
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('accounts')
     template_name = 'accounts/signup.html'
 
     def form_valid(self, form):
-        user = form.save(commit=False)  # Създаваме потребителя, но още не го записваме
-        avatar_url = self.request.POST.get('avatar')  # Вземаме избрания аватар
+        user = form.save(commit=False)
+        avatar_url = self.request.POST.get('avatar')
         if avatar_url:
-            user.avatar = avatar_url.replace(settings.MEDIA_URL, '')  # Записваме само относителния път
+            user.avatar = avatar_url.replace(settings.MEDIA_URL, '')
+
         user.save()
         login(self.request, user)
 
-        if not Team.objects.filter(user=user).exists():
-            return redirect('game:choose_team')
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({"success": True, "redirect_url": reverse_lazy('game:choose_team')})
 
-        return redirect(self.success_url)
-
+        return redirect('game:choose_team')
 
     def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({"success": False, "errors": form.errors}, status=400)
+
         return self.render_to_response(self.get_context_data(form=form))
 
 class CustomLoginView(LoginView):

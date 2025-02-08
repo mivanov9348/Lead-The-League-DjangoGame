@@ -27,5 +27,6 @@ class CustomUserCreationForm(UserCreationForm):
     def clean_avatar(self):
         avatar = self.cleaned_data.get('avatar')
         if not avatar:
-            raise ValidationError("You must select an avatar.")
+            self.add_error('avatar', 'You must select an avatar.')
         return avatar
+

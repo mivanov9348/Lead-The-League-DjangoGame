@@ -49,10 +49,6 @@
       "reputation": 680
     },
     {
-      "name": "Montana",
-      "reputation": 650
-    },
-    {
       "name": "Spartak Varna",
       "reputation": 620
     },
@@ -77,10 +73,6 @@
       "reputation": 360
     },
     {
-      "name": "Yambol",
-      "reputation": 200
-    },
-    {
       "name": "Sliven",
       "reputation": 100
     },
@@ -97,24 +89,8 @@
       "reputation": 340
     },
     {
-      "name": "Spartak Pleven",
-      "reputation": 320
-    },
-    {
       "name": "Belasitsa Petrich",
       "reputation": 300
-    },
-    {
-      "name": "Rilski Sportist",
-      "reputation": 280
-    },
-    {
-      "name": "Dunav Ruse",
-      "reputation": 180
-    },
-    {
-      "name": "Yantra Gabrovo",
-      "reputation": 220
     },
     {
       "name": "Litex Lovech",
@@ -183,14 +159,6 @@
       "reputation": 720
     },
     {
-      "name": "Crystal Palace",
-      "reputation": 700
-    },
-    {
-      "name": "Sheffield United",
-      "reputation": 680
-    },
-    {
       "name": "Brighton & Hove Albion",
       "reputation": 660
     },
@@ -225,22 +193,6 @@
     {
       "name": "Derby County",
       "reputation": 460
-    },
-    {
-      "name": "Portsmouth",
-      "reputation": 440
-    },
-    {
-      "name": "Norwich City",
-      "reputation": 500
-    },
-    {
-      "name": "Wimbledon",
-      "reputation": 100
-    },
-    {
-      "name": "Ipswich Town",
-      "reputation": 200
     }
   ],
   "German League": [
@@ -339,30 +291,6 @@
     {
       "name": "Darmstadt 98",
       "reputation": 600
-    },
-    {
-      "name": "Arminia Bielefeld",
-      "reputation": 620
-    },
-    {
-      "name": "St. Pauli",
-      "reputation": 540
-    },
-    {
-      "name": "Kaiserslautern",
-      "reputation": 520
-    },
-    {
-      "name": "Ingolstadt 04",
-      "reputation": 460
-    },
-    {
-      "name": "Augsburg",
-      "reputation": 440
-    },
-    {
-      "name": "Duisburg",
-      "reputation": 400
     }
   ],
   "Italian League": [
@@ -451,40 +379,16 @@
       "reputation": 580
     },
     {
-      "name": "Bari",
-      "reputation": 300
-    },
-    {
       "name": "Chievo Verona",
       "reputation": 220
-    },
-    {
-      "name": "Reggina",
-      "reputation": 400
-    },
-    {
-      "name": "Perugia",
-      "reputation": 360
     },
     {
       "name": "Brescia",
       "reputation": 520
     },
     {
-      "name": "Pescara",
-      "reputation": 460
-    },
-    {
       "name": "Monza",
       "reputation": 560
-    },
-    {
-      "name": "Frosinone",
-      "reputation": 500
-    },
-    {
-      "name": "Venezia",
-      "reputation": 540
     }
   ],
   "Spanish League": [
@@ -577,36 +481,12 @@
       "reputation": 520
     },
     {
-      "name": "Almeria",
-      "reputation": 500
-    },
-    {
-      "name": "Albacete",
-      "reputation": 340
-    },
-    {
-      "name": "Cartagena",
-      "reputation": 320
-    },
-    {
-      "name": "Leganes",
-      "reputation": 300
-    },
-    {
       "name": "Deportivo Alaves",
       "reputation": 280
     },
     {
-      "name": "Hercules",
-      "reputation": 220
-    },
-    {
       "name": "Deportivo La Coruna",
       "reputation": 580
-    },
-    {
-      "name": "Las Palmas",
-      "reputation": 600
     }
   ]
 }
