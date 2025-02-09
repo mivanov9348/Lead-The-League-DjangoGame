@@ -1,9 +1,10 @@
+from django.db import transaction
 from django.db.models import Avg, Prefetch
 import random
 from game.utils.get_season_stats_utils import get_current_season
 from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player, \
     PlayerMatchStatistic, PositionAttribute
-from players.utils.generate_player_utils import generate_random_player
+from players.utils.generate_player_utils import generate_random_player, calculate_player_potential
 from teams.models import TeamPlayer, Team, TeamTactics
 
 def get_all_positions():
@@ -267,7 +268,7 @@ def ensure_all_teams_has_minimum_players():
         ensure_team_has_minimum_players(team)
 
 
-def ensure_team_has_minimum_players(team):
+def ensure_team_has_minimum_players(team, season):
     required_positions = {
         "Goalkeeper": 1,
         "Defender": 5,
@@ -279,27 +280,38 @@ def ensure_team_has_minimum_players(team):
     position_count = {pos: 0 for pos in required_positions.keys()}
 
     for team_player in team_players:
-        if not team_player.player.is_youth:  # Ensure player is not youth
-            position_name = team_player.player.position.name
-            if position_name in position_count:
-                position_count[position_name] += 1
+        position_name = team_player.player.position.name
+        if position_name in position_count:
+            position_count[position_name] += 1
 
-    for position_name, required_count in required_positions.items():
-        missing_count = required_count - position_count.get(position_name, 0)
-        if missing_count > 0:
-            position = Position.objects.filter(name=position_name).first()
-            for _ in range(missing_count):
-                generate_random_player(team=team, position=position)
+    with transaction.atomic():
+        for position_name, required_count in required_positions.items():
+            missing_count = required_count - position_count.get(position_name, 0)
+            if missing_count > 0:
+                position = Position.objects.filter(name=position_name).first()
+                for _ in range(missing_count):
+                    player = generate_random_player(team=team, position=position)
+                    player.age = random.randint(14, 17)
+                    player.is_youth = True
+                    player.potential_rating = calculate_player_potential(player)
+                    player.season = season
+                    player.save()
 
-    current_player_count = team_players.filter(player__is_youth=False).count()  # Count only non-youth players
-    if current_player_count < 11:
-        additional_players_needed = 11 - current_player_count
-        all_positions = list(Position.objects.all())
-        for _ in range(additional_players_needed):
-            random_position = random.choice(all_positions)
-            generate_random_player(team=team, position=random_position)
+        current_player_count = team_players.count()
+        if current_player_count < 11:
+            additional_players_needed = 11 - current_player_count
+            all_positions = list(Position.objects.all())
+            for _ in range(additional_players_needed):
+                random_position = random.choice(all_positions)
+                player = generate_random_player(team=team, position=random_position)
+                player.age = random.randint(14, 17)
+                player.is_youth = True
+                player.potential_rating = calculate_player_potential(player)
+                player.season = season
+                player.save()
 
     return f"Team '{team.name}' now has at least 11 players with the required positions."
+
 
 def ensure_all_teams_within_maximum_players():
     for team in Team.objects.all():

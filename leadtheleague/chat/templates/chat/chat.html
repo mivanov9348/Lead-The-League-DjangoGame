@@ -4,34 +4,44 @@
 <link rel="stylesheet" href="{% static 'css/chat.css' %}">
 <div id="chat-container">
     <div id="users-list">
-        <h3>Users</h3>
         <ul>
             {% for user in users %}
-            <li onclick="selectUser('{{ user.id }}', '{{ user.username }}')">
+            <li onclick="selectUser('{{ user.id }}', '{{ user.username }}',
+    '{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}',
+    '{% if user.team and user.team.logo %}{{ user.team.logo.url }}{% else %}{% static 'images/default-team-logo.png' %}{% endif %}')">
+
                 <div class="user-item">
                     {% if user.avatar %}
                     <img src="{{ user.avatar.url }}" class="user-avatar" alt="User Avatar">
                     {% else %}
                     <img src="{% static 'images/default-avatar.png' %}" class="user-avatar" alt="Default Avatar">
                     {% endif %}
+
                     <div class="user-info">
                         <span class="username">{{ user.username }}</span>
-                        <span class="last-message-time" id="last-msg-{{ user.id }}">--:--</span>
                     </div>
+
+                    {% if user.team and user.team.logo %}
+                    <img src="{{ user.team.logo.url }}" class="team-logo" alt="Team Logo">
+                    {% endif %}
+
                     {% if user.has_unread %}
                     <span class="unread-indicator"></span>
                     {% endif %}
                 </div>
             </li>
-
             {% endfor %}
         </ul>
 
+
     </div>
     <div id="chat-box-container">
-        <div id="chat-header">
-            <h3 id="chat-title">Select a user</h3>
-        </div>
+       <div id="chat-header">
+    <img id="chat-avatar" class="chat-avatar" src="" alt="User Avatar" style="display: none;">
+    <h3 id="chat-title">Select a user</h3>
+    <img id="chat-team-logo" class="chat-team-logo" src="" alt="Team Logo" style="display: none;">
+</div>
+
         <div id="chat-box"></div>
         <div id="message-area">
             <textarea id="message-input" placeholder="Type a message..."></textarea>
@@ -44,13 +54,34 @@
     let selectedUserId = null;
 let socket = null;
 
-function selectUser(userId, username) {
+function selectUser(userId, username, avatarUrl, teamLogoUrl) {
     selectedUserId = userId;
+
+    // Актуализиране на заглавието
     document.getElementById("chat-title").innerText = username;
+
+    // Актуализиране на аватара
+    let chatAvatar = document.getElementById("chat-avatar");
+    if (avatarUrl) {
+        chatAvatar.src = avatarUrl;
+        chatAvatar.style.display = "inline";
+    } else {
+        chatAvatar.style.display = "none";
+    }
+
+    let chatTeamLogo = document.getElementById("chat-team-logo");
+    if (teamLogoUrl) {
+        chatTeamLogo.src = teamLogoUrl;
+        chatTeamLogo.style.display = "inline";
+    } else {
+        chatTeamLogo.style.display = "none";
+    }
+
     document.getElementById("send-button").disabled = false;
     loadMessages();
     connectWebSocket();
 }
+
 
 function connectWebSocket() {
     if (socket) {

@@ -14,7 +14,7 @@
     border-right: 1px solid #ddd;
     padding: 10px;
     background-color: var(--darkgreen-color);
-    color:white;
+    color: white;
     overflow-y: auto;
 }
 
@@ -27,17 +27,19 @@
     padding: 15px;
     cursor: pointer;
     transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #users-list li:hover {
-    background: #e6e6e6;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .user-item {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #ddd;
     transition: background 0.3s;
     position: relative;
 }
@@ -47,10 +49,14 @@
     height: 40px;
     border-radius: 50%;
     margin-right: 10px;
+    border: 2px solid white;
 }
 
 .user-info {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .username {
@@ -74,9 +80,7 @@
     transform: translateY(-50%);
 }
 
-
 #chat-box-container {
-
     width: 70%;
     display: flex;
     flex-direction: column;
@@ -85,12 +89,29 @@
 }
 
 #chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 10px;
-    background-color: var(--darkgreen-color);
-    color: white;
-    text-align: center;
+    border-bottom: 1px solid #ddd;
+    color:white;
+}
+
+.chat-avatar, .chat-team-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: none;
+}
+
+#chat-title {
+    flex-grow: 1;
     font-size: 18px;
-    border-radius: 5px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #chat-box {
@@ -131,7 +152,6 @@ button {
     padding: 5px;
 }
 
-
 button:disabled {
     background: #cccccc;
 }
@@ -161,4 +181,11 @@ button:disabled {
     font-size: 0.8em;
     color: gray;
     margin-left: 5px;
+}
+
+.team-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-left: 10px;
 }
