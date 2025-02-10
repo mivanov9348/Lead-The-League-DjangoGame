@@ -20,9 +20,8 @@ def calculate_coach_price(rating):
 
 
 def new_seasons_coaches():
-    coaches_count = int(get_setting_value('coaches_count'))
+    coaches_count = int(get_setting_value('coaches_count_per_season'))
     coaches = [generate_coach() for _ in range(coaches_count)]
-
 
 def generate_coach():
     random_nationality = get_random_nationality()
@@ -31,7 +30,7 @@ def generate_coach():
     first_name = get_random_first_name(region)
     last_name = get_random_last_name(region)
 
-    age = random.randint(30, 60)
+    age = random.randint(int(get_setting_value('coach_minimum_age')), int(get_setting_value('coach_maximum_age')))
     rating = Decimal(str(random.uniform(1.0, 10.0))).quantize(Decimal('0.1'))
 
     price = calculate_coach_price(rating)

@@ -31,8 +31,8 @@ def generate_agents(limit=1):
         first_name = get_random_first_name(region)
         last_name = get_random_last_name(region)
 
-        age = random.randint(25, 60)
-        starting_balance = get_setting_value("football_agents_starting_balance")
+        age = random.randint(int(get_setting_value('agent_minimum_age')), int(get_setting_value('agent_maximum_age')))
+        starting_balance = int(get_setting_value("football_agents_starting_balance"))
         print(f"Football agent starting balance: {starting_balance}")
 
         scouting_level = Decimal(str(random.uniform(1.0, 10.0))).quantize(Decimal('0.1'))

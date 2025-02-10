@@ -1,5 +1,6 @@
 from django.db import transaction
 
+from game.utils.settings_utils import get_setting_value
 from match.models import MatchEvent, EventResult, EventTemplate, Event, AttributeEventWeight
 import random
 
@@ -86,7 +87,6 @@ def get_event_weights(event):
 
 
 def calculate_event_success_rate(event, player):
-    # Get player attributes and event weights
     player_attributes = get_player_attributes(player)
     event_weights = get_event_weights(event)
 
@@ -101,7 +101,7 @@ def calculate_event_success_rate(event, player):
 
     base_success_rate = event.success_rate
     player_influence = weighted_sum * 0.6
-    luck_factor = random.uniform(-3.0, 3.0)
+    luck_factor = random.uniform(get_setting_value('event_minimum_luck_factor'), get_setting_value('event_maximum_luck_factor'))
     print(f'luck factor: {luck_factor}')
     final_success_rate = round(base_success_rate + player_influence + luck_factor, 2)
     final_success_rate = min(100.0, max(0.0, final_success_rate))

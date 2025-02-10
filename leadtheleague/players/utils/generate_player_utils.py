@@ -46,9 +46,8 @@ def calculate_player_attributes(player):
         random_factor = random.uniform(0.9, 1.1)
         final_value = age_adjusted_value * random_factor
 
-        final_value = min(max(round(final_value), 1), 20)
+        final_value = min(max(round(final_value), int(get_setting_value('attribute_min_value'))), int(get_setting_value('attribute_max_value')))
 
-        # Calculate progress and round to two decimal places
         progress_value = round(random.uniform(0.0, 0.9), 2)
 
         attributes[attribute] = (final_value, progress_value)
@@ -111,9 +110,6 @@ def choose_random_photo(photo_folder):
 
 
 def copy_player_image_to_media(photo_folder, player_id):
-    """
-    Copies a random photo from the photo_folder to media/playerimages and renames it according to the player_id.
-    """
     # Path to the media/playerimages folder
     player_images_folder = os.path.join(settings.MEDIA_ROOT, 'playerimages')
 
@@ -160,11 +156,10 @@ def generate_random_player(team=None, position=None, age=None):
 
     team_player_numbers = set(TeamPlayer.objects.filter(team=team).values_list('shirt_number', flat=True))
 
-
     if position is None:
         position = random.choice(positions)
 
-    age = random.randint(18, 35)
+    age = random.randint(int(get_setting_value('player_minimum_age')), int(get_setting_value('player_maximum_age')))
     player = Player(
         first_name=first_name,
         last_name=last_name,
@@ -207,33 +202,36 @@ def generate_players_for_all_teams():
         generate_team_players(team)
 
 
+import logging
+import random
+
 def generate_team_players(team):
     try:
-        min_goalkeepers = Settings.objects.get(name='Minimum_Goalkeepers_By_Team').value
+        min_goalkeepers = int(get_setting_value('minimum_goalkeepers_by_team'))
     except Settings.DoesNotExist:
         logging.error("Настройката 'Minimum_Goalkeepers_By_Team' не съществува.")
-        min_goalkeepers = 1  # Стойност по подразбиране
+        min_goalkeepers = 1
 
     try:
-        min_defenders = Settings.objects.get(name='Minimum_Defenders_By_Team').value
+        min_defenders = int(get_setting_value('minimum_defenders_by_team'))
     except Settings.DoesNotExist:
-        logging.error("Настройката 'Minimum_Defenders_By_Team' не съществува.")
-        min_defenders = 4  # Стойност по подразбиране
+        logging.error("Настройката 'minimum_defenders_by_team' не съществува.")
+        min_defenders = 5
 
     try:
-        min_midfielders = Settings.objects.get(name='Minimum_Midfielders_By_Team').value
+        min_midfielders = int(get_setting_value('minimum_midfielders_by_team'))
     except Settings.DoesNotExist:
-        logging.error("Настройката 'Minimum_Midfielders_By_Team' не съществува.")
-        min_midfielders = 4  # Стойност по подразбиране
+        logging.error("Настройката 'minimum_midfielders_by_team' не съществува.")
+        min_midfielders = 5
 
     try:
-        min_attackers = Settings.objects.get(name='Minimum_Attackers_By_Team').value
+        min_attackers = int(get_setting_value('minimum_attackers_by_team'))
     except Settings.DoesNotExist:
-        logging.error("Настройката 'Minimum_Attackers_By_Team' не съществува.")
-        min_attackers = 2  # Стойност по подразбиране
+        logging.error("Настройката 'minimum_attackers_by_team' не съществува.")
+        min_attackers = 3
 
     try:
-        random_players = int(Settings.objects.get(name='Random_Players_Generate').value)
+        random_players = int(get_setting_value('random_players_generate'))
     except Settings.DoesNotExist:
         logging.error("Настройката 'Random_Players_Generate' не съществува.")
         random_players = 5
@@ -252,11 +250,11 @@ def generate_team_players(team):
             logging.error(f"Позицията '{pos_name}' не съществува в базата данни.")
             continue
 
-        for _ in range(int(count)):
+        for _ in range(count):  # Гарантирано int()
             generate_random_player(team, position)
 
     all_positions = list(positions.keys())
-    for _ in range(random_players):
+    for _ in range(random_players):  # Гарантирано int()
         random_position_name = random.choice(all_positions)
         try:
             random_position = Position.objects.get(name=random_position_name.capitalize())
@@ -265,6 +263,7 @@ def generate_team_players(team):
             continue
 
         generate_random_player(team, random_position)
+
 
 
 def generate_free_agents(agent):

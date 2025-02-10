@@ -12,7 +12,7 @@ def advance_day():
     if season.current_date < season.end_date:
         season.current_date += datetime.timedelta(days=1)
         season.save()
-        TeamState.process_all_teams(season)
+        # TeamState.process_all_teams(season)
 
 def get_next_euro_match_day():
     next_schedule = MatchSchedule.objects.filter(

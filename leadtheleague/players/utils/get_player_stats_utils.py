@@ -2,13 +2,16 @@ from django.db import transaction
 from django.db.models import Avg, Prefetch
 import random
 from game.utils.get_season_stats_utils import get_current_season
+from game.utils.settings_utils import get_setting_value
 from players.models import Position, PlayerMatchRating, PlayerAttribute, PlayerSeasonStatistic, Player, \
     PlayerMatchStatistic, PositionAttribute
 from players.utils.generate_player_utils import generate_random_player, calculate_player_potential
 from teams.models import TeamPlayer, Team, TeamTactics
 
+
 def get_all_positions():
     return Position.objects.all()
+
 
 def get_average_player_rating_for_current_season(player):
     current_season = get_current_season()
@@ -16,6 +19,7 @@ def get_average_player_rating_for_current_season(player):
         player=player,
         match__season=current_season
     ).aggregate(Avg('rating')).get('rating__avg', 0.0) or 0.0
+
 
 def get_player_team(player):
     team_player = player.team_players.select_related('team').first()
@@ -32,6 +36,7 @@ def get_player_team(player):
         'shirt_number': None,
         'team_logo': None,
     }
+
 
 def get_personal_player_data(player):
     return {
@@ -51,6 +56,7 @@ def get_personal_player_data(player):
         'image_url': player.image.url if player.image else None,
     }
 
+
 def get_player_attributes(player):
     attributes = PlayerAttribute.objects.filter(player=player).select_related('attribute')
     return [
@@ -62,6 +68,7 @@ def get_player_attributes(player):
         }
         for attr in attributes
     ]
+
 
 def get_player_match_stats(match, team):
     try:
@@ -108,8 +115,10 @@ def get_player_season_stats_all_seasons(player):
 
     return all_stats
 
+
 def get_current_season_stats(player):
-    season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic').order_by('-season__year')
+    season_stats = PlayerSeasonStatistic.objects.filter(player=player).select_related('season', 'statistic').order_by(
+        '-season__year')
 
     if not season_stats.exists():
         return None
@@ -148,6 +157,7 @@ def get_player_data(player, season=None, match=None):
         'stats': get_player_stats(player, season=season, match=match),
     }
 
+
 def format_player_data(player):
     """Format a single player's data for DataTables."""
     attributes = {
@@ -170,7 +180,6 @@ def format_player_data(player):
     }
 
 
-
 def get_players_season_stats_by_team(team, season):
     players = team.team_players.select_related('player').prefetch_related(
         Prefetch(
@@ -185,7 +194,6 @@ def get_players_season_stats_by_team(team, season):
             stat.statistic.name: stat.value for stat in player.season_stats.filter(season=season)
         }
 
-        # Добавяме среден рейтинг за сезона
         season_rating = PlayerMatchRating.objects.filter(
             player=player,
             match__season=season
@@ -200,7 +208,6 @@ def get_players_season_stats_by_team(team, season):
 
 
 def get_all_players():
-    """Fetch all players, including their relevant attributes."""
     return Player.objects.select_related(
         'nationality', 'position', 'agent'
     ).prefetch_related(
@@ -219,7 +226,6 @@ def get_all_players():
 
 
 def get_all_free_agents():
-    """Fetch only players who are free agents."""
     return Player.objects.filter(is_free_agent=True).select_related(
         'nationality', 'position', 'agent'
     ).prefetch_related(
@@ -270,10 +276,10 @@ def ensure_all_teams_has_minimum_players():
 
 def ensure_team_has_minimum_players(team, season):
     required_positions = {
-        "Goalkeeper": 1,
-        "Defender": 5,
-        "Midfielder": 5,
-        "Forward": 3,
+        "Goalkeeper": get_setting_value("minimum_goalkeepers_by_team"),
+        "Defender": get_setting_value("minimum_defenders_by_team"),
+        "Midfielder": get_setting_value("minimum_midfielders_by_team"),
+        "Forward": get_setting_value("minimum_attackers_by_team"),
     }
 
     team_players = TeamPlayer.objects.filter(team=team).select_related("player")
@@ -298,13 +304,15 @@ def ensure_team_has_minimum_players(team, season):
                     player.save()
 
         current_player_count = team_players.count()
-        if current_player_count < 11:
-            additional_players_needed = 11 - current_player_count
+        team_minimum_players = get_setting_value("team_minimum_players")
+        if current_player_count < team_minimum_players:
+            additional_players_needed = team_minimum_players - current_player_count
             all_positions = list(Position.objects.all())
             for _ in range(additional_players_needed):
                 random_position = random.choice(all_positions)
                 player = generate_random_player(team=team, position=random_position)
-                player.age = random.randint(14, 17)
+                player.age = random.randint(get_setting_value('youth_player_minimum_age'),
+                                            get_setting_value('youth_player_maximum_age'))
                 player.is_youth = True
                 player.potential_rating = calculate_player_potential(player)
                 player.season = season
@@ -319,8 +327,9 @@ def ensure_all_teams_within_maximum_players():
             return False
     return True
 
+
 def ensure_team_within_maximum_players(team):
-    MAX_PLAYERS = 40
+    MAX_PLAYERS = get_setting_value("team_maximum_players")
 
     total_players = TeamPlayer.objects.filter(team=team).count()
 

@@ -1,6 +1,8 @@
 import random
 from django.db import transaction
 from django.db.models import Q, F
+
+from game.utils.settings_utils import get_setting_value
 from match.models import MatchEvent
 from match.utils.match.attendance import calculate_match_attendance, calculate_match_income
 from match.utils.match.goalscorers import log_goalscorer
@@ -21,8 +23,8 @@ def choose_event_random_player(team):
 
 
 def update_match_minute(match):
-    increment = random.randint(1, 7)
-    match.current_minute = min(match.current_minute + increment, 90)
+    increment = random.randint(int(get_setting_value('minimum_minutes_increment')), int(get_setting_value('maximum_minutes_increment')))
+    match.current_minute = min(match.current_minute + increment, int(get_setting_value('match_minutes')))
     return match.current_minute
 
 
@@ -52,11 +54,6 @@ def finalize_match(match):
             else:
                 match.winner = None
 
-        print(f'Tuk li greshis mama ti prosta?')
-        calculate_match_attendance(match)
-        print(f'Tuk li greshis mama ti prosta? 2')
-        calculate_match_income(match, match.home_team)
-        print(f'Tuk li greshis mama ti prosta? 3')
         match.save()
 
         fixture = match.fixture
@@ -93,7 +90,6 @@ def update_player_stats_from_template(match, event_result, player):
         "conceded": "Conceded",
     }
 
-    # Зареждаме или създаваме статистика за играча
     with transaction.atomic():
         player_stat, created = PlayerMatchStatistic.objects.select_for_update().get_or_create(
             player=player,
@@ -103,13 +99,11 @@ def update_player_stats_from_template(match, event_result, player):
 
         updated_stats = player_stat.statistics
 
-        # Обновяване на статистиките на играча
         for field, stat_name in event_fields_to_stats.items():
             stat_value = getattr(event_result, field, 0)
             if stat_value > 0:
                 updated_stats[stat_name] = updated_stats.get(stat_name, 0) + stat_value
 
-        # Оптимизирано: Зареждаме само необходимите данни за вратаря на противниковия отбор
         player_team = TeamPlayer.objects.select_related("team").filter(player=player).first()
         opposing_team = get_opposing_team(match, player_team.team)
         opposing_goalkeeper = (
@@ -130,7 +124,6 @@ def update_player_stats_from_template(match, event_result, player):
             gk_stat.statistics = gk_stats
             gk_stat.save()
 
-        # Оптимизирано: Актуализираме случайно съотборник само ако е нужно
         if event_result.event_result == "Goal":
             teammates = player.team.teamtactics.starting_players.exclude(id=player.id).only("id")
             if teammates.exists():
